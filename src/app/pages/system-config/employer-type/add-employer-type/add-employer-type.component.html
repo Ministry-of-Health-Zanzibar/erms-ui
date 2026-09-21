@@ -19,11 +19,10 @@
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button [mat-dialog-close]="true" *ngIf="!id" cdkFocusInitial [disabled]="employerTypeForm.invalid" (click)="saveEmployerType()">Save Data</button>
-    <button mat-flat-button [mat-dialog-close]="true" *ngIf="id" cdkFocusInitial [disabled]="employerTypeForm.invalid" (click)="updateEmployerType()">Update Data</button>
+    <button mat-flat-button *ngIf="!id" cdkFocusInitial [disabled]="employerTypeForm.invalid || submitting" (click)="saveEmployerType()">{{ submitting ? 'Saving...' : 'Save Employer Type' }}</button>
+    <button mat-flat-button *ngIf="id" cdkFocusInitial [disabled]="employerTypeForm.invalid || submitting" (click)="updateEmployerType()">{{ submitting ? 'Saving...' : 'Update Employer Type' }}</button>
   </mat-dialog-actions>
 </div>
-
 
 
 

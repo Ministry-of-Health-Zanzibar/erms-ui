@@ -1,0 +1,40 @@
+<div class="p-6 space-y-6" *ngIf="permission.parmissionMatched(['View Report']); else forbidden">
+  <app-page-header title="Top Diagnoses" description="The 10 most common diagnoses, ranked by unique patients." icon="analytics" />
+  <app-section-card title="Report period" description="Dates apply to history creation and referral creation. Each patient counts once per diagnosis name." icon="date_range">
+    <form (ngSubmit)="generate()" class="flex flex-wrap gap-4 items-end">
+      <label class="flex flex-col gap-2">Start date
+        <input type="date" name="startDate" [(ngModel)]="startDate" [max]="endDate" required class="border rounded p-2 bg-transparent" />
+      </label>
+      <label class="flex flex-col gap-2">End date
+        <input type="date" name="endDate" [(ngModel)]="endDate" [min]="startDate" [max]="today" required class="border rounded p-2 bg-transparent" />
+      </label>
+      <button mat-flat-button color="primary" type="submit" [disabled]="loading || exporting">{{ loading ? 'Generating…' : 'Generate report' }}</button>
+    </form>
+  </app-section-card>
+  <p *ngIf="error" role="alert" class="text-red-600">{{ error }}</p>
+  <p *ngIf="loading || exporting" role="status">{{ loading ? 'Loading diagnoses and patients…' : 'Preparing download…' }}</p>
+  <app-section-card *ngIf="generatedPeriod" title="Report results" icon="table_view">
+    <p class="mb-4">{{ generatedPeriod.start_date }} to {{ generatedPeriod.end_date }} · {{ report.length }} diagnoses</p>
+    <div class="flex flex-wrap gap-3 mb-4">
+      <button mat-stroked-button (click)="download('csv')" [disabled]="!report.length || loading || exporting">Export CSV</button>
+      <button mat-stroked-button (click)="download('pdf')" [disabled]="!report.length || loading || exporting">Export PDF</button>
+      <button mat-stroked-button (click)="download('docx')" [disabled]="!report.length || loading || exporting">Export Word</button>
+    </div>
+    <p *ngIf="!report.length">No diagnoses found for this period.</p>
+    <p *ngIf="report.length" class="mb-4">Open a diagnosis to see patients and referred hospitals. Downloads include all patient rows; diagnosis totals repeat per row.</p>
+    <details *ngFor="let diagnosis of report; let i = index" class="border rounded mb-3 p-3">
+      <summary class="cursor-pointer font-medium">{{ i + 1 }}. {{ diagnosis.diagnosis_name }} — {{ diagnosis.patient_count }} patients · {{ diagnosis.history_count }} histories</summary>
+      <div class="overflow-x-auto mt-3">
+        <table class="w-full text-left">
+          <thead><tr><th class="p-2">Patient ID</th><th class="p-2">Patient</th><th class="p-2">Gender</th><th class="p-2">Histories</th><th class="p-2">Referred hospitals</th></tr></thead>
+          <tbody><tr *ngFor="let patient of diagnosis.patients" class="border-t">
+            <td class="p-2">{{ patient.patient_id }}</td><td class="p-2">{{ patient.name }}</td>
+            <td class="p-2">{{ patient.gender || '—' }}</td><td class="p-2">{{ patient.history_count }}</td>
+            <td class="p-2">{{ hospitals(patient) }}</td>
+          </tr></tbody>
+        </table>
+      </div>
+    </details>
+  </app-section-card>
+</div>
+<ng-template #forbidden><p class="p-6" role="alert">You do not have permission to view reports.</p></ng-template>

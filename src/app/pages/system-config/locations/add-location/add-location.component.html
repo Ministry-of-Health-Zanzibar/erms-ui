@@ -22,10 +22,9 @@
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="locationForm.invalid" (click)="saveLocation()">Save Data</button>
+    <button mat-flat-button cdkFocusInitial [disabled]="locationForm.invalid || submitting" (click)="saveLocation()">{{ submitting ? 'Saving...' : 'Save Location' }}</button>
   </mat-dialog-actions>
 </div>
-
 
 
 

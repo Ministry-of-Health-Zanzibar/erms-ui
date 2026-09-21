@@ -19,6 +19,7 @@ import { AddDiagnosisComponent } from '../add-diagnosis/add-diagnosis.component'
 import { UploadDiagnosisComponent } from '../upload-diagnosis/upload-diagnosis.component';
 import Swal from 'sweetalert2';
 import { PageEvent } from '@angular/material/paginator';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-view-diagnosis',
@@ -31,6 +32,10 @@ import { PageEvent } from '@angular/material/paginator';
     MatTooltip,
     MatSlideToggleModule,
     FormsModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './view-diagnosis.component.html',
   styleUrl: './view-diagnosis.component.scss'
@@ -56,6 +61,7 @@ export class ViewDiagnosisComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getDiagnosis();

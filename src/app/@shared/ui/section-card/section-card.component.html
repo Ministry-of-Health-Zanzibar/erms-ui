@@ -1,0 +1,27 @@
+<section class="ui-section-card">
+  @if (title || description) {
+    <header class="ui-section-card__header">
+      <div class="ui-section-card__heading">
+        @if (icon) {
+          <mat-icon aria-hidden="true">{{ icon }}</mat-icon>
+        }
+        <div>
+          @if (title) {
+            <h2>{{ title }}</h2>
+          }
+          @if (description) {
+            <p>{{ description }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="ui-section-card__actions">
+        <ng-content select="[uiSectionActions]" />
+      </div>
+    </header>
+  }
+
+  <div class="ui-section-card__content">
+    <ng-content />
+  </div>
+</section>

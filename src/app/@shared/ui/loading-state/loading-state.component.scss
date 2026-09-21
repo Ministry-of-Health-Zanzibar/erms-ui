@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+.ui-loading-state {
+  display: grid;
+  min-height: 9rem;
+  place-items: center;
+}
+
+.ui-loading-state--overlay {
+  min-height: 9rem;
+}
+
+.ui-loading-state__panel {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+  color: var(--rms-text-muted);
+  font-size: 0.825rem;
+  font-weight: 600;
+}

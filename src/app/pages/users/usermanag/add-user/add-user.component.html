@@ -127,9 +127,8 @@
 
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button [mat-dialog-close]="true" *ngIf="!userData" cdkFocusInitial [disabled]="userForm.invalid" (click)="saveUser()">Save Data</button>
-      <button mat-flat-button [mat-dialog-close]="true" *ngIf="userData" cdkFocusInitial [disabled]="userForm.invalid" (click)="updateUser()">Update Data</button>
+      <button mat-flat-button *ngIf="!userData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="saveUser()">{{ submitting ? 'Saving…' : 'Save Data' }}</button>
+      <button mat-flat-button *ngIf="userData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="updateUser()">{{ submitting ? 'Updating…' : 'Update Data' }}</button>
     </mat-dialog-actions>
   </div>
   </div>
-

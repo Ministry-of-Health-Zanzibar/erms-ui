@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,9 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../../services/users/user.service';
 import Swal from 'sweetalert2';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { LoadingStateComponent } from '@shared/ui';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-assign-user-hospital',
@@ -23,12 +25,13 @@ import Swal from 'sweetalert2';
     MatInputModule,
     MatSelectModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    LoadingStateComponent
   ],
   templateUrl: './assign-user-hospital.component.html',
   styleUrls: ['./assign-user-hospital.component.scss']
 })
-export class AssignUserHospitalComponent implements OnInit {
+export class AssignUserHospitalComponent implements OnInit, OnDestroy {
+  private readonly onDestroy = new Subject<void>();
 
   assignForm!: FormGroup;
   hospitals: any[] = [];
@@ -71,28 +74,36 @@ export class AssignUserHospitalComponent implements OnInit {
     this.loadHospitals();
   }
 
+  ngOnDestroy(): void {
+    this.onDestroy.next();
+    this.onDestroy.complete();
+  }
+
   loadHospitals(): void {
     this.loading = true;
-    this.userService.getHospitals().subscribe({
+    this.userService.getHospitals().pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (res) => {
         this.hospitals = res.data; 
-        this.loading = false;
       },
-      error: (err) => {
-        console.error('Failed to load hospitals', err);
+      error: () => {
         Swal.fire({
           title: 'Error',
           text: 'Failed to load hospitals',
           icon: 'error',
           confirmButtonColor: '#4690eb'
         });
-        this.loading = false;
       }
     });
   }
 
   submit(): void {
-    if (this.assignForm.invalid) return;
+    if (this.assignForm.invalid) {
+      this.assignForm.markAllAsTouched();
+      return;
+    }
 
     const payload = {
       hospital_id: this.assignForm.value.hospital_id, 
@@ -101,7 +112,10 @@ export class AssignUserHospitalComponent implements OnInit {
 
     this.loading = true;
 
-    this.userService.assignHospitalToUser(this.data.userId, payload).subscribe({
+    this.userService.assignHospitalToUser(this.data.userId, payload).pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (res) => {
         Swal.fire({
           title: 'Success',
@@ -109,17 +123,15 @@ export class AssignUserHospitalComponent implements OnInit {
           icon: 'success',
           confirmButtonColor: '#4690eb'
         });
-        this.loading = false;
         this.dialogRef.close(true);
       },
       error: (err) => {
         Swal.fire({
           title: 'Error',
-          text: err.error?.message || 'Failed to assign hospital',
+          text: getApiErrorMessage(err, 'Failed to assign hospital'),
           icon: 'error',
           confirmButtonColor: '#4690eb'
         });
-        this.loading = false;
       }
     });
   }

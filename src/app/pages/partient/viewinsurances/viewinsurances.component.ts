@@ -17,6 +17,7 @@ import { PartientService } from '../../../services/partient/partient.service';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { InsuranceComponent } from '../insurance/insurance.component';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-viewinsurances',
@@ -30,7 +31,12 @@ import { InsuranceComponent } from '../insurance/insurance.component';
     MatTooltip,
     MatSlideToggleModule,
     FormsModule,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './viewinsurances.component.html',
   styleUrl: './viewinsurances.component.scss'
@@ -61,6 +67,7 @@ export class ViewinsurancesComponent {
     }
     ngOnDestroy(): void {
       this.onDestroy.next()
+      this.onDestroy.complete()
     }
     renew(){
       this.userPetient();
@@ -77,7 +84,7 @@ export class ViewinsurancesComponent {
         } else {
           // console.log('permission response errors');
         }
-      }, (error: any) => { // Imeongezwa :any hapa kuzuia kosa lingine la TypeScript
+      }, () => {
         this.loading = false;
         // console.log('permission getAway api fail to load');
       });
@@ -114,4 +121,3 @@ export class ViewinsurancesComponent {
       this.router.navigate(['/pages/patient/more', id]); // Navigate to the new page with complain_id
     }
   }
-

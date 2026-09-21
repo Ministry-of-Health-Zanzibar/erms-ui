@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, Inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConversationService } from '../../../services/conversation.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-conversation-modal',
@@ -48,9 +49,9 @@ export class ConversationModalComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private http: HttpClient,
     private conversationService: ConversationService,
-    private dialogRef: MatDialogRef<ConversationModalComponent>
+    private dialogRef: MatDialogRef<ConversationModalComponent>,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit() {
@@ -104,6 +105,7 @@ export class ConversationModalComponent implements OnInit {
   loadMessages() {
     this.conversationService
       .getConversations(this.data.patientHistoryId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((res: any) => {
         this.conversations = res.data || [];
         
@@ -122,9 +124,8 @@ export class ConversationModalComponent implements OnInit {
           };
         }
         
-        this.conversationService.markAsRead(this.data.patientHistoryId).subscribe({
-          error: (err) => console.error('Failed to clear unread status flags:', err)
-        });
+        this.conversationService.markAsRead(this.data.patientHistoryId)
+          .pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
       });
   }
 
@@ -140,14 +141,14 @@ export class ConversationModalComponent implements OnInit {
     this.sendingMessage = true;
 
     this.conversationService.sendMessage(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.sendingMessage = false))
       .subscribe({
         next: () => {
           this.message = '';
           this.receiver = '';
           this.loadMessages();
         },
-        error: (err) => console.error('Error dispatching root message:', err),
-        complete: () => this.sendingMessage = false
+        error: () => {}
       });
   }
 
@@ -163,14 +164,14 @@ export class ConversationModalComponent implements OnInit {
     this.sendingReply = true;
 
     this.conversationService.sendMessage(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.sendingReply = false))
       .subscribe({
         next: () => {
           this.replyMessage = '';
           this.activeReplyId = null;
           this.loadMessages();
         },
-        error: (err) => console.error('Error dispatching inline reply thread:', err),
-        complete: () => this.sendingReply = false
+        error: () => {}
       });
   }
 }

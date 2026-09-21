@@ -1,6 +1,242 @@
 //@import "../projects/components/styles/fonts/default";
 @import "../projects/components/styles/themes/default";
 
+:root {
+  color-scheme: light;
+  --rms-button-radius: 0.375rem;
+  --mdc-text-button-container-shape: var(--rms-button-radius);
+  --mdc-filled-button-container-shape: var(--rms-button-radius);
+  --mdc-protected-button-container-shape: var(--rms-button-radius);
+  --mdc-outlined-button-container-shape: var(--rms-button-radius);
+  --rms-surface: #ffffff;
+  --rms-surface-subtle: #f8fafc;
+  --rms-surface-muted: #f1f5f9;
+  --rms-border: #e2e8f0;
+  --rms-border-strong: #cbd5e1;
+  --rms-text: #0f172a;
+  --rms-text-muted: #64748b;
+  --rms-overlay: rgb(248 250 252 / 0.78);
+  --rms-shadow: rgb(15 23 42 / 0.12);
+  --rms-focus-ring: rgb(37 99 235 / 0.24);
+}
+
+/* Keep standard actions compact; icon-only buttons remain circular. */
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  border-radius: var(--rms-button-radius) !important;
+
+  .mat-mdc-button-persistent-ripple,
+  .mat-mdc-button-ripple,
+  .mdc-button__ripple {
+    border-radius: inherit !important;
+  }
+}
+
+html.dark {
+  color-scheme: dark;
+  --rms-surface: #1e293b;
+  --rms-surface-subtle: #0f172a;
+  --rms-surface-muted: #334155;
+  --rms-border: #334155;
+  --rms-border-strong: #475569;
+  --rms-text: #f1f5f9;
+  --rms-text-muted: #cbd5e1;
+  --rms-overlay: rgb(2 6 23 / 0.82);
+  --rms-shadow: rgb(0 0 0 / 0.35);
+  --rms-focus-ring: rgb(96 165 250 / 0.32);
+}
+
+/* Consistent borderless search fields across list, report, and picker screens. */
+input[placeholder*="search" i] {
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-color: transparent !important;
+  border-radius: var(--rms-button-radius);
+  outline: 0 !important;
+  color: var(--rms-text);
+  background-color: var(--rms-surface-muted) !important;
+  padding-inline: 0.75rem;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+input[placeholder*="search" i]:focus {
+  background-color: var(--rms-surface) !important;
+  box-shadow: 0 0 0 2px var(--rms-focus-ring);
+}
+
+input[placeholder*="search" i]::placeholder {
+  color: var(--rms-text-muted);
+  opacity: 1;
+}
+
+body {
+  background: var(--rms-surface-subtle);
+  color: var(--rms-text);
+}
+
+/* Shared treatment for patient, history, and medical-board detail views. */
+.record-detail-page {
+  color: var(--rms-text);
+  background: var(--rms-surface-subtle) !important;
+
+  .record-detail-banner {
+    min-height: 9rem;
+    border: 1px solid var(--rms-border);
+    border-radius: 0.75rem !important;
+    color: var(--rms-text) !important;
+    background: var(--rms-surface) !important;
+    box-shadow: 0 8px 24px var(--rms-shadow) !important;
+
+    h1 {
+      color: var(--rms-text);
+      font-size: clamp(1.5rem, 3vw, 2.25rem) !important;
+      text-shadow: none !important;
+    }
+
+    p {
+      color: var(--rms-text-muted);
+    }
+
+    > img {
+      width: 4.5rem !important;
+      height: 4.5rem !important;
+      border: 2px solid var(--rms-border) !important;
+      opacity: 0.72;
+      box-shadow: none !important;
+    }
+  }
+
+  mat-card,
+  .mat-mdc-card,
+  > div > div[class*="bg-white"],
+  [class*="backdrop-blur"][class*="bg-white"] {
+    color: var(--rms-text) !important;
+    background: var(--rms-surface) !important;
+    border-color: var(--rms-border) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 16px var(--rms-shadow) !important;
+  }
+
+  [class*="bg-gradient-to"]:not(.record-detail-banner) {
+    background: var(--rms-surface) !important;
+  }
+
+  mat-card-header {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rms-border) !important;
+  }
+
+  mat-card-title,
+  h2,
+  h3 {
+    color: var(--rms-text) !important;
+  }
+
+  table {
+    color: var(--rms-text);
+    background: var(--rms-surface);
+    border-color: var(--rms-border) !important;
+
+    th,
+    td {
+      border-color: var(--rms-border) !important;
+    }
+
+    th {
+      color: var(--rms-text-muted) !important;
+      background: var(--rms-surface-muted) !important;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--rms-surface-subtle) !important;
+    }
+  }
+
+  :where(.text-gray-500, .text-gray-600, .text-gray-700) {
+    color: var(--rms-text-muted) !important;
+  }
+
+  :where(.text-gray-800, .text-gray-900, .text-blue-700, .text-blue-800, .text-green-700, .text-green-800) {
+    color: var(--rms-text) !important;
+  }
+
+  a {
+    color: #2563eb;
+  }
+}
+
+html.dark .record-detail-page a {
+  color: #93c5fd;
+}
+
+@media (max-width: 767px) {
+  .record-detail-page .record-detail-banner > img {
+    display: none !important;
+  }
+}
+
+/* Compatibility for legacy page templates while they migrate to theme tokens. */
+html.dark body :where(.bg-white, .bg-white\/80, .bg-white\/70, .bg-white\/60):not(#print-section):not(#print-section *) {
+  background-color: var(--rms-surface) !important;
+}
+
+html.dark body :where(.bg-gray-50, .bg-gray-50\/40, .bg-gray-100):not(#print-section):not(#print-section *) {
+  background-color: var(--rms-surface-muted) !important;
+}
+
+html.dark body :where(.text-black, .text-gray-900, .text-gray-800, .text-gray-700):not(#print-section):not(#print-section *) {
+  color: var(--rms-text) !important;
+}
+
+html.dark body :where(.text-gray-600, .text-gray-500):not(#print-section):not(#print-section *) {
+  color: var(--rms-text-muted) !important;
+}
+
+html.dark body :where(.border-gray-100, .border-gray-200, .border-gray-300):not(#print-section):not(#print-section *) {
+  border-color: var(--rms-border) !important;
+}
+
+html.dark :where(.form-container, .horizontal-form, mat-card, mat-dialog-content, mat-dialog-actions) {
+  color: var(--rms-text);
+}
+
+html.dark :where(.form-container, .horizontal-form) {
+  background-color: var(--rms-surface) !important;
+}
+
+html.dark :where(.form-header, mat-card, .mat-mdc-card, .mat-mdc-dialog-surface) {
+  color: var(--rms-text);
+  background-color: var(--rms-surface) !important;
+}
+
+html.dark :where(.mat-form-field .mat-input-element, .mat-mdc-input-element, input, textarea, select) {
+  color: var(--rms-text);
+}
+
+html.dark :where(.mat-form-field .mat-input-element, .mat-mdc-standard-chip) {
+  background-color: var(--rms-surface-muted) !important;
+}
+
+html.dark button[mat-dialog-close]:hover {
+  background-color: var(--rms-surface-muted) !important;
+}
+
+html.dark :where(table:not(#print-section table), .mat-mdc-table) {
+  color: var(--rms-text);
+  background-color: var(--rms-surface);
+}
+
+/* Letters remain paper documents on screen and in print. */
+html.dark #print-section {
+  color-scheme: light;
+  color: #111827 !important;
+  background: #ffffff !important;
+}
+
 @font-face {
   font-family: 'Poppins';
   src: url('assets/fonts/poppins-v24-latin-regular.woff2') format('woff2');

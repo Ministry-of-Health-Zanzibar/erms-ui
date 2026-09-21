@@ -27,6 +27,15 @@ import { EmrSegmentedModule } from '../../../../../projects/components/src/lib/s
 import { BillComponent } from '../bill/bill.component';
 import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.component';
 import { DisplaycommentsComponent } from '../displaycomments/displaycomments.component';
+import {
+  EmptyStateComponent,
+  IconActionComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-view-referrals',
@@ -41,6 +50,13 @@ import { DisplaycommentsComponent } from '../displaycomments/displaycomments.com
     MatSlideToggleModule,
     FormsModule,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    IconActionComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './view-referrals.component.html',
   styleUrl: './view-referrals.component.scss',
@@ -82,6 +98,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.getReferrals();

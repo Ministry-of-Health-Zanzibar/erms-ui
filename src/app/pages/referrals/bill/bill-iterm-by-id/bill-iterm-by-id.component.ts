@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { takeUntil, Subject } from 'rxjs';
 import { BillItermService } from '../../../../services/Bills/bill-iterm.service';
+import { LoadingStateComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-bill-iterm-by-id',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatCardModule, MatTableModule, LoadingStateComponent],
   templateUrl: './bill-iterm-by-id.component.html',
   styleUrls: ['./bill-iterm-by-id.component.scss'],
 })  

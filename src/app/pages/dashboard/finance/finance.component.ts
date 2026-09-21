@@ -61,12 +61,66 @@ export type ApexChartOptions = {
 export class FinanceComponent implements OnInit {
   referral: any = {};
   dashboardData: any = {};
+  patientWorkflowChartOptions: any = {
+    series: [{ name: 'Patients', data: [] }],
+    chart: {
+      type: 'bar',
+      height: 390,
+      toolbar: {
+        show: true,
+        tools: {
+          download: true,
+          selection: false,
+          zoom: false,
+          zoomin: false,
+          zoomout: false,
+          pan: false,
+          reset: false,
+        },
+        export: {
+          csv: { filename: 'patient-status-tracking' },
+          svg: { filename: 'patient-status-tracking' },
+          png: { filename: 'patient-status-tracking' },
+        },
+      },
+      background: 'transparent',
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 6,
+        barHeight: '58%',
+        distributed: true,
+        dataLabels: { position: 'top' },
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (value: number) => `${value}`,
+      offsetX: 18,
+      style: { fontSize: '12px', fontWeight: 700, colors: ['#334155'] },
+    },
+    xaxis: {
+      categories: [],
+      min: 0,
+      tickAmount: 5,
+      title: { text: 'Number of patients' },
+    },
+    yaxis: { labels: { maxWidth: 260 } },
+    colors: ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b', '#8b5cf6', '#16a34a', '#64748b', '#f97316'],
+    tooltip: {
+      y: { formatter: (value: number) => `${value} patient${value === 1 ? '' : 's'}` },
+    },
+    grid: { borderColor: '#e2e8f0', strokeDashArray: 4 },
+  };
 
   // =========================
   // OTHER DIAGNOSES POPUP
   // =========================
   showOthersModal = false;
   othersData: any[] = [];
+  othersLoading = false;
+  othersError = '';
 
   constructor(
     private dashboardService: StatisticalService,
@@ -86,13 +140,22 @@ export class FinanceComponent implements OnInit {
   // OPEN / CLOSE MODAL
   // =========================
   openOthersDiagnoses(): void {
-    this.reportService.getOtherDiagnosesList().subscribe(
-      (res: any) => {
+    this.showOthersModal = true;
+    this.othersLoading = true;
+    this.othersError = '';
+    this.othersData = [];
+
+    this.reportService.getOtherDiagnosesList().subscribe({
+      next: (res: any) => {
         this.othersData = res?.data || [];
-        this.showOthersModal = true;
+        this.othersLoading = false;
       },
-      (err) => console.error('Error fetching other diagnoses:', err),
-    );
+      error: (err) => {
+        console.error('Error fetching other diagnoses:', err);
+        this.othersLoading = false;
+        this.othersError = err?.error?.message || 'Unable to load other diagnoses. Please try again.';
+      },
+    });
   }
 
   closeModal(): void {
@@ -102,13 +165,50 @@ export class FinanceComponent implements OnInit {
   loadDashboardStatistics() {
   this.dashboardService.getWorkFlowCount().subscribe({
     next: (response: any) => {
-      this.dashboardData = response.data;
+      const statuses = (response?.data?.medical_history?.statuses ?? []).map((item: any) => ({
+        ...item,
+        display_label: this.getDashboardStatusLabel(item.status, item.label),
+      }));
+
+      this.dashboardData = {
+        ...response.data,
+        medical_history: {
+          ...response.data.medical_history,
+          statuses,
+        },
+      };
+      this.patientWorkflowChartOptions = {
+        ...this.patientWorkflowChartOptions,
+        series: [{
+          name: 'Patients',
+          data: statuses.map((item: any) => Number(item.count) || 0),
+        }],
+        xaxis: {
+          ...this.patientWorkflowChartOptions.xaxis,
+          categories: statuses.map((item: any) => `Stage ${item.stage} · ${item.display_label}`),
+        },
+      };
     },
     error: (err) => {
       console.error(err);
     }
   });
 }
+
+  private getDashboardStatusLabel(status: string, fallback: string): string {
+    const labels: Record<string, string> = {
+      pending: 'Submitted',
+      reviewed: 'Reviewed',
+      assigned: 'Medical Board',
+      requested: 'Referral Created',
+      approved: 'Approved',
+      confirmed: 'Confirmed',
+      rejected: 'Rejected',
+      boarded_out: 'Boarded Out',
+    };
+
+    return labels[status] ?? fallback;
+  }
 
   // =========================
   // REFERRAL TRENDS
@@ -294,7 +394,7 @@ export class FinanceComponent implements OnInit {
     xaxis: { categories: [] },
     yaxis: { title: { text: 'Referrals' } },
     colors: [
-      '#008FFB','#FEB019','#00E396','#FF4560','#060312ff',
+      '#008FFB','#FEB019','#00E396','#FF4560','#EC4899',
       '#7a6054ff','#2664a6ff','#D10CE8','#69d3ebff','#1E88E5',
     ],
     tooltip: { shared: true, intersect: false },

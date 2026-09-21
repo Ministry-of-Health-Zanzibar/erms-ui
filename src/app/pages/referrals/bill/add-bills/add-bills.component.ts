@@ -18,7 +18,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -46,7 +45,6 @@ export interface AddBillDialogData {
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    MatProgressSpinnerModule,
   ],
   templateUrl: './add-bills.component.html',
   styleUrls: ['./add-bills.component.scss'],

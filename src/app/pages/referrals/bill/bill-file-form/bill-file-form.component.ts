@@ -22,7 +22,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { BillFileService } from '../../../../services/Bills/bill-file.service';
 import Swal from 'sweetalert2';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-bill-file-form',
@@ -37,8 +36,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatInputModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatIconModule,
-    MatProgressSpinnerModule
+    MatIconModule
   ],
   templateUrl: './bill-file-form.component.html',
   styleUrls: ['./bill-file-form.component.scss'],

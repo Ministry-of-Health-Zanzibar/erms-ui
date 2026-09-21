@@ -8,7 +8,7 @@
         <input matInput placeholder="Ex. Administration" formControlName="name" type="text">
         <mat-error class="error-message" *ngIf="roleForm.controls.name.touched && roleForm.controls.name.invalid">
           <span *ngIf="roleForm.controls.name.errors.required">This field is mandatory</span>
-          <span *ngIf="roleForm.controls.name.errors.pattern">This field is invalid (must be contain alpharbetical only)</span>
+          <span *ngIf="roleForm.controls.name.errors.pattern">Only alphabetical characters are allowed</span>
         </mat-error>
       </mat-form-field>
 
@@ -40,8 +40,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="roleForm.invalid" (click)="createRolePermission()">Save Data</button>
+  <button mat-flat-button cdkFocusInitial [disabled]="roleForm.invalid || submitting" (click)="createRolePermission()">{{ submitting ? 'Saving…' : 'Save Data' }}</button>
 </mat-dialog-actions>
-
 
 

@@ -28,6 +28,13 @@ import { MatSort } from '@angular/material/sort';
 import { AddbodylistComponent } from '../addbodylist/addbodylist.component';
 import { InsuranceComponent } from '../insurance/insurance.component';
 import { environment } from '../../../../environments/environment.prod';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-bodyform-list',
@@ -43,6 +50,11 @@ import { environment } from '../../../../environments/environment.prod';
     FormsModule,
     MatButton,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './bodyform-list.component.html',
   styleUrl: './bodyform-list.component.scss',
@@ -88,6 +100,7 @@ export class BodyformListComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.userPetient();

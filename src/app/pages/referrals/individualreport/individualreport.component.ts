@@ -3,21 +3,21 @@ import { ActivatedRoute } from '@angular/router';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import html2pdf from 'html2pdf.js';
 import { MatTableModule } from '@angular/material/table';
+import { LoadingStateComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-individualreport',
   standalone: true,
   imports: [
-    CommonModule,          // ✅ REQUIRED for *ngIf, *ngFor
-    MatProgressBarModule,  // mat-progress-bar
+    CommonModule,
     MatCardModule,
     MatIcon,
-    MatTableModule
+    MatTableModule,
+    LoadingStateComponent
   ],
   templateUrl: './individualreport.component.html',
   styleUrl: './individualreport.component.scss'

@@ -72,6 +72,7 @@ export class DisplaycommentsComponent {
 
    ngOnDestroy(): void {
      this.onDestroy.next()
+     this.onDestroy.complete()
    }
 
    onClose() {
@@ -95,4 +96,3 @@ getComments() {
 
 
  }
-

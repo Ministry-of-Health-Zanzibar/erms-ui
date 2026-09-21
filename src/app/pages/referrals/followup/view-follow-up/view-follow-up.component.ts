@@ -20,6 +20,12 @@ import { FollowsService } from '../../../../services/Referral/follows.service';
 import { AddFollowUpComponent } from '../add-follow-up/add-follow-up.component';
 import { PrintfollowupComponent } from '../printfollowup/printfollowup.component';
 import { environment } from '../../../../../environments/environment.prod';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-view-follow-up',
@@ -34,6 +40,10 @@ import { environment } from '../../../../../environments/environment.prod';
     ReactiveFormsModule,
     MatIconModule, // ✅ Fixed
     MatDialogModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
   ],
   templateUrl: './view-follow-up.component.html',
   styleUrl: './view-follow-up.component.scss',

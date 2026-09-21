@@ -20,6 +20,7 @@ import { HospitalService } from '../../../../services/system-configuration/hospi
 import { AddhospitalComponent } from '../addhospital/addhospital.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-viewhospital',
@@ -39,7 +40,11 @@ import Swal from 'sweetalert2';
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
 
   ],
   templateUrl: './viewhospital.component.html',
@@ -66,6 +71,7 @@ export class ViewhospitalComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getHospital();

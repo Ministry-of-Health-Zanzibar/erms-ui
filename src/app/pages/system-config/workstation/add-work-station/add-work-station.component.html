@@ -36,11 +36,10 @@
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button [mat-dialog-close]="true" *ngIf="!id" cdkFocusInitial [disabled]="workStationForm.invalid" (click)="saveWorkStation()">Save Data</button>
-    <button mat-flat-button [mat-dialog-close]="true" *ngIf="id" cdkFocusInitial [disabled]="workStationForm.invalid" (click)="updateWorkStation()">Update Data</button>
+    <button mat-flat-button *ngIf="!id" cdkFocusInitial [disabled]="workStationForm.invalid || submitting" (click)="saveWorkStation()">{{ submitting ? 'Saving...' : 'Save Workstation' }}</button>
+    <button mat-flat-button *ngIf="id" cdkFocusInitial [disabled]="workStationForm.invalid || submitting" (click)="updateWorkStation()">{{ submitting ? 'Saving...' : 'Update Workstation' }}</button>
   </mat-dialog-actions>
 </div>
-
 
 
 

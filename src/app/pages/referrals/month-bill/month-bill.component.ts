@@ -21,6 +21,13 @@ import { ReferralService } from '../../../services/Referral/referral.service';
 import { AddReferralsComponent } from '../add-referrals/add-referrals.component';
 import Swal from 'sweetalert2';
 import { AddMonthbillComponent } from '../add-monthbill/add-monthbill.component';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-month-bill',
@@ -40,7 +47,12 @@ import { AddMonthbillComponent } from '../add-monthbill/add-monthbill.component'
         MatAnchor,
         MatButton,
         RouterLink,
-        EmrSegmentedModule
+        EmrSegmentedModule,
+        EmptyStateComponent,
+        LoadingStateComponent,
+        PageHeaderComponent,
+        SectionCardComponent,
+        TableToolbarComponent
   ],
   templateUrl: './month-bill.component.html',
   styleUrl: './month-bill.component.scss'
@@ -72,6 +84,7 @@ export class MonthBillComponent implements OnInit,OnDestroy{
       }
       ngOnDestroy(): void {
         this.onDestroy.next()
+        this.onDestroy.complete()
       }
       renew(){
         this.getMonthBill();
@@ -144,4 +157,3 @@ export class MonthBillComponent implements OnInit,OnDestroy{
 
 
       }
-

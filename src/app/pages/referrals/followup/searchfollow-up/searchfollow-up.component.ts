@@ -23,6 +23,14 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { ReferralService } from '../../../../services/Referral/referral.service';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 
 @Component({
@@ -38,6 +46,12 @@ import { ReferralService } from '../../../../services/Referral/referral.service'
         MatSlideToggleModule,
         FormsModule,
         EmrSegmentedModule,
+        EmptyStateComponent,
+        LoadingStateComponent,
+        PageHeaderComponent,
+        SectionCardComponent,
+        StatusBadgeComponent,
+        TableToolbarComponent,
   ],
   templateUrl: './searchfollow-up.component.html',
   styleUrl: './searchfollow-up.component.scss'
@@ -80,6 +94,7 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
 
    ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.getReferrals();

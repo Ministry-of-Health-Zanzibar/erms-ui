@@ -177,10 +177,10 @@
     <button
       mat-flat-button
       cdkFocusInitial
-      [disabled]="patientForm.invalid"
+      [disabled]="patientForm.invalid || submitting"
       (click)="saveClient()"
     >
-      Add FollowUp
+      {{ submitting ? 'Saving…' : 'Add Follow-Up' }}
     </button>
   </mat-dialog-actions>
 </div>

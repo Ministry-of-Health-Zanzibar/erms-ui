@@ -86,9 +86,7 @@
               @if (!sendingReply) {
                 <span>Send Reply</span>
               } @else {
-                <span class="flex items-center gap-1.5">
-                  <mat-icon class="animate-spin text-sm">autorenew</mat-icon> Sending...
-                </span>
+                <span>Sending…</span>
               }
             </button>
             <button mat-button class="!h-8 !text-xs" color="warn" (click)="cancelReply()">
@@ -152,7 +150,7 @@
           <mat-icon class="text-base">send</mat-icon>
         </div>
       } @else {
-        <mat-icon class="animate-spin">autorenew</mat-icon>
+        <span>Sending…</span>
       }
     </button>
   </div>

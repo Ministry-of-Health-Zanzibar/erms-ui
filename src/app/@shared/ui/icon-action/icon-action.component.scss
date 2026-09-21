@@ -1,0 +1,54 @@
+:host {
+  display: inline-flex;
+}
+
+.ui-icon-action {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--rms-border-strong);
+  border-radius: 0.7rem;
+  color: rgb(71 85 105);
+  background: var(--rms-surface);
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.ui-icon-action:hover:not(:disabled) {
+  border-color: rgb(147 197 253);
+  color: rgb(29 78 216);
+  box-shadow: 0 4px 12px rgb(15 23 42 / 0.1);
+  transform: translateY(-1px);
+}
+
+.ui-icon-action:focus-visible {
+  outline: 3px solid rgb(191 219 254);
+  outline-offset: 2px;
+}
+
+.ui-icon-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+[data-tone='primary'] {
+  color: rgb(29 78 216);
+}
+
+[data-tone='success'] {
+  color: rgb(21 128 61);
+}
+
+[data-tone='danger'] {
+  color: rgb(185 28 28);
+}
+
+:host-context(html.dark) .ui-icon-action {
+  color: var(--rms-text-muted);
+}
+
+:host-context(html.dark) [data-tone='primary'] { color: rgb(147 197 253); }
+:host-context(html.dark) [data-tone='success'] { color: rgb(134 239 172); }
+:host-context(html.dark) [data-tone='danger'] { color: rgb(252 165 165); }

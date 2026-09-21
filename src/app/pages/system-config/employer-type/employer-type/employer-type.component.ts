@@ -17,6 +17,7 @@ import { PermissionService } from '../../../../services/authentication/permissio
 import { EmployerTypeService } from '../../../../services/system-configuration/employer-type.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddEmployerTypeComponent } from '../add-employer-type/add-employer-type.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-employer-type',
@@ -36,7 +37,11 @@ import { AddEmployerTypeComponent } from '../add-employer-type/add-employer-type
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './employer-type.component.html',
   styleUrl: './employer-type.component.scss'
@@ -62,6 +67,7 @@ export class EmployerTypeComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getEmployerType();

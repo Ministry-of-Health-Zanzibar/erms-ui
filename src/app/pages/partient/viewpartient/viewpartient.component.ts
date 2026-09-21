@@ -25,6 +25,13 @@ import { AddpartientComponent } from '../addpartient/addpartient.component';
 import { InsuranceComponent } from '../insurance/insurance.component';
 import { DisplaymoredataComponent } from '../displaymoredata/displaymoredata.component';
 import { Router } from '@angular/router';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-viewpartient',
@@ -40,6 +47,11 @@ import { Router } from '@angular/router';
     FormsModule,
     MatButton,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './viewpartient.component.html',
   styleUrl: './viewpartient.component.scss',
@@ -80,6 +92,7 @@ export class ViewpartientComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.userPetient();

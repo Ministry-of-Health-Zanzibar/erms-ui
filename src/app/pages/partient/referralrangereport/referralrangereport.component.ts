@@ -9,7 +9,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInput } from '@angular/material/input';
@@ -30,6 +30,7 @@ import { EmrSegmentedModule } from '@elementar/components';
 import { MatDialog} from '@angular/material/dialog';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { ReferralreportService } from '../../../services/Referral/referralreport.service';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referralrangereport',
@@ -47,7 +48,12 @@ import { ReferralreportService } from '../../../services/Referral/referralreport
     MatInput,
     MatIcon,
     MatFormFieldModule,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './referralrangereport.component.html',
   styleUrl: './referralrangereport.component.scss'
@@ -104,7 +110,7 @@ export class ReferralrangereportComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.loading = true;
 
-    this.reportService.generateDateReport(start_date, end_date).subscribe({
+    this.reportService.generateDateReport(start_date, end_date).pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response) => {
         this.documents = response.data;
       //  console.log("data hzii",this.documents);
@@ -190,6 +196,7 @@ export class ReferralrangereportComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
 

@@ -17,7 +17,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject } from 'rxjs';
 import Swal from 'sweetalert2';
 import { DiagnosisService } from '../../../services/system-configuration/diagnosis.service';
@@ -43,7 +42,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatProgressSpinnerModule,
     MatChipsModule,
     MatAutocompleteModule,
     MatIconModule,

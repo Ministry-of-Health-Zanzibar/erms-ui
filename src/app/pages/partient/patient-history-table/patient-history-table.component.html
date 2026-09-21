@@ -1,8 +1,16 @@
-<!-- PATIENT INFO CARD -->
-<mat-card class="shadow-lg rounded-2xl p-6 bg-white mt-5">
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-xl font-bold text-gray-800">Patient Information</h2>
+<div class="p-4 md:p-10 space-y-6 md:space-y-8">
+  <app-page-header
+    title="Patient medical history"
+    description="Review patient details and their recorded medical history."
+    icon="medical_information"
+  />
 
+<app-section-card
+  title="Patient information"
+  description="Identity and contact details for the selected patient."
+  icon="person"
+>
+  <div uiSectionActions>
     <button
       mat-flat-button
       color="primary"
@@ -92,13 +100,14 @@
       ></tr>
     </table>
   </div>
-</mat-card>
+</app-section-card>
 
 <!-- MEDICAL HISTORY CARD -->
-<mat-card class="shadow-lg rounded-2xl p-6 bg-white mt-8">
-  <h2 class="text-xl font-bold text-gray-800 mb-4">
-    Medical History Records
-  </h2>
+<app-section-card
+  title="Medical history records"
+  description="Clinical history entries recorded for this patient."
+  icon="history"
+>
 
   <div *ngIf="patient?.patient_histories?.length > 0; else noHistory">
     <div class="overflow-x-auto">
@@ -211,18 +220,18 @@
 
   <!-- If no history -->
   <ng-template #noHistory>
-    <div class="text-center text-gray-500 py-4">
-      No medical history records available.
-    </div>
+    <app-empty-state
+      title="No medical history"
+      message="Medical history records for this patient will appear here."
+      icon="history_toggle_off"
+    />
   </ng-template>
-</mat-card>
+</app-section-card>
 
 <!-- LOADING SPINNER -->
-<div
+<app-loading-state
   *ngIf="loading"
-  class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
->
-  <div
-    class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-  ></div>
+  label="Loading medical history…"
+  [overlay]="true"
+/>
 </div>

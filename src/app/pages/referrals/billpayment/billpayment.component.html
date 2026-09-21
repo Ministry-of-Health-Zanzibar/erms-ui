@@ -2,9 +2,11 @@
   class="p-10 space-y-8"
   *ngIf="permission.parmissionMatched(['View BillFile'])"
 >
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Bill Payments</h1>
-  </div>
+  <app-page-header
+    title="Bill payments"
+    description="Review billing balances and record hospital payments."
+    icon="account_balance_wallet"
+  />
 
  <mat-card class="mb-4 shadow-lg rounded-xl">
   <mat-card-content>
@@ -93,15 +95,16 @@
   </mat-card-content>
 </mat-card>
 
-  <div class="relative h-full rounded-lg border p-4">
-    <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">
-      View Bill Payments
-    </div>
-
-    <div class="mt-4 flex items-center justify-between">
-      <div class="flex items-center gap-1.5">
+  <app-section-card
+    title="Payment records"
+    description="Search bills, inspect balances, and add outstanding payments."
+    icon="payments"
+  >
+    <app-table-toolbar>
+      <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
         <div
           class="size-9 rounded-full border bg-surface flex items-center justify-center"
+          (click)="getAllPaymentByHospital(hospital_id!)"
           matTooltip="Refresh"
         >
           <mat-icon>refresh</mat-icon>
@@ -114,9 +117,9 @@
           (keyup)="applyFilter($event)"
         />
       </div>
-    </div>
+    </app-table-toolbar>
 
-    <div class="border rounded-lg overflow-hidden mt-4">
+    <div class="border rounded-lg overflow-x-auto">
       <table mat-table [dataSource]="dataSource" class="not-prose">
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>No.</th>
@@ -164,16 +167,7 @@
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>
           <td mat-cell *matCellDef="let element">
-            <span
-              [ngClass]="{
-                'bg-green-100 text-green-600': element.status === 'Paid',
-                'bg-yellow-100 text-yellow-600':
-                  element.status === 'Partially Paid',
-                'bg-red-100 text-red-800': element.status === 'Pending'
-              }"
-              class="px-2 py-1 rounded-full text-xs font-medium"
-              >{{ element.status }}</span
-            >
+            <app-status-badge [status]="element.status" />
           </td>
         </ng-container>
 
@@ -228,7 +222,11 @@
 
         <tr *ngIf="dataSource.data.length === 0">
           <td [attr.colspan]="displayedColumns.length" class="text-center p-4">
-            No bills available.
+            <app-empty-state
+              title="No payment records found"
+              message="Hospital bills available for payment will appear here."
+              icon="payments"
+            />
           </td>
         </tr>
       </table>
@@ -238,14 +236,11 @@
         showFirstLastButtons
       ></mat-paginator>
     </div>
-  </div>
+  </app-section-card>
 
-  <div
+  <app-loading-state
     *ngIf="loading"
-    class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-  >
-    <div
-      class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-    ></div>
-  </div>
+    label="Loading bill payments…"
+    [overlay]="true"
+  />
 </div>

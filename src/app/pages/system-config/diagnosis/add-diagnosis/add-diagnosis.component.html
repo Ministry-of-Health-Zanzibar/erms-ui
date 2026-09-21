@@ -26,10 +26,9 @@
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="diagnosisForm.invalid" (click)="saveDiagnosis()">Save Data</button>
+    <button mat-flat-button cdkFocusInitial [disabled]="diagnosisForm.invalid || submitting" (click)="saveDiagnosis()">{{ submitting ? 'Saving...' : 'Save Diagnosis' }}</button>
   </mat-dialog-actions>
 </div>
-
 
 
 

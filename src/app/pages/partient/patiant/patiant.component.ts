@@ -25,6 +25,7 @@ import Swal from 'sweetalert2';
 import { PartientFormComponent } from '../partient-form/partient-form.component';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-patiant',
@@ -41,6 +42,11 @@ import { EmrSegmentedModule } from '@elementar/components';
     FormsModule,
     MatSlideToggle,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './patiant.component.html',
   styleUrls: ['./patiant.component.scss'],
@@ -83,6 +89,7 @@ export class PatiantComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   renew() {
@@ -99,8 +106,6 @@ export class PatiantComponent {
         next: (response: any) => {
           this.loading = false;
   
-          console.log(response);
-  
           if (response && response.data) {
             this.dataSource = new MatTableDataSource(response.data);
   
@@ -112,9 +117,8 @@ export class PatiantComponent {
             this.totalItems = response.data.length; 
           }
         },
-        error: (error: any) => { // Imeongezwa ': any' kuzuia kosa la TypeScript
+        error: () => {
           this.loading = false;
-          console.error(error);
         }
       });
   }

@@ -16,8 +16,8 @@ import {
 } from '@elementar/components';
 import { environment } from '../environments/environment';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { authInterceptor } from './services/authentication/auth.interceptor';
-import { httpCacheInterceptor } from './services/http-cache.interceptor';
+import { authInterceptor } from '@core/authentication/auth.interceptor';
+import { httpCacheInterceptor } from '@core/http-cache.interceptor';
 
 export function initializeApp() {
   const envService = inject(EnvironmentService);

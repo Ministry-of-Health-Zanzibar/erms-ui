@@ -1,13 +1,17 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Monthly Bill'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Month Bill</h1>
-  </div>
-  <div class="w-full">
+  <app-page-header
+    title="Monthly bills"
+    description="Review hospital monthly billing totals and audited amounts."
+    icon="calendar_month"
+  />
 
-    <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Month Bill</div>
-      <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
+  <app-section-card
+    title="Monthly billing records"
+    description="Search monthly totals or add a new billing period."
+    icon="payments"
+  >
+      <app-table-toolbar>
+        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
             <mat-icon class="font-icon visibilityData">refresh</mat-icon>
           </div>
@@ -15,14 +19,14 @@
           <input type="text" placeholder="Search..."
                  class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
         </div>
-        <div>
+        <div uiToolbarActions>
           <button mat-flat-button (click)="addMonth()" *ngIf="permission.parmissionMatched(['Create Monthly Bill'])">
             <mat-icon class="font-icon">add</mat-icon>Add Month
           </button>
         </div>
-      </div>
+      </app-table-toolbar>
 
-    <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+    <div class="border dark:border-inverse rounded-lg overflow-x-auto">
   <table mat-table [dataSource]="dataSource" class="not-prose">
 
     <!-- Position Column -->
@@ -49,30 +53,20 @@
       <td mat-cell *matCellDef="let element"> {{element.total_after_audit_monthly_bill | number}} </td>
     </ng-container>
 
-      <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef class="text-neutral-500 dark:text-neutral-400">
-              Action
-            </th>
-            <td mat-cell *matCellDef="let element">
-              <div class="flex space-x-2">
-                <!-- View Button -->
-                <span
-                  class="size-9 rounded-full border bg-surface flex items-center justify-center cursor-pointer"
-                  (click)="displayMoreData(element)"
-                  matTooltip="View"
-                >
-                  <mat-icon class="font-icon">visibility</mat-icon>
-                </span>
-
-              </div>
-            </td>
-          </ng-container>
-
     <!-- Action Column -->
     <ng-container matColumnDef="action">
       <th mat-header-cell *matHeaderCellDef class="text-neutral-500 dark:text-neutral-400" style="text-align: center;"> Action </th>
       <td mat-cell *matCellDef="let element">
         <emr-segmented theme="simple" class="-mx-2">
+          <emr-segmented-button value="visibilityData">
+            <span
+              class="size-9 rounded-full border bg-surface flex items-center justify-center cursor-pointer"
+              (click)="displayMoreData(element)"
+              matTooltip="View"
+            >
+              <mat-icon class="font-icon">visibility</mat-icon>
+            </span>
+          </emr-segmented-button>
           <emr-segmented-button value="edit_squareData">
             <span class="size-9 rounded-full border bg-surface flex items-center justify-center"
                   (click)="updateMonthBill(element)"
@@ -91,7 +85,13 @@
 
     <!-- Empty Row -->
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell tablefoter" colspan="10">No data matching the filter "{{input.value}}"</td>
+      <td class="mat-cell tablefoter" colspan="10">
+        <app-empty-state
+          title="No monthly bills found"
+          [message]="input.value ? 'No monthly bills match your search.' : 'Monthly billing records will appear here.'"
+          icon="event_busy"
+        />
+      </td>
     </tr>
   </table>
 
@@ -99,14 +99,14 @@
   </mat-paginator>
 </div>
 
-    </div>
-  </div>
+  </app-section-card>
 
-  <div *ngIf="loading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
-    <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-  </div>
+  <app-loading-state
+    *ngIf="loading"
+    label="Loading monthly bills…"
+    [overlay]="true"
+  />
 
 </div>
-
 
 

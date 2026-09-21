@@ -20,6 +20,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { CategoryService } from '../../../../services/accountants/category.service';
 import { AddCategoryComponent } from '../add-category/add-category.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-view-category',
@@ -39,7 +40,11 @@ import { AddCategoryComponent } from '../add-category/add-category.component';
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './view-category.component.html',
   styleUrl: './view-category.component.scss'
@@ -65,6 +70,7 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getCategory();
@@ -205,4 +211,3 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
   }
 
 }
-

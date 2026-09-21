@@ -30,7 +30,7 @@
         <div class="form-row">
           <mat-form-field class="form-field">
             <mat-label>Tin Number or ZanID</mat-label>
-            <input matInput placeholder="Ex. 6200000938883" formControlName="tin_number or ZanID" type="text">
+            <input matInput placeholder="Ex. 6200000938883" formControlName="tin_number" type="text">
             <mat-error *ngIf="userForm.controls['tin_number'].touched && userForm.controls['tin_number'].invalid">
               <span *ngIf="userForm.controls['tin_number'].errors?.['required']">This field is mandatory</span>
               <span *ngIf="userForm.controls['tin_number'].errors?.['pattern']">Must contain alphabetical characters only</span>
@@ -136,11 +136,10 @@
 
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button [mat-dialog-close]="true" *ngIf="!sourceData" cdkFocusInitial [disabled]="userForm.invalid" (click)="saveUser()">Save Data</button>
-      <button mat-flat-button [mat-dialog-close]="true" *ngIf="sourceData" cdkFocusInitial [disabled]="userForm.invalid" (click)="updateUser()">Update Data</button>
+      <button mat-flat-button *ngIf="!sourceData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="saveUser()">{{ submitting ? 'Saving...' : 'Save Document' }}</button>
+      <button mat-flat-button *ngIf="sourceData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="updateUser()">{{ submitting ? 'Saving...' : 'Update Document' }}</button>
     </mat-dialog-actions>
   </div>
   </div>
-
 
 

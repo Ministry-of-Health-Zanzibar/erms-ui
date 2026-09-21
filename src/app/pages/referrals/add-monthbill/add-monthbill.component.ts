@@ -85,6 +85,7 @@ export class AddMonthbillComponent  {
 
          ngOnDestroy(): void {
            this.onDestroy.next()
+           this.onDestroy.complete()
          }
          onClose() {
            this.dialogRef.close(false)

@@ -6,7 +6,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatInputModule, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
 import Swal from 'sweetalert2';
 import { MatOption, MatSelect } from '@angular/material/select';
@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CategoryService } from '../../../../services/accountants/category.service';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-category',
@@ -38,7 +39,7 @@ import { CategoryService } from '../../../../services/accountants/category.servi
   templateUrl: './add-category.component.html',
   styleUrl: './add-category.component.scss'
 })
-export class AddCategoryComponent {
+export class AddCategoryComponent implements OnInit, OnDestroy {
 
  readonly data = inject<any>(MAT_DIALOG_DATA);
     private readonly onDestroy = new Subject<void>()
@@ -51,6 +52,7 @@ export class AddCategoryComponent {
     errorMessage: string | null = null;
     categoryData: any;
     category:any;
+    submitting = false;
 
     constructor(private formBuilder:FormBuilder,
 
@@ -69,6 +71,7 @@ export class AddCategoryComponent {
 
       ngOnDestroy(): void {
         this.onDestroy.next()
+        this.onDestroy.complete()
       }
       onClose() {
         this.dialogRef.close(false)
@@ -86,60 +89,39 @@ export class AddCategoryComponent {
       }
 
       savecategory(){
-        if(this.categoryForm.valid){
-          this.categoryServices.addCategory(this.categoryForm.value).subscribe(response=>{
-            if(response.statusCode == 201){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-
-        );
-        }else{
-
+        if (this.categoryForm.invalid || this.submitting) {
+          this.categoryForm.markAllAsTouched();
+          return;
         }
+        this.submit(this.categoryServices.addCategory(this.categoryForm.value));
       }
 
       updatecategory(){
-        if(this.categoryForm.valid){
-          this.categoryServices.updateCategory(this.categoryForm.value, this.categoryData.category_id).subscribe(response=>{
-            if(response.statusCode == 200){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-
-        );
-        }else{
-
+        if (this.categoryForm.invalid || this.submitting) {
+          this.categoryForm.markAllAsTouched();
+          return;
         }
+        this.submit(this.categoryServices.updateCategory(this.categoryForm.value, this.categoryData.category_id));
       }
 
-}
+      private submit(request: any): void {
+        this.submitting = true;
+        request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+          next: (response: any) => {
+            if (response.statusCode === 200 || response.statusCode === 201) {
+              Swal.fire({
+                title: 'Success', text: response.message || 'Category saved successfully.', icon: 'success',
+                confirmButtonColor: '#4690eb', confirmButtonText: 'Continue'
+              }).then(() => this.dialogRef.close(true));
+              return;
+            }
+            this.showError(response.message || 'Unable to save the category.');
+          },
+          error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the category.'))
+        });
+      }
 
+      private showError(message: string): void {
+        Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+      }
+}

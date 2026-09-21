@@ -106,22 +106,14 @@
         Cancel
       </button>
 
-      <!-- Save Button / Spinner -->
       <button
-        *ngIf="!loading"
         mat-raised-button
         color="primary"
         type="submit"
+        [disabled]="medicalForm.invalid || loading"
       >
-        {{ mode === 'edit' ? 'Update' : 'Save' }}
+        {{ loading ? 'Saving…' : (mode === 'edit' ? 'Update' : 'Save') }}
       </button>
-
-      <mat-progress-spinner
-        *ngIf="loading"
-        diameter="26"
-        mode="indeterminate"
-      >
-      </mat-progress-spinner>
     </div>
 
   </form>

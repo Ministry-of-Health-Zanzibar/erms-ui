@@ -15,6 +15,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogConfig } from '@angular/material/dialog';
 import { AddbillComponent } from '../../../system-config/bill/addbill/addbill.component';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-bill-fill-by-hospital',
@@ -28,7 +29,13 @@ import { AddbillComponent } from '../../../system-config/bill/addbill/addbill.co
     FormsModule,
     EmrSegmentedModule,
     MatDividerModule,
-    MatCardModule
+    MatCardModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent
   ],
   templateUrl: './bill-fill-by-hospital.component.html',
   styleUrls: ['./bill-fill-by-hospital.component.scss'],
@@ -129,9 +136,8 @@ loadBillsByHospital() {
           }
         });
       },
-      (error) => {
+      () => {
         this.loading = false;
-        console.error('Failed to load bill files', error);
       }
     );
 }

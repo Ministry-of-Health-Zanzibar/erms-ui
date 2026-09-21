@@ -15,6 +15,12 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
 import { VDividerComponent } from '@elementar/components';
 import { RouterLink,Router } from '@angular/router';
+import {
+  EmptyStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-country-board',
@@ -33,7 +39,11 @@ import { RouterLink,Router } from '@angular/router';
     FormsModule,
     MatAnchor,
     MatButton,
-    RouterLink
+    RouterLink,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './country-board.component.html',
   styleUrl: './country-board.component.scss'
@@ -57,6 +67,7 @@ export class CountryBoardComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.countryDataTable();

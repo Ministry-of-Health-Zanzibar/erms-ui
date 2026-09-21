@@ -206,9 +206,7 @@
           {{ billData ? "Update" : "Save" }}
         </ng-container>
 
-        <ng-container *ngIf="isLoading">
-          <mat-spinner diameter="20"></mat-spinner>
-        </ng-container>
+        <ng-container *ngIf="isLoading">Saving…</ng-container>
       </button>
       </mat-dialog-actions>
     </div>

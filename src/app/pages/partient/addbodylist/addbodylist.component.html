@@ -174,13 +174,8 @@
               (selectionChange)="onUserSelected($event)"
               (openedChange)="onUserDropdownOpened()"
             >
-              <!-- 🔄 Show loader if fetching users -->
               <mat-option *ngIf="isLoadingUsers" disabled>
-                <mat-progress-spinner
-                  diameter="24"
-                  mode="indeterminate"
-                ></mat-progress-spinner>
-                &nbsp;Loading users...
+                Loading users…
               </mat-option>
 
               <!-- 🔍 Search box appears only if users exist -->
@@ -232,23 +227,14 @@
           Cancel
         </button>
 
-        <!-- Save/Update Button -->
         <button
-          *ngIf="!loading"
           mat-flat-button
           color="primary"
-          [disabled]="patientForm.invalid"
+          [disabled]="patientForm.invalid || loading"
           (click)="patientData ? updatePatient() : savePatient()"
         >
-          {{ patientData ? "Update" : "Save" }}
+          {{ loading ? 'Saving…' : (patientData ? 'Update' : 'Save') }}
         </button>
-
-        <!-- Spinner while saving -->
-        <mat-progress-spinner
-          *ngIf="loading"
-          diameter="28"
-          mode="indeterminate"
-        ></mat-progress-spinner>
       </mat-dialog-actions>
     </div>
   </div>

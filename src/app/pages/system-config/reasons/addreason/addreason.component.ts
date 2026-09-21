@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import Swal from 'sweetalert2';
 import { ReasonsService } from '../../../../services/system-configuration/reasons.service';
 
@@ -31,7 +32,7 @@ import { ReasonsService } from '../../../../services/system-configuration/reason
   templateUrl: './addreason.component.html',
   styleUrl: './addreason.component.scss'
 })
-export class AddreasonComponent {
+export class AddreasonComponent implements OnInit, OnDestroy {
  readonly data = inject<any>(MAT_DIALOG_DATA);
      private readonly onDestroy = new Subject<void>()
      public sidebarVisible:boolean = true
@@ -42,9 +43,9 @@ export class AddreasonComponent {
      uploading: boolean = false;
      errorMessage: string | null = null;
      reasonData: any;
+     submitting = false;
 
-     constructor(private formBuilder:FormBuilder,
-       private reasonsService:ReasonsService,
+     constructor(private reasonsService:ReasonsService,
        private dialogRef: MatDialogRef<AddreasonComponent>) {
      }
 
@@ -65,6 +66,7 @@ export class AddreasonComponent {
 
        ngOnDestroy(): void {
          this.onDestroy.next()
+         this.onDestroy.complete()
        }
        onClose() {
          this.dialogRef.close(false)
@@ -88,59 +90,54 @@ export class AddreasonComponent {
        // }
 
        saveReasons(){
-         if(this.reasonForm.valid){
-           this.reasonsService.addReasons(this.reasonForm.value).subscribe(response=>{
-             if(response.statusCode == 200){
-               Swal.fire({
-                 title: "Success",
-                 text: "Data saved successfull",
-                 icon: "success",
-                 confirmButtonColor: "#4690eb",
-                 confirmButtonText: "Continue"
-               });
-             }else{
-               Swal.fire({
-                 title: "Error",
-                 text: response.message,
-                 icon: "error",
-                 confirmButtonColor: "#4690eb",
-                 confirmButtonText: "Continue"
-               });
-             }
-           }
-
-         );
-         }else{
-
+         if (this.reasonForm.invalid || this.submitting) {
+           this.reasonForm.markAllAsTouched();
+           return;
          }
+
+         this.submit(this.reasonsService.addReasons(this.reasonForm.value));
        }
 
        updateReason(){
-         if(this.reasonForm.valid){
-          this.reasonsService.updateReasons(this.reasonForm.value, this.reasonData.reason_id).subscribe(response=>{
-             if(response.statusCode == 200){
-               Swal.fire({
-                 title: "Success",
-                 text: "Data saved successfull",
-                 icon: "success",
-                 confirmButtonColor: "#4690eb",
-                 confirmButtonText: "Continue"
-               });
-             }else{
-               Swal.fire({
-                 title: "Error",
-                 text: response.message,
-                 icon: "error",
-                 confirmButtonColor: "#4690eb",
-                 confirmButtonText: "Continue"
-               });
-             }
-           }
-
-         );
-         }else{
-
+         if (this.reasonForm.invalid || this.submitting) {
+           this.reasonForm.markAllAsTouched();
+           return;
          }
+
+         this.submit(this.reasonsService.updateReasons(this.reasonForm.value, this.reasonData.reason_id));
+       }
+
+       private submit(request: any): void {
+         this.submitting = true;
+         request.pipe(
+           takeUntil(this.onDestroy),
+           finalize(() => this.submitting = false)
+         ).subscribe({
+           next: (response: any) => {
+             if (response.statusCode === 200 || response.statusCode === 201) {
+               Swal.fire({
+                 title: 'Success',
+                 text: 'Referral reason saved successfully.',
+                 icon: 'success',
+                 confirmButtonColor: '#4690eb',
+                 confirmButtonText: 'Continue'
+               }).then(() => this.dialogRef.close(true));
+               return;
+             }
+
+             this.showError(response.message || 'Unable to save the referral reason.');
+           },
+           error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the referral reason. Please try again.'))
+         });
+       }
+
+       private showError(message: string): void {
+         Swal.fire({
+           title: 'Error',
+           text: message,
+           icon: 'error',
+           confirmButtonColor: '#4690eb',
+           confirmButtonText: 'Close'
+         });
        }
  }
-

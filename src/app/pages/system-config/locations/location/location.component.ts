@@ -18,6 +18,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddLocationComponent } from '../add-location/add-location.component';
 import { UploadLocationComponent } from '../upload-location/upload-location.component';
 import Swal from 'sweetalert2';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-location',
@@ -36,7 +37,11 @@ import Swal from 'sweetalert2';
     FormsModule,
     MatAnchor,
     MatButton,
-    RouterLink
+    RouterLink,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './location.component.html',
   styleUrl: './location.component.scss'
@@ -62,6 +67,7 @@ export class LocationComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getLocation();

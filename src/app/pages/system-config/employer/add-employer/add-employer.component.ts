@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,12 +8,13 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { EmployerService } from '../../../../services/system-configuration/employer.service';
 import { EmployerTypeComponent } from '../../employer-type/employer-type/employer-type.component';
 import { EmployerTypeService } from '../../../../services/system-configuration/employer-type.service';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-employer',
@@ -36,7 +37,7 @@ import { GlobalConstants } from '@shared/global-constants';
   templateUrl: './add-employer.component.html',
   styleUrl: './add-employer.component.scss'
 })
-export class AddEmployerComponent {
+export class AddEmployerComponent implements OnInit, OnDestroy {
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -49,6 +50,7 @@ export class AddEmployerComponent {
   options: any[] = [];
   myControl = new FormControl('');
   filteredOptions: Observable<any[]>;
+  submitting = false;
 
   constructor(
     private employerService: EmployerService,
@@ -68,6 +70,7 @@ export class AddEmployerComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
 
   onClose() {
@@ -84,14 +87,14 @@ export class AddEmployerComponent {
   }
 
   getEmployerType() {
-    this.employerTypeService.getAllEmployerType().subscribe(response => {
+    this.employerTypeService.getAllEmployerType().pipe(takeUntil(this.onDestroy)).subscribe({ next: response => {
       this.employerTypes = response.data;
       this.options = response.data;
       this.filteredOptions = this.employerForm.get('employer_type_id')!.valueChanges.pipe(
         startWith(''),
         map((value: any) => typeof value === 'string' ? this._filter(value) : this.options.slice())
       );
-    });
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load employer types.')) });
   }
 
   private _filter(value: string): any[] {
@@ -108,7 +111,7 @@ export class AddEmployerComponent {
   }
 
   getEmployer(id: any) {
-    this.employerService.getIEmployerById(id).subscribe(response=>{
+    this.employerService.getIEmployerById(id).pipe(takeUntil(this.onDestroy)).subscribe({ next: response=>{
       if(response.statusCode == 200){
         this.employer = response.data[0];
         this.employerForm.patchValue(this.employer);
@@ -125,59 +128,52 @@ export class AddEmployerComponent {
           confirmButtonText: "Close"
         });
       }
-    })
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load the employer.')) })
   }
 
   saveEmployer(){
-    this.employerForm.patchValue({ employer_type_id: this.employerForm.value.employer_type_id.employer_type_id });
-    if(this.employerForm.valid){
-      this.employerService.addEmployer(this.employerForm.value).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-        else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-      })
-    }
+    this.save(false);
   }
 
   updateEmployer(){
-    if(this.employerForm.valid){
-      this.employerForm.patchValue({ employer_type_id: this.employerForm.value.employer_type_id.employer_type_id });
-      this.employerService.updateEmployer(this.employerForm.value,this.id).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-        else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-      })
+    this.save(true);
+  }
+
+  private save(isUpdate: boolean): void {
+    if (this.employerForm.invalid || this.submitting) {
+      this.employerForm.markAllAsTouched();
+      return;
     }
+
+    const selectedType = this.employerForm.value.employer_type_id;
+    const payload = {
+      ...this.employerForm.value,
+      employer_type_id: typeof selectedType === 'object' ? selectedType?.employer_type_id : selectedType
+    };
+    const request = isUpdate
+      ? this.employerService.updateEmployer(payload, this.id)
+      : this.employerService.addEmployer(payload);
+
+    this.submitting = true;
+    request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+      next: response => {
+        if (response.statusCode === 200 || response.statusCode === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: response.message,
+            icon: 'success',
+            confirmButtonColor: '#4690eb',
+            confirmButtonText: 'Continue'
+          }).then(() => this.dialogRef.close(true));
+          return;
+        }
+        this.showError(response.message || 'Unable to save the employer.');
+      },
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the employer.'))
+    });
+  }
+
+  private showError(message: string): void {
+    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }
-

@@ -5,7 +5,7 @@ import { EmrAvatarModule, HDividerComponent } from '@elementar/components';
 import { MatRipple } from '@angular/material/core';
 import { EmrSkeletonModule } from '@elementar/components';
 import { NgTemplateOutlet } from '@angular/common';
-import { Notification } from '@app/header/_notifications/types';
+import { Notification } from '@layout/header/_notifications/types';
 import {
   MentionedInCommentNotification
 } from '../notification-types/mentioned-in-comment/mentioned-in-comment.notification';

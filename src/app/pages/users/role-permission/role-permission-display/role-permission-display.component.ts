@@ -54,6 +54,7 @@ export class RolePermissionDisplayComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   onClose() {
     this.dialogRef.close(false)

@@ -25,6 +25,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
 import Swal from 'sweetalert2';
 import { PatienthistoryService } from '../../../services/partient/patienthistory.service';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-viewpatientfromhospital',
@@ -40,6 +41,12 @@ import { PatienthistoryService } from '../../../services/partient/patienthistory
     MatTooltipModule,
     FormsModule,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './viewpatientfromhospital.component.html',
   styleUrl: './viewpatientfromhospital.component.scss',
@@ -86,6 +93,7 @@ export class ViewpatientfromhospitalComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   renew() {

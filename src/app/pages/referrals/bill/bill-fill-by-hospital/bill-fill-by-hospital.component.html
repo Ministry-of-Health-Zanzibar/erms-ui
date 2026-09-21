@@ -1,7 +1,7 @@
 <div class="p-6 space-y-4">
-  <h1 class="text-lg font-bold">Bills by Hospital</h1>
-  <mat-divider [vertical]="true"></mat-divider>
+  <app-page-header title="Bills by Hospital" description="Monitor billed, allocated, and outstanding amounts for each hospital." icon="account_balance" />
 
+<app-section-card title="Billing summary" description="Consolidated local and international hospital billing totals." icon="payments">
 <div class="space-y-6">
 
   <!-- =================== TZS SUMMARY =================== -->
@@ -158,18 +158,23 @@
 </div>
 
 </div>
+</app-section-card>
 
-  <div class="flex items-center gap-2">
+  <app-section-card title="Hospital billing records" description="Search hospital balances and open their payment details." icon="local_hospital">
+  <app-table-toolbar>
+  <div uiToolbarPrimary class="flex items-center gap-2 w-full">
     <mat-icon>search</mat-icon>
     <input
       type="text"
       placeholder="Search hospitals..."
       class="border-b h-10 w-80 outline-0"
       (keyup)="applyFilter($event)"
+      #input
     />
   </div>
+  </app-table-toolbar>
 
-  <div class="border rounded-lg overflow-hidden mt-4">
+  <div class="border rounded-lg overflow-x-auto">
     <table mat-table [dataSource]="dataSource" matSort class="w-full">
       <ng-container matColumnDef="hospital_id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Hospital ID</th>
@@ -226,16 +231,7 @@
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let element">
-          <span
-            [ngClass]="{
-              'bg-green-100 text-green-600': element.status === 'Paid',
-              'bg-yellow-100 text-yellow-600':
-                element.status === 'Partially Paid',
-              'bg-red-100 text-red-800': element.status === 'Pending'
-            }"
-            class="px-2 py-1 rounded-full text-xs font-medium"
-            >{{ element.status }}</span
-          >
+          <app-status-badge [status]="element.status" />
         </td>
       </ng-container>
 
@@ -284,10 +280,8 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
       <!-- No data -->
-      <tr *ngIf="dataSource.data.length === 0">
-        <td [attr.colspan]="displayedColumns.length" class="text-center p-4">
-          No records found.
-        </td>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length"><app-empty-state title="No hospital bills found" [message]="input.value ? 'No hospital bills match your search.' : 'Hospital billing records will appear here.'" icon="account_balance" /></td>
       </tr>
 
       <!-- Totals row -->
@@ -305,4 +299,6 @@
     <mat-paginator [pageSizeOptions]="[10, 20 , 100]" showFirstLastButtons>
     </mat-paginator>
   </div>
+  </app-section-card>
+  <app-loading-state *ngIf="loading" label="Loading hospital bills…" [overlay]="true" />
 </div>

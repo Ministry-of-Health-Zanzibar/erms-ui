@@ -12,7 +12,7 @@
               <span *ngIf="reasonForm.controls['referral_reason_name'].errors?.['required']">This field is mandatory</span>
             </mat-error>
           </mat-form-field>
-  
+
           <mat-form-field class="w-full mt-4">
             <mat-label>Reason Descriptions :</mat-label>
             <input matInput placeholder="Ex.YAMESHINDIKANA" formControlName="reason_descriptions" type="text">
@@ -28,9 +28,7 @@
   
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button *ngIf="!reasonData" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="reasonForm.invalid" (click)="saveReasons()">Save Reason</button>
-      <button *ngIf="reasonData" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="reasonForm.invalid" (click)="updateReason()">Save Reason</button>
+      <button *ngIf="!reasonData" mat-flat-button cdkFocusInitial [disabled]="reasonForm.invalid || submitting" (click)="saveReasons()">{{ submitting ? 'Saving...' : 'Save Reason' }}</button>
+      <button *ngIf="reasonData" mat-flat-button cdkFocusInitial [disabled]="reasonForm.invalid || submitting" (click)="updateReason()">{{ submitting ? 'Saving...' : 'Save Reason' }}</button>
     </mat-dialog-actions>
   </div>
-  
-  

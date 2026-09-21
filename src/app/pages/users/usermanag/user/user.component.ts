@@ -20,6 +20,7 @@ import { PartientFormComponent } from '../../../partient/partient-form/partient-
 import { AssignUserHospitalComponent } from '../../assign-user-hospital/assign-user-hospital.component';
 import { MatCard } from "@angular/material/card";
 import { MatFormField } from "@angular/material/form-field";
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-user',
@@ -40,7 +41,11 @@ import { MatFormField } from "@angular/material/form-field";
     MatButton,
     EmrSegmentedModule,
     MatCard,
-    MatFormField
+    MatFormField,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
 ],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss'
@@ -67,6 +72,7 @@ export class UserComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.userDataTable();
@@ -231,4 +237,3 @@ addPatient(userId: number) {
 
 
 }
-

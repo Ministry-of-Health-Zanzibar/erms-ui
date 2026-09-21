@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,12 +8,13 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { WorkStationService } from '../../../../services/work-station.service';
 import { LocationService } from '../../../../services/system-configuration/location.service';
 import { EmployerService } from '../../../../services/system-configuration/employer.service';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-work-station',
@@ -36,7 +37,7 @@ import { GlobalConstants } from '@shared/global-constants';
   templateUrl: './add-work-station.component.html',
   styleUrl: './add-work-station.component.scss'
 })
-export class AddWorkStationComponent {
+export class AddWorkStationComponent implements OnInit, OnDestroy {
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -52,6 +53,7 @@ export class AddWorkStationComponent {
   myControl = new FormControl('');
   filteredOptions: Observable<any[]>;
   filteredEmployer: Observable<any[]>;
+  submitting = false;
 
   constructor(
     private workStationService: WorkStationService,
@@ -63,7 +65,7 @@ export class AddWorkStationComponent {
 
   ngOnInit(): void {
     this.configForm();
-    if(this.data.id){
+    if(this.data?.id){
       this.id = this.data.id;
       this.getWorkStation(this.id);
     }
@@ -73,6 +75,7 @@ export class AddWorkStationComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
 
   onClose() {
@@ -88,14 +91,14 @@ export class AddWorkStationComponent {
   }
 
   getLocation() {
-    this.locationService.getLocation().subscribe(response => {
+    this.locationService.getLocation().pipe(takeUntil(this.onDestroy)).subscribe({ next: response => {
       this.locations = response.data;
       this.options = response.data;
       this.filteredOptions = this.workStationForm.get('location_id')!.valueChanges.pipe(
         startWith(''),
         map((value: any) => typeof value === 'string' ? this._filter(value) : this.options.slice())
       );
-    });
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load locations.')) });
   }
 
   private _filter(value: string): any[] {
@@ -112,14 +115,14 @@ export class AddWorkStationComponent {
   }
 
   getEmployer() {
-    this.empoyerService.getAllEmployer().subscribe(response => {
+    this.empoyerService.getAllEmployer().pipe(takeUntil(this.onDestroy)).subscribe({ next: response => {
       this.employers = response.data;
       this.employerOptions = this.employers;
       this.filteredEmployer = this.workStationForm.get('employer_id')!.valueChanges.pipe(
         startWith(''),
         map((value: any) => typeof value === 'string' ? this._filterEmployer(value) : this.employerOptions.slice())
       );
-    });
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load employers.')) });
   }
 
   private _filterEmployer(value: string): any[] {
@@ -136,7 +139,7 @@ export class AddWorkStationComponent {
   }
 
   getWorkStation(id: any) {
-    this.workStationService.getWorkStationById(id).subscribe(response=>{
+    this.workStationService.getWorkStationById(id).pipe(takeUntil(this.onDestroy)).subscribe({ next: response=>{
       if(response.statusCode == 200){
         this.workStations = response.data[0];
         this.workStationForm.patchValue({
@@ -154,61 +157,54 @@ export class AddWorkStationComponent {
           confirmButtonText: "Close"
         });
       }
-    })
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load the workstation.')) })
   }
 
   saveWorkStation(){
-    this.workStationForm.patchValue({ location_id: this.workStationForm.value.location_id.location_id });
-    this.workStationForm.patchValue({ employer_id: this.workStationForm.value.employer_id.employer_id });
-    if(this.workStationForm.valid){
-      this.workStationService.addWorkStation(this.workStationForm.value).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-        else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-      })
-    }
+    this.save(false);
   }
 
   updateWorkStation(){
-    if(this.workStationForm.valid){
-      this.workStationForm.patchValue({ location_id : this.workStationForm.value.location_id.location_id });
-      this.workStationForm.patchValue({ employer_id: this.workStationForm.value.employer_id.employer_id });
-      this.workStationService.updateWorkStation(this.workStationForm.value,this.id).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-        else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-      })
+    this.save(true);
+  }
+
+  private save(isUpdate: boolean): void {
+    if (this.workStationForm.invalid || this.submitting) {
+      this.workStationForm.markAllAsTouched();
+      return;
     }
+
+    const selectedLocation = this.workStationForm.value.location_id;
+    const selectedEmployer = this.workStationForm.value.employer_id;
+    const payload = {
+      ...this.workStationForm.value,
+      location_id: typeof selectedLocation === 'object' ? selectedLocation?.location_id : selectedLocation,
+      employer_id: typeof selectedEmployer === 'object' ? selectedEmployer?.employer_id : selectedEmployer
+    };
+    const request = isUpdate
+      ? this.workStationService.updateWorkStation(payload, this.id)
+      : this.workStationService.addWorkStation(payload);
+
+    this.submitting = true;
+    request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+      next: response => {
+        if (response.statusCode === 200 || response.statusCode === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: response.message,
+            icon: 'success',
+            confirmButtonColor: '#4690eb',
+            confirmButtonText: 'Continue'
+          }).then(() => this.dialogRef.close(true));
+          return;
+        }
+        this.showError(response.message || 'Unable to save the workstation.');
+      },
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the workstation.'))
+    });
+  }
+
+  private showError(message: string): void {
+    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }
-

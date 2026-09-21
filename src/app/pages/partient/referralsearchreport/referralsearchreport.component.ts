@@ -9,7 +9,7 @@ import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
-import { Observable, Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInput } from '@angular/material/input';
@@ -43,6 +43,7 @@ import { HospitalService } from '../../../services/system-configuration/hospital
 import { ReasonsService } from '../../../services/system-configuration/reasons.service';
 import { ReferalTypeService } from '../../../services/system-configuration/referal-type.service';
 import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker";
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referralsearchreport',
@@ -65,6 +66,11 @@ import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker
 
     MatDatepickerModule,
     MatNativeDateModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
 ],
   templateUrl: './referralsearchreport.component.html',
   styleUrl: './referralsearchreport.component.scss'
@@ -125,6 +131,7 @@ displayedColumns: string[] = [
   }
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   applyFilter(event: Event): void {
@@ -150,18 +157,18 @@ displayedColumns: string[] = [
   }
 
   getReasons(): void {
-    this.reasonServi.getAllReasons().subscribe(response => {
+    this.reasonServi.getAllReasons().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.reasons = response.data;
     });
   }
   getReferralType(): void {
-    this.typeServices.getAllReferalType().subscribe(response => {
+    this.typeServices.getAllReferalType().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.referralType = response.data;
     });
   }
 
    getHospital() {
-    this.hospitalServices.getAllHospital().subscribe({
+    this.hospitalServices.getAllHospital().pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response: any) => {
         this.hospital = response.data;
       },
@@ -179,6 +186,8 @@ displayedColumns: string[] = [
 
 searchReport(): void {
   this.loading = true;
+  this.noResults = false;
+  this.errorMessage = '';
 
   const formData = { ...this.reportForm.value };
 
@@ -190,11 +199,12 @@ searchReport(): void {
     formData.end_date = new Date(formData.end_date).toISOString().split('T')[0];
   }
 
-  this.reportService.generateReport(formData).subscribe({
+  this.reportService.generateReport(formData).pipe(takeUntil(this.onDestroy)).subscribe({
     next: response => {
       this.loading = false;
       this.dataSource.data = response.data;
       this.dataSource.paginator = this.paginator;
+      this.noResults = response.data.length === 0;
     },
     error: err => {
       this.loading = false;

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Notification } from '@app/header/_notifications/types';
+import { Notification } from '@layout/header/_notifications/types';
 import { EmrAvatarModule, IconComponent } from '@elementar/components';
 import { MatIcon } from '@angular/material/icon';
 import { MatRipple } from '@angular/material/core';

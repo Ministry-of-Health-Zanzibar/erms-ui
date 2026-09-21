@@ -1,7 +1,6 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Report'])">
-  <!-- Header & Export -->
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">View Report</h1>
+  <app-page-header title="Referral Billing Report" description="Review hospital billing totals for a selected date range." icon="analytics" />
+  <app-section-card title="Report criteria" description="Select a valid date range to generate the report." icon="date_range">
     <div class="flex gap-4">
       <!-- <button mat-raised-button color="accent" (click)="exportExcel()">
         <mat-icon>table_chart</mat-icon> Export Excel
@@ -10,37 +9,35 @@
         <mat-icon>picture_as_pdf</mat-icon> Export PDF
       </button>
     </div>
-  </div>
-
-  <!-- Search / Filter -->
-  <div class="search-container bg-gray-100 p-6 rounded-xl shadow-md">
+  <div class="search-container rounded-xl">
     <form [formGroup]="reportForm" class="flex flex-wrap gap-4 items-end">
       <div class="flex flex-col w-full sm:w-1/3">
         <label>Start Date</label>
-        <input type="date" formControlName="start_date" class="..."/>
+        <input type="date" formControlName="start_date" class="h-10 rounded-md border border-neutral-300 bg-transparent px-3"/>
       </div>
       <div class="flex flex-col w-full sm:w-1/3">
         <label>End Date</label>
-        <input type="date" formControlName="end_date" class="..."/>
+        <input type="date" formControlName="end_date" class="h-10 rounded-md border border-neutral-300 bg-transparent px-3"/>
       </div>
       <button mat-flat-button color="primary" (click)="fetchReports()">
         <mat-icon>search</mat-icon> Search
       </button>
     </form>
   </div>
+  </app-section-card>
 
-  <!-- Refresh + Quick Filter -->
-  <div class="mt-4 flex items-center justify-between">
-    <div class="flex items-center gap-2">
+  <app-section-card title="Report results" description="Filter the generated hospital billing summary or export it as PDF." icon="table_view">
+  <app-table-toolbar>
+    <div uiToolbarPrimary class="flex items-center gap-2 w-full">
       <button mat-icon-button (click)="renew()" matTooltip="Refresh">
         <mat-icon>refresh</mat-icon>
       </button>
       <input #input matInput placeholder="Search..." (keyup)="applyFilter($event)" class="border-b h-10 w-96"/>
     </div>
-  </div>
+  </app-table-toolbar>
 
   <!-- Data Table -->
-  <div class="border rounded-lg overflow-hidden mt-4">
+  <div class="border rounded-lg overflow-x-auto">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
       <!-- No Column -->
@@ -94,9 +91,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="6">
-          No data matching "{{ input.value }}"
-        </td>
+        <td class="mat-cell" colspan="8"><app-empty-state title="No report data found" [message]="input.value ? 'No report rows match your search.' : 'Choose a date range and generate the report.'" icon="analytics" /></td>
       </tr>
 
     </table>
@@ -104,4 +99,6 @@
     <!-- Pagination -->
     <mat-paginator [pageSizeOptions]="[10,20,100]" showFirstLastButtons></mat-paginator>
   </div>
+  </app-section-card>
+  <app-loading-state *ngIf="loading" label="Generating referral report…" [overlay]="true" />
 </div>

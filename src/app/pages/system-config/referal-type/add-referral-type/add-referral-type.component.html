@@ -12,7 +12,7 @@
               <span *ngIf="referralTypeForm.controls['referral_type_name'].errors?.['required']">This field is mandatory</span>
             </mat-error>
           </mat-form-field>
-  
+
           <!-- <mat-form-field class="w-full mt-4">
             <mat-label>Referral Type Code:</mat-label>
             <input matInput placeholder="Ex. REFERRAL 0099" formControlName="referral_type_code" type="text">
@@ -28,9 +28,7 @@
   
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button *ngIf="!referralData" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="referralTypeForm.invalid" (click)="saveReferralType()">Save ReferralType</button>
-      <button *ngIf="referralData" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="referralTypeForm.invalid" (click)="updateReferralType()">Save ReferralType</button>
+      <button *ngIf="!referralData" mat-flat-button cdkFocusInitial [disabled]="referralTypeForm.invalid || submitting" (click)="saveReferralType()">{{ submitting ? 'Saving...' : 'Save Referral Type' }}</button>
+      <button *ngIf="referralData" mat-flat-button cdkFocusInitial [disabled]="referralTypeForm.invalid || submitting" (click)="updateReferralType()">{{ submitting ? 'Saving...' : 'Save Referral Type' }}</button>
     </mat-dialog-actions>
   </div>
-  
-  

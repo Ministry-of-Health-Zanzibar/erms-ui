@@ -9,7 +9,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
-import { Observable, Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInput } from '@angular/material/input';
@@ -36,6 +36,7 @@ import { RangereportService } from '../../../../services/accountants/rangereport
 import { SourcesService } from '../../../../services/accountants/sources.service';
 import { SourceTypeService } from '../../../../services/accountants/source-type.service';
 import { CategoryService } from '../../../../services/accountants/category.service';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-parameter-report',
@@ -53,7 +54,12 @@ import { CategoryService } from '../../../../services/accountants/category.servi
     MatInput,
     MatIcon,
     MatFormFieldModule,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './parameter-report.component.html',
   styleUrl: './parameter-report.component.scss'
@@ -103,6 +109,7 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   applyFilter(event: Event): void {
@@ -126,17 +133,17 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
   }
 
   getSource(): void {
-    this.sourceServices.getAllSource().subscribe(response => {
+    this.sourceServices.getAllSource().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.sources = response.data;
     });
   }
   getSourceType(): void {
-    this.sourceTypeService.getAllSourceType().subscribe(response => {
+    this.sourceTypeService.getAllSourceType().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.sourceType = response.data;
     });
   }
   getCategory(): void {
-    this.categoryServices.getAllCategory().subscribe(response => {
+    this.categoryServices.getAllCategory().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.category = response.data;
     });
   }
@@ -145,7 +152,7 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
 
     if (this.reportForm.valid) {
       this.loading = true;
-      this.reportService.generateReport(this.reportForm.value).subscribe(response => {
+      this.reportService.generateReport(this.reportForm.value).pipe(takeUntil(this.onDestroy)).subscribe(response => {
         this.loading = false;
         this.dataSource.data = response.data;
         this.dataSource.paginator = this.paginator;
@@ -206,7 +213,5 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
 
 
 }
-
-
 
 

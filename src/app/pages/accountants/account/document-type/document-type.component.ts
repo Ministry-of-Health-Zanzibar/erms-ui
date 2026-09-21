@@ -17,10 +17,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { AddsourceComponent } from '../addsource/addsource.component';
 import Swal from 'sweetalert2';
 import { DocumentTypeService } from '../../../../services/accountants/document-type.service';
 import { AdddocumentTypeComponent } from '../adddocument-type/adddocument-type.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-document-type',
@@ -40,7 +40,11 @@ import { AdddocumentTypeComponent } from '../adddocument-type/adddocument-type.c
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './document-type.component.html',
   styleUrl: './document-type.component.scss'
@@ -66,6 +70,7 @@ export class DocumentTypeComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getDocumentType();

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -16,6 +16,8 @@ import Swal from 'sweetalert2';
 import { BillItermService } from '../../../../services/Bills/bill-iterm.service';
 import { BillItermFormComponent } from '../bill-iterm-form/bill-iterm-form.component';
 import { VDividerComponent, EmrSegmentedModule } from '@elementar/components';
+import { Subject, takeUntil } from 'rxjs';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 interface BillItem {
   bill_item_id: number;
@@ -44,12 +46,18 @@ interface BillItem {
     MatMenuModule,
     VDividerComponent,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './bill-iterm-details.component.html',
   styleUrls: ['./bill-iterm-details.component.scss'],
   providers: [DatePipe],
 })
-export class BillItermDetailsComponent implements OnInit, AfterViewInit {
+export class BillItermDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly onDestroy = new Subject<void>();
   public loading = false;
   public bill_id: string | null = null;
 
@@ -84,6 +92,11 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
+  ngOnDestroy(): void {
+    this.onDestroy.next();
+    this.onDestroy.complete();
+  }
+
   applyFilter(event: KeyboardEvent) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -95,7 +108,7 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit {
 
   private getBillItemsByBillId(billId: string) {
     this.loading = true;
-    this.billService.getbillItermByBillId(billId).subscribe({
+    this.billService.getbillItermByBillId(billId).pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response: any) => {
         this.loading = false;
         if (response?.data) {
@@ -105,9 +118,8 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit {
           this.dataSource.data = [];
         }
       },
-      error: (error) => {
+      error: () => {
         this.loading = false;
-        console.error('Error fetching bill items:', error);
         Swal.fire('Error', 'Failed to fetch bill items', 'error');
       },
     });
@@ -123,7 +135,7 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit {
       data: { billId },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.onDestroy)).subscribe((result) => {
       if (result) {
         const payload = {
           bill_id: billId,
@@ -141,7 +153,7 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit {
     description: string;
     amount: number;
   }) {
-    this.billService.addbillIterms(payload).subscribe({
+    this.billService.addbillIterms(payload).pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response) => {
         Swal.fire('Success', 'Bill item added successfully', 'success');
         if (payload.bill_id) {
@@ -149,8 +161,6 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit {
         }
       },
       error: (error) => {
-        console.error('Error creating bill item:', error);
-
         let errorMessage = 'Failed to add bill item. Please try again.';
 
         if (error.status === 422 && error.error?.message) {

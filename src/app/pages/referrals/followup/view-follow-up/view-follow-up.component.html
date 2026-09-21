@@ -1,34 +1,10 @@
 <div *ngIf="follow" class="mx-auto p-6">
-  <!-- Banner Header -->
-  <div
-    class="relative bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-10 mb-8 flex items-center justify-center overflow-hidden"
+  <app-page-header
+    title="Patient follow-up records"
+    description="Review treatment progress, outcomes, appointments, and supporting letters."
+    icon="event_note"
   >
-    <!-- Left AI Image -->
-    <img
-      src="../../../../assets/img/doctor.png"
-      alt="AI Left"
-      class="absolute left-4 top-1/2 transform -translate-y-1/2 w-28 h-28 opacity-80 rounded-full shadow-lg"
-    />
-
-    <!-- Center Text -->
-    <div class="text-center z-10">
-      <h1 class="text-4xl font-bold tracking-wide drop-shadow-md">
-        Patient Follow up Records
-      </h1>
-      <p class="mt-3 text-lg opacity-90">
-        A complete list of registered follow and their details
-      </p>
-    </div>
-
-    <!-- Right AI Image -->
-    <img
-      src="../../../../assets/img/objective3.png"
-      alt="AI Right"
-      class="absolute right-4 top-1/2 transform -translate-y-1/2 w-28 h-28 opacity-80 rounded-full shadow-lg"
-    />
-  </div>
-
-  <div class="flex gap-3 justify-end">
+  <div uiPageActions class="flex flex-wrap gap-3 justify-end">
     <button
       mat-raised-button
       color="primary"
@@ -81,15 +57,15 @@
       Death
     </button>
   </div>
+  </app-page-header>
 
   <!-- Patient Table -->
-  <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
-    <!-- Table Header with Add Button -->
-    <div class="flex justify-between items-center p-4 bg-gray-50 border-b">
-      <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
-        <mat-icon class="text-blue-600">assignment</mat-icon>
-        Follow-up Records
-      </h3>
+  <app-section-card
+    class="block mt-6"
+    title="Follow-up history"
+    description="All recorded follow-up letters for this referral."
+    icon="history"
+  >
 
       <!-- Table -->
       <table
@@ -197,12 +173,17 @@
 
       <!-- Empty Message -->
       <ng-template #nofollow>
-        <div
-          class="text-center text-gray-500 p-6 bg-gray-50 rounded-lg shadow-md"
-        >
-          No follow-up records available.
-        </div>
+        <app-empty-state
+          title="No follow-up records"
+          message="Follow-up records for this referral will appear here."
+          icon="event_busy"
+        />
       </ng-template>
-    </div>
-  </div>
+  </app-section-card>
 </div>
+
+<app-loading-state
+  *ngIf="loading"
+  label="Loading follow-up records…"
+  [overlay]="true"
+/>

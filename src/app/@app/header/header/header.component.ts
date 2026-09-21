@@ -19,8 +19,8 @@ import {
   LayoutApiService,
   EmrPopoverModule
 } from '@elementar/components';
-import { NotificationListComponent } from '@app/header/_notifications/notification-list/notification-list.component';
-import { AssistantSearchComponent } from '@app/header/_assistant-search/assistant-search.component';
+import { NotificationListComponent } from '@layout/header/_notifications/notification-list/notification-list.component';
+import { AssistantSearchComponent } from '@layout/header/_assistant-search/assistant-search.component';
 import Swal from 'sweetalert2';
 import { InactivityService } from '../../../services/accountants/inactivity.service';
 import { ConversationService } from '../../../services/conversation.service'; 

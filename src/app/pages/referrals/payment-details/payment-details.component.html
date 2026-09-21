@@ -59,6 +59,9 @@
   </mat-card>
 </div>
 
-<div class="flex justify-center items-center h-64" *ngIf="loading">
-  <mat-icon class="animate-spin text-4xl text-gray-500">autorenew</mat-icon>
+<app-loading-state *ngIf="loading" label="Loading payment details…" />
+
+<div class="flex min-h-64 flex-col items-center justify-center gap-2 text-center text-gray-500" *ngIf="!loading && loadError">
+  <mat-icon>error_outline</mat-icon>
+  <p>Unable to load payment details. Please return to the payment list and try again.</p>
 </div>

@@ -1,0 +1,363 @@
+:host {
+  display: block;
+}
+
+.metric-card {
+  --metric-accent: #2563eb;
+  --metric-soft: #eff6ff;
+  --metric-glow: rgb(147 197 253 / 0.4);
+  color: var(--rms-text);
+  background: linear-gradient(135deg, var(--rms-surface), var(--metric-soft));
+  border: 1px solid var(--rms-border);
+
+  &--green {
+    --metric-accent: #16a34a;
+    --metric-soft: #f0fdf4;
+    --metric-glow: rgb(134 239 172 / 0.45);
+  }
+
+  &--teal {
+    --metric-accent: #0f766e;
+    --metric-soft: #f0fdfa;
+    --metric-glow: rgb(94 234 212 / 0.4);
+  }
+
+  &--blue {
+    --metric-accent: #2563eb;
+    --metric-soft: #eff6ff;
+    --metric-glow: rgb(147 197 253 / 0.4);
+  }
+
+  &--amber {
+    --metric-accent: #b45309;
+    --metric-soft: #fffbeb;
+    --metric-glow: rgb(252 211 77 / 0.4);
+  }
+}
+
+.metric-label {
+  color: var(--rms-text-muted);
+}
+
+.metric-value {
+  color: var(--rms-text);
+}
+
+.metric-icon {
+  color: var(--metric-accent);
+  background: var(--rms-surface);
+}
+
+.metric-glow {
+  background: var(--metric-glow);
+}
+
+:host-context(html.dark) .metric-card {
+  --metric-soft: #172033;
+  --metric-glow: rgb(96 165 250 / 0.2);
+
+  &--green {
+    --metric-accent: #4ade80;
+    --metric-glow: rgb(74 222 128 / 0.18);
+  }
+
+  &--teal {
+    --metric-accent: #2dd4bf;
+    --metric-glow: rgb(45 212 191 / 0.18);
+  }
+
+  &--blue {
+    --metric-accent: #60a5fa;
+  }
+
+  &--amber {
+    --metric-accent: #fbbf24;
+    --metric-glow: rgb(251 191 36 / 0.18);
+  }
+}
+
+.tracking-card {
+  overflow: hidden;
+  border: 1px solid var(--rms-border);
+  border-radius: 1rem;
+  background: var(--rms-surface);
+  box-shadow: 0 8px 24px var(--rms-shadow);
+}
+
+.tracking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--rms-border);
+  background: var(--rms-surface-subtle);
+}
+
+.tracking-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+
+  h2 {
+    margin: 0;
+    color: var(--rms-text);
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0.2rem 0 0;
+    color: var(--rms-text-muted);
+    font-size: 0.8125rem;
+  }
+}
+
+.tracking-icon {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  flex: none;
+  border-radius: 0.75rem;
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.tracking-total {
+  text-align: right;
+
+  span {
+    display: block;
+    color: var(--rms-text-muted);
+    font-size: 0.75rem;
+  }
+
+  strong {
+    color: var(--rms-text);
+    font-size: 1.5rem;
+  }
+}
+
+.tracking-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);
+  gap: 1.5rem;
+  padding: 1.25rem;
+}
+
+.tracking-chart {
+  min-width: 0;
+}
+
+:host ::ng-deep .tracking-chart {
+  .apexcharts-text,
+  .apexcharts-xaxis-title-text {
+    fill: var(--rms-text-muted);
+  }
+
+  .apexcharts-gridline {
+    stroke: var(--rms-border);
+  }
+}
+
+:host ::ng-deep apx-chart {
+  .apexcharts-text,
+  .apexcharts-title-text,
+  .apexcharts-legend-text,
+  .apexcharts-xaxis-title-text,
+  .apexcharts-yaxis-title-text {
+    fill: var(--rms-text) !important;
+    color: var(--rms-text) !important;
+  }
+
+  .apexcharts-gridline,
+  .apexcharts-xaxis line,
+  .apexcharts-yaxis line {
+    stroke: var(--rms-border) !important;
+  }
+
+  .apexcharts-menu,
+  .apexcharts-tooltip,
+  .apexcharts-tooltip-title {
+    color: var(--rms-text) !important;
+    background: var(--rms-surface) !important;
+    border-color: var(--rms-border) !important;
+  }
+
+  .apexcharts-menu-item:hover {
+    background: var(--rms-surface-muted) !important;
+  }
+
+  .apexcharts-toolbar svg {
+    fill: var(--rms-text-muted) !important;
+  }
+}
+
+.diagnoses-backdrop {
+  padding: 1rem;
+  background: rgb(2 6 23 / 0.68);
+  backdrop-filter: blur(3px);
+}
+
+.diagnoses-dialog {
+  color: var(--rms-text);
+  background: var(--rms-surface);
+  border: 1px solid var(--rms-border);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.3);
+}
+
+.diagnoses-subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--rms-text-muted);
+  font-size: 0.8rem;
+}
+
+.diagnoses-table {
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--rms-border);
+    text-align: left;
+  }
+
+  th {
+    color: var(--rms-text-muted);
+    background: var(--rms-surface-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  tbody tr:hover {
+    background: var(--rms-surface-subtle);
+  }
+}
+
+.diagnosis-total {
+  width: 7rem;
+  text-align: center !important;
+}
+
+.diagnoses-message {
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--rms-border-strong);
+  border-radius: 0.75rem;
+  color: var(--rms-text-muted);
+  background: var(--rms-surface-subtle);
+  text-align: center;
+}
+
+.diagnoses-error {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+:host-context(html.dark) .diagnoses-error {
+  color: #fecaca;
+  border-color: #7f1d1d;
+  background: #450a0a;
+}
+
+.stage-number,
+.patient-count {
+  display: inline-grid;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+  place-items: center;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.stage-number {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.patient-count {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.stage-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.stage-summary-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--rms-border);
+  border-radius: 0.75rem;
+  background: var(--rms-surface-subtle);
+}
+
+.stage-copy {
+  min-width: 0;
+
+  p {
+    margin: 0.2rem 0 0;
+    color: var(--rms-text-muted);
+    font-size: 0.7rem;
+    line-height: 1.35;
+  }
+}
+
+.stage-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  strong {
+    font-size: 0.78rem;
+  }
+
+  span {
+    flex: none;
+    color: var(--rms-text-muted);
+    font-size: 0.65rem;
+  }
+}
+
+.tracking-empty {
+  padding: 2rem !important;
+  color: var(--rms-text-muted);
+  text-align: center !important;
+}
+
+:host-context(html.dark) {
+  .tracking-icon,
+  .stage-number {
+    color: #bfdbfe;
+    background: #1e3a8a;
+  }
+
+  .patient-count {
+    background: #1d4ed8;
+  }
+}
+
+@media (max-width: 640px) {
+  .tracking-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tracking-total {
+    text-align: left;
+  }
+}
+
+@media (max-width: 1100px) {
+  .tracking-content {
+    grid-template-columns: 1fr;
+  }
+}

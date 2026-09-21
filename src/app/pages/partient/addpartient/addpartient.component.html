@@ -256,10 +256,7 @@
             type="submit"
             [disabled]="!patientForm.valid || loading"
           >
-            <span *ngIf="loading" class="flex items-center">
-              <mat-spinner diameter="20" class="mr-2"></mat-spinner>
-              Processing...
-            </span>
+            <span *ngIf="loading">Processing…</span>
             <span *ngIf="!loading">Save Patient</span>
           </button>
         </div>

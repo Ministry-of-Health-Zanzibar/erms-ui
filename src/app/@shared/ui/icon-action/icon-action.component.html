@@ -1,0 +1,11 @@
+<button
+  type="button"
+  class="ui-icon-action"
+  [attr.data-tone]="tone"
+  [attr.aria-label]="label"
+  [disabled]="disabled"
+  [matTooltip]="label"
+  (click)="action.emit()"
+>
+  <mat-icon>{{ icon }}</mat-icon>
+</button>

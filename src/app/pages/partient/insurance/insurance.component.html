@@ -119,9 +119,8 @@
 
   <mat-dialog-actions align ="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button *ngIf="id" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="patientForm.invalid" (click)="saveClient()">Add Patient</button>
+    <button *ngIf="id" mat-flat-button cdkFocusInitial [disabled]="patientForm.invalid || submitting" (click)="saveClient()">{{ submitting ? 'Adding...' : 'Add Patient' }}</button>
   </mat-dialog-actions>
 </div>
-
 
 

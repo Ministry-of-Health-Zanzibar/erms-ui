@@ -147,22 +147,20 @@
     <button
       *ngIf="!hospitalData"
       mat-flat-button
-      [mat-dialog-close]="true"
       cdkFocusInitial
-      [disabled]="hospitalForm.invalid"
+      [disabled]="hospitalForm.invalid || submitting"
       (click)="saveHospital()"
     >
-      Save Data
+      {{ submitting ? 'Saving...' : 'Save Hospital' }}
     </button>
     <button
       *ngIf="hospitalData"
       mat-flat-button
-      [mat-dialog-close]="true"
       cdkFocusInitial
-      [disabled]="hospitalForm.invalid"
+      [disabled]="hospitalForm.invalid || submitting"
       (click)="updateHospital()"
     >
-      Update Data
+      {{ submitting ? 'Saving...' : 'Update Hospital' }}
     </button>
   </mat-dialog-actions>
 </div>

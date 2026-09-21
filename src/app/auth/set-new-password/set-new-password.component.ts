@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { EmrPinInputModule, HDividerComponent } from '@elementar/components';
@@ -8,10 +8,12 @@ import { MatError, MatFormField, MatHint, MatLabel, MatSuffix } from '@angular/m
 import { MatInput } from '@angular/material/input';
 import { PasswordStrengthModule } from '@elementar/components';
 import Swal from 'sweetalert2';
-import { AuthService } from '../../services/authentication/auth.service';
+import { AuthService } from '@core/authentication/auth.service';
 import { GlobalConstants } from '@shared/global-constants';
 import { MatTooltip } from '@angular/material/tooltip';
 import { NgIf } from '@angular/common';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-set-new-password',
@@ -39,12 +41,14 @@ import { NgIf } from '@angular/common';
   templateUrl: './set-new-password.component.html',
   styleUrl: './set-new-password.component.scss'
 })
-export class SetNewPasswordComponent {
+export class SetNewPasswordComponent implements OnDestroy {
+  private readonly onDestroy = new Subject<void>();
   credentialForm:any = FormGroup;
   passwordVisible: boolean = false;
   newPasswordVisible: boolean = false;
   passwordConfirmVisible: boolean = false;
   passwordConfirmed: boolean = false;
+  submitting = false;
 
   constructor(private formBuilder:FormBuilder,
     private route:Router,
@@ -57,11 +61,16 @@ export class SetNewPasswordComponent {
   public credentialFormData(){
     this.credentialForm = this.formBuilder.group({
       old_password: new FormControl(null, [Validators.required]),
-      new_password: new FormControl(null, [Validators.required]),
+      new_password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
       password_confirmation: new FormControl(null, [Validators.required]),
     },{
       validators: this.checkPassword('new_password', 'password_confirmation') // Apply the custom validator
     });
+  }
+
+  ngOnDestroy(): void {
+    this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   // Function to toggle password visibility
@@ -91,7 +100,16 @@ export class SetNewPasswordComponent {
   }
 
   submit(){
-    this.authService.changePassword(this.credentialForm.value).subscribe((response) => {
+    if (this.credentialForm.invalid || this.submitting) {
+      this.credentialForm.markAllAsTouched();
+      return;
+    }
+
+    this.submitting = true;
+    this.authService.changePassword(this.credentialForm.value).pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.submitting = false)
+    ).subscribe((response) => {
       if(response.statusCode == 201){
         Swal.fire({
           title: "Success",
@@ -113,9 +131,9 @@ export class SetNewPasswordComponent {
       }
     },(error) => {
       Swal.fire({
-        title: 'Warning!',
-        text: GlobalConstants.genericErrorConnectFail,
-        icon: 'warning',
+        title: 'Unable to change password',
+        text: getApiErrorMessage(error, GlobalConstants.genericErrorConnectFail),
+        icon: 'error',
         confirmButtonText: 'OK',
       });
     });
