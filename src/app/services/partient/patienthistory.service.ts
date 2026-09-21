@@ -1,17 +1,23 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PatienthistoryService {
-   private baseUrl: string = `${environment.baseUrl}`;
+  private baseUrl: string = `${environment.baseUrl}`;
   private href = `${this.baseUrl}patientsHistories`;
 
   constructor(private http: HttpClient) {}
-  //body list
+  
+  // Haina haja ya page wala perPage tena, inaleta orodha nzima
+  public getBodyList(): Observable<any> {
+    return this.http.get<any>(this.href);
+  }
+
+  // Unaweza kuacha hii kwa usalama kama bado inaitwa sehemu nyingine
   public getAllBodyList(): Observable<any> {
     return this.http.get<any>(this.href);
   }

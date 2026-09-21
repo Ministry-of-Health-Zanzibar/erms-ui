@@ -5,7 +5,11 @@ import { PartientService } from '../../../services/partient/partient.service';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import {
   MatDialog,
@@ -21,31 +25,39 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
 import Swal from 'sweetalert2';
 import { PatienthistoryService } from '../../../services/partient/patienthistory.service';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-viewpatientfromhospital',
   standalone: true,
   imports: [
-     CommonModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatIconModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatTooltipModule,
-        FormsModule,
-        MatSlideToggle,
-        EmrSegmentedModule,
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatTooltipModule,
+    FormsModule,
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './viewpatientfromhospital.component.html',
-  styleUrl: './viewpatientfromhospital.component.scss'
+  styleUrl: './viewpatientfromhospital.component.scss',
 })
 export class ViewpatientfromhospitalComponent {
-
-public documentUrl = environment.fileUrl;
+  public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  totalItems = 0;
+  pageSize = 10;
+  currentPage = 1;
 
   displayedColumns: string[] = [
     'id',
@@ -67,15 +79,21 @@ public documentUrl = environment.fileUrl;
     private userService: PartientService,
     private patientHistory: PatienthistoryService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.loadPatients();
   }
 
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   renew() {
@@ -94,12 +112,12 @@ public documentUrl = environment.fileUrl;
             this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
           } else {
-            // console.log('No patient data found');
+
           }
         },
         (error) => {
           this.loading = false;
-          // console.log('Failed to load patient data', error);
+
         }
       );
   }
@@ -118,8 +136,6 @@ public documentUrl = environment.fileUrl;
       window.open(url, '_blank');
     }
   }
-
-
 
   confirmBlock(data: any) {
     const message = data.deleted_at
@@ -150,7 +166,7 @@ public documentUrl = environment.fileUrl;
         },
         (err) => {
           Swal.fire('Error', 'Failed to unblock patient', 'error');
-        }
+        },
       );
     } else {
       this.userService.deletePatients(data?.patient_id).subscribe(
@@ -160,23 +176,19 @@ public documentUrl = environment.fileUrl;
         },
         (err) => {
           Swal.fire('Error', 'Failed to delete patient', 'error');
-        }
+        },
       );
     }
   }
-//  displayMoreData(data: any) {
-//     const id = data.patient_histories_id;
-//     this.router.navigate(['/pages/patient/patient', id]);
-//   }
-displayMoreData(data: any) {
-  const id = data?.latest_history?.patient_histories_id;
+  
+  displayMoreData(data: any) {
+    const id = data?.latest_history?.patient_histories_id;
 
-  if (!id) {
-    Swal.fire('Error', 'No history ID available.', 'error');
-    return;
+    if (!id) {
+      Swal.fire('Error', 'No history ID available.', 'error');
+      return;
+    }
+
+    this.router.navigate(['/pages/patient/patientfromhospital', id]);
   }
-
-  this.router.navigate(['/pages/patient/patientfromhospital', id]);
-}
-
 }

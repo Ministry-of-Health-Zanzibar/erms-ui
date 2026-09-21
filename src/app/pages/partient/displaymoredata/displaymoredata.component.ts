@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PartientService } from '../../../services/partient/partient.service';
+import { LoadingStateComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-displaymoredata',
@@ -23,7 +24,8 @@ import { PartientService } from '../../../services/partient/partient.service';
     MatCheckboxModule,
     ReactiveFormsModule,
     MatIcon,
-    MatDialogModule
+    MatDialogModule,
+    LoadingStateComponent
   ],
   templateUrl: './displaymoredata.component.html',
   styleUrl: './displaymoredata.component.scss'

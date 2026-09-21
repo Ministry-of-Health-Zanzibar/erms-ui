@@ -1,7 +1,6 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Report'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Report</h1>
-    <!-- Export Buttons -->
+  <app-page-header title="Referral Search Report" description="Search referral records using patient, hospital, reason, and date criteria." icon="manage_search" />
+  <app-section-card title="Report criteria" description="Use one or more fields to narrow the referral report." icon="filter_alt">
     <div class="flex gap-4">
       <!-- <button mat-raised-button color="accent" (click)="exportExcel()">
         <mat-icon>table_chart</mat-icon>
@@ -12,10 +11,7 @@
         Export PDF
       </button>
     </div>
-  </div>
-
-
-  <div class="search-container bg-gray-100 p-6 rounded-xl shadow-md">
+  <div class="search-container rounded-xl mt-4">
     <form [formGroup]="reportForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <!-- Source -->
@@ -104,69 +100,133 @@
 
     </form>
   </div>
+  </app-section-card>
 
-
-
-  <div class="mt-4 flex items-center justify-between">
-    <div class="flex items-center gap-1.5">
+  <app-section-card title="Report results" description="Filter the returned referrals or export them as PDF." icon="table_view">
+  <app-table-toolbar>
+    <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
       <div class="size-9 rounded-full border bg-surface flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
         <mat-icon class="font-icon visibilityData">refresh</mat-icon>
       </div>
       <input type="text" placeholder="Search..." class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
     </div>
-  </div>
+  </app-table-toolbar>
 
-  <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-      <!-- No Column -->
-      <ng-container matColumnDef="no">
-        <th mat-header-cell *matHeaderCellDef>No</th>
-        <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
-      </ng-container>
+  <div class="border dark:border-inverse rounded-lg overflow-x-auto">
+   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-      <!-- Full Name Column -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Full Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.patient_name | uppercase }}</td>
-      </ng-container>
+  <!-- No -->
+  <ng-container matColumnDef="no">
+    <th mat-header-cell *matHeaderCellDef>No</th>
+    <td mat-cell *matCellDef="let element; let i = index">
+      {{ i + 1 }}
+    </td>
+  </ng-container>
 
-      <!-- Phone Column -->
-      <ng-container matColumnDef="hospital_name">
-        <th mat-header-cell *matHeaderCellDef>Hospital Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.hospital_name }}</td>
-      </ng-container>
+  <!-- Referral ID -->
+  <ng-container matColumnDef="referral_id">
+    <th mat-header-cell *matHeaderCellDef>Referral ID</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element.referral_id }}
+    </td>
+  </ng-container>
 
-      <ng-container matColumnDef="hospital_address">
-        <th mat-header-cell *matHeaderCellDef>Hospital Address</th>
-        <td mat-cell *matCellDef="let element">{{ element.hospital_address }}</td>
-      </ng-container>
+  <!-- Patient Name -->
+  <ng-container matColumnDef="patient_name">
+    <th mat-header-cell *matHeaderCellDef>Patient Name</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element.patient_name | uppercase }}
+    </td>
+  </ng-container>
+
+<!-- Hospital -->
+<ng-container matColumnDef="hospital">
+  <th mat-header-cell *matHeaderCellDef>Hospital</th>
+  <td mat-cell *matCellDef="let element">
+    <div class="font-medium">
+      {{ element.hospital_name }}
+    </div>
+    <div class="text-xs text-gray-500">
+      {{ element.hospital_address }}
+    </div>
+  </td>
+</ng-container>
 
 
-      <ng-container matColumnDef="referral_reason_name">
-        <th mat-header-cell *matHeaderCellDef>Referral Reason Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.referral_reason_name }}</td>
-      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell tablefoter" colspan="10">No data matching the filter "{{input.value}}"</td>
-      </tr>
-    </table>
+
+
+  <!-- Insurance -->
+  <ng-container matColumnDef="insurance_provider_name">
+    <th mat-header-cell *matHeaderCellDef>Insurance</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element.insurance_provider_name }}
+    </td>
+  </ng-container>
+
+ 
+
+  <!-- Start Date -->
+  <ng-container matColumnDef="start_date">
+    <th mat-header-cell *matHeaderCellDef>Start Date</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element.start_date | date:'dd/MM/yyyy' }}
+    </td>
+  </ng-container>
+
+  <!-- End Date -->
+  <ng-container matColumnDef="end_date">
+    <th mat-header-cell *matHeaderCellDef>End Date</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element.end_date | date:'dd/MM/yyyy' }}
+    </td>
+  </ng-container>
+
+  <!-- Diagnoses -->
+  <ng-container matColumnDef="board_diagnoses">
+    <th mat-header-cell *matHeaderCellDef>Board Diagnoses</th>
+    <td mat-cell *matCellDef="let element">
+
+      <div *ngIf="element.board_diagnoses?.length; else noDiagnosis">
+        <div *ngFor="let diagnosis of element.board_diagnoses">
+          <strong>{{ diagnosis.diagnosis_code }}</strong> -
+          {{ diagnosis.diagnosis_name }}
+        </div>
+      </div>
+
+      <ng-template #noDiagnosis>
+        <span class="text-gray-400">N/A</span>
+      </ng-template>
+
+    </td>
+  </ng-container>
+
+  <!-- Created Date -->
+  <ng-container matColumnDef="created_at">
+    <th mat-header-cell *matHeaderCellDef>Created Date</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element.created_at | date:'dd/MM/yyyy HH:mm' }}
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell tablefoter" [attr.colspan]="displayedColumns.length">
+      <app-empty-state title="No referrals found" [message]="input.value ? 'No referrals match your table search.' : 'Choose report criteria and search for referrals.'" icon="manage_search" />
+    </td>
+  </tr>
+
+</table>
     <mat-paginator [pageSizeOptions]="[10, 20, 100]" showFirstLastButtons></mat-paginator>
   </div>
+  </app-section-card>
 
-  <div *ngIf="loading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
-    <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-  </div>
+  <app-loading-state *ngIf="loading" label="Searching referral records…" [overlay]="true" />
 
 
-<div *ngIf="noResults" class="text-center py-4 text-gray-600">
-  No results found for the selected date range.
 </div>
-</div>
-
-
 
 
 

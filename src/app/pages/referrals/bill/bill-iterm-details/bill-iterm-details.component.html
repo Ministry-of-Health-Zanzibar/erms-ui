@@ -1,15 +1,8 @@
 <div class="p-10 space-y-8">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Bill Items</h1>
-  </div>
-
-  <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-    <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">
-      View Bill Items
-    </div>
-
-    <div class="mt-4 flex items-center justify-between">
-      <div class="flex items-center gap-1.5">
+  <app-page-header title="Bill Items" description="Review and add the individual charges recorded on this bill." icon="receipt_long" />
+  <app-section-card title="Bill item records" description="Search bill items or open an item for more details." icon="list_alt">
+    <app-table-toolbar>
+      <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
         <!-- <button mat-icon-button (click)="getBillItemsByBillId(bill_id!)" matTooltip="Refresh">
           <mat-icon>refresh</mat-icon>
         </button> -->
@@ -21,10 +14,11 @@
           class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950"
           matInput
           (keyup)="applyFilter($event)"
+          #input
         />
       </div>
 
-      <div class="mb-4 text-right">
+      <div uiToolbarActions>
         <button
           mat-flat-button
           color="primary"
@@ -34,9 +28,9 @@
           Add Bill Item
         </button>
       </div>
-    </div>
+    </app-table-toolbar>
 
-    <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+    <div class="border dark:border-inverse rounded-lg overflow-x-auto">
       <table mat-table [dataSource]="dataSource" class="not-prose w-full">
         <!-- Bill Item ID -->
         <ng-container matColumnDef="bill_item_id">
@@ -77,10 +71,8 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
         <!-- No Data -->
-        <tr *ngIf="dataSource.data.length === 0">
-          <td [attr.colspan]="displayedColumns.length" class="text-center p-4">
-            No bills available.
-          </td>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length"><app-empty-state title="No bill items found" [message]="input.value ? 'No bill items match your search.' : 'Bill items will appear here.'" icon="receipt_long" /></td>
         </tr>
       </table>
 
@@ -89,14 +81,7 @@
         showFirstLastButtons
       ></mat-paginator>
     </div>
-  </div>
+  </app-section-card>
 
-  <div
-    *ngIf="loading"
-    class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-  >
-    <div
-      class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-    ></div>
-  </div>
+  <app-loading-state *ngIf="loading" label="Loading bill items…" [overlay]="true" />
 </div>

@@ -96,6 +96,7 @@ export class ReferralpaymentComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   onClose() {

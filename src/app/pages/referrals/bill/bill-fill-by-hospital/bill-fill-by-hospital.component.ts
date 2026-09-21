@@ -15,6 +15,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogConfig } from '@angular/material/dialog';
 import { AddbillComponent } from '../../../system-config/bill/addbill/addbill.component';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-bill-fill-by-hospital',
@@ -28,7 +29,13 @@ import { AddbillComponent } from '../../../system-config/bill/addbill/addbill.co
     FormsModule,
     EmrSegmentedModule,
     MatDividerModule,
-    MatCardModule
+    MatCardModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent
   ],
   templateUrl: './bill-fill-by-hospital.component.html',
   styleUrls: ['./bill-fill-by-hospital.component.scss'],
@@ -49,7 +56,13 @@ export class BillFillByHospitalComponent {
   ];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
-  totals: any = null;
+  // totals: any = null;
+  totals: any = {};
+miotTotals = {
+  total_bill_file_amount: 0,
+  total_allocated_amount: 0,
+  total_balance: 0,
+};
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -69,31 +82,65 @@ export class BillFillByHospitalComponent {
     this.onDestroy.next();
     this.onDestroy.complete();
   }
-  loadBillsByHospital() {
-    this.loading = true;
-    this.billService
-      .getAllBillFilesByHospital()
-      .pipe(takeUntil(this.onDestroy))
-      .subscribe(
-        (response: any) => {
-          this.loading = false;
-          if (response.data) {
-            this.dataSource = new MatTableDataSource(
-              response.data.hospitals || []
-            );
+loadBillsByHospital() {
+  this.loading = true;
 
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
+  this.billService
+    .getAllBillFilesByHospital()
+    .pipe(takeUntil(this.onDestroy))
+    .subscribe(
+      (response: any) => {
+        this.loading = false;
 
-            this.totals = response.data.totals;
+        if (!response?.data) return;
+
+        const hospitals = response.data.hospitals || [];
+
+        this.dataSource = new MatTableDataSource(hospitals);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+
+        // reset totals
+        this.totals = {
+          total_bill_file_amount: 0,
+          total_allocated_amount: 0,
+          total_balance: 0,
+        };
+
+        this.miotTotals = {
+          total_bill_file_amount: 0,
+          total_allocated_amount: 0,
+          total_balance: 0,
+        };
+
+        const MIOT_NAME =
+          'Madras Institute of Orthopaedics and Traumatology (MIOT)';
+
+        hospitals.forEach((hospital: any) => {
+          const isMIOT = hospital?.hospital_name === MIOT_NAME;
+
+          const bill = Number(hospital?.total_bill_file_amount || 0);
+          const allocated = Number(hospital?.total_allocated_amount || 0);
+          const balance = Number(hospital?.total_balance || 0);
+
+          if (isMIOT) {
+            // USD totals (MIOT)
+            this.miotTotals.total_bill_file_amount += bill;
+            this.miotTotals.total_allocated_amount += allocated;
+            this.miotTotals.total_balance += balance;
+          } else {
+            // TZS totals (others)
+            this.totals.total_bill_file_amount += bill;
+            this.totals.total_allocated_amount += allocated;
+            this.totals.total_balance += balance;
           }
-        },
-        (error) => {
-          this.loading = false;
-          console.error('Failed to load bill files', error);
-        }
-      );
-  }
+        });
+      },
+      () => {
+        this.loading = false;
+      }
+    );
+}
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

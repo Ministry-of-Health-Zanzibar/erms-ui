@@ -9,7 +9,11 @@ import {
 } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -24,6 +28,13 @@ import { MatSort } from '@angular/material/sort';
 import { AddbodylistComponent } from '../addbodylist/addbodylist.component';
 import { InsuranceComponent } from '../insurance/insurance.component';
 import { environment } from '../../../../environments/environment.prod';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-bodyform-list',
@@ -39,6 +50,11 @@ import { environment } from '../../../../environments/environment.prod';
     FormsModule,
     MatButton,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './bodyform-list.component.html',
   styleUrl: './bodyform-list.component.scss',
@@ -47,16 +63,27 @@ export class BodyformListComponent {
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  totalItems = 0;
+  pageSize = 10;
+  currentPage = 1;
 
   constructor(
     public permission: PermissionService,
     private userService: PartientService,
     private dialog: MatDialog,
 
-    private router: Router
+    private router: Router,
   ) {}
 
-  displayedColumns: string[] = ['id', 'reference_number', 'board_type','no_of_patients', 'pdf', 'action', 'action2'];
+  displayedColumns: string[] = [
+    'id',
+    'reference_number',
+    'board_type',
+    'no_of_patients',
+    'pdf',
+    'action',
+    'action2',
+  ];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -65,8 +92,15 @@ export class BodyformListComponent {
   ngOnInit(): void {
     this.userPetient();
   }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.userPetient();
@@ -75,7 +109,7 @@ export class BodyformListComponent {
   userPetient() {
     this.loading = true;
     this.userService
-      .getAllBodyList()
+      .getBodyList()
       .pipe(takeUntil(this.onDestroy))
       .subscribe(
         (response: any) => {
@@ -85,12 +119,12 @@ export class BodyformListComponent {
             this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
           } else {
-            // console.log('permission response errors');
+
           }
         },
         (error) => {
           this.loading = false;
-          // console.log('permission getAway api fail to load');
+
         }
       );
   }
@@ -114,10 +148,6 @@ export class BodyformListComponent {
     let config = new MatDialogConfig();
     config.disableClose = false;
     config.role = 'dialog';
-    // config.width = '95vw';
-    // config.maxWidth = '100vw';
-    // config.maxHeight = '100vh';
-    // config.panelClass = 'wide-modal';
 
     const dialogRef = this.dialog.open(AddbodylistComponent, config);
     dialogRef.afterClosed().subscribe((result) => {
@@ -129,11 +159,6 @@ export class BodyformListComponent {
     let config = new MatDialogConfig();
     config.disableClose = false;
     config.role = 'dialog';
-    // config.maxWidth = '100vw';
-    // config.maxHeight = '100vh';
-    // config.height = '600px';
-    // config.width = '850px';
-    // config.panelClass = 'full-screen-modal';
     config.data = { data: data };
 
     const dialogRef = this.dialog.open(AddbodylistComponent, config);
@@ -212,7 +237,6 @@ export class BodyformListComponent {
   }
 
   getPatient(id: any) {
-    // console.log('hiiii', id);
     let config = new MatDialogConfig();
     config.disableClose = false;
     config.role = 'dialog';

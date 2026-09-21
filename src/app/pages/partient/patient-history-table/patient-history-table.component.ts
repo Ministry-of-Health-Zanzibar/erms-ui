@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/environment.prod';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PartientService } from '../../../services/partient/partient.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { AddmedicalhistoryComponent } from '../addmedicalhistory/addmedicalhistory.component';
+import { finalize } from 'rxjs';
 
 // Angular Material
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +17,12 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-patient-history-table',
@@ -28,6 +36,10 @@ import { CommonModule } from '@angular/common';
     MatSortModule,
     MatTooltipModule,
     MatPaginator,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
   ],
   templateUrl: './patient-history-table.component.html',
   styleUrl: './patient-history-table.component.scss',
@@ -47,11 +59,12 @@ export class PatientHistoryTableComponent implements OnInit {
     private route: ActivatedRoute,
     private patientService: PartientService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.patientId = +id;
@@ -66,10 +79,11 @@ export class PatientHistoryTableComponent implements OnInit {
   private fetchPatientHistory(id: number) {
     this.loading = true;
 
-    this.patientService.getPartientHistoryListById(id).subscribe({
+    this.patientService.getPartientHistoryListById(id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (response: any) => {
-        this.loading = false;
-
         if (response?.statusCode === 200 || response?.statusCode === 201) {
           this.patient = response.data.patient;
           const history = this.patient?.patient_histories || [];
@@ -81,7 +95,6 @@ export class PatientHistoryTableComponent implements OnInit {
         }
       },
       error: () => {
-        this.loading = false;
         Swal.fire('Error', 'Failed to fetch patient history', 'error');
       },
     });
@@ -107,7 +120,7 @@ export class PatientHistoryTableComponent implements OnInit {
 
   const dialogRef = this.dialog.open(AddmedicalhistoryComponent, config);
 
-  dialogRef.afterClosed().subscribe((result) => {
+  dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
     // console.log('Dialog closed:', result);
 
     if (result?.success) {

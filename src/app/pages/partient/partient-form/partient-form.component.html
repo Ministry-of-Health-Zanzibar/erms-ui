@@ -10,7 +10,7 @@
 
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Matibabu Card</mat-label>
+                  <mat-label>Matibabu Card | Bima No</mat-label>
                   <input
                     matInput
                     formControlName="matibabu_card"
@@ -73,9 +73,21 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Zan ID</mat-label>
-                  <input matInput formControlName="zan_id" maxlength="9" />
-                </mat-form-field>
+        <mat-label>Zan ID | ZSSF No</mat-label>
+
+            <input
+              matInput
+              formControlName="zan_id"
+              maxlength="9"
+              inputmode="numeric"
+              pattern="[0-9]*"
+            />
+
+            <mat-hint>
+              Enter <strong>8 digits</strong> for <strong>ZSSF No</strong> or
+              <strong>9 digits</strong> for <strong>ZanID</strong>.
+            </mat-hint>
+          </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
                   <mat-label>Location *</mat-label>

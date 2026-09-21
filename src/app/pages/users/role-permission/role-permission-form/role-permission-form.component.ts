@@ -6,11 +6,12 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { GlobalConstants } from '@shared/global-constants';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { RolePermissionService } from '../../../../services/users/role-permission.service';
 import { CommonModule } from '@angular/common';
 import { HDividerComponent } from '@elementar/components';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-role-permission-form',
@@ -41,6 +42,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
   roleForm:any = FormGroup;
   checklist: any[] = [];
   filteredChecklist: any[] = [];
+  submitting = false;
 
   constructor(private formBuilder:FormBuilder,
     private permissionService:RolePermissionService,
@@ -54,6 +56,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   onClose() {
     this.dialogRef.close(false)
@@ -112,9 +115,13 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
       name: this.roleForm.value.name,
       permission_id: this.roleForm.value.permissionID
     }
-    if(this.roleForm.value.permissionID.length > 0){
-      this.roleService.addRoles(data).subscribe(response => {
-        this.dialogRef.close(true);
+    if(this.roleForm.value.permissionID.length > 0 && !this.submitting){
+      this.submitting = true;
+      this.roleService.addRoles(data).pipe(
+        takeUntil(this.onDestroy),
+        finalize(() => this.submitting = false)
+      ).subscribe({
+        next: response => {
         if(response.statusCode == 201){
           Swal.fire({
             title: "Success",
@@ -122,7 +129,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
             icon: "success",
             confirmButtonColor: "#4690eb",
             confirmButtonText: "Continue"
-          });
+          }).then(() => this.dialogRef.close(true));
         }else{
           Swal.fire({
             title: "error",
@@ -133,29 +140,20 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
           });
         }
 
-      },error => {
-        if(error.statusCode == 400){
-            Swal.fire({
-            title: "warning",
-            text: 'Role already exist. Please choose another role name',
-            icon: "warning",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }else{
+      },
+      error: error => {
           Swal.fire({
             title: "Error",
-            text: error,
+            text: getApiErrorMessage(error, 'Unable to create the role. Please try again.'),
             icon: "error",
             confirmButtonColor: "#4690eb",
             confirmButtonText: "Continue"
           });
-        }
-      });
+      }});
     }else{
       Swal.fire({
         title: "warning",
-        text: 'No permission selected, Please select atleast one permission for this role',
+      text: 'No permission selected. Please select at least one permission for this role.',
         icon: "warning",
         confirmButtonColor: "#4690eb",
         confirmButtonText: "Continue"

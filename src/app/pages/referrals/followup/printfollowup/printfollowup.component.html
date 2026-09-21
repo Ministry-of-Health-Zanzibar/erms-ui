@@ -72,40 +72,66 @@
 </div>
 
   <!-- Body Content -->
-  <div class="space-y-3 text-sm leading-relaxed">
-    <p>Tafadhali naomba uhusike na mada ya hapo juu.</p>
-    <p>
-      Wizara ya Afya Zanzibar, inamleta kwa ajili ya kuendelea na matibabu zaidi
-      mtajwa hapo juu.
+<div class="space-y-3 text-sm leading-relaxed">
+
+  <p>Tafadhali naomba uhusike na mada ya hapo juu.</p>
+
+  <p>
+    Wizara ya Afya Zanzibar, inamleta kwa ajili ya kuendelea na matibabu zaidi
+    mtajwa hapo juu.
+  </p>
+
+  <p>
+    Kwa barua hii, tunaomba muendelee kumpatia matibabu stahiki mgonjwa
+    <b>{{ referral.patient?.name || "N/A" }}</b>
+    kama tulivyokubaliana.
+  </p>
+
+  <p>
+    Gharama za matibabu zitalipwa na Wizara ya Afya kwa mujibu wa Mkataba na
+    <b>{{ referral.hospitals?.[0]?.hospital_name || "N/A" }}</b>.
+  </p>
+
+  <p>
+    Wizara ya Afya inaomba taarifa fupi za maendeleo ya matibabu kwa mhusika
+    ikiwemo Diagnosis, Tiba aliyopewa, tathmini, na sababu ya kurudi mara
+    nyingine.
+  </p>
+
+  <p>
+    Aidha Wizara ya Afya inaomba ripoti kamili iwasilishwe mwishoni mwa
+    matibabu.
+  </p>
+
+  <p>Naomba kuwasiliana kwa hatua.</p>
+
+  <!-- SIGNATURE SECTION -->
+  <div class="mt-2">
+
+    <p class="font-bold mb-1">
+      Ahsante,
     </p>
-    <p>
-      Kwa barua hii, tunaomba muendelee kumpatia matibabu stahiki mgonjwa
-      <b>{{ referral.patient?.name || "N/A" }}</b> kama tulivyokubaliana.
-    </p>
-    <p>
-      Gharama za matibabu zitalipwa na Wizara ya Afya kwa mujibu wa Mkataba na
-      <b>{{ referral.hospitals?.[0]?.hospital_name || "N/A" }}</b>.
-    </p>
-    <p>
-      Wizara ya Afya inaomba taarifa fupi za maendeleo ya matibabu kwa mhusika
-      ikiwemo Diagnosis, Tiba aliyopewa, tathmini, na sababu ya kurudi mara
-      nyingine.
-    </p>
-    <p>
-      Aidha Wizara ya Afya inaomba ripoti kamili iwasilishwe mwishoni mwa
-      matibabu.
-    </p>
-    <p>Naomba kuwasiliana kwa hatua.</p>
-    <p><strong>Ahsante,</strong></p>
+
+    <!-- SIGNATURE -->
+    <div class="h-20 flex items-center">
+      <img
+        src="assets/img/sign_dgs.png"
+        alt="Signature"
+        class="dg-signature"
+      />
+    </div>
+
   </div>
 
-  <div class="mt-8">
-    <p class="font-semibold">DKT. AMOUR S. MOHAMED,</p>
-    <p class="font-semibold">MKURUGENZI MKUU,</p>
-    <p class="font-semibold">WIZARA YA AFYA,</p>
-   <p class="font-semibold underline decoration-2">ZANZIBAR</p>
+</div>
 
-  </div>
+<!-- SIGNATORY DETAILS -->
+<div class="mt-2">
+  <p class="font-semibold">DKT. MARYAM SEIF HEMED,</p>
+  <p class="font-semibold">MKURUGENZI MKUU,</p>
+  <p class="font-semibold">WIZARA YA AFYA,</p>
+  <p class="font-semibold underline decoration-2">ZANZIBAR</p>
+</div>
 
   <hr style="border-top: 3px solid black;" />
 

@@ -6,7 +6,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatInputModule, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
 
 import Swal from 'sweetalert2';
@@ -15,6 +15,7 @@ import { MatOption, MatSelect } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-addsource',
@@ -39,7 +40,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
   templateUrl: './addsource.component.html',
   styleUrl: './addsource.component.scss'
 })
-export class AddsourceComponent {
+export class AddsourceComponent implements OnInit, OnDestroy {
 
     readonly data = inject<any>(MAT_DIALOG_DATA);
     private readonly onDestroy = new Subject<void>()
@@ -52,6 +53,7 @@ export class AddsourceComponent {
     errorMessage: string | null = null;
     sourceData: any;
     source:any;
+    submitting = false;
 
     constructor(private formBuilder:FormBuilder,
       private sources:SourcesService,
@@ -70,6 +72,7 @@ export class AddsourceComponent {
 
       ngOnDestroy(): void {
         this.onDestroy.next()
+        this.onDestroy.complete()
       }
       onClose() {
         this.dialogRef.close(false)
@@ -87,59 +90,39 @@ export class AddsourceComponent {
       }
 
       savesource(){
-        if(this.sourceForm.valid){
-          this.sources.addSource(this.sourceForm.value).subscribe(response=>{
-            if(response.statusCode == 201){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-
-        );
-        }else{
-
+        if (this.sourceForm.invalid || this.submitting) {
+          this.sourceForm.markAllAsTouched();
+          return;
         }
+        this.submit(this.sources.addSource(this.sourceForm.value));
       }
 
       updatesource(){
-        if(this.sourceForm.valid){
-          this.sources.updateSource(this.sourceForm.value, this.sourceData.source_id).subscribe(response=>{
-            if(response.statusCode == 200){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-
-        );
-        }else{
-
+        if (this.sourceForm.invalid || this.submitting) {
+          this.sourceForm.markAllAsTouched();
+          return;
         }
+        this.submit(this.sources.updateSource(this.sourceForm.value, this.sourceData.source_id));
       }
 
+      private submit(request: any): void {
+        this.submitting = true;
+        request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+          next: (response: any) => {
+            if (response.statusCode === 200 || response.statusCode === 201) {
+              Swal.fire({
+                title: 'Success', text: response.message || 'Source saved successfully.', icon: 'success',
+                confirmButtonColor: '#4690eb', confirmButtonText: 'Continue'
+              }).then(() => this.dialogRef.close(true));
+              return;
+            }
+            this.showError(response.message || 'Unable to save the source.');
+          },
+          error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the source.'))
+        });
+      }
+
+      private showError(message: string): void {
+        Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+      }
 }

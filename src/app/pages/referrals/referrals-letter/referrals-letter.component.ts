@@ -72,11 +72,22 @@ formatAge(ageDetails: any): string {
     this.referral.is_boarded_out = !!this.referral?.is_boarded_out;
   }
 
-  print(): void {
-    const printContents = document.getElementById('print-section')?.innerHTML;
+  async print(): Promise<void> {
+    const printContents = document.getElementById('print-section')?.outerHTML;
     if (printContents) {
       const originalContents = document.body.innerHTML;
       document.body.innerHTML = printContents;
+
+      const images = Array.from(document.body.querySelectorAll('img'));
+      await Promise.all(images.map(image =>
+        image.complete
+          ? image.decode().catch(() => undefined)
+          : new Promise<void>(resolve => {
+              image.addEventListener('load', () => resolve(), { once: true });
+              image.addEventListener('error', () => resolve(), { once: true });
+            })
+      ));
+
       window.print();
       document.body.innerHTML = originalContents;
       window.location.reload();

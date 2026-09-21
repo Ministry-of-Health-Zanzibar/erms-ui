@@ -21,8 +21,9 @@ import {
   MatLabel,
 } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
 import Swal from 'sweetalert2';
 import { ReferalTypeService } from '../../../../services/system-configuration/referal-type.service';
@@ -47,7 +48,7 @@ import { MatSelectModule } from '@angular/material/select';
   templateUrl: './addhospital.component.html',
   styleUrl: './addhospital.component.scss',
 })
-export class AddhospitalComponent {
+export class AddhospitalComponent implements OnInit, OnDestroy {
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly onDestroy = new Subject<void>();
   public sidebarVisible: boolean = true;
@@ -59,6 +60,7 @@ export class AddhospitalComponent {
   errorMessage: string | null = null;
   hospitalData: any;
   referralTypes: any;
+  submitting = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -84,6 +86,7 @@ export class AddhospitalComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   onClose() {
     this.dialogRef.close(false);
@@ -96,7 +99,7 @@ export class AddhospitalComponent {
         
       ]),
       hospital_address: new FormControl(null, Validators.required),
-      hospital_email: new FormControl(null, Validators.required),
+      hospital_email: new FormControl(null, [Validators.required, Validators.email]),
       contact_number: new FormControl(null, Validators.required),
       referral_type_id: new FormControl(null, Validators.required),
 
@@ -113,62 +116,61 @@ export class AddhospitalComponent {
   // }
 
   getReferralType() {
-    this.referralsTypeService.getAllReferalType().subscribe((response) => {
-      this.referralTypes = response.data;
+    this.referralsTypeService.getAllReferalType().pipe(takeUntil(this.onDestroy)).subscribe({
+      next: response => this.referralTypes = response.data,
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load referral types.'))
     });
   }
 
   saveHospital() {
-    if (this.hospitalForm.valid) {
-      this.hospitalService
-        .addHospital(this.hospitalForm.value)
-        .subscribe((response) => {
-          if (response.statusCode == 201) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Data saved successfull',
-              icon: 'success',
-              confirmButtonColor: '#4690eb',
-              confirmButtonText: 'Continue',
-            });
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.message,
-              icon: 'error',
-              confirmButtonColor: '#4690eb',
-              confirmButtonText: 'Continue',
-            });
-          }
-        });
-    } else {
+    if (this.hospitalForm.invalid || this.submitting) {
+      this.hospitalForm.markAllAsTouched();
+      return;
     }
+
+    this.submit(this.hospitalService.addHospital(this.hospitalForm.value), 201);
   }
 
   updateHospital() {
-    if (this.hospitalForm.valid) {
-      this.hospitalService
-        .updateHospital(this.hospitalForm.value, this.hospitalData.hospital_id)
-        .subscribe((response) => {
-          if (response.statusCode == 200) {
-            Swal.fire({
-              title: 'Success',
-              text: 'Data saved successfull',
-              icon: 'success',
-              confirmButtonColor: '#4690eb',
-              confirmButtonText: 'Continue',
-            });
-          } else {
-            Swal.fire({
-              title: 'Error',
-              text: response.message,
-              icon: 'error',
-              confirmButtonColor: '#4690eb',
-              confirmButtonText: 'Continue',
-            });
-          }
-        });
-    } else {
+    if (this.hospitalForm.invalid || this.submitting) {
+      this.hospitalForm.markAllAsTouched();
+      return;
     }
+
+    this.submit(this.hospitalService.updateHospital(this.hospitalForm.value, this.hospitalData.hospital_id), 200);
+  }
+
+  private submit(request: any, successCode: number): void {
+    this.submitting = true;
+    request.pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.submitting = false)
+    ).subscribe({
+      next: (response: any) => {
+        if (response.statusCode === successCode) {
+          Swal.fire({
+            title: 'Success',
+            text: 'Hospital saved successfully.',
+            icon: 'success',
+            confirmButtonColor: '#4690eb',
+            confirmButtonText: 'Continue'
+          }).then(() => this.dialogRef.close(true));
+          return;
+        }
+
+        this.showError(response.message || 'Unable to save the hospital.');
+      },
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the hospital. Please try again.'))
+    });
+  }
+
+  private showError(message: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: message,
+      icon: 'error',
+      confirmButtonColor: '#4690eb',
+      confirmButtonText: 'Close'
+    });
   }
 }

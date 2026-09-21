@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
@@ -23,12 +23,14 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { FollowsService } from '../../../../services/Referral/follows.service';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
-import { subscribe } from 'diagnostics_channel';
-import { response } from 'express';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-follow-up',
@@ -41,7 +43,8 @@ import { response } from 'express';
     MatFormFieldModule,
     MatLabel,
     MatDialogModule,
-
+    MatTooltipModule,
+   MatIconModule,
     MatError,
     ReactiveFormsModule,
 
@@ -52,7 +55,7 @@ import { response } from 'express';
   templateUrl: './add-follow-up.component.html',
   styleUrl: './add-follow-up.component.scss',
 })
-export class AddFollowUpComponent {
+export class AddFollowUpComponent implements OnInit, OnDestroy {
   private readonly onDestroy = new Subject<void>();
   readonly data = inject<any>(MAT_DIALOG_DATA);
   public sidebarVisible: boolean = true;
@@ -66,10 +69,13 @@ export class AddFollowUpComponent {
   myControl = new FormControl('');
   filteredOptions: Observable<any[]>;
   selectedAttachement: File | null = null;
+  fileSizeError = '';
+  submitting = false;
 
   constructor(
     private followServices: FollowsService,
     private hospitalServices: HospitalService,
+    private snackBar: MatSnackBar,
 
     private dialogRef: MatDialogRef<AddFollowUpComponent>
   ) {}
@@ -92,13 +98,15 @@ export class AddFollowUpComponent {
   }
 
   getHospital() {
-    this.hospitalServices.getAllHospital().subscribe((response) => {
-      this.hospital = response.data;
+    this.hospitalServices.getAllHospital().pipe(takeUntil(this.onDestroy)).subscribe({
+      next: response => this.hospital = response.data,
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load hospitals.'))
     });
   }
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   onClose() {
@@ -125,16 +133,43 @@ export class AddFollowUpComponent {
     return found?.hospital_name || '';
   }
 
-  onAttachmentSelected(event: any): void {
-    const file = event.target.files?.[0] ?? null;
-    if (file) {
-      this.patientForm.patchValue({ letter_file: file.name });
-      this.selectedAttachement = file;
-    }
+
+
+onAttachmentSelected(event: any): void {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  const maxSize = 1024 * 1024; // 1MB
+
+  if (file.size > maxSize) {
+    this.patientForm.patchValue({ letter_file: '' });
+    this.selectedAttachement = null;
+    event.target.value = '';
+
+    this.snackBar.open(
+      'File size must not exceed 1 MB. Please compress your file using tools like iLovePDF before uploading.',
+      'Close',
+      {
+        duration: 6000,
+        panelClass: ['error-snackbar']
+      }
+    );
+
+    return;
   }
 
+  this.selectedAttachement = file;
+
+  this.patientForm.patchValue({
+    letter_file: file.name
+  });
+}
+
   saveClient() {
-    if (this.patientForm.valid) {
+    if (this.submitting) return;
+
+    if (this.patientForm.valid && !this.submitting) {
       const formData = new FormData();
 
       if (this.selectedAttachement) {
@@ -156,7 +191,11 @@ export class AddFollowUpComponent {
 
       formData.set('referral_id', String(this.id));
 
-      this.followServices.addFollowform(formData).subscribe((response) => {
+      this.submitting = true;
+      this.followServices.addFollowform(formData).pipe(
+        takeUntil(this.onDestroy),
+        finalize(() => this.submitting = false)
+      ).subscribe({ next: response => {
         if (response.statusCode === 200) {
           Swal.fire({
             title: 'Success',
@@ -172,15 +211,9 @@ export class AddFollowUpComponent {
             this.dialogRef.close(true);
           });
         } else {
-          Swal.fire({
-            title: 'Error',
-            text: response.message,
-            icon: 'error',
-            confirmButtonColor: '#4690eb',
-            confirmButtonText: 'Close',
-          });
+          this.showError(response.message || 'Unable to save the follow-up.');
         }
-      });
+      }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the follow-up.')) });
     } else {
       Swal.fire({
         title: 'Invalid Form',
@@ -190,5 +223,9 @@ export class AddFollowUpComponent {
         confirmButtonText: 'Ok',
       });
     }
+  }
+
+  private showError(message: string): void {
+    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }

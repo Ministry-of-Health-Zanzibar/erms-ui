@@ -1,101 +1,151 @@
-<div
-  class="h-24 w-full px-10 bg-white dark:bg-gray-900 shadow-lg relative overflow-hidden"
->
-  <!-- Background Image -->
-
-  <div
-    class="h-full flex items-center border-b border-gray-100 dark:border-gray-700 gap-7 relative z-10 transition-all duration-300 hover:border-blue-500"
-  >
-    <!-- Sidebar Toggle -->
+<div class="h-24 w-full px-10 bg-white dark:bg-gray-900 shadow-lg relative overflow-hidden">
+  <div class="h-full flex items-center border-b border-gray-100 dark:border-gray-700 gap-7 relative z-10 transition-all duration-300 hover:border-blue-500">
+    
     <div class="flex items-center gap-3 -ms-3">
       <button
         mat-icon-button
         (click)="toggleSidebar()"
         class="hover:bg-blue-100 dark:hover:bg-blue-700 transition-all rounded-full p-2"
       >
-        <mat-icon class="font-icon text-gray-700 dark:text-gray-200 text-lg"
-          >menu</mat-icon
-        >
+        <mat-icon class="font-icon text-gray-700 dark:text-gray-200 text-lg">menu</mat-icon>
       </button>
     </div>
-    
 
-    <!-- Spacer / Right Side -->
-    <div class="ms-auto flex items-center gap-3">
-      <span>{{ hospitalName }}</span>
+    <div class="ms-auto flex items-center gap-4">
+      <span class="text-sm font-medium text-gray-600 dark:text-gray-300 hidden md:inline-block">
+        {{ hospitalName }}
+      </span>
+
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="conversationNotificationMenu"
+        matTooltip="Internal consultations stack"
+        emrSoundEffect
+        soundSrc="/assets/sound-effects/mouse-click.ogg"
+        class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+      >
+        <mat-icon
+          [matBadge]="unreadCount"
+          [matBadgeHidden]="unreadCount === 0"
+          matBadgeColor="warn"
+          class="font-icon text-gray-700 dark:text-gray-200"
+        >
+          chat
+        </mat-icon>
+      </button>
+
       <button
         mat-icon-button
         (click)="_themeManager.toggleColorScheme()"
         matTooltip="Color Theme"
         emrSoundEffect
         soundSrc="/assets/sound-effects/mouse-click.ogg"
+        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
       >
         @if (isDark | async) {
-        <mat-icon class="font-icon">light_mode</mat-icon>
+          <mat-icon class="font-icon text-yellow-500">light_mode</mat-icon>
         } @else {
-        <mat-icon class="font-icon">dark_mode</mat-icon>
+          <mat-icon class="font-icon text-gray-700">dark_mode</mat-icon>
         }
       </button>
+
       <emr-avatar
         text="ERMS"
         [clickable]="true"
         [matMenuTriggerFor]="accountMenu"
-        matTooltip="Account"
-        class="w-10 h-10"
+        matTooltip="Account Settings"
+        class="w-10 h-10 border border-gray-100 dark:border-gray-800 shadow-sm rounded-full cursor-pointer"
       ></emr-avatar>
     </div>
   </div>
 </div>
 
-<!-- Account Menu -->
-<mat-menu xPosition="before" #accountMenu="matMenu" class="dark:bg-gray-800">
-  <div class="flex items-center px-4 py-2 gap-3">
-    <emr-avatar text="RS" class="w-14 h-14"></emr-avatar>
-    <div class="-mt-0.5">
-      <div
-        class="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100"
-      >
+<mat-menu xPosition="before" #conversationNotificationMenu="matMenu" class="dark:bg-gray-800 !w-80 !max-h-96 rounded-xl shadow-xl overflow-y-auto border border-gray-100/50 dark:border-gray-700/60">
+  <div class="px-4 py-3 font-bold text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-gray-700 text-xs tracking-wide uppercase bg-gray-50/50 dark:bg-gray-900/20">
+    Internal Consultations
+  </div>
+  
+  @if (notificationsList.length === 0) {
+    <div class="px-4 py-8 text-center flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
+      <mat-icon class="text-2xl mb-1 text-gray-300 dark:text-gray-600">mail_outline</mat-icon>
+      <span class="text-xs">No unread internal messages</span>
+    </div>
+  } @else {
+    <div class="divide-y divide-gray-100 dark:divide-gray-700/50">
+      @for (item of notificationsList; track item.conversation_id) {
+        <button 
+          mat-menu-item 
+          (click)="openNotificationChat(item.patient_history_id)"
+          class="!py-3 !h-auto !whitespace-normal hover:bg-blue-50/40 dark:hover:bg-gray-700/40 block w-full text-left transition-all px-4"
+        >
+          <div class="flex flex-col items-start gap-0.5">
+            <div class="flex items-center justify-between w-full">
+              <span class="font-bold text-xs text-blue-600 dark:text-blue-400">
+                From: {{ item.first_name }} {{ item.last_name }}
+              </span>
+              @if (item.date) {
+                <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ item.date }}</span>
+              }
+            </div>
+            <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 m-0 pr-1 leading-relaxed">
+              {{ item.message }}
+            </p>
+          </div>
+        </button>
+      }
+    </div>
+  }
+</mat-menu>
+
+<mat-menu xPosition="before" #accountMenu="matMenu" class="dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100/50 dark:border-gray-700/60">
+  <div class="flex items-center px-5 py-4 gap-4 min-w-[240px] bg-gray-50/30 dark:bg-gray-900/10">
+    <emr-avatar text="RS" class="w-12 h-12 rounded-full shadow-sm"></emr-avatar>
+    <div class="flex flex-col">
+      <div class="font-bold text-gray-900 dark:text-gray-100 text-sm leading-tight">
         {{ fullName }}
       </div>
-
-      <div class="text-xs text-gray-500 mt-0.5 dark:text-gray-400">
-        {{ role }}
+      <div class="text-[11px] font-medium text-blue-600 dark:text-blue-400 mt-1 capitalize bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.5 rounded-md self-start">
+        {{ role | titlecase }}
       </div>
-      <div class="text-xs text-gray-500 mt-0.5 dark:text-gray-400">
+      <div class="text-[11px] text-gray-500 mt-1 dark:text-gray-400 font-medium">
         {{ hospitalName }}
       </div>
-
-      <div class="text-xs text-gray-500 mt-0.5 dark:text-gray-400">
+      <div class="text-[10px] text-gray-400 dark:text-gray-500 italic">
         {{ hospitalRole }}
       </div>
     </div>
   </div>
 
   <mat-divider></mat-divider>
-  <a
-    mat-menu-item
-    class="hover:bg-blue-100 dark:hover:bg-blue-700 transition-all rounded"
-  >
-    <mat-icon class="font-icon">question_mark</mat-icon>
-    <span>Help Center</span>
-  </a>
+  
+  <div class="p-1">
+    <a
+      mat-menu-item
+      class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all rounded-lg !h-9 flex items-center"
+    >
+      <mat-icon class="font-icon !text-sm text-gray-500 dark:text-gray-400 mr-2">question_mark</mat-icon>
+      <span class="text-xs text-gray-700 dark:text-gray-300">Help Center</span>
+    </a>
+
+    <a
+      mat-menu-item
+      class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all rounded-lg !h-9 flex items-center"
+    >
+      <mat-icon class="font-icon !text-sm text-gray-500 dark:text-gray-400 mr-2">translate</mat-icon>
+      <span class="text-xs text-gray-700 dark:text-gray-300">Language</span>
+    </a>
+  </div>
 
   <mat-divider></mat-divider>
-  <a
-    mat-menu-item
-    class="hover:bg-blue-100 dark:hover:bg-blue-700 transition-all rounded"
-  >
-    <mat-icon class="font-icon">translate</mat-icon>
-    <span>Language</span>
-  </a>
-
-  <mat-divider></mat-divider>
-  <a
-    mat-menu-item
-    (click)="logoutHead()"
-    class="hover:bg-red-100 dark:hover:bg-red-700 transition-all rounded"
-  >
-    <mat-icon class="font-icon">logout</mat-icon>
-    <span>Logout</span>
-  </a>
+  
+  <div class="p-1">
+    <a
+      mat-menu-item
+      (click)="logoutHead()"
+      class="hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all rounded-lg !h-9 flex items-center"
+    >
+      <mat-icon class="font-icon !text-sm mr-2 text-red-600 dark:text-red-400">logout</mat-icon>
+      <span class="text-xs font-semibold">Logout Summary</span>
+    </a>
+  </div>
 </mat-menu>

@@ -46,9 +46,18 @@
           </td>
 
           <!-- Amount -->
-          <td class="border border-gray-300 p-3 text-center">
-            {{ file.bill_file_amount | currency : "TZS " }}
-          </td>
+       <td class="border border-gray-300 p-3 text-center">
+        {{
+          file.bill_file_amount
+            | currency:
+              (file.hospital?.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                ? 'USD'
+                : 'TZS')
+              :'symbol':'1.0-0'
+        }}
+      </td>
+
+
 
           <!-- Action Button -->
           <td class="border border-gray-300 p-3 text-center">
@@ -115,9 +124,16 @@
 
       <ng-container matColumnDef="total_amount">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Amount</th>
-        <td mat-cell *matCellDef="let bill">
-          {{ bill.total_amount | currency : "TZS " }}
-        </td>
+      <td mat-cell *matCellDef="let bill">
+      {{
+        bill.total_amount
+          | currency:
+            (bill.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+              ? 'USD'
+              : 'TZS')
+            :'symbol':'1.0-0'
+      }}
+    </td>
       </ng-container>
 
       <ng-container matColumnDef="bill_period">

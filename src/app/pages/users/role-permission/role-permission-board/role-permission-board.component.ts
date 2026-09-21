@@ -19,6 +19,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { DataViewComponent, EmrPanelModule, EmrSegmentedModule, VDividerComponent } from '@elementar/components';
 import { MatFormField } from '@angular/material/form-field';
 import { MatDialog,MatDialogConfig,MatDialogModule } from '@angular/material/dialog';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-role-permission-board',
@@ -42,6 +43,10 @@ import { MatDialog,MatDialogConfig,MatDialogModule } from '@angular/material/dia
     EmrPanelModule,
     DataViewComponent,
     MatDialogModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
 
   ],
   templateUrl: './role-permission-board.component.html',
@@ -69,6 +74,7 @@ export class RolePermissionBoardComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.rolesDataTable();

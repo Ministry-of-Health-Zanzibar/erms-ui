@@ -1,60 +1,180 @@
 <div class="p-6 space-y-4">
-  <h1 class="text-lg font-bold">Bills by Hospital</h1>
-  <mat-divider [vertical]="true"></mat-divider>
+  <app-page-header title="Bills by Hospital" description="Monitor billed, allocated, and outstanding amounts for each hospital." icon="account_balance" />
 
-  <mat-card class="mb-4 shadow-lg">
-    <mat-card-content>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="p-4 rounded-lg bg-blue-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Total Bill</h3>
-          <p class="text-lg font-bold text-blue-700">
-            {{ totals.total_bill_file_amount | number : "1.2-2" }}
-          </p>
-        </div>
+<app-section-card title="Billing summary" description="Consolidated local and international hospital billing totals." icon="payments">
+<div class="space-y-6">
 
-        <div class="p-4 rounded-lg bg-green-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Total Allocated</h3>
-          <p class="text-lg font-bold text-green-700">
-            {{ totals.total_allocated_amount | number : "1.2-2" }}
-          </p>
-        </div>
+  <!-- =================== TZS SUMMARY =================== -->
+  <div class="flex items-center justify-between">
+    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+      <mat-icon class="text-green-600">account_balance</mat-icon>
+      Tanzania Shillings (TZS)
+    </h2>
 
-        <div class="p-4 rounded-lg bg-red-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Total Balance</h3>
-          <p class="text-lg font-bold text-red-700">
-            {{ totals.total_balance | number : "1.2-2" }}
-          </p>
-        </div>
+    <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+      Local Hospitals
+    </span>
+  </div>
 
-        <div class="p-4 rounded-lg bg-gray-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Status</h3>
-          <p
-            class="text-lg font-bold"
-            [ngClass]="{
-              'text-green-600': totals.status === 'Paid',
-              'text-yellow-600': totals.status === 'Partially Paid',
-              'text-red-600': totals.status === 'Pending',
-              'text-gray-600': totals.status === 'Summary'
-            }"
-          >
-            {{ totals.status }}
-          </p>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+  <!-- Total Bill -->
+  <div
+    class="rounded-xl bg-blue-50 border border-blue-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
+    <div class="flex justify-between items-center">
+
+      <div>
+        <p class="text-sm text-gray-500 font-medium">Total Bill</p>
+
+        <h2 class="text-2xl font-bold text-blue-700 mt-2">
+          {{ totals.total_bill_file_amount | currency:'TZS':'symbol':'1.0-0' }}
+        </h2>
       </div>
-    </mat-card-content>
-  </mat-card>
 
-  <div class="flex items-center gap-2">
+      <div class="bg-blue-100 text-blue-700 p-4 rounded-full">
+        <mat-icon class="text-4xl">receipt_long</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Total Allocated -->
+  <div
+    class="rounded-xl bg-green-50 border border-green-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
+    <div class="flex justify-between items-center">
+
+      <div>
+        <p class="text-sm text-gray-500 font-medium">Total Allocated</p>
+
+        <h2 class="text-2xl font-bold text-green-700 mt-2">
+          {{ totals.total_allocated_amount | currency:'TZS':'symbol':'1.0-0' }}
+        </h2>
+      </div>
+
+      <div class="bg-green-100 text-green-700 p-4 rounded-full">
+        <mat-icon class="text-4xl">payments</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Remaining Balance -->
+  <div
+    class="rounded-xl bg-red-50 border border-red-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
+    <div class="flex justify-between items-center">
+
+      <div>
+        <p class="text-sm text-gray-500 font-medium">Remaining Balance</p>
+
+        <h2 class="text-2xl font-bold text-red-700 mt-2">
+          {{ totals.total_balance | currency:'TZS':'symbol':'1.0-0' }}
+        </h2>
+      </div>
+
+      <div class="bg-red-100 text-red-700 p-4 rounded-full">
+        <mat-icon class="text-4xl">account_balance_wallet</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+  <!-- =================== USD SUMMARY =================== -->
+
+  <div class="flex items-center justify-between mt-8">
+    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+      <mat-icon class="text-amber-600">public</mat-icon>
+      United States Dollar (USD)
+    </h2>
+
+    <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
+      MIOT Hospital
+    </span>
+  </div>
+
+ <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+  <!-- Total Bill -->
+  <div
+    class="rounded-xl bg-yellow-50 border border-yellow-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
+    <div class="flex justify-between items-center">
+
+      <div>
+        <p class="text-sm text-gray-500 font-medium">Total Bill</p>
+
+        <h2 class="text-2xl font-bold text-yellow-700 mt-2">
+          {{ miotTotals.total_bill_file_amount | currency:'USD':'symbol':'1.0-0' }}
+        </h2>
+      </div>
+
+      <div class="bg-yellow-100 text-yellow-700 p-4 rounded-full">
+        <mat-icon class="text-4xl">request_quote</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Total Allocated -->
+  <div
+    class="rounded-xl bg-orange-50 border border-orange-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
+    <div class="flex justify-between items-center">
+
+      <div>
+        <p class="text-sm text-gray-500 font-medium">Total Allocated</p>
+
+        <h2 class="text-2xl font-bold text-orange-700 mt-2">
+          {{ miotTotals.total_allocated_amount | currency:'USD':'symbol':'1.0-0' }}
+        </h2>
+      </div>
+
+      <div class="bg-orange-100 text-orange-700 p-4 rounded-full">
+        <mat-icon class="text-4xl">paid</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Remaining Balance -->
+  <div
+    class="rounded-xl bg-red-50 border border-red-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
+    <div class="flex justify-between items-center">
+
+      <div>
+        <p class="text-sm text-gray-500 font-medium">Remaining Balance</p>
+
+        <h2 class="text-2xl font-bold text-red-700 mt-2">
+          {{ miotTotals.total_balance | currency:'USD':'symbol':'1.0-0' }}
+        </h2>
+      </div>
+
+      <div class="bg-red-100 text-red-700 p-4 rounded-full">
+        <mat-icon class="text-4xl">savings</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</div>
+</app-section-card>
+
+  <app-section-card title="Hospital billing records" description="Search hospital balances and open their payment details." icon="local_hospital">
+  <app-table-toolbar>
+  <div uiToolbarPrimary class="flex items-center gap-2 w-full">
     <mat-icon>search</mat-icon>
     <input
       type="text"
       placeholder="Search hospitals..."
       class="border-b h-10 w-80 outline-0"
       (keyup)="applyFilter($event)"
+      #input
     />
   </div>
+  </app-table-toolbar>
 
-  <div class="border rounded-lg overflow-hidden mt-4">
+  <div class="border rounded-lg overflow-x-auto">
     <table mat-table [dataSource]="dataSource" matSort class="w-full">
       <ng-container matColumnDef="hospital_id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Hospital ID</th>
@@ -66,42 +186,52 @@
         <td mat-cell *matCellDef="let element">{{ element.hospital_name }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="total_bill_file_amount">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Bill</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.total_bill_file_amount | number : "1.2-2" }}
+     <ng-container matColumnDef="total_bill_file_amount">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Bill</th>
+  <td mat-cell *matCellDef="let element">
+    {{
+      element.total_bill_file_amount
+        | currency:
+          (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                  ? 'USD'
+                  : 'TZS')
+                :'symbol':'1.2-2'
+          }}
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="total_allocated_amount">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-          Total Allocated
-        </th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.total_allocated_amount | number : "1.2-2" }}
-        </td>
-      </ng-container>
+     <ng-container matColumnDef="total_allocated_amount">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Allocated</th>
+  <td mat-cell *matCellDef="let element">
+    {{
+      element.total_allocated_amount
+        | currency:
+          (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                ? 'USD'
+                : 'TZS')
+              :'symbol':'1.2-2'
+        }}
+      </td>
+    </ng-container>
 
-      <ng-container matColumnDef="total_balance">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.total_balance | number : "1.2-2" }}
-        </td>
-      </ng-container>
+     <ng-container matColumnDef="total_balance">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
+      <td mat-cell *matCellDef="let element">
+        {{
+          element.total_balance
+            | currency:
+              (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                ? 'USD'
+                : 'TZS')
+              :'symbol':'1.2-2'
+        }}
+      </td>
+    </ng-container>
 
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let element">
-          <span
-            [ngClass]="{
-              'bg-green-100 text-green-600': element.status === 'Paid',
-              'bg-yellow-100 text-yellow-600':
-                element.status === 'Partially Paid',
-              'bg-red-100 text-red-800': element.status === 'Pending'
-            }"
-            class="px-2 py-1 rounded-full text-xs font-medium"
-            >{{ element.status }}</span
-          >
+          <app-status-badge [status]="element.status" />
         </td>
       </ng-container>
 
@@ -150,10 +280,8 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
       <!-- No data -->
-      <tr *ngIf="dataSource.data.length === 0">
-        <td [attr.colspan]="displayedColumns.length" class="text-center p-4">
-          No records found.
-        </td>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length"><app-empty-state title="No hospital bills found" [message]="input.value ? 'No hospital bills match your search.' : 'Hospital billing records will appear here.'" icon="account_balance" /></td>
       </tr>
 
       <!-- Totals row -->
@@ -168,7 +296,9 @@
     </table>
 
     <!-- Pagination -->
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons>
+    <mat-paginator [pageSizeOptions]="[10, 20 , 100]" showFirstLastButtons>
     </mat-paginator>
   </div>
+  </app-section-card>
+  <app-loading-state *ngIf="loading" label="Loading hospital bills…" [overlay]="true" />
 </div>

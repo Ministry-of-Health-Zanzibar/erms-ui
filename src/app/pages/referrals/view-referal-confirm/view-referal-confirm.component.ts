@@ -21,6 +21,14 @@ import { AddReferralsComponent } from '../add-referrals/add-referrals.component'
 import Swal from 'sweetalert2';
 import { BillComponent } from '../bill/bill.component';
 import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.component';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-view-referal-confirm',
@@ -40,7 +48,13 @@ import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.c
         MatAnchor,
         MatButton,
         RouterLink,
-        EmrSegmentedModule
+        EmrSegmentedModule,
+        EmptyStateComponent,
+        LoadingStateComponent,
+        PageHeaderComponent,
+        SectionCardComponent,
+        StatusBadgeComponent,
+        TableToolbarComponent
   ],
   templateUrl: './view-referal-confirm.component.html',
   styleUrl: './view-referal-confirm.component.scss'
@@ -73,6 +87,7 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
       }
       ngOnDestroy(): void {
         this.onDestroy.next()
+        this.onDestroy.complete()
       }
       renew(){
         this.getReferrals();

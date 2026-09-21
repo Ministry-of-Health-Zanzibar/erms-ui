@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -110,7 +111,8 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
     private referralService: ReferralService,
     private router: Router,
     private dialog: MatDialog,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit(): void {
@@ -140,7 +142,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
 
   private getBillFileAndBills(billId: string) {
     this.loading = true;
-    this.billFileService.getbillFilesById(billId).subscribe({
+    this.billFileService.getbillFilesById(billId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response: any) => {
         this.loading = false;
         if (response?.data) {
@@ -166,7 +168,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
 
   private loadBillsByBillFileId(bill_file_id: number) {
     this.loading = true;
-    this.billFileService.getbillsBybillFile(bill_file_id).subscribe({
+    this.billFileService.getbillsBybillFile(bill_file_id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: any) => {
         this.loading = false;
         const responseData = res?.data;
@@ -211,7 +213,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
       data: dialogData,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.createBill(result);
       }
@@ -220,7 +222,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
 
   private createBill(billData: any) {
     this.loading = true;
-    this.billService.addBill(billData).subscribe({
+    this.billService.addBill(billData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response: any) => {
         this.loading = false;
         if (response.data) {
@@ -256,7 +258,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.loading = true;
-        this.billService.deleteBill(billId).subscribe({
+        this.billService.deleteBill(billId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             this.billDataSource.data = this.billDataSource.data.filter(
               (b) => b.bill_id !== billId
@@ -306,7 +308,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
       } as AddBillDialogData,
     });
 
-    dialogRef.afterClosed().subscribe((result: any) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
       if (result) {
         this.loadBillsByBillFileId(this.bill_file_id);
       }
@@ -325,12 +327,12 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result: any) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
       if (result) {
-        this.billService.updateBill(bill.bill_id, result).subscribe({
+        this.billService.updateBill(result, bill.bill_id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             Swal.fire('Updated!', 'Bill updated successfully', 'success');
-            this.loadBillsByBillFileId;
+            this.loadBillsByBillFileId(this.bill_file_id);
           },
           error: () => Swal.fire('Error', 'Failed to update bill', 'error'),
         });

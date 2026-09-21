@@ -25,6 +25,13 @@ import { AddpartientComponent } from '../addpartient/addpartient.component';
 import { InsuranceComponent } from '../insurance/insurance.component';
 import { DisplaymoredataComponent } from '../displaymoredata/displaymoredata.component';
 import { Router } from '@angular/router';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-viewpartient',
@@ -33,17 +40,18 @@ import { Router } from '@angular/router';
     CommonModule,
     MatTableModule,
     MatPaginatorModule,
-    MatDivider,
     MatIcon,
-    MatMiniFabButton,
-    MatIconButton,
     VDividerComponent,
     MatTooltip,
     MatSlideToggleModule,
     FormsModule,
-    MatAnchor,
     MatButton,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './viewpartient.component.html',
   styleUrl: './viewpartient.component.scss',
@@ -76,49 +84,37 @@ export class ViewpartientComponent {
   ngOnInit(): void {
     this.userPetient();
   }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.userPetient();
   }
 
-  // userPetient() {
-  //   this.userService.getAllPartients().pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
-  //     if(response.data){
-  //       console.log(response)
-  //       this.dataSource = new MatTableDataSource(response.data);
-  //       this.dataSource.paginator = this.paginator;
-  //       this.dataSource.sort = this.sort;
-  //     }
-  //     else{
-  //       console.log('permission response errors')
-  //     }
-  //   },(error)=>{
-  //     console.log('permision getAway api fail to load')
-  //   })
-  // }
   userPetient() {
     this.loading = true;
-    this.userService
-      .getAllPartients()
-      .pipe(takeUntil(this.onDestroy))
-      .subscribe(
-        (response: any) => {
-          this.loading = false;
-          if (response.data) {
-            this.dataSource = new MatTableDataSource(response.data);
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-          } else {
-            // console.log('permission response errors');
-          }
-        },
-        (error) => {
-          this.loading = false;
-          // console.log('permission getAway api fail to load');
-        }
-      );
+    this.userService.getPatientList().pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
+      this.loading = false;
+      if(response.data){
+        console.log(response)
+        this.dataSource = new MatTableDataSource(response.data);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      }
+      else{
+        console.log('permission response errors')
+      }
+    },(error)=>{
+      this.loading = false;
+      console.log('permision getAway api fail to load')
+    })
   }
 
   applyFilter(event: Event) {
@@ -257,23 +253,4 @@ export class ViewpartientComponent {
     const id = data.patient_id;
     this.router.navigate(['/pages/patient/more', id]); // Navigate to the new page with complain_id
   }
-  // displayMoreData(key:any){
-  //   console.log('Select data from here: ', key);
-
-  //        let config = new MatDialogConfig();
-  //        config.data = {
-  //          data:key
-  //        }
-  //        config.role = 'dialog'
-  //        config.maxWidth ='100vw'
-  //        config.maxHeight = '100vh'
-  //        config.height = '600px'
-  //        config.width = '850px'
-  //        config.panelClass = 'full-screen-modal'
-
-  //        const dialogRef = this.dialog.open(DisplaymoredataComponent, config);
-  //        dialogRef.afterClosed().subscribe(result => {
-  //          dialogRef.close();
-  //        });
-  //      }
 }

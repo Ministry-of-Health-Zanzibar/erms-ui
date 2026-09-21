@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, OnDestroy, OnInit } from '@angular/cor
 import { FormGroup, FormBuilder, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GlobalConstants } from '@shared/global-constants';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { RolePermissionService } from '../../../../services/users/role-permission.service';
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-role-permission-edit',
@@ -48,6 +49,7 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
   checkedAll = false;
   countAllPermission: number = 0;
   countAllowedPermission: number = 0;
+  submitting = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public dialogData:any,
   private formBuilder:FormBuilder,
@@ -60,10 +62,10 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
   ngOnInit(): void {
     this.rolesFormData();
     this.permissionData();
-    this.initPermission();
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   onClose() {
     this.dialogRef.close(false)
@@ -82,6 +84,7 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
       this.permissions = response.permission;
       this.roleName = response.roles;
       this.editRoleForm.get("name")!.setValue(this.roleName[0].name);
+      this.initPermission();
     });
   }
 
@@ -154,10 +157,13 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
       permission_id: this.editRoleForm.value.permissionName
     }
 
-    if(this.editRoleForm.value.permissionName.length > 0){
-      this.roleService.updateRoles(data,this.dialogData.data.id).subscribe(response => {
-        this.dialogRef.close();
-        this.onEditRolesPermission.emit();
+    if(this.editRoleForm.value.permissionName.length > 0 && !this.submitting){
+      this.submitting = true;
+      this.roleService.updateRoles(data,this.dialogData.data.id).pipe(
+        takeUntil(this.onDestroy),
+        finalize(() => this.submitting = false)
+      ).subscribe({
+        next: response => {
         if(response.statusCode == 200){
           Swal.fire({
             title: "Success",
@@ -165,6 +171,9 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
             icon: "success",
             confirmButtonColor: "#4690eb",
             confirmButtonText: "Continue"
+          }).then(() => {
+            this.onEditRolesPermission.emit();
+            this.dialogRef.close(true);
           });
         }else{
           Swal.fire({
@@ -176,29 +185,20 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
           });
         }
 
-      },error => {
-        if(error.statusCode == 401){
-            Swal.fire({
-            title: "warning",
-            text: 'Role already exist. Please choose another role name',
-            icon: "warning",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }else{
+      },
+      error: error => {
           Swal.fire({
             title: "Error",
-            text: error,
+            text: getApiErrorMessage(error, 'Unable to update the role. Please try again.'),
             icon: "error",
             confirmButtonColor: "#4690eb",
             confirmButtonText: "Continue"
           });
-        }
-      });
+      }});
     }else{
       Swal.fire({
         title: "warning",
-        text: 'No permission selected, Please select atleast one permission for this role',
+        text: 'No permission selected. Please select at least one permission for this role.',
         icon: "warning",
         confirmButtonColor: "#4690eb",
         confirmButtonText: "Continue"

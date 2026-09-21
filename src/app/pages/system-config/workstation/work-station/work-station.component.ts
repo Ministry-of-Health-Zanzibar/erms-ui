@@ -17,6 +17,7 @@ import { PermissionService } from '../../../../services/authentication/permissio
 import { WorkStationService } from '../../../../services/work-station.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddWorkStationComponent } from '../add-work-station/add-work-station.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-work-station',
@@ -36,7 +37,11 @@ import { AddWorkStationComponent } from '../add-work-station/add-work-station.co
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './work-station.component.html',
   styleUrl: './work-station.component.scss'
@@ -62,6 +67,7 @@ export class WorkStationComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getWorkStation();

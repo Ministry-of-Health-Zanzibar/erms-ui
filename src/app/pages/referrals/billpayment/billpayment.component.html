@@ -2,63 +2,109 @@
   class="p-10 space-y-8"
   *ngIf="permission.parmissionMatched(['View BillFile'])"
 >
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Bill Payments</h1>
-  </div>
+  <app-page-header
+    title="Bill payments"
+    description="Review billing balances and record hospital payments."
+    icon="account_balance_wallet"
+  />
 
-  <mat-card class="mb-4 shadow-lg">
-    <mat-card-content>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="p-4 rounded-lg bg-blue-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">
-            Total Bill File Amount
-          </h3>
-          <p class="text-lg font-bold text-blue-700">
-            {{ totals?.bill_file_amount | number : "1.2-2" }}
-          </p>
-        </div>
+ <mat-card class="mb-4 shadow-lg rounded-xl">
+  <mat-card-content>
 
-        <div class="p-4 rounded-lg bg-green-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Paid amount</h3>
-          <p class="text-lg font-bold text-green-700">
-            {{ totals?.paid_amount | number : "1.2-2" }}
-          </p>
-        </div>
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <mat-icon
+          class="!w-12 !h-12 !text-4xl text-primary"
+        >
+          local_hospital
+        </mat-icon>
 
-        <div class="p-4 rounded-lg bg-red-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Total Balance</h3>
-          <p class="text-lg font-bold text-red-700">
-            {{ totals.balance | number : "1.2-2" }}
-          </p>
-        </div>
+        <div>
+          <div class="text-sm text-gray-500">
+            Hospital
+          </div>
 
-        <div class="p-4 rounded-lg bg-gray-50 text-center">
-          <h3 class="text-sm font-medium text-gray-600">Status</h3>
-          <p
-            class="text-lg font-bold"
-            [ngClass]="{
-              'text-green-600': totals.status === 'Paid',
-              'text-yellow-600': totals.status === 'Partially Paid',
-              'text-red-600': totals.status === 'Pending',
-              'text-gray-600': totals.status === 'Summary'
-            }"
-          >
-            {{ totals.status }}
-          </p>
+          <div class="text-xl font-bold text-gray-800">
+            {{ hospital_name }}
+          </div>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
-
-  <div class="relative h-full rounded-lg border p-4">
-    <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">
-      View Bill Payments
     </div>
 
-    <div class="mt-4 flex items-center justify-between">
-      <div class="flex items-center gap-1.5">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <!-- Total Bill -->
+      <div
+        class="flex items-center gap-3 p-4 rounded-lg bg-blue-50 border border-blue-100"
+      >
+        <mat-icon class="text-blue-600">
+          receipt_long
+        </mat-icon>
+
+        <div>
+          <div class="text-xs text-gray-500">
+            Total Bill Amount
+          </div>
+
+          <div class="font-bold text-blue-700 text-lg">
+            {{ totals?.bill_file_amount | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Paid Amount -->
+      <div
+        class="flex items-center gap-3 p-4 rounded-lg bg-green-50 border border-green-100"
+      >
+        <mat-icon class="text-green-600">
+          payments
+        </mat-icon>
+
+        <div>
+          <div class="text-xs text-gray-500">
+            Paid Amount
+          </div>
+
+          <div class="font-bold text-green-700 text-lg">
+            {{ totals?.paid_amount | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Balance -->
+      <div
+        class="flex items-center gap-3 p-4 rounded-lg bg-red-50 border border-red-100"
+      >
+        <mat-icon class="text-red-600">
+          account_balance_wallet
+        </mat-icon>
+
+        <div>
+          <div class="text-xs text-gray-500">
+            Remaining Balance
+          </div>
+
+          <div class="font-bold text-red-700 text-lg">
+            {{ totals?.balance | number:'1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </mat-card-content>
+</mat-card>
+
+  <app-section-card
+    title="Payment records"
+    description="Search bills, inspect balances, and add outstanding payments."
+    icon="payments"
+  >
+    <app-table-toolbar>
+      <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
         <div
           class="size-9 rounded-full border bg-surface flex items-center justify-center"
+          (click)="getAllPaymentByHospital(hospital_id!)"
           matTooltip="Refresh"
         >
           <mat-icon>refresh</mat-icon>
@@ -71,9 +117,9 @@
           (keyup)="applyFilter($event)"
         />
       </div>
-    </div>
+    </app-table-toolbar>
 
-    <div class="border rounded-lg overflow-hidden mt-4">
+    <div class="border rounded-lg overflow-x-auto">
       <table mat-table [dataSource]="dataSource" class="not-prose">
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>No.</th>
@@ -81,7 +127,7 @@
         </ng-container>
 
         <ng-container matColumnDef="pdf">
-          <th mat-header-cell *matHeaderCellDef>View PDF</th>
+          <th mat-header-cell *matHeaderCellDef>Bill Files</th>
           <td mat-cell *matCellDef="let element">
             <a
               *ngIf="element.bill_file?.endsWith('.pdf')"
@@ -94,20 +140,20 @@
         </ng-container>
 
         <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount (TZS)</th>
+          <th mat-header-cell *matHeaderCellDef>Amount </th>
           <td mat-cell *matCellDef="let element">
-            {{ element.bill_file_amount }}
+            {{ element.bill_file_amount | number : "1.2-2"}}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="paid_amount">
-          <th mat-header-cell *matHeaderCellDef>Paid amount (TZS)</th>
-          <td mat-cell *matCellDef="let element">{{ element.paid_amount }}</td>
+          <th mat-header-cell *matHeaderCellDef>Paid amount </th>
+          <td mat-cell *matCellDef="let element">{{ element.paid_amount | number : "1.2-2"}}</td>
         </ng-container>
 
         <ng-container matColumnDef="balance">
           <th mat-header-cell *matHeaderCellDef>Balance</th>
-          <td mat-cell *matCellDef="let element">{{ element.balance }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.balance | number : "1.2-2"}}</td>
         </ng-container>
 
         <ng-container matColumnDef="bill_period">
@@ -121,16 +167,7 @@
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>
           <td mat-cell *matCellDef="let element">
-            <span
-              [ngClass]="{
-                'bg-green-100 text-green-600': element.status === 'Paid',
-                'bg-yellow-100 text-yellow-600':
-                  element.status === 'Partially Paid',
-                'bg-red-100 text-red-800': element.status === 'Pending'
-              }"
-              class="px-2 py-1 rounded-full text-xs font-medium"
-              >{{ element.status }}</span
-            >
+            <app-status-badge [status]="element.status" />
           </td>
         </ng-container>
 
@@ -185,7 +222,11 @@
 
         <tr *ngIf="dataSource.data.length === 0">
           <td [attr.colspan]="displayedColumns.length" class="text-center p-4">
-            No bills available.
+            <app-empty-state
+              title="No payment records found"
+              message="Hospital bills available for payment will appear here."
+              icon="payments"
+            />
           </td>
         </tr>
       </table>
@@ -195,14 +236,11 @@
         showFirstLastButtons
       ></mat-paginator>
     </div>
-  </div>
+  </app-section-card>
 
-  <div
+  <app-loading-state
     *ngIf="loading"
-    class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-  >
-    <div
-      class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-    ></div>
-  </div>
+    label="Loading bill payments…"
+    [overlay]="true"
+  />
 </div>

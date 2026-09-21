@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.ui-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 10rem;
+  padding: 2rem 1rem;
+  color: var(--rms-text-muted);
+  text-align: center;
+}
+
+.ui-empty-state__icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.35rem;
+  place-items: center;
+  border-radius: 9999px;
+  color: rgb(37 99 235);
+  background: rgb(239 246 255);
+}
+
+:host-context(html.dark) .ui-empty-state__icon {
+  color: rgb(147 197 253);
+  background: rgb(30 58 138 / 0.35);
+}
+
+strong {
+  color: var(--rms-text);
+  font-size: 0.95rem;
+}
+
+span:not(.ui-empty-state__icon) {
+  font-size: 0.825rem;
+}

@@ -116,11 +116,23 @@ formatAge(ageDetails: any): string {
 }
 
 
-   print(): void {
+   async print(): Promise<void> {
      const printContents = document.getElementById('print-section')?.innerHTML;
      if (printContents) {
        const originalContents = document.body.innerHTML;
        document.body.innerHTML = printContents;
+
+       // Ensure images are decoded before the browser creates the print preview.
+       const images = Array.from(document.body.querySelectorAll('img'));
+       await Promise.all(images.map(image =>
+         image.complete
+           ? image.decode().catch(() => undefined)
+           : new Promise<void>(resolve => {
+               image.addEventListener('load', () => resolve(), { once: true });
+               image.addEventListener('error', () => resolve(), { once: true });
+             })
+       ));
+
        window.print();
        document.body.innerHTML = originalContents;
        window.location.reload();

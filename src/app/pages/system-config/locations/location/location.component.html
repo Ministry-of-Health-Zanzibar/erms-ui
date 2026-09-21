@@ -1,13 +1,8 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Location'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Locations</h1>
-  </div>
-  <div class="w-full">
-
-    <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Location</div>
-      <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
+  <app-page-header title="Locations" description="Manage geographical locations used throughout the system." icon="location_on" />
+  <app-section-card title="Location records" description="Search, import, and maintain geographical locations." icon="map">
+      <app-table-toolbar>
+        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
             <mat-icon class="font-icon visibilityData">refresh</mat-icon>
           </div>
@@ -15,23 +10,22 @@
           <input type="text" placeholder="Search..."
                  class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
         </div>
-        <div class="flex space-x-2">
+        <div uiToolbarActions class="flex flex-wrap gap-2">
           <button mat-stroked-button (click)="downloadFile('geographical_location.xlsx')" *ngIf="permission.parmissionMatched(['Create Location'])">
-            <mat-icon class="font-icon">get_app</mat-icon>Dowload
+            <mat-icon class="font-icon">get_app</mat-icon>Download
           </button>
-          <button (click) = 'uploadFile()'
-            class="bg-green-500 hover:bg-green-700 text-white text-sm py-2 px-4 rounded-full inline-flex items-center"
+          <button mat-flat-button (click)="uploadFile()"
             *ngIf="permission.parmissionMatched(['Create Location'])">
-            <mat-icon class="mr-2">publish</mat-icon>
+            <mat-icon class="font-icon">upload_file</mat-icon>
             Upload
           </button>
           <button mat-flat-button (click) = "addLocation()"  *ngIf="permission.parmissionMatched(['Create Location'])">
             <mat-icon class="font-icon">add</mat-icon>Add Location
           </button>
         </div>
-      </div>
+      </app-table-toolbar>
 
-      <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+      <div class="border dark:border-inverse rounded-lg overflow-x-auto">
         <table mat-table [dataSource]="dataSource" class="not-prose">
           <!-- Position Column -->
           <ng-container matColumnDef="id">
@@ -73,7 +67,9 @@
 
           <!-- Row shown when there is no matching data. -->
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell tablefoter" colspan="5" >No data matching the filter " {{input.value}} "</td>
+            <td class="mat-cell tablefoter" colspan="5">
+              <app-empty-state title="No locations found" [message]="input.value ? 'No locations match your search.' : 'Location records will appear here.'" icon="location_on" />
+            </td>
           </tr>
         </table>
         <mat-paginator [pageSizeOptions]="[5, 10, 20]"
@@ -81,7 +77,5 @@
                        aria-label="Select page of country" class="pt-3">
         </mat-paginator>
       </div>
-    </div>
-  </div>
+  </app-section-card>
 </div>
-

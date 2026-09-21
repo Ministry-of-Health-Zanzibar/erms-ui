@@ -1,31 +1,207 @@
-#letterContent {
-    font-family: 'Times New Roman', serif;
-    background-color: white;
-    padding: 20px;
-    color: black;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-  
-  @media print {
-    button {
-      display: none;
-    }
-  }
+/* ========================================================= */
+/* NORMAL SCREEN */
+/* ========================================================= */
 
-  @media print {
-  #print-section {
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: 80% !important;
-  }
+#print-section {
+  background: white;
+  color: #111;
 }
 
+.dg-signature {
+  display: block;
+  margin-left: 2%;
+  margin-top: 1%;
+  width: 220px;
+  height: 70px;
+  object-fit: contain;
+  object-position: left center;
+}
 
+/* ========================================================= */
+/* A4 PRINT SETTINGS */
+/* ========================================================= */
 
 @media print {
-  body {
-    margin: 0;
-  }
-}
 
-  
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm 8mm 10mm;
+  }
+
+
+  /* Hide everything except the letter */
+
+  body * {
+    visibility: hidden;
+  }
+
+  #print-section,
+  #print-section * {
+    visibility: visible;
+  }
+
+
+  /* Position the letter at the top-left of the page */
+
+  #print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: white !important;
+
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    font-size: 10.5pt;
+
+    line-height: 1.35;
+  }
+
+
+  /* Remove unnecessary spacing */
+
+  #print-section p {
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+
+
+  /* Header */
+
+  #print-section img:not(.dg-signature) {
+    height: 70px !important;
+    width: auto !important;
+  }
+
+  #print-section .dg-signature {
+    width: 220px !important;
+    height: 70px !important;
+  }
+
+
+  /* Header text */
+
+  #print-section .text-lg {
+    font-size: 12pt !important;
+  }
+
+
+  /* Smaller text */
+
+  #print-section .text-sm {
+    font-size: 10pt !important;
+  }
+
+
+  #print-section .text-xs {
+    font-size: 8.5pt !important;
+  }
+
+
+  /* Reduce Tailwind spacing classes during print */
+
+  #print-section .mb-8 {
+    margin-bottom: 12px !important;
+  }
+
+  #print-section .mb-6 {
+    margin-bottom: 10px !important;
+  }
+
+  #print-section .mb-4 {
+    margin-bottom: 7px !important;
+  }
+
+  #print-section .mt-12 {
+    margin-top: 15px !important;
+  }
+
+  #print-section .mt-8 {
+    margin-top: 12px !important;
+  }
+
+  #print-section .my-6 {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  #print-section .my-4 {
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+
+  /* Body text */
+
+  #print-section .leading-7 {
+    line-height: 1.35 !important;
+  }
+
+
+  /* Reduce body paragraph spacing */
+
+  #print-section .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 5px !important;
+  }
+
+  #print-section .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 6px !important;
+  }
+
+
+  /* Prevent individual sections from splitting */
+
+  #print-section .mb-6,
+  #print-section .mb-8,
+  #print-section .mt-8,
+  #print-section .mt-12 {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+
+  /* Signature should stay together */
+
+  #print-section .font-semibold {
+    break-inside: avoid;
+  }
+
+
+  /* Footer */
+
+  #print-section hr {
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+  }
+
+
+  /* Hide print button */
+
+  #print-section .print\:hidden {
+    display: none !important;
+  }
+
+
+  /* Links should look normal when printed */
+
+  #print-section a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+
+  /* Ordered list */
+
+  #print-section ol {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+  }
+
+}

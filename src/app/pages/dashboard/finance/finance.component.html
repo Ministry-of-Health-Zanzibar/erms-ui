@@ -15,67 +15,144 @@
   </div>
 
   <!-- Dashboard Info Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div
-      class="relative bg-gradient-to-r from-green-100 to-green-300 rounded-2xl p-6 flex flex-col items-center shadow-md"
-    >
-      <mat-icon
-        fontIcon="assignment_turned_in"
-        class="text-6xl mb-4 text-green-700"
-      ></mat-icon>
-      <div class="text-sm uppercase tracking-wide text-gray-600">
-        Medical Boards
-      </div>
-      <div class="text-4xl font-extrabold mt-2">
-        {{ referral?.data?.total_medical_boards | number }}
-      </div>
-    </div>
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-    <div
-      class="relative bg-gradient-to-r from-teal-100 to-teal-300 rounded-2xl p-6 flex flex-col items-center shadow-md"
-    >
-      <mat-icon
-        fontIcon="groups"
-        class="text-6xl mb-4 text-teal-700"
-      ></mat-icon>
-      <div class="text-sm uppercase tracking-wide text-gray-600">
-        Total Patients
-      </div>
-      <div class="text-4xl font-extrabold mt-2">
-        {{ referral?.data?.total_patients | number }}
-      </div>
-    </div>
+  <!-- Medical Boards -->
+  <div class="metric-card metric-card--green group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
 
-    <div
-      class="relative bg-gradient-to-r from-gray-100 to-gray-300 rounded-2xl p-6 flex flex-col items-center shadow-md"
-    >
-      <mat-icon
-        fontIcon="compare_arrows"
-        class="text-6xl mb-4 text-gray-600"
-      ></mat-icon>
-      <div class="text-sm uppercase tracking-wide text-gray-600">
-        Total Referrals
-      </div>
-      <div class="text-4xl font-extrabold mt-2">
-        {{ referral?.data?.total_referrals | number }}
-      </div>
-    </div>
+    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
 
-    <div
-      class="relative bg-gradient-to-r from-yellow-100 to-yellow-300 rounded-2xl p-6 flex flex-col items-center shadow-md"
-    >
-      <mat-icon
-        fontIcon="local_hospital"
-        class="text-6xl mb-4 text-yellow-700"
-      ></mat-icon>
-      <div class="text-sm uppercase tracking-wide text-gray-600">
-        Total Referral Hospitals
+    <div class="flex items-center justify-between relative z-10">
+      <div>
+        <p class="metric-label text-[11px] uppercase tracking-wider">
+          Medical Boards
+        </p>
+        <h2 class="metric-value text-2xl font-bold mt-1">
+          {{ referral?.data?.total_medical_boards | number }}
+        </h2>
       </div>
-      <div class="text-4xl font-extrabold mt-2">
-        {{ referral?.data?.total_hospitals | number }}
+
+      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
+        <mat-icon>assignment_turned_in</mat-icon>
       </div>
     </div>
   </div>
+
+  <!-- Patients -->
+  <div class="metric-card metric-card--teal group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
+
+    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
+
+    <div class="flex items-center justify-between relative z-10">
+      <div>
+        <p class="metric-label text-[11px] uppercase tracking-wider">
+          Total Patients
+        </p>
+        <h2 class="metric-value text-2xl font-bold mt-1">
+          {{ referral?.data?.total_patients | number }}
+        </h2>
+      </div>
+
+      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
+        <mat-icon>groups</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Referrals -->
+  <div class="metric-card metric-card--blue group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
+
+    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
+
+    <div class="flex items-center justify-between relative z-10">
+      <div>
+        <p class="metric-label text-[11px] uppercase tracking-wider">
+          Total Referrals
+        </p>
+        <h2 class="metric-value text-2xl font-bold mt-1">
+          {{ referral?.data?.total_referrals | number }}
+        </h2>
+      </div>
+
+      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
+        <mat-icon>compare_arrows</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hospitals -->
+  <div class="metric-card metric-card--amber group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
+
+    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
+
+    <div class="flex items-center justify-between relative z-10">
+      <div>
+        <p class="metric-label text-[11px] uppercase tracking-wider">
+          Hospitals
+        </p>
+        <h2 class="metric-value text-2xl font-bold mt-1">
+          {{ referral?.data?.total_hospitals | number }}
+        </h2>
+      </div>
+
+      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
+        <mat-icon>local_hospital</mat-icon>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- Patient workflow status tracking -->
+  <section class="tracking-card" aria-labelledby="patient-tracking-title">
+    <div class="tracking-header">
+      <div class="tracking-heading">
+        <span class="tracking-icon"><mat-icon>route</mat-icon></span>
+        <div>
+          <h2 id="patient-tracking-title">Patient Status Tracking</h2>
+          <p>Patient counts across each medical review stage.</p>
+        </div>
+      </div>
+      <div class="tracking-total">
+        <span>Total patients in workflow</span>
+        <strong>{{ (dashboardData?.medical_history?.total ?? 0) | number }}</strong>
+      </div>
+    </div>
+
+    <div class="tracking-content" *ngIf="dashboardData?.medical_history?.statuses?.length; else noWorkflowData">
+      <div class="tracking-chart">
+        <apx-chart
+          [series]="patientWorkflowChartOptions.series"
+          [chart]="patientWorkflowChartOptions.chart"
+          [xaxis]="patientWorkflowChartOptions.xaxis"
+          [yaxis]="patientWorkflowChartOptions.yaxis"
+          [plotOptions]="patientWorkflowChartOptions.plotOptions"
+          [dataLabels]="patientWorkflowChartOptions.dataLabels"
+          [colors]="patientWorkflowChartOptions.colors"
+          [tooltip]="patientWorkflowChartOptions.tooltip"
+          [grid]="patientWorkflowChartOptions.grid"
+        ></apx-chart>
+      </div>
+
+      <div class="stage-summary">
+        <div class="stage-summary-item" *ngFor="let item of dashboardData.medical_history.statuses">
+          <span class="stage-number">{{ item.stage }}</span>
+          <div class="stage-copy">
+            <div class="stage-title-row">
+              <strong>{{ item.display_label }}</strong>
+              <span>{{ item.progress_percentage }}% progress</span>
+            </div>
+            <p>{{ item.description }}</p>
+          </div>
+          <span class="patient-count">{{ item.count | number }}</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noWorkflowData>
+      <div class="tracking-empty">No patient workflow data available.</div>
+    </ng-template>
+  </section>
 
   <!-- Pie Charts -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
@@ -154,33 +231,51 @@
 
 <!-- MODAL -->
 <div *ngIf="showOthersModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  class="diagnoses-backdrop fixed inset-0 flex items-center justify-center z-50"
+  (click)="closeModal()">
 
-  <div class="bg-white w-[800px] max-w-[95vw] max-h-[85vh] overflow-auto p-6 rounded-xl">
+  <div class="diagnoses-dialog w-[800px] max-w-[95vw] max-h-[85vh] overflow-auto p-6 rounded-xl"
+    role="dialog" aria-modal="true" aria-labelledby="other-diagnoses-title"
+    (click)="$event.stopPropagation()">
 
-    <div class="flex justify-between mb-4">
-      <h2 class="text-xl font-bold">Other Diagnoses</h2>
+    <div class="flex items-center justify-between gap-4 mb-4">
+      <div>
+        <h2 id="other-diagnoses-title" class="text-xl font-bold">Other Diagnoses</h2>
+        <p class="diagnoses-subtitle">Diagnoses outside the ten most frequent results.</p>
+      </div>
 
-      <button mat-icon-button (click)="closeModal()">
+      <button mat-icon-button (click)="closeModal()" aria-label="Close other diagnoses">
         <mat-icon>close</mat-icon>
       </button>
     </div>
 
-    <table class="w-full border">
+    <div *ngIf="othersLoading" class="diagnoses-message">
+      Loading other diagnoses…
+    </div>
+
+    <div *ngIf="othersError" class="diagnoses-message diagnoses-error" role="alert">
+      {{ othersError }}
+    </div>
+
+    <table *ngIf="!othersLoading && !othersError && othersData.length" class="diagnoses-table w-full">
       <thead>
         <tr>
-          <th class="border p-2">Diagnosis</th>
-          <th class="border p-2">Total</th>
+          <th>Diagnosis</th>
+          <th class="diagnosis-total">Total</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let item of othersData">
-          <td class="border p-2">{{ item.diagnosis }}</td>
-          <td class="border p-2">{{ item.total }}</td>
+          <td>{{ item.diagnosis_name }}</td>
+          <td class="diagnosis-total"><strong>{{ item.total | number }}</strong></td>
         </tr>
       </tbody>
     </table>
+
+    <div *ngIf="!othersLoading && !othersError && !othersData.length" class="diagnoses-message">
+      No other diagnoses were found for the current year.
+    </div>
 
   </div>
 </div>

@@ -1,0 +1,106 @@
+#print-section {
+  background: white;
+  color: #111;
+}
+
+.dg-signature {
+  display: block;
+  margin-left: 2%;
+  margin-top: 1%;
+  width: 220px;
+  height: 70px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  #print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    font-size: 10.5pt;
+    line-height: 1.35;
+  }
+
+  #print-section p {
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+
+  #print-section img:not(.dg-signature) {
+    width: auto !important;
+    height: 70px !important;
+  }
+
+  #print-section .dg-signature {
+    width: 220px !important;
+    height: 70px !important;
+  }
+
+  #print-section .text-lg {
+    font-size: 12pt !important;
+  }
+
+  #print-section .text-sm {
+    font-size: 10pt !important;
+  }
+
+  #print-section .text-xs {
+    font-size: 8.5pt !important;
+  }
+
+  #print-section .mb-6 {
+    margin-bottom: 10px !important;
+  }
+
+  #print-section .mb-4 {
+    margin-bottom: 7px !important;
+  }
+
+  #print-section .mt-8 {
+    margin-top: 12px !important;
+  }
+
+  #print-section .my-4 {
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+  #print-section .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 5px !important;
+  }
+
+  #print-section hr {
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+  }
+
+  #print-section a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+  #print-section .print\:hidden,
+  #print-section button {
+    display: none !important;
+  }
+
+  #print-section .dg-signature,
+  #print-section .font-semibold,
+  #print-section ul,
+  #print-section .text-xs {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

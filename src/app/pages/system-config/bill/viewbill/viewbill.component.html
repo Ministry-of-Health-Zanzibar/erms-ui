@@ -1,13 +1,8 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Bill'])">
-    <div class="flex items-center justify-between">
-      <h1 class="text-lg font-bold">View Bill</h1>
-    </div>
-    <div class="w-full">
-  
-      <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-        <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Bill</div>
-        <div class="mt-4 flex items-center justify-between">
-          <div class="flex items-center gap-1.5">
+    <app-page-header title="Bills" description="Manage referral billing records and supporting files." icon="receipt_long" />
+    <app-section-card title="Bill records" description="Search and maintain bills submitted for referrals." icon="request_quote">
+        <app-table-toolbar>
+          <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
             <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
               <mat-icon class="font-icon visibilityData">refresh</mat-icon>
             </div>
@@ -15,14 +10,14 @@
             <input type="text" placeholder="Search..."
                    class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
           </div>
-          <div class="flex space-x-2">
+          <div uiToolbarActions class="flex space-x-2">
             <button mat-flat-button (click) = "addBill()"  *ngIf="permission.parmissionMatched(['Create Bill'])">
               <mat-icon class="font-icon">add</mat-icon>Add Bill
             </button>
             </div>
-        </div>
+        </app-table-toolbar>
   
-        <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+        <div class="border dark:border-inverse rounded-lg overflow-x-auto">
           <table mat-table [dataSource]="dataSource" class="not-prose">
             <!-- Position Column -->
             <ng-container matColumnDef="id">
@@ -54,7 +49,7 @@
             </ng-container>
              <!-- Name Column -->
              <ng-container matColumnDef="bill_file">
-                <th mat-header-cell *matHeaderCellDef class="text-neutral-500 dark:text-neutral-400"> bill_file  </th>
+                <th mat-header-cell *matHeaderCellDef class="text-neutral-500 dark:text-neutral-400"> Bill File </th>
                 <td mat-cell *matCellDef="let element,"> {{element.bill_file}} </td>
               </ng-container>
     
@@ -84,7 +79,9 @@
   
             <!-- Row shown when there is no matching data. -->
             <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell tablefoter" colspan="10" >No data matching the filter " {{input.value}} "</td>
+              <td class="mat-cell tablefoter" colspan="7">
+                <app-empty-state title="No bills found" [message]="input.value ? 'No bills match your search.' : 'Bill records will appear here.'" icon="receipt_long" />
+              </td>
             </tr>
           </table>
           <mat-paginator [pageSizeOptions]="[10, 20]"
@@ -92,8 +89,7 @@
                          aria-label="Select page of country" class="pt-3">
           </mat-paginator>
         </div>
-      </div>
-    </div>
+    </app-section-card>
   </div>
   
   

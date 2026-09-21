@@ -2,13 +2,17 @@
   class="p-10 space-y-8"
   *ngIf="permission.parmissionMatched(['View BillFile'])"
 >
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">
-      Bills By Hospital
-    </h1>
-  </div>
+  <app-page-header
+    title="Hospital bills"
+    description="Review bill files and totals for the selected hospital."
+    icon="local_hospital"
+  />
 
-  <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
+  <app-section-card
+    title="Hospital billing overview"
+    description="Hospital information, totals, and associated bill files."
+    icon="receipt_long"
+  >
 
  <div
   *ngIf="hospitalData"
@@ -74,9 +78,13 @@
       <mat-icon class="text-green-600">payments</mat-icon>
       <div>
         <p class="text-sm text-neutral-500">Total Bill Amount</p>
-        <p class="text-2xl font-bold">
-          {{ totalBillAmount | currency:'TZS ':'symbol':'1.0-0' }}
-        </p>
+      <p class="text-2xl font-bold">
+            {{
+                totalBillAmount |
+                currency:(isDollarCurrency ? 'USD' : 'TZS'):
+                'symbol':'1.0-0'
+            }}
+            </p>
       </div>
     </div>
   </div>
@@ -100,15 +108,8 @@
 </div>
 
 <!-- Bill Files Header -->
-<div
-  class="flex items-center justify-between pb-3 border-b-2 border-b-secondary-400"
->
-  <div class="flex items-center gap-2">
-    <mat-icon color="primary">receipt_long</mat-icon>
-    <span class="font-semibold text-lg">Bill Files</span>
-  </div>
-
-  <div class="relative">
+<app-table-toolbar>
+  <div uiToolbarPrimary class="relative">
     <mat-icon class="absolute left-3 top-2.5 text-neutral-400">
       search
     </mat-icon>
@@ -121,9 +122,9 @@
       (keyup)="applyFilter($event)"
     />
   </div>
-</div>
+</app-table-toolbar>
 
-    <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+    <div class="border dark:border-inverse rounded-lg overflow-x-auto">
 
       <table mat-table [dataSource]="dataSource">
 
@@ -148,11 +149,15 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row.bill_file_amount | currency:'TZS ' }}
-          </td>
+       <ng-container matColumnDef="amount">
+  <th mat-header-cell *matHeaderCellDef>Amount</th>
+        <td mat-cell *matCellDef="let row">
+            {{
+            row.bill_file_amount |
+            currency:(isDollarCurrency ? 'USD' : 'TZS'):
+            'symbol':'1.0-0'
+            }}
+        </td>
         </ng-container>
 
         <ng-container matColumnDef="bill_start">
@@ -212,6 +217,16 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
+        <tr *ngIf="dataSource.data.length === 0">
+          <td [attr.colspan]="displayedColumns.length">
+            <app-empty-state
+              title="No bill files found"
+              message="Bill files for this hospital will appear here."
+              icon="folder_off"
+            />
+          </td>
+        </tr>
+
       </table>
 
       <mat-paginator
@@ -220,5 +235,11 @@
       </mat-paginator>
 
     </div>
-  </div>
+  </app-section-card>
+
+  <app-loading-state
+    *ngIf="loading"
+    label="Loading hospital bills…"
+    [overlay]="true"
+  />
 </div>

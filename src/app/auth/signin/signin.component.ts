@@ -17,7 +17,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../../services/authentication/auth.service';
+import { AuthService } from '@core/authentication/auth.service';
 import { GlobalConstants } from '@shared/global-constants';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';

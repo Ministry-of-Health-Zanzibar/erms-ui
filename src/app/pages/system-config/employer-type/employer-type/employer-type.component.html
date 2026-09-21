@@ -1,13 +1,8 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Employer Type'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Employer Types</h1>
-  </div>
-  <div class="w-full">
-
-    <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Employer Type</div>
-      <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
+  <app-page-header title="Employer Types" description="Manage the classifications used to group employers." icon="category" />
+  <app-section-card title="Employer type records" description="Search and maintain employer classifications." icon="account_tree">
+      <app-table-toolbar>
+        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
             <mat-icon class="font-icon visibilityData">refresh</mat-icon>
           </div>
@@ -15,14 +10,14 @@
           <input type="text" placeholder="Search..."
                  class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
         </div>
-        <div class="flex">
+        <div uiToolbarActions class="flex">
           <button mat-flat-button (click) = "addEmployerType()"  *ngIf="permission.parmissionMatched(['Create Employer Type'])">
             <mat-icon class="font-icon">add</mat-icon>Add New
           </button>
         </div>
-      </div>
+      </app-table-toolbar>
 
-      <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+      <div class="border dark:border-inverse rounded-lg overflow-x-auto">
         <table mat-table [dataSource]="dataSource" class="not-prose">
           <!-- Position Column -->
           <ng-container matColumnDef="id">
@@ -62,7 +57,9 @@
 
           <!-- Row shown when there is no matching data. -->
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell tablefoter" colspan="5" >No data matching the filter " {{input.value}} "</td>
+            <td class="mat-cell tablefoter" colspan="3">
+              <app-empty-state title="No employer types found" [message]="input.value ? 'No employer types match your search.' : 'Employer type records will appear here.'" icon="category" />
+            </td>
           </tr>
         </table>
         <mat-paginator [pageSizeOptions]="[5, 10, 20]"
@@ -70,8 +67,6 @@
                        aria-label="Select page of country" class="pt-3">
         </mat-paginator>
       </div>
-    </div>
-  </div>
+  </app-section-card>
 </div>
-
 

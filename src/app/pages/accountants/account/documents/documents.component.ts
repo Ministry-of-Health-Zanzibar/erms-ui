@@ -17,6 +17,7 @@ import { Router } from '@angular/router';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { DocumentsService } from '../../../../services/accountants/documents.service';
 import { MatSort } from '@angular/material/sort';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-documents',
@@ -35,7 +36,12 @@ import { MatSort } from '@angular/material/sort';
     FormsModule,
     MatAnchor,
     MatButton,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss'
@@ -66,6 +72,7 @@ private readonly onDestroy = new Subject<void>()
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getDocument();

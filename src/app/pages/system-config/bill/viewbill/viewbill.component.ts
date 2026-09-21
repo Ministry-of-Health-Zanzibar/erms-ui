@@ -18,6 +18,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { BillService } from '../../../../services/system-configuration/bill.service';
 import { AddbillComponent } from '../addbill/addbill.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-viewbill',
@@ -37,7 +38,11 @@ import { AddbillComponent } from '../addbill/addbill.component';
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './viewbill.component.html',
   styleUrl: './viewbill.component.scss'
@@ -63,6 +68,7 @@ export class ViewbillComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getBill();

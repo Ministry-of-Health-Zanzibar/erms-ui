@@ -22,7 +22,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { BillFileService } from '../../../../services/Bills/bill-file.service';
 import Swal from 'sweetalert2';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-bill-file-form',
@@ -37,8 +36,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatInputModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatIconModule,
-    MatProgressSpinnerModule
+    MatIconModule
   ],
   templateUrl: './bill-file-form.component.html',
   styleUrls: ['./bill-file-form.component.scss'],
@@ -125,30 +123,42 @@ hospitalSearch: string = '';
 
  
 
-  onAttachmentSelected(event: any): void {
-    const file = event.target.files?.[0] ?? null;
+ onAttachmentSelected(event: any): void {
+  const file = event.target.files?.[0];
 
-    if (file) {
-      const maxSizeInMB = 2;
-      const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+  if (!file) return;
 
-      if (file.size > maxSizeInBytes) {
-        Swal.fire({
-          icon: 'error',
-          title: 'File Too Large',
-          text: `The selected file exceeds ${maxSizeInMB} MB. Please choose a smaller file.`,
-        });
+  const maxSizeInBytes = 1 * 1024 * 1024; // 1MB
 
-        event.target.value = '';
-        this.billForm.patchValue({ bill_file: null });
-        this.selectedAttachment = null;
-        return;
-      }
+  if (file.size > maxSizeInBytes) {
+    Swal.fire({
+      icon: 'error',
+      title: 'File Too Large',
+      html: `
+        <p>The selected file exceeds <b>1 MB</b>.</p>
+        <p>Please compress your file before uploading.</p>
+        <a href="https://www.ilovepdf.com/compress_pdf" target="_blank">
+          👉 iLovePDF Compress Tool
+        </a>
+      `,
+      confirmButtonText: 'OK'
+    });
 
-      this.billForm.patchValue({ bill_file: file.name });
-      this.selectedAttachment = file;
-    }
+    // reset input + form
+    (event.target as HTMLInputElement).value = '';
+    this.billForm.patchValue({ bill_file: null });
+    this.selectedAttachment = null;
+
+    return;
   }
+
+  // valid file
+  this.billForm.patchValue({
+    bill_file: file.name
+  });
+
+  this.selectedAttachment = file;
+}
 
  saveBill() {
   if (this.billForm.invalid) return;

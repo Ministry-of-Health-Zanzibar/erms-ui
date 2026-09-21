@@ -4,7 +4,7 @@ import { provideRouter, TitleStrategy, withViewTransitions } from '@angular/rout
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -16,7 +16,8 @@ import {
 } from '@elementar/components';
 import { environment } from '../environments/environment';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { authInterceptor } from './services/authentication/auth.interceptor';
+import { authInterceptor } from '@core/authentication/auth.interceptor';
+import { httpCacheInterceptor } from '@core/http-cache.interceptor';
 
 export function initializeApp() {
   const envService = inject(EnvironmentService);
@@ -29,11 +30,10 @@ export function initializeApp() {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpCacheInterceptor])),
     provideRouter(routes, withViewTransitions()),
     provideClientHydration(),
     provideAnimationsAsync(),
-    provideHttpClient(withInterceptors([authInterceptor])),
     provideStore(),
     provideNativeDateAdapter(),
     {

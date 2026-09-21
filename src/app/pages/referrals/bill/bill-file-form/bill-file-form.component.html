@@ -2,20 +2,22 @@
   <div class="w-full">
     <div class="relative h-full rounded-lg group p-6">
       <!-- Title -->
-     <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-semibold text-gray-800">
-          {{ billData ? 'Update Bill File' : 'Create Bill File' }}
-        </h2>
-        <p class="text-sm text-gray-500">
-          Fill the form below to {{ billData ? 'update' : 'create' }} a bill record
-        </p>
-      </div>
+   
+  <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl shadow-md p-5 mb-5">
 
-      <button mat-icon-button (click)="onClose()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+  <h2 class="text-2xl font-bold tracking-wide">
+    {{ billData ? 'Update Bill File' : 'Create Bill File' }}
+  </h2>
+
+  <p class="text-sm text-white/90 mt-1">
+    Fill the form below to
+    {{ billData ? 'update' : 'create' }} a bill record in the system
+  </p>
+
+</div>
+
+   
+  
 
       <!-- Form -->
       <form
@@ -106,39 +108,47 @@
 
         <!-- File Upload -->
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
-            <mat-label>Upload File</mat-label>
-            <input
-              matInput
-              type="text"
-              formControlName="bill_file"
-              readonly
-              placeholder="No file chosen"
-              (click)="fileInput.click()"
-            />
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,.jpg,.png"
-              hidden
-              #fileInput
-              (change)="onAttachmentSelected($event)"
-            />
-            <mat-icon
-              matSuffix
-              style="cursor: pointer"
-              (click)="fileInput.click()"
-              >attach_file</mat-icon
-            >
-            <mat-error
-              *ngIf="
-                billForm.get('bill_file')?.invalid &&
-                billForm.get('bill_file')?.touched
-              "
-            >
-              File is required
-            </mat-error>
-          </mat-form-field>
+         <mat-form-field class="form-field w-full">
+  <mat-label>Upload File</mat-label>
+
+  <input
+    matInput
+    type="text"
+    formControlName="bill_file"
+    readonly
+    placeholder="No file chosen"
+    (click)="fileInput.click()"
+  />
+
+  <input
+    type="file"
+    accept=".pdf,.doc,.docx,.jpg,.png"
+    hidden
+    #fileInput
+    (change)="onAttachmentSelected($event)"
+  />
+
+      <mat-icon matSuffix style="cursor:pointer" (click)="fileInput.click()">
+        attach_file
+      </mat-icon>
+
+      <mat-error *ngIf="billForm.get('bill_file')?.touched && billForm.get('bill_file')?.invalid">
+        File is required
+      </mat-error>
+    </mat-form-field>
         </div>
+        <div class="text-sm text-gray-500 mt-1">
+      Maximum file size: <b>1 MB</b>.
+      If your file is large, please compress it before uploading.
+      You can use
+      <a
+        href="https://www.ilovepdf.com/compress_pdf"
+        target="_blank"
+        class="text-blue-600 underline"
+      >
+        iLovePDF Compression Tool
+      </a>
+    </div>
 
        <!-- Bill Start Date -->
 <div class="form-row">
@@ -196,9 +206,7 @@
           {{ billData ? "Update" : "Save" }}
         </ng-container>
 
-        <ng-container *ngIf="isLoading">
-          <mat-spinner diameter="20"></mat-spinner>
-        </ng-container>
+        <ng-container *ngIf="isLoading">Saving…</ng-container>
       </button>
       </mat-dialog-actions>
     </div>

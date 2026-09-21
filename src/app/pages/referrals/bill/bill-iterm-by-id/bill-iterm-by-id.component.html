@@ -1,10 +1,7 @@
 <mat-card class="p-6 max-w-md mx-auto mat-elevation-z2 mt-5">
   <h2 class="text-lg font-bold mb-4">Bill Item Details</h2>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="loading" class="flex justify-center my-5">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
+  <app-loading-state *ngIf="loading" label="Loading bill item…" />
 
   <!-- Static Table for Single Bill Item -->
   <table *ngIf="!loading && billItem" class="w-full mat-elevation-z1">

@@ -1,7 +1,6 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Report'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">View Report</h1>
-    <!-- Export Buttons -->
+  <app-page-header title="Accounting Date Report" description="Review accounting documents for a selected date range." icon="analytics" />
+  <app-section-card title="Report criteria" description="Select a valid date range to generate the accounting report." icon="date_range">
     <div class="flex gap-4">
       <button mat-raised-button color="accent" (click)="exportExcel()">
         <mat-icon>table_chart</mat-icon>
@@ -12,9 +11,8 @@
         Export PDF
       </button>
     </div>
-  </div>
 
-  <div class="search-container bg-gray-100 p-6 rounded-xl shadow-md">
+  <div class="search-container rounded-xl mt-4">
     <form [formGroup]="reportForm" class="flex flex-wrap gap-4 items-end">
 
       <!-- Start Date -->
@@ -54,18 +52,19 @@
 
     </form>
   </div>
+  </app-section-card>
 
-
-  <div class="mt-4 flex items-center justify-between">
-    <div class="flex items-center gap-1.5">
+  <app-section-card title="Report results" description="Filter the generated accounting records or export them." icon="table_view">
+  <app-table-toolbar>
+    <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
       <div class="size-9 rounded-full border bg-surface flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
         <mat-icon class="font-icon visibilityData">refresh</mat-icon>
       </div>
       <input type="text" placeholder="Search..." class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
     </div>
-  </div>
+  </app-table-toolbar>
 
-  <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+  <div class="border dark:border-inverse rounded-lg overflow-x-auto">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
       <!-- No Column -->
       <ng-container matColumnDef="no">
@@ -85,7 +84,7 @@
 
       <!-- Phone Column -->
       <ng-container matColumnDef="amount">
-        <th mat-header-cell *matHeaderCellDef>Ammount</th>
+        <th mat-header-cell *matHeaderCellDef>Amount</th>
         <td mat-cell *matCellDef="let element">{{ element.amount }}</td>
       </ng-container>
 
@@ -137,11 +136,12 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell tablefoter" colspan="10">No data matching the filter "{{input.value}}"</td>
+        <td class="mat-cell tablefoter" colspan="9"><app-empty-state title="No report data found" [message]="input.value ? 'No report rows match your search.' : 'Choose a date range and generate the report.'" icon="analytics" /></td>
       </tr>
     </table>
     <mat-paginator [pageSizeOptions]="[10, 20, 100]" showFirstLastButtons></mat-paginator>
   </div>
+  </app-section-card>
+  <app-loading-state *ngIf="loading" label="Generating accounting report…" [overlay]="true" />
 </div>
-
 

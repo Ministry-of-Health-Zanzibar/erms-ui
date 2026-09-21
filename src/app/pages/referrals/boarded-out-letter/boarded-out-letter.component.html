@@ -53,10 +53,13 @@
             <b>KUMB:</b>
             {{ referral.boarded_out_letter?.reference_number }}
         </p>
-        <p>
-            <b>TAREHE:</b>
-            {{ referral.boarded_out_letter?.reference_date | date:'dd/MM/yyyy' }}
-        </p>
+      <p>
+  <b>Tarehe:</b>
+
+  <span class="text-black-500">
+    {{ referral.boarded_out_letter?.created_at | date:'dd/MM/yyyy' }}
+  </span>
+</p>
         </div>
 
         <div class="mb-6 uppercase font-semibold">
@@ -105,9 +108,17 @@
 
     </ng-container>
 
+    <div class="h-20 flex items-center">
+        <img
+            src="assets/img/sign_dgs.png"
+            alt="Signature"
+            class="dg-signature"
+        />
+    </div>
+
     <!-- ================= FOOTER ================= -->
-    <div class="mt-8">
-        <p class="font-semibold">DKT. AMOUR S. MOHAMED,</p>
+    <div class="mt-2">
+        <p class="font-semibold">DKT. MARYAM SEIF HEMED,</p>
         <p class="font-semibold">MKURUGENZI MKUU,</p>
         <p class="font-semibold">WIZARA YA AFYA,</p>
         <p class="font-semibold underline">ZANZIBAR</p>

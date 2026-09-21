@@ -5,8 +5,17 @@
       "@shared/*": [
         "./src/app/@shared/*"
       ],
+      "@core/*": [
+        "./src/app/services/*"
+      ],
       "@services/*": [
-        "./src/app/@services/*"
+        "./src/app/services/*"
+      ],
+      "@features/*": [
+        "./src/app/pages/*"
+      ],
+      "@layout/*": [
+        "./src/app/@app/*"
       ],
       "@app/*": [
         "./src/app/@app/*"

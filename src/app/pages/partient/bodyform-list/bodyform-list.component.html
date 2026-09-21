@@ -2,18 +2,19 @@
   class="p-4 md:p-10 space-y-6 md:space-y-8"
   *ngIf="permission.parmissionMatched(['View Patient List'])"
 >
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <h1 class="text-lg font-bold">Medical Board Form</h1>
-  </div>
-  <div class="w-full">
-    <div
-      class="relative h-full rounded-lg border group dark:border-inverse p-4"
-    >
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">
-        View Medical Board Information List
-      </div>
-      <div class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex items-center gap-1.5">
+  <app-page-header
+    title="Medical boards"
+    description="Manage medical board sessions and assigned patient lists."
+    icon="groups"
+  />
+
+  <app-section-card
+    title="Medical board records"
+    description="Search existing boards or create a new medical board."
+    icon="clinical_notes"
+  >
+      <app-table-toolbar>
+        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div
             class="size-9 rounded-full border bg-surface flex flex items-center justify-center"
             (click)="renew()"
@@ -31,7 +32,7 @@
             #input
           />
         </div>
-        <div>
+        <div uiToolbarActions>
         <button
           mat-flat-button
           class="w-full md:w-auto"
@@ -42,9 +43,9 @@
             <mat-icon class="font-icon">add</mat-icon>Add Medical Board
           </button>
         </div>
-      </div>
+      </app-table-toolbar>
 
-      <div class="border dark:border-inverse rounded-lg overflow-x-auto mt-4">
+      <div class="border dark:border-inverse rounded-lg overflow-x-auto">
 
         <table mat-table [dataSource]="dataSource" class="not-prose min-w-[900px] md:min-w-full">
 
@@ -187,27 +188,25 @@
           <!-- Row shown when there is no matching data. -->
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell tablefoter" colspan="10">
-              No data matching the filter " {{ input.value }} "
+              <app-empty-state
+                title="No medical boards found"
+                [message]="input.value ? 'No medical boards match your search.' : 'Medical board records will appear here.'"
+                icon="groups"
+              />
             </td>
           </tr>
         </table>
         <mat-paginator
-          [pageSizeOptions]="[10, 20]"
-          showFirstLastButtons
-          aria-label="Select page of permission"
-          class="pt-3"
-        >
-        </mat-paginator>
+        [pageSizeOptions]="[10, 20, 50]"
+        showFirstLastButtons
+      >
+      </mat-paginator>
       </div>
-    </div>
-  </div>
+  </app-section-card>
 
-  <div
+  <app-loading-state
     *ngIf="loading"
-    class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-  >
-    <div
-      class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-    ></div>
-  </div>
+    label="Loading medical boards…"
+    [overlay]="true"
+  />
 </div>

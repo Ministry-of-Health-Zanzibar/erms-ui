@@ -9,7 +9,7 @@ import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
-import { Observable, Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInput } from '@angular/material/input';
@@ -22,6 +22,12 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 // import { saveAs } from 'file-saver';
+
+import { formatDate } from '@angular/common';
+
+
+
+
 
 
 
@@ -37,6 +43,7 @@ import { HospitalService } from '../../../services/system-configuration/hospital
 import { ReasonsService } from '../../../services/system-configuration/reasons.service';
 import { ReferalTypeService } from '../../../services/system-configuration/referal-type.service';
 import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker";
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referralsearchreport',
@@ -59,6 +66,11 @@ import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker
 
     MatDatepickerModule,
     MatNativeDateModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
 ],
   templateUrl: './referralsearchreport.component.html',
   styleUrl: './referralsearchreport.component.scss'
@@ -69,7 +81,17 @@ export class ReferralsearchreportComponent implements OnInit, OnDestroy {
   private readonly onDestroy = new Subject<void>();
 
   reportForm: FormGroup;
-  displayedColumns: string[] = ['no', 'name', 'hospital_name', 'hospital_address','referral_reason_name'];
+displayedColumns: string[] = [
+  'no',
+  'referral_id',
+  'patient_name',
+  'hospital',
+  'insurance_provider_name',
+  'start_date',
+  'end_date',
+  'board_diagnoses',
+  'created_at'
+];
   dataSource = new MatTableDataSource<any>();
 
   documents: any[] = [];
@@ -109,6 +131,7 @@ export class ReferralsearchreportComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   applyFilter(event: Event): void {
@@ -134,18 +157,18 @@ export class ReferralsearchreportComponent implements OnInit, OnDestroy {
   }
 
   getReasons(): void {
-    this.reasonServi.getAllReasons().subscribe(response => {
+    this.reasonServi.getAllReasons().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.reasons = response.data;
     });
   }
   getReferralType(): void {
-    this.typeServices.getAllReferalType().subscribe(response => {
+    this.typeServices.getAllReferalType().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.referralType = response.data;
     });
   }
 
    getHospital() {
-    this.hospitalServices.getAllHospital().subscribe({
+    this.hospitalServices.getAllHospital().pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response: any) => {
         this.hospital = response.data;
       },
@@ -163,6 +186,8 @@ export class ReferralsearchreportComponent implements OnInit, OnDestroy {
 
 searchReport(): void {
   this.loading = true;
+  this.noResults = false;
+  this.errorMessage = '';
 
   const formData = { ...this.reportForm.value };
 
@@ -174,11 +199,12 @@ searchReport(): void {
     formData.end_date = new Date(formData.end_date).toISOString().split('T')[0];
   }
 
-  this.reportService.generateReport(formData).subscribe({
+  this.reportService.generateReport(formData).pipe(takeUntil(this.onDestroy)).subscribe({
     next: response => {
       this.loading = false;
       this.dataSource.data = response.data;
       this.dataSource.paginator = this.paginator;
+      this.noResults = response.data.length === 0;
     },
     error: err => {
       this.loading = false;
@@ -219,26 +245,188 @@ searchReport(): void {
   // }
 
   // Export PDF
-  exportPDF() {
-    const doc = new jsPDF();
-    doc.text('Report Data', 10, 10);
 
-    autoTable(doc, {
-      head: [['no', 'name', 'hospital_name', 'hospital_address','referral_reason_name']],
-      body: this.dataSource.data.map((element, index) => [
-        index + 1,
-        element.patient_name,
-        element.hospital_name,
-        element.hospital_address,
-        element.referral_reason_name,
+  getImageBase64(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+
+    img.crossOrigin = 'Anonymous';
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+
+      resolve(canvas.toDataURL('image/png'));
+    };
+
+    img.onerror = reject;
+
+    img.src = url;
+  });
+}
+async exportPDF() {
+
+  const logo = await this.getImageBase64(
+    'assets/img/SMZ_header.png'
+  );
+
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
 
 
-      ]),
-    });
+  // Add Logo
+  doc.addImage(
+    logo,
+    'PNG',
+    pageWidth / 2 - 10,
+    8,
+    22,
+    22
+  );
 
-    doc.save('report.pdf');
+
+  // Government Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+
+  doc.text(
+    'THE REVOLUTIONARY GOVERNMENT OF ZANZIBAR',
+    pageWidth / 2,
+    35,
+    { align: 'center' }
+  );
+
+
+  // Ministry Title
+  doc.setFontSize(15);
+
+  doc.text(
+    'MINISTRY OF HEALTH',
+    pageWidth / 2,
+    43,
+    { align: 'center' }
+  );
+
+
+  // Line
+  doc.setLineWidth(0.5);
+  doc.line(
+    14,
+    48,
+    pageWidth - 14,
+    48
+  );
+
+
+  // Report title
+  doc.setFontSize(14);
+
+  const patientName = this.reportForm.value.patient_name;
+const hospitalName = this.reportForm.value.hospital_name;
+
+let reportTitle = 'REFERRAL REPORT';
+
+if (patientName) {
+  reportTitle = `REFERRAL REPORT FOR PATIENT: ${patientName.toUpperCase()}`;
+} 
+else if (hospitalName) {
+  reportTitle = `REFERRAL REPORT FOR HOSPITAL: ${hospitalName.toUpperCase()}`;
+}
+
+
+// Report title
+doc.setFont('helvetica', 'bold');
+doc.setFontSize(14);
+
+doc.text(
+  reportTitle,
+  pageWidth / 2,
+  57,
+  { align: 'center' }
+);
+
+
+  const printedDate = new Date();
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+
+
+  doc.text(
+    `Printed Date: ${printedDate.toLocaleDateString()}`,
+    14,
+    66
+  );
+
+
+  const startDate = this.reportForm.value.start_date;
+  const endDate = this.reportForm.value.end_date;
+
+
+  if(startDate && endDate){
+
+    doc.text(
+      `Reporting Period: ${startDate} - ${endDate}`,
+      14,
+      72
+    );
+
   }
 
+
+  autoTable(doc, {
+    startY: 78,
+
+    head: [[
+      'No',
+      'Patient Name',
+      'Hospital',
+      'Insurance',
+      'Start Date',
+      'End Date',
+      'Board Diagnoses',
+      'Created Date'
+    ]],
+
+    body: this.dataSource.data.map(
+      (element:any,index:number)=>[
+        index+1,
+        element.patient_name,
+        `${element.hospital_name}\n${element.hospital_address}`,
+        element.insurance_provider_name,
+        element.start_date,
+        element.end_date,
+        element.board_diagnoses?.map(
+          (d:any)=>
+          `${d.diagnosis_code} - ${d.diagnosis_name}`
+        ).join('\n') || 'N/A',
+        element.created_at
+      ]
+    ),
+
+    styles:{
+      fontSize:8
+    },
+
+    headStyles:{
+      fillColor:[41,128,185],
+      textColor:255
+    }
+  });
+
+
+  doc.save('Referral_Report.pdf');
+
+}
 
 
 

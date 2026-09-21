@@ -20,10 +20,9 @@
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button *ngIf="!categoryData" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="categoryForm.invalid" (click)="savecategory()">Save Data</button>
-    <button *ngIf="categoryData" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="categoryForm.invalid" (click)="updatecategory()">Update Data</button>
+    <button *ngIf="!categoryData" mat-flat-button cdkFocusInitial [disabled]="categoryForm.invalid || submitting" (click)="savecategory()">{{ submitting ? 'Saving...' : 'Save Category' }}</button>
+    <button *ngIf="categoryData" mat-flat-button cdkFocusInitial [disabled]="categoryForm.invalid || submitting" (click)="updatecategory()">{{ submitting ? 'Saving...' : 'Update Category' }}</button>
   </mat-dialog-actions>
 </div>
-
 
 

@@ -19,6 +19,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { ReasonsService } from '../../../../services/system-configuration/reasons.service';
 import { AddreasonComponent } from '../addreason/addreason.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 
 @Component({
@@ -39,7 +40,11 @@ import { AddreasonComponent } from '../addreason/addreason.component';
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
 ],
   templateUrl: './viewreason.component.html',
   styleUrl: './viewreason.component.scss'
@@ -66,6 +71,7 @@ export class ViewreasonComponent {
    }
    ngOnDestroy(): void {
      this.onDestroy.next()
+     this.onDestroy.complete()
    }
    renew(){
      this.getReasons();

@@ -32,8 +32,6 @@ import Swal from 'sweetalert2';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { ViewChild } from '@angular/core';
 
-
-
 @Component({
   selector: 'app-partient-form',
   standalone: true,
@@ -57,13 +55,12 @@ import { ViewChild } from '@angular/core';
   ],
   templateUrl: './partient-form.component.html',
 })
-
 export class PartientFormComponent implements OnInit {
   patientForm!: FormGroup;
   loading = false;
   isLoadingDiagnoses: boolean = false;
   isEligible = false;
-  emails:any;
+  emails: any;
   id: any;
   fileError: string = '';
   isEditMode = false;
@@ -109,14 +106,21 @@ export class PartientFormComponent implements OnInit {
         this.getPatientById(this.id);
       });
     } else {
-      this.loadLocations();
-      this.listenToMatibabuCard();
+      this.loadLocations(() => {
+        this.listenToMatibabuCard();
+      });
     }
   }
 
+  // onLocationSelected(location: any) {
+  //   this.patientForm.get('basicInfo.location_id')?.setValue(location);
+  //   this.locationFilterCtrl.setValue(location);
+  // }
+
   onLocationSelected(location: any) {
     this.patientForm.get('basicInfo.location_id')?.setValue(location);
-    this.locationFilterCtrl.setValue(location); // 🔥 THIS IS WHAT FIXES EDIT DISPLAY
+
+    this.locationFilterCtrl.setValue(location);
   }
 
   applyMatibabuCardValidation() {
@@ -127,13 +131,13 @@ export class PartientFormComponent implements OnInit {
     if (this.emails === 'hospital@mohz.go.tz') {
       // NOT required (only pattern if value exists)
       control.setValidators([
-        Validators.pattern(/^\d{12}$/) // optional but must be 12 digits if filled
+        Validators.pattern(/^\d{12}$/), // optional but must be 12 digits if filled
       ]);
     } else {
       // REQUIRED + 12 digits
       control.setValidators([
         Validators.required,
-        Validators.pattern(/^\d{12}$/)
+        Validators.pattern(/^\d{12}$/),
       ]);
     }
     control.updateValueAndValidity();
@@ -143,10 +147,8 @@ export class PartientFormComponent implements OnInit {
     this.patientForm = this.fb.group({
       basicInfo: this.fb.group({
         name: ['', Validators.required],
-        matibabu_card: [
-          '',
-        ],
-        zan_id: ['', [Validators.required,Validators.pattern(/^\d{9}$/)]],
+        matibabu_card: [''],
+        zan_id: ['', [Validators.required]],
         date_of_birth: ['', Validators.required],
         gender: ['', Validators.required],
         phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
@@ -176,7 +178,7 @@ export class PartientFormComponent implements OnInit {
 
   getPatientById(id: any) {
     if (!id) return;
-    
+
     this.patientService.showForUpdate(id).subscribe({
       next: (response: any) => {
         if (!response?.data) return;
@@ -263,21 +265,92 @@ export class PartientFormComponent implements OnInit {
       });
   }
 
+  // private clearBasicInfo() {
+  //   this.patientForm.get('basicInfo')?.patchValue(
+  //     {
+  //       name: '',
+  //       zan_id: '',
+  //       date_of_birth: '',
+  //       gender: '',
+  //       phone: '',
+  //       location_id: null,
+  //       job: '',
+  //       position: '',
+  //     },
+  //     { emitEvent: false },
+  //   );
+  // }
+
+  // private checkEligibility(matibabuCard: string) {
+  //   this.patientService
+  //     .searchPatientEligibility({ matibabu_card: matibabuCard })
+  //     .subscribe({
+  //       next: (res: any) => {
+  //         const patient = res.data;
+  //         this.isEligible = res.success === false;
+
+  //         this.snackBar.open(res.message || 'Patient found', 'Close', {
+  //           duration: 4000,
+  //         });
+
+  //         this.patientForm.get('basicInfo')?.patchValue({
+  //           name: patient?.name || '',
+  //           zan_id: patient?.zan_id || '',
+  //           date_of_birth: patient?.date_of_birth
+  //             ? new Date(patient.date_of_birth)
+  //             : '',
+  //           gender: patient?.gender
+  //             ? patient.gender.toLowerCase() === 'male'
+  //               ? 'Male'
+  //               : 'Female'
+  //             : '',
+  //           phone: patient?.phone || '',
+  //           location_id: patient?.location_id
+  //             ? Number(patient.location_id)
+  //             : null,
+  //           job: patient?.job || '',
+  //           position: patient?.position || '',
+  //         });
+  //       },
+  //       error: (err) => {
+  //         this.isEligible = false;
+  //         this.clearBasicInfo();
+  //         this.snackBar.open(
+  //           err?.error?.message || 'No patient found',
+  //           'Close',
+  //           { duration: 4000 },
+  //         );
+  //       },
+  //     });
+  // }
+
   private clearBasicInfo() {
-    this.patientForm.get('basicInfo')?.patchValue(
-      {
-        name: '',
-        zan_id: '',
-        date_of_birth: '',
-        gender: '',
-        phone: '',
-        location_id: null,
-        job: '',
-        position: '',
-      },
-      { emitEvent: false },
-    );
-  }
+
+  this.patientForm.get('basicInfo')?.patchValue(
+    {
+      name: '',
+      zan_id: '',
+      date_of_birth: '',
+      gender: '',
+      phone: '',
+      location_id: null,
+      job: '',
+      position: '',
+    },
+    { emitEvent: false },
+  );
+
+
+  // Clear location autocomplete display
+  this.locationFilterCtrl.setValue('', {
+    emitEvent: false
+  });
+
+
+  // Clear filtered list
+  this.filteredLocations = [...this.locations];
+
+}
 
   private checkEligibility(matibabuCard: string) {
     this.patientService
@@ -285,6 +358,7 @@ export class PartientFormComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           const patient = res.data;
+
           this.isEligible = res.success === false;
 
           this.snackBar.open(res.message || 'Patient found', 'Close', {
@@ -293,30 +367,61 @@ export class PartientFormComponent implements OnInit {
 
           this.patientForm.get('basicInfo')?.patchValue({
             name: patient?.name || '',
+
             zan_id: patient?.zan_id || '',
+
             date_of_birth: patient?.date_of_birth
               ? new Date(patient.date_of_birth)
               : '',
+
             gender: patient?.gender
               ? patient.gender.toLowerCase() === 'male'
                 ? 'Male'
                 : 'Female'
               : '',
+
             phone: patient?.phone || '',
+
+            // keep form value
             location_id: patient?.location_id
               ? Number(patient.location_id)
               : null,
+
             job: patient?.job || '',
+
             position: patient?.position || '',
           });
+
+          // ================================
+          // FIX LOCATION AUTOCOMPLETE DISPLAY
+          // ================================
+
+          if (patient?.geographical_location) {
+            this.locationFilterCtrl.setValue(patient.geographical_location);
+          } else if (patient?.location_id) {
+            const selectedLocation = this.locations.find(
+              (loc) => Number(loc.location_id) === Number(patient.location_id),
+            );
+
+            if (selectedLocation) {
+              this.locationFilterCtrl.setValue(selectedLocation);
+            }
+          }
         },
+
         error: (err) => {
           this.isEligible = false;
+
           this.clearBasicInfo();
+
+          this.locationFilterCtrl.setValue('');
+
           this.snackBar.open(
             err?.error?.message || 'No patient found',
             'Close',
-            { duration: 4000 },
+            {
+              duration: 4000,
+            },
           );
         },
       });
@@ -326,9 +431,9 @@ export class PartientFormComponent implements OnInit {
     this.locationService.getLocation().subscribe({
       next: (res: any) => {
         this.locations = res.data || [];
-        this.filteredLocations = [...this.locations]; // 👈 muhimu
+        this.filteredLocations = [...this.locations];
 
-        this.listenToLocationSearch(); // 👈 add this
+        this.listenToLocationSearch();
 
         if (callback) {
           callback();
@@ -343,23 +448,20 @@ export class PartientFormComponent implements OnInit {
       ? location
       : location.location_name || '';
   }
-  
+
   listenToLocationSearch() {
     this.locationFilterCtrl.valueChanges.subscribe((search: any) => {
-  
       const searchValue =
-        typeof search === 'string'
-          ? search
-          : search?.location_name || '';
-  
+        typeof search === 'string' ? search : search?.location_name || '';
+
       const value = searchValue.toLowerCase().trim();
-  
+
       if (!value) {
         this.filteredLocations = [...this.locations];
         return;
       }
-  
-      this.filteredLocations = this.locations.filter(loc => {
+
+      this.filteredLocations = this.locations.filter((loc) => {
         const name = (loc.location_name || loc.label || '').toLowerCase();
         return name.includes(value);
       });
@@ -378,66 +480,58 @@ export class PartientFormComponent implements OnInit {
 
   loadDiagnoses() {
     this.diagnosisSearchCtrl.valueChanges
-    .pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-    )
-    .subscribe((search: string | null) => {
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((search: string | null) => {
+        const value = (search || '').trim();
 
-      const value = (search || '').trim();
-
-      if (value.length < 2) {
-        this.filteredDiagnoses = [];
-        return;
-      }
-
-      this.isLoadingDiagnoses = true;
-
-      this.diagnosisService.searchDiagnosis(value).subscribe({
-        next: (res) => {
-          this.filteredDiagnoses = res.data || [];
-          this.isLoadingDiagnoses = false;
-        },
-        error: () => {
+        if (value.length < 2) {
           this.filteredDiagnoses = [];
-          this.isLoadingDiagnoses = false;
+          return;
         }
+
+        this.isLoadingDiagnoses = true;
+
+        this.diagnosisService.searchDiagnosis(value).subscribe({
+          next: (res) => {
+            this.filteredDiagnoses = res.data || [];
+            this.isLoadingDiagnoses = false;
+          },
+          error: () => {
+            this.filteredDiagnoses = [];
+            this.isLoadingDiagnoses = false;
+          },
+        });
       });
-    });
   }
 
   addDiagnosis(diagnosis: any) {
     const exists = this.selectedDiagnoses.find(
-      (d) => d.diagnosis_id === diagnosis.diagnosis_id
+      (d) => d.diagnosis_id === diagnosis.diagnosis_id,
     );
-  
+
     if (!exists) {
       this.selectedDiagnoses.push(diagnosis);
-  
-      const ids = this.selectedDiagnoses.map(d => d.diagnosis_id);
-  
-      this.patientForm
-        .get('historyInfo.diagnosis_ids')
-        ?.setValue(ids);
-  
-      this.patientForm
-        .get('historyInfo.diagnosis_ids')
-        ?.markAsDirty();
-  
+
+      const ids = this.selectedDiagnoses.map((d) => d.diagnosis_id);
+
+      this.patientForm.get('historyInfo.diagnosis_ids')?.setValue(ids);
+
+      this.patientForm.get('historyInfo.diagnosis_ids')?.markAsDirty();
+
       this.patientForm
         .get('historyInfo.diagnosis_ids')
         ?.updateValueAndValidity();
     }
-  
+
     // ✅ 1. clear text input (Reactive Form)
     this.diagnosisSearchCtrl.setValue('');
-  
+
     // ✅ 2. clear dropdown results
     this.filteredDiagnoses = [];
-  
+
     // ✅ 3. close autocomplete panel properly
     this.autoTrigger?.closePanel();
-  
+
     // ✅ 4. force DOM reset (fix stuck text issue)
     setTimeout(() => {
       if (this.diagInput?.nativeElement) {

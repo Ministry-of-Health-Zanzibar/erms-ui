@@ -1,14 +1,8 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Role'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Role Permission</h1>
-  </div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Role With Permission</div>
-
-      <emr-panel-header class="px-10 h-16">
-        <div class="h-full flex items-center justify-between flex-wrap md:flex-nowrap">
-          <div class="flex items-center gap-7">
+  <app-page-header title="Roles and Permissions" description="Manage roles and the permissions granted to each role." icon="admin_panel_settings" />
+  <app-section-card title="Role records" description="Search, review, and maintain role permission assignments." icon="manage_accounts">
+      <app-table-toolbar>
+          <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
             <div class="text-lg font-bold">
               <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
                 <mat-icon class="font-icon visibilityData">refresh</mat-icon>
@@ -17,15 +11,14 @@
             <emr-v-divider></emr-v-divider>
             <input type="text" placeholder="Search..." class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
           </div>
-          <div>
+          <div uiToolbarActions>
             <button mat-flat-button (click)="handleAddAction()" *ngIf="permission.parmissionMatched(['Create Role'])">
               <mat-icon class="font-icon">add</mat-icon>Add Role
             </button>
           </div>
-        </div>
-      </emr-panel-header>
+      </app-table-toolbar>
 
-      <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+      <div class="border dark:border-inverse rounded-lg overflow-hidden">
         <!-- Add the wrapper div for the table -->
         <div class="overflow-x-auto">
           <table mat-table [dataSource]="dataSource" class="not-prose w-full">
@@ -76,12 +69,13 @@
 
             <!-- Row shown when there is no matching data. -->
             <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell tablefoter" colspan="4">No data matching the filter " {{input.value}} "</td>
+              <td class="mat-cell tablefoter" colspan="4">
+                <app-empty-state title="No roles found" [message]="input.value ? 'No roles match your search.' : 'Role records will appear here.'" icon="admin_panel_settings" />
+              </td>
             </tr>
           </table>
         </div>
         <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of role with permission" class="pt-3"></mat-paginator>
       </div>
-    </div>
-  </div>
+  </app-section-card>
 </div>

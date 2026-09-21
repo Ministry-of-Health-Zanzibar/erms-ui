@@ -1,0 +1,363 @@
+<div
+    *ngIf="visible"
+    class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
+    (click)="close()"
+>
+    <div
+        class="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        (click)="$event.stopPropagation()"
+    >
+
+        <!-- HEADER -->
+        <div
+        class="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-5 text-white"
+        >
+
+        <div class="flex items-center gap-3">
+            <div class="rounded-full bg-white/20 p-2">
+            <mat-icon>flight</mat-icon>
+            </div>
+
+            <div>
+            <h2 class="text-xl font-bold">
+                Flight Information
+            </h2>
+
+            <p class="text-sm opacity-90">
+                Enter patient's flight and travel information
+            </p>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/20"
+            (click)="close()"
+        >
+            <mat-icon>close</mat-icon>
+        </button>
+
+        </div>
+
+        <!-- FORM -->
+        <form
+        [formGroup]="flightForm"
+        (ngSubmit)="submit()"
+        class="p-6"
+        >
+
+        <!-- FLIGHT INFORMATION -->
+        <div class="mb-8">
+
+            <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800">
+            <mat-icon class="text-cyan-600">
+                flight
+            </mat-icon>
+
+            Flight Details
+            </h3>
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+            <!-- AIRLINE -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Airline <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                type="text"
+                formControlName="airline"
+                placeholder="e.g. Precision Air"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+
+                <p
+                *ngIf="f['airline'].touched && f['airline'].invalid"
+                class="mt-1 text-sm text-red-500"
+                >
+                Airline is required.
+                </p>
+            </div>
+
+            <!-- FLIGHT NUMBER -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Flight Number <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                type="text"
+                formControlName="flight_number"
+                placeholder="e.g. PW421"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+
+                <p
+                *ngIf="f['flight_number'].touched && f['flight_number'].invalid"
+                class="mt-1 text-sm text-red-500"
+                >
+                Flight number is required.
+                </p>
+            </div>
+
+            <!-- DEPARTURE AIRPORT -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Departure Airport
+                </label>
+
+                <input
+                type="text"
+                formControlName="departure_airport"
+                placeholder="e.g. ZNZ"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- DEPARTURE CITY -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Departure City
+                </label>
+
+                <input
+                type="text"
+                formControlName="departure_city"
+                placeholder="e.g. Zanzibar"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- DEPARTURE DATE -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Departure Date
+                </label>
+
+                <input
+                type="date"
+                formControlName="departure_date"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- DEPARTURE TIME -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Departure Time
+                </label>
+
+                <input
+                type="time"
+                formControlName="departure_time"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- ARRIVAL AIRPORT -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Arrival Airport <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                type="text"
+                formControlName="arrival_airport"
+                placeholder="e.g. JRO"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+
+                <p
+                *ngIf="f['arrival_airport'].touched && f['arrival_airport'].invalid"
+                class="mt-1 text-sm text-red-500"
+                >
+                Arrival airport is required.
+                </p>
+            </div>
+
+            <!-- ARRIVAL CITY -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Arrival City
+                </label>
+
+                <input
+                type="text"
+                formControlName="arrival_city"
+                placeholder="e.g. Arusha"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- ARRIVAL DATE -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Arrival Date <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                type="date"
+                formControlName="arrival_date"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+
+                <p
+                *ngIf="f['arrival_date'].touched && f['arrival_date'].invalid"
+                class="mt-1 text-sm text-red-500"
+                >
+                Arrival date is required.
+                </p>
+            </div>
+
+            <!-- ARRIVAL TIME -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Arrival Time <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                type="time"
+                formControlName="arrival_time"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+
+                <p
+                *ngIf="f['arrival_time'].touched && f['arrival_time'].invalid"
+                class="mt-1 text-sm text-red-500"
+                >
+                Arrival time is required.
+                </p>
+            </div>
+
+            </div>
+        </div>
+
+
+        <!-- PASSENGER / BOOKING -->
+        <div class="mb-8 border-t pt-6">
+
+            <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800">
+            <mat-icon class="text-cyan-600">
+                airline_seat_recline_normal
+            </mat-icon>
+
+            Passenger / Booking Information
+            </h3>
+
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+            <!-- SEAT -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Seat Number
+                </label>
+
+                <input
+                type="text"
+                formControlName="seat_number"
+                placeholder="e.g. 12A"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- BOOKING REFERENCE -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Booking Reference
+                </label>
+
+                <input
+                type="text"
+                formControlName="booking_reference"
+                placeholder="e.g. ABC123"
+                class="w-full rounded-lg border border-gray-300 px-4 py-3 uppercase outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                />
+            </div>
+
+            <!-- TRAVEL CLASS -->
+            <div>
+                <label class="mb-1 block text-sm font-semibold text-gray-700">
+                Travel Class
+                </label>
+
+                <select
+                formControlName="travel_class"
+                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                >
+                <option value="Economy">
+                    Economy
+                </option>
+
+                <option value="Premium Economy">
+                    Premium Economy
+                </option>
+
+                <option value="Business">
+                    Business
+                </option>
+
+                <option value="First">
+                    First Class
+                </option>
+                </select>
+            </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NOTES -->
+        <div class="mb-6 border-t pt-6">
+
+            <h3 class="mb-4 text-lg font-semibold text-gray-800">
+            Additional Information
+            </h3>
+
+            <textarea
+            formControlName="notes"
+            rows="4"
+            placeholder="Enter any additional travel information..."
+            class="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+            ></textarea>
+
+        </div>
+
+
+        <!-- FOOTER -->
+        <div
+            class="flex justify-end gap-3 border-t pt-5"
+        >
+
+            <button
+            type="button"
+            (click)="close()"
+            [disabled]="submitting"
+            class="rounded-lg border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+            Cancel
+            </button>
+
+            <button
+            type="submit"
+            [disabled]="submitting"
+            class="flex items-center gap-2 rounded-lg bg-cyan-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+
+            <mat-icon>
+                save
+            </mat-icon>
+
+            <span>
+                {{ submitting ? 'Saving...' : 'Save Flight Information' }}
+            </span>
+
+            </button>
+
+        </div>
+
+        </form>
+
+    </div>
+</div>

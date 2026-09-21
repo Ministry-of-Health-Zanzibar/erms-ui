@@ -18,7 +18,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { PartientService } from '../../../services/partient/partient.service';
@@ -56,7 +55,6 @@ export interface AddPatientDialogData {
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     MatCard,
     MatCardHeader,
     MatCardTitle,

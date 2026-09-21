@@ -1,0 +1,84 @@
+:host {
+  display: inline-flex;
+}
+
+.ui-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ui-status-badge__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+[data-tone='neutral'] {
+  border-color: rgb(203 213 225);
+  color: rgb(71 85 105);
+  background: rgb(248 250 252);
+}
+
+[data-tone='info'] {
+  border-color: rgb(147 197 253);
+  color: rgb(29 78 216);
+  background: rgb(239 246 255);
+}
+
+[data-tone='warning'] {
+  border-color: rgb(253 211 77);
+  color: rgb(161 98 7);
+  background: rgb(255 251 235);
+}
+
+[data-tone='success'] {
+  border-color: rgb(134 239 172);
+  color: rgb(21 128 61);
+  background: rgb(240 253 244);
+}
+
+[data-tone='danger'] {
+  border-color: rgb(252 165 165);
+  color: rgb(185 28 28);
+  background: rgb(254 242 242);
+}
+
+:host-context(html.dark) [data-tone='neutral'] {
+  border-color: rgb(71 85 105);
+  color: rgb(203 213 225);
+  background: rgb(51 65 85 / 0.65);
+}
+
+:host-context(html.dark) [data-tone='info'] {
+  border-color: rgb(30 64 175);
+  color: rgb(147 197 253);
+  background: rgb(30 58 138 / 0.35);
+}
+
+:host-context(html.dark) [data-tone='warning'] {
+  border-color: rgb(161 98 7);
+  color: rgb(253 230 138);
+  background: rgb(120 53 15 / 0.35);
+}
+
+:host-context(html.dark) [data-tone='success'] {
+  border-color: rgb(21 128 61);
+  color: rgb(134 239 172);
+  background: rgb(20 83 45 / 0.4);
+}
+
+:host-context(html.dark) [data-tone='danger'] {
+  border-color: rgb(185 28 28);
+  color: rgb(252 165 165);
+  background: rgb(127 29 29 / 0.4);
+}

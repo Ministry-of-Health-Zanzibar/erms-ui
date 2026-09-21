@@ -1,10 +1,26 @@
 :host {
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #dbe3ee;
+  --sidebar-text: #334155;
+  --sidebar-text-strong: #0f172a;
+  --sidebar-muted: #64748b;
+  --sidebar-hover-bg: #eff6ff;
+  --sidebar-hover-text: #1d4ed8;
+  --sidebar-active-bg: #dbeafe;
+  --sidebar-active-text: #1e40af;
+  --sidebar-pressed-bg: #bfdbfe;
+  --sidebar-focus: #3b82f6;
+
   .inner {
-    @apply h-full flex flex-col w-[300px] rounded-e-xl bg-neutral-100 overflow-y-auto overflow-x-hidden;
+    @apply h-full flex flex-col w-[300px] rounded-e-xl overflow-y-auto overflow-x-hidden;
+    color: var(--sidebar-text);
+    background: var(--sidebar-bg);
+    border-inline-end: 1px solid var(--sidebar-border);
   }
 
   .header {
     @apply flex-none flex items-center;
+    border-bottom: 1px solid var(--sidebar-border);
   }
 
   .body {
@@ -16,8 +32,18 @@
   }
 }
 
-:host-context(html.dark) .inner {
-  @apply bg-neutral-900;
+:host-context(html.dark) {
+  --sidebar-bg: #0f172a;
+  --sidebar-border: #334155;
+  --sidebar-text: #cbd5e1;
+  --sidebar-text-strong: #f8fafc;
+  --sidebar-muted: #94a3b8;
+  --sidebar-hover-bg: #1e3a5f;
+  --sidebar-hover-text: #dbeafe;
+  --sidebar-active-bg: #1e40af;
+  --sidebar-active-text: #ffffff;
+  --sidebar-pressed-bg: #1d4ed8;
+  --sidebar-focus: #60a5fa;
 }
 
 
@@ -25,27 +51,58 @@
   transition: width 0.3s ease;
   overflow: hidden;
 
+  .brand-title {
+    color: var(--sidebar-text-strong);
+    letter-spacing: 0.08em;
+  }
+
+  .sidebar-divider {
+    border-color: var(--sidebar-border);
+  }
+
+  .navigation {
+    --emr-navigation-item-color: var(--sidebar-text);
+    --emr-navigation-item-icon-color: var(--sidebar-muted);
+    --emr-navigation-item-hover-bg: var(--sidebar-hover-bg);
+    --emr-navigation-item-hover-color: var(--sidebar-hover-text);
+    --emr-navigation-item-hover-icon-color: var(--sidebar-hover-text);
+    --emr-navigation-item-active-bg: var(--sidebar-active-bg);
+    --emr-navigation-item-active-color: var(--sidebar-active-text);
+    --emr-navigation-item-active-icon-color: var(--sidebar-active-text);
+    --emr-navigation-nested-item-color: var(--sidebar-text);
+    --emr-navigation-nested-item-hover-bg: var(--sidebar-hover-bg);
+    --emr-navigation-nested-item-hover-color: var(--sidebar-hover-text);
+    --emr-navigation-nested-item-active-bg: var(--sidebar-active-bg);
+    --emr-navigation-nested-item-active-color: var(--sidebar-active-text);
+    --emr-navigation-heading-color: var(--sidebar-text-strong);
+    --emr-navigation-divider-bg: var(--sidebar-border);
+    --emr-navigation-group-tree-lines-color: var(--sidebar-border);
+  }
+
   .body a[emr-navigation-item],
   .emr-navigation-group-toggle {
     display: flex;
     align-items: center;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: all 0.2s ease;
+    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
     cursor: pointer;
 
-    &:hover {
-      background-color: #e2e4eb; // darker blue on hover
-      color: rgb(73, 12, 230);
-
-      mat-icon {
-        color: rgb(84, 21, 232);
-      }
+    &:active {
+      background-color: var(--sidebar-pressed-bg);
+      color: var(--sidebar-active-text);
     }
 
-    mat-icon {
-      transition: all 0.2s ease;
+    &:focus-visible {
+      outline: 2px solid var(--sidebar-focus);
+      outline-offset: 2px;
     }
+  }
+
+  a[emr-navigation-item].is-active,
+  .emr-navigation-group-toggle.is-active {
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--sidebar-focus);
   }
 
   .hidden {

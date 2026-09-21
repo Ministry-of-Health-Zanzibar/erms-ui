@@ -11,6 +11,8 @@ export class StatisticalService {
   private baseUrl: string = `${environment.baseUrl}`;
   private href = `${this.baseUrl}reports/referralByHospital`;
 
+  private workflowcount = `${this.baseUrl}reports/workflowStatusReport`;
+
   private href_statistical = `${this.baseUrl}getClientComplainReports`;
   private href_reasons = `${this.baseUrl}reports/referralsByType`;
 
@@ -24,6 +26,10 @@ export class StatisticalService {
   }
     public getCount(): Observable<any> {
     return this.http.get<any>(this.href);
+  }
+
+   public getWorkFlowCount(): Observable<any> {
+    return this.http.get<any>(this.workflowcount);
   }
    public getTypeCount(): Observable<any> {
     return this.http.get<any>(this.href_reasons);

@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import Swal from 'sweetalert2';
 import { ReferalTypeService } from '../../../../services/system-configuration/referal-type.service';
 
@@ -30,7 +31,7 @@ import { ReferalTypeService } from '../../../../services/system-configuration/re
   templateUrl: './add-referral-type.component.html',
   styleUrl: './add-referral-type.component.scss'
 })
-export class AddReferralTypeComponent {
+export class AddReferralTypeComponent implements OnInit, OnDestroy {
 
   readonly data = inject<any>(MAT_DIALOG_DATA);
     private readonly onDestroy = new Subject<void>()
@@ -42,9 +43,9 @@ export class AddReferralTypeComponent {
     uploading: boolean = false;
     errorMessage: string | null = null;
     referralData: any;
+    submitting = false;
   
-    constructor(private formBuilder:FormBuilder,
-      private referralService:ReferalTypeService,
+    constructor(private referralService:ReferalTypeService,
       private dialogRef: MatDialogRef<AddReferralTypeComponent>) {
     }
 
@@ -61,6 +62,7 @@ export class AddReferralTypeComponent {
     
       ngOnDestroy(): void {
         this.onDestroy.next()
+        this.onDestroy.complete()
       }
       onClose() {
         this.dialogRef.close(false)
@@ -83,61 +85,59 @@ export class AddReferralTypeComponent {
       //   });
       // }
     
-        saveReferralType(){
-               if(this.referralTypeForm.valid){
-                 this.referralService.addReferalType(this.referralTypeForm.value).subscribe(response=>{
-                   if(response.statusCode == 201){
-                     Swal.fire({
-                       title: "Success",
-                       text: "Data saved successfull",
-                       icon: "success",
-                       confirmButtonColor: "#4690eb",
-                       confirmButtonText: "Continue"
-                     });
-                   }else{
-                     Swal.fire({
-                       title: "Error",
-                       text: response.message,
-                       icon: "error",
-                       confirmButtonColor: "#4690eb",
-                       confirmButtonText: "Continue"
-                     });
-                   }
-                 }
-           
-               );
-               }else{
-           
-               }
-             }
+    saveReferralType(){
+      if (this.referralTypeForm.invalid || this.submitting) {
+        this.referralTypeForm.markAllAsTouched();
+        return;
+      }
+
+      this.submit(this.referralService.addReferalType(this.referralTypeForm.value), 201);
+    }
     
       updateReferralType(){
-        if(this.referralTypeForm.valid){
-          this.referralService.updateReferalType(this.referralTypeForm.value, this.referralData.referral_type_id).subscribe(response=>{
-            if(response.statusCode == 200){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-    
-        );
-        }else{
-    
+        if (this.referralTypeForm.invalid || this.submitting) {
+          this.referralTypeForm.markAllAsTouched();
+          return;
         }
+
+        this.submit(
+          this.referralService.updateReferalType(this.referralTypeForm.value, this.referralData.referral_type_id),
+          200
+        );
       }
-    
+
+      private submit(request: any, successCode: number): void {
+        this.submitting = true;
+        request.pipe(
+          takeUntil(this.onDestroy),
+          finalize(() => this.submitting = false)
+        ).subscribe({
+          next: (response: any) => {
+            if (response.statusCode === successCode) {
+              Swal.fire({
+                title: 'Success',
+                text: 'Referral type saved successfully.',
+                icon: 'success',
+                confirmButtonColor: '#4690eb',
+                confirmButtonText: 'Continue'
+              }).then(() => this.dialogRef.close(true));
+              return;
+            }
+
+            this.showError(response.message || 'Unable to save the referral type.');
+          },
+          error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the referral type. Please try again.'))
+        });
+      }
+
+      private showError(message: string): void {
+        Swal.fire({
+          title: 'Error',
+          text: message,
+          icon: 'error',
+          confirmButtonColor: '#4690eb',
+          confirmButtonText: 'Close'
+        });
+      }
 
 }

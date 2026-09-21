@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { BillService } from '../../../../services/system-configuration/bill.service';
@@ -9,9 +10,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDivider } from '@angular/material/divider';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
+import { finalize } from 'rxjs';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-bills-details',
@@ -24,7 +26,6 @@ import { MatChipsModule } from '@angular/material/chips';
     MatIconModule,
     MatExpansionModule,
     MatDivider,
-    MatProgressSpinner,
     MatListModule,
     MatChipsModule,
   ],
@@ -39,7 +40,8 @@ export class BillsDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private billService: BillService
+    private billService: BillService,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit(): void {
@@ -51,19 +53,19 @@ export class BillsDetailsComponent implements OnInit {
 
   fetchBillDetails(id: string) {
     this.loading = true;
-    this.billService.getBillById(id).subscribe({
+    this.billService.getBillById(id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (res: any) => {
-        this.loading = false;
         if (!res?.data) {
           Swal.fire('Info', 'No bill found', 'info');
           return;
         }
         this.billData = res.data;
       },
-      error: (err) => {
-        this.loading = false;
-        console.error(err);
-        Swal.fire('Error', 'Failed to fetch bill details', 'error');
+      error: (error: unknown) => {
+        Swal.fire('Error', getApiErrorMessage(error, 'Failed to fetch bill details.'), 'error');
       },
     });
   }

@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '../../../services/authentication/permission.service';
@@ -18,6 +18,14 @@ import { EmrSegmentedModule } from '@elementar/components';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { environment } from '../../../../environments/environment.prod';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-billpayment',
@@ -33,6 +41,12 @@ import { environment } from '../../../../environments/environment.prod';
     MatButtonModule,
     EmrSegmentedModule,
     MatCardModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './billpayment.component.html',
   styleUrls: ['./billpayment.component.scss'],
@@ -77,38 +91,15 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
     }
   }
 
-  // public getAllPaymentByHospital(hospital_id: number) {
-  //   this.loading = true;
-  //   this.billFileService.getAllBillFilesForPaymentById(hospital_id).subscribe({
-  //     next: (response: any) => {
-  //       this.loading = false;
-  //       if (response?.data) {
-  //         this.hospital_id = response.data.hospital_id;
-  //         this.hospital_name = response.data.hospital_name;
-
-  //         this.dataSource.data = response.data.bill_files || [];
-
-  //         this.totals = response.data.totals || {};
-  //       } else {
-  //         this.dataSource.data = [];
-  //         this.totals = {};
-  //       }
-  //     },
-  //     error: (error) => {
-  //       this.loading = false;
-  //       console.error('Error fetching bill files:', error);
-  //       Swal.fire('Error', 'Failed to fetch bill files', 'error');
-  //     },
-  //   });
-  // }
 
   public getAllPaymentByHospital(hospital_id: number) {
     this.loading = true;
 
-    this.billFileService.getAllBillFilesForPaymentById(hospital_id).subscribe({
+    this.billFileService.getAllBillFilesForPaymentById(hospital_id).pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (response: any) => {
-        this.loading = false;
-
         if (response?.data) {
           this.hospital_id = response.data.hospital_id;
           this.hospital_name = response.data.hospital_name;
@@ -134,9 +125,7 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
         if (this.paginator) this.dataSource.paginator = this.paginator;
         if (this.sort) this.dataSource.sort = this.sort;
       },
-      error: (error) => {
-        this.loading = false;
-        console.error('Error fetching bill files:', error);
+      error: () => {
         Swal.fire('Error', 'Failed to fetch bill files', 'error');
       },
     });
@@ -147,26 +136,6 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
     this.onDestroy.complete();
   }
 
-  // loadBillPayments() {
-  //   this.loading = true;
-  //   this.billFileService
-  //     .getAllBillFilesForPayment()
-  //     .pipe(takeUntil(this.onDestroy))
-  //     .subscribe({
-  //       next: (res: any) => {
-  //         this.loading = false;
-  //         if (res.statusCode === 200) {
-  //           this.dataSource = new MatTableDataSource(res.data);
-  //           this.dataSource.paginator = this.paginator;
-  //           this.dataSource.sort = this.sort;
-  //         }
-  //       },
-  //       error: (err) => {
-  //         this.loading = false;
-  //         console.error(err);
-  //       },
-  //     });
-  // }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -179,16 +148,23 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
     window.open(url, '_blank');
   }
 
-  addPayment(bill: any) {
-    const config = new MatDialogConfig();
-    // console.log('Element sent to dialog:', bill);
-    config.data = bill;
-    config.width = '950px';
-    config.height = '1000px';
+ addPayment(bill: any) {
+  const config = new MatDialogConfig();
 
-    this.dialog.open(ReferralpaymentComponent, config).afterClosed();
-    // .subscribe(() => this.getAllPaymentByHospital());
-  }
+  config.data = bill;
+  config.width = '950px';
+  config.height = '1000px';
+
+  this.dialog
+    .open(ReferralpaymentComponent, config)
+    .afterClosed()
+    .pipe(takeUntil(this.onDestroy))
+    .subscribe((result) => {
+      if (result) {
+        this.getAllPaymentByHospital(this.hospital_id!);
+      }
+    });
+}
 
   displayMoreData(element: any) {
     const id = element.bill_file_id;
@@ -211,10 +187,10 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
   }
 
   deleteBill(id: number) {
-    this.billFileService.deletebillFiles(id).subscribe((res) => {
+    this.billFileService.deletebillFiles(id).pipe(takeUntil(this.onDestroy)).subscribe((res) => {
       if (res.statusCode === 200) {
         Swal.fire('Deleted!', res.message, 'success');
-        this.getAllPaymentByHospital(id);
+        this.getAllPaymentByHospital(this.hospital_id!);
       } else {
         Swal.fire('Error', res.message, 'error');
       }

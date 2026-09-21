@@ -1,16 +1,8 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View User'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Users</h1>
-  </div>
-  <div class="w-full">
-    <div
-      class="relative h-full rounded-lg border group dark:border-inverse p-4"
-    >
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">
-        View Users
-      </div>
-      <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
+  <app-page-header title="Users" description="Manage system users, hospital assignments, and account access." icon="group" />
+  <app-section-card title="User records" description="Search and maintain user profiles and account status." icon="manage_accounts">
+      <app-table-toolbar>
+        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div
             class="size-9 rounded-full border bg-surface flex flex items-center justify-center"
             (click)="renew()"
@@ -28,7 +20,7 @@
             #input
           />
         </div>
-        <div>
+        <div uiToolbarActions>
           <button
             mat-flat-button
             (click)="addUser()"
@@ -37,9 +29,9 @@
             <mat-icon class="font-icon">add</mat-icon>Add User
           </button>
         </div>
-      </div>
+      </app-table-toolbar>
 
-      <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+      <div class="border dark:border-inverse rounded-lg overflow-x-auto">
         <table mat-table [dataSource]="dataSource" class="not-prose">
           <!-- Position Column -->
           <ng-container matColumnDef="id">
@@ -166,7 +158,10 @@
                   mat-raised-button
                   color="accent"
                   class="ml-2 flex items-center gap-1"
-                  *ngIf="element.role_name === 'ROLE HOSPITAL USER'"
+                  *ngIf="
+                    element.role_name === 'ROLE HOSPITAL USER' ||
+                    element.role_name === 'ROLE MEDICAL BOARD MEMBER'
+                  "
                   (click)="addPatient(element.id)"
                   matTooltip="Assign Hospital"
                 >
@@ -174,7 +169,6 @@
                 </button>
               </ng-container>
 
-   
               <ng-template #assignedHospital>
                 <span class="font-medium text-primary-700">
                   {{ element.hospital }}
@@ -239,8 +233,8 @@
 
           <!-- Row shown when there is no matching data. -->
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell tablefoter" colspan="10">
-              No data matching the filter " {{ input.value }} "
+            <td class="mat-cell tablefoter" colspan="8">
+              <app-empty-state title="No users found" [message]="input.value ? 'No users match your search.' : 'User records will appear here.'" icon="group" />
             </td>
           </tr>
         </table>
@@ -252,6 +246,5 @@
         >
         </mat-paginator>
       </div>
-    </div>
-  </div>
+  </app-section-card>
 </div>

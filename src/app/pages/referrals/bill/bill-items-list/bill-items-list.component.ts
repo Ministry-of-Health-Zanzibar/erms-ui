@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -10,6 +11,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { BillItermService } from '../../../../services/Bills/bill-iterm.service';
 import { BillItermFormComponent } from '../bill-iterm-form/bill-iterm-form.component';
+import { finalize } from 'rxjs';
+import { LoadingStateComponent } from '@shared/ui';
 
 export interface BillItem {
   bill_id?: number;
@@ -29,7 +32,8 @@ export interface BillItem {
     MatFormFieldModule,
     MatButtonModule,
     MatDialogModule,
-    MatIconModule
+    MatIconModule,
+    LoadingStateComponent
   ],
   templateUrl: './bill-items-list.component.html',
   styleUrls: ['./bill-items-list.component.scss']
@@ -42,7 +46,11 @@ export class BillItemsListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private billService: BillItermService, private dialog: MatDialog) {}
+  constructor(
+    private billService: BillItermService,
+    private dialog: MatDialog,
+    private destroyRef: DestroyRef
+  ) {}
 
   ngOnInit(): void {
     this.loadBillItems();
@@ -55,16 +63,15 @@ export class BillItemsListComponent implements OnInit, AfterViewInit {
 
   loadBillItems(): void {
     this.loading = true;
-    this.billService.getAllBillIterm().subscribe({
+    this.billService.getAllBillIterm().pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (data) => {
         // If API wraps data, use: data.billItems
         this.dataSource.data = data;
-        this.loading = false;
       },
-      error: (err) => {
-        console.error('Error fetching bill items:', err);
-        this.loading = false;
-      }
+      error: () => this.dataSource.data = []
     });
   }
 
@@ -83,7 +90,7 @@ export class BillItemsListComponent implements OnInit, AfterViewInit {
       data: null
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result === 'saved') {
         this.loadBillItems();
       }

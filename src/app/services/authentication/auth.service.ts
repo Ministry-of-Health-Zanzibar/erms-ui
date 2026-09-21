@@ -29,6 +29,19 @@ export class AuthService {
     return this.http.post<any>(`${this.baseUrl}changePassword`,data);
   }
 
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}forgot-password`, { email });
+  }
+
+  resetForgottenPassword(data: {
+    email: string;
+    token: string;
+    new_password: string;
+    new_password_confirmation: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}reset-forgot-password`, data);
+  }
+
   private hasRefreshed = false;
 
   shouldRefresh(): boolean {

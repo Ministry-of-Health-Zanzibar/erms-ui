@@ -6,8 +6,9 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import Swal from 'sweetalert2';
 import { BillService } from '../../../../services/system-configuration/bill.service';
 
@@ -30,7 +31,7 @@ import { BillService } from '../../../../services/system-configuration/bill.serv
   templateUrl: './addbill.component.html',
   styleUrl: './addbill.component.scss'
 })
-export class AddbillComponent {
+export class AddbillComponent implements OnInit, OnDestroy {
 
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly onDestroy = new Subject<void>()
@@ -42,6 +43,7 @@ export class AddbillComponent {
   uploading: boolean = false;
   errorMessage: string | null = null;
   id: any;
+  submitting = false;
 
   constructor(private formBuilder:FormBuilder,
     private billService: BillService,
@@ -57,13 +59,15 @@ export class AddbillComponent {
   }
 
   getHospital(id: any){
-    this.billService.getBillById(id).subscribe(response=>{
-      this.billForm.patchValue(response.data[0])
-    })
+    this.billService.getBillById(id).pipe(takeUntil(this.onDestroy)).subscribe({
+      next: response => this.billForm.patchValue(response.data[0]),
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load the bill.'))
+    });
   }
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   onClose() {
     this.dialogRef.close(false)
@@ -86,58 +90,42 @@ export class AddbillComponent {
   // }
 
   saveBill(){
-    if(this.billForm.valid){
-      this.billService.addBill(this.billForm.value).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: "Data saved successfull",
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }
-      }
-
-    );
-    }else{
-
+    if (this.billForm.invalid || this.submitting) {
+      this.billForm.markAllAsTouched();
+      return;
     }
+    this.submit(this.billService.addBill(this.billForm.value));
   }
 
   updateBill(){
-    if(this.billForm.valid){
-      this.billService.updateBill(this.billForm.value, this.id).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: "Data saved successfull",
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }
-      }
-
-    );
-    }else{
-
+    if (this.billForm.invalid || this.submitting) {
+      this.billForm.markAllAsTouched();
+      return;
     }
+    this.submit(this.billService.updateBill(this.billForm.value, this.id));
+  }
+
+  private submit(request: any): void {
+    this.submitting = true;
+    request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+      next: (response: any) => {
+        if (response.statusCode === 200 || response.statusCode === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: response.message || 'Bill saved successfully.',
+            icon: 'success',
+            confirmButtonColor: '#4690eb',
+            confirmButtonText: 'Continue'
+          }).then(() => this.dialogRef.close(true));
+          return;
+        }
+        this.showError(response.message || 'Unable to save the bill.');
+      },
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the bill.'))
+    });
+  }
+
+  private showError(message: string): void {
+    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }

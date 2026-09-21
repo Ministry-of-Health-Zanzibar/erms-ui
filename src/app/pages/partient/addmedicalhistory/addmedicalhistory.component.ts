@@ -32,7 +32,6 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { Observable, Subject } from 'rxjs';
@@ -58,7 +57,6 @@ import { ReasonsService } from '../../../services/system-configuration/reasons.s
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     MatCard,
     MatCardHeader,
     MatCardTitle,

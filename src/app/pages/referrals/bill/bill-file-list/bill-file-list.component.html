@@ -2,17 +2,19 @@
   class="p-10 space-y-8"
   *ngIf="permission.parmissionMatched(['View BillFile'])"
 >
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Bill Files</h1>
-  </div>
+  <app-page-header
+    title="Bill files"
+    description="Review hospital billing summaries and open their details."
+    icon="folder_open"
+  />
 
-  <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-    <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">
-      View Bill Files
-    </div>
-
-    <div class="mt-4 flex items-center justify-between">
-      <div class="flex items-center gap-1.5">
+  <app-section-card
+    title="Hospital bill files"
+    description="Search billing summaries or create a new bill file."
+    icon="receipt_long"
+  >
+    <app-table-toolbar>
+      <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
         <div
           class="size-9 rounded-full border bg-surface flex items-center justify-center"
           (click)="loadBills()"
@@ -31,7 +33,7 @@
         />
       </div>
 
-      <div>
+      <div uiToolbarActions>
         <button
           mat-flat-button
           color="primary"
@@ -41,9 +43,9 @@
           <mat-icon>add</mat-icon> Add Bill
         </button>
       </div>
-    </div>
+    </app-table-toolbar>
 
-    <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+    <div class="border dark:border-inverse rounded-lg overflow-x-auto">
       <table mat-table [dataSource]="dataSource" class="not-prose">
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>No.</th>
@@ -57,12 +59,19 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.total_bill_amount  | currency : "TZS "}}
-          </td>
-        </ng-container>
+       <ng-container matColumnDef="amount">
+  <th mat-header-cell *matHeaderCellDef>Amount</th>
+      <td mat-cell *matCellDef="let element">
+        {{
+          element.total_bill_amount
+            | currency:
+              (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                ? 'USD'
+                : 'TZS')
+              :'symbol':'1.0-0'
+        }}
+      </td>
+    </ng-container>
 
 
         <ng-container matColumnDef="action">
@@ -95,7 +104,11 @@
 
         <tr *ngIf="dataSource.data.length === 0">
           <td [attr.colspan]="displayedColumns.length" class="text-center p-4">
-            No bills available.
+            <app-empty-state
+              title="No bill files found"
+              [message]="input.value ? 'No bill files match your search.' : 'Hospital bill files will appear here.'"
+              icon="folder_off"
+            />
           </td>
         </tr>
       </table>
@@ -105,14 +118,11 @@
         showFirstLastButtons
       ></mat-paginator>
     </div>
-  </div>
+  </app-section-card>
 
-  <div
+  <app-loading-state
     *ngIf="loading"
-    class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-  >
-    <div
-      class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-    ></div>
-  </div>
+    label="Loading bill files…"
+    [overlay]="true"
+  />
 </div>

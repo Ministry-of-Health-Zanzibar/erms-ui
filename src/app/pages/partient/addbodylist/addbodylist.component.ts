@@ -24,7 +24,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { RolePermissionService } from '../../../services/users/role-permission.service';
 import { UserService } from '../../../services/users/user.service';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-addbodylist',
@@ -40,7 +39,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatSelectModule,
     MatDatepickerModule,
     MatIconModule,
-    MatProgressSpinner,
   ],
   templateUrl: './addbodylist.component.html',
   styleUrls: ['./addbodylist.component.scss'],

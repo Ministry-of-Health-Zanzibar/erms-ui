@@ -13,18 +13,12 @@
   <div class="flex items-center justify-between mt-4">
     <div *ngIf="selectedFile">
       <p class="text-gray-500">Selected file: {{ selectedFile.name }}</p>
-      <div class="progress mt-2">
-        <div class="progress-bar" role="progressbar" [style.width.%]="uploadProgress" aria-valuemin="0" aria-valuemax="100">
-          {{ uploadProgress }}%
-        </div>
-      </div>
     </div>
     <div *ngIf="!selectedFile" class="mt-4"></div>
     <div>
-      <button mat-button class="bg-gray-200 text-gray-500 mr-2" [disabled]="!selectedFile || uploading" (click)="uploadFile()">Confirm</button>
+      <button mat-button class="bg-gray-200 text-gray-500 mr-2" [disabled]="!selectedFile || uploading" (click)="uploadFile()">{{ uploading ? 'Uploading…' : 'Confirm' }}</button>
       <button mat-button class="text-gray-500" (click)="onClose()">Cancel</button>
     </div>
   </div>
 </div>
-
 

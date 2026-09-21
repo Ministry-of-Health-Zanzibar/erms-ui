@@ -7,9 +7,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ConversationService {
   
-   private baseUrl = environment.baseUrl;
+  private baseUrl = environment.baseUrl;
 
- constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
   // ✅ GET conversations
   getConversations(patientHistoryId: number) {
@@ -34,8 +34,22 @@ export class ConversationService {
   }
 
   getMkurugenziComments(id: number) {
-  return this.http.get(
-    `${this.baseUrl}patient-histories/${id}/mkurugenzi-comments`
-  );
-}
+    return this.http.get(
+      `${this.baseUrl}patient-histories/${id}/mkurugenzi-comments`
+    );
+  }
+
+  // conversation.service.ts
+
+  // ✅ GET Unread Notifications for Header Badge
+  getUnreadNotifications() {
+    return this.http.get(`${this.baseUrl}patient-history-conversations/unread`);
+  }
+
+  // ✅ Mark conversation items read
+  markAsRead(patientHistoryId: number) {
+    return this.http.post(`${this.baseUrl}patient-history-conversations/mark-read`, {
+      patient_history_id: patientHistoryId
+    });
+  }
 }

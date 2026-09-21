@@ -1,13 +1,12 @@
 import { afterNextRender, Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { EnvironmentService, ThemeManagerService } from '@elementar/components';
-import { ScreenLoaderComponent } from '@app/screen-loader/screen-loader.component';
+import { EnvironmentService, PageLoadingBarComponent, ThemeManagerService } from '@elementar/components';
+import { ScreenLoaderComponent } from '@layout/screen-loader/screen-loader.component';
 import { ScreenLoaderService } from '@elementar/components';
 import { isPlatformBrowser } from '@angular/common';
 import { filter } from 'rxjs';
 import { AnalyticsService } from '@elementar/components';
 import { SeoService } from '@elementar/components';
-import { PageLoadingBarComponent } from '@elementar/components';
 import { InactivityTrackerService } from '@elementar/components';
 
 
@@ -33,24 +32,24 @@ export class AppComponent implements OnInit {
   private _router = inject(Router);
 
   loadingText = signal('Application Loading');
-  pageLoaded = signal(false);
+  isLoginRoute = signal(true);
 
   constructor() {
     afterNextRender(() => {
       // Scroll a page to top if url changed
       this._router.events
         .pipe(
-          filter(event=> event instanceof NavigationEnd)
+          filter((event): event is NavigationEnd => event instanceof NavigationEnd)
         )
-        .subscribe(() => {
+        .subscribe((event) => {
+          this.isLoginRoute.set(this.isSignInUrl(event.urlAfterRedirects));
           window.scrollTo({
             top: 0,
             left: 0
           });
-          setTimeout(() => {
-            this._screenLoader.hide();
-            this.pageLoaded.set(true);
-          }, 3000);
+          if (this.isLoginRoute()) {
+            setTimeout(() => this._screenLoader.hide(), 3000);
+          }
         })
       ;
 
@@ -72,12 +71,15 @@ export class AppComponent implements OnInit {
     this._themeManager.setColorScheme(this._themeManager.getPreferredColorScheme());
 
     if (isPlatformBrowser(this._platformId)) {
-      setTimeout(() => {
-        this.loadingText.set('Initializing Modules');
-      }, 1500);
+      setTimeout(() => this.loadingText.set('Initializing Modules'), 1500);
     }
 
     this._seoService.trackCanonicalChanges(this._envService.getValue('siteUrl'));
+  }
+
+  private isSignInUrl(url: string): boolean {
+    const path = url.split(/[?#]/, 1)[0].replace(/\/$/, '');
+    return path === '/auth' || path === '/auth/sign-in';
   }
   
 }

@@ -18,6 +18,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { ReferalTypeService } from '../../../../services/system-configuration/referal-type.service';
 import { AddReferralTypeComponent } from '../add-referral-type/add-referral-type.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 @Component({
   selector: 'app-view-referal-type',
   standalone: true,
@@ -36,7 +37,11 @@ import { AddReferralTypeComponent } from '../add-referral-type/add-referral-type
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
 ],
   templateUrl: './view-referal-type.component.html',
   styleUrl: './view-referal-type.component.scss'
@@ -63,6 +68,7 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
     }
     ngOnDestroy(): void {
       this.onDestroy.next()
+      this.onDestroy.complete()
     }
     renew(){
       this.getReferalType();
@@ -224,5 +230,4 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
    
     
   
-
 

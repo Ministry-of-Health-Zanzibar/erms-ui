@@ -15,6 +15,14 @@ const routes: Routes = [
       ),
   },
   {
+    path:'searchfollow-up',
+    loadComponent:() => 
+      import('./followup/searchfollow-up/searchfollow-up.component').then(
+        (c)=> c.SearchfollowUpComponent
+      )
+
+  },
+  {
     path:'viewbillbyhospital/:id',
     loadComponent: () =>
       import('./bill/viewbillbyhospital/viewbillbyhospital.component').then(

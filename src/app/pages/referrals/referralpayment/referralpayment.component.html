@@ -7,11 +7,11 @@
     <form [formGroup]="clientForm">
       <div class="row">
         <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Bill File</mat-label>
+          <mat-label>Balance Amaount</mat-label>
           <mat-select formControlName="bill_file_id">
             <mat-option *ngIf="billFile" [value]="billFile.bill_file_id">
               {{ billFile.hospital?.hospital_name }} 
-              {{ billFile?.bill_file_amount | currency : "TZS" }}
+              {{ billFile?.balance | currency : " TZS" }}
             </mat-option>
           </mat-select>
         </mat-form-field>

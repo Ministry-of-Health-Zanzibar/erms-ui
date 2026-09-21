@@ -18,6 +18,8 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddDiagnosisComponent } from '../add-diagnosis/add-diagnosis.component';
 import { UploadDiagnosisComponent } from '../upload-diagnosis/upload-diagnosis.component';
 import Swal from 'sweetalert2';
+import { PageEvent } from '@angular/material/paginator';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-view-diagnosis',
@@ -26,15 +28,14 @@ import Swal from 'sweetalert2';
     CommonModule,
     MatTableModule,
     MatPaginatorModule,
-    MatDivider,
-    MatIcon,
-    MatMiniFabButton,
     MatIconButton,
-    VDividerComponent,
     MatTooltip,
     MatSlideToggleModule,
     FormsModule,
-
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './view-diagnosis.component.html',
   styleUrl: './view-diagnosis.component.scss'
@@ -60,27 +61,38 @@ export class ViewDiagnosisComponent {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getDiagnosis();
   }
 
   getDiagnosis() {
-    this.diagnosisService.getAllDiagnosis().pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
-      if(response.statusCode==200){
-        this.dataSource = new MatTableDataSource(response.data);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      }if(response.statusCode==401){
-        this.route.navigateByUrl("/")
-        // console.log(response.message)
-      }
-    },(error)=>{
-      this.route.navigateByUrl("/")
-      // console.log('country getAway api fail to load')
-    })
-  }
+    this.diagnosisService
+      .getDiagnosises()
+      .pipe(takeUntil(this.onDestroy))
+      .subscribe(
+        (response: any) => {
+          console.log(response);
 
+          if(response.statusCode === 200){
+            // FIXED: Gracefully extracts the diagnosis list if response.data.data doesn't exist anymore
+            const extractedData = response.data?.data || response.data || (Array.isArray(response) ? response : []);
+            
+            this.dataSource = new MatTableDataSource(extractedData);
+            this.dataSource.sort = this.sort;
+          }
+
+          if(response.statusCode === 401){
+            this.route.navigateByUrl('/');
+          }
+        },
+        error => {
+          console.error(error);
+          this.route.navigateByUrl('/');
+        }
+      );
+  }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;

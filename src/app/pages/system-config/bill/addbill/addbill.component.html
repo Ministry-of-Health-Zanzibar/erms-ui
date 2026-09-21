@@ -54,8 +54,8 @@
   
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button *ngIf="!id" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="billForm.invalid" (click)="saveBill()">Save Data</button>
-      <button *ngIf="id" mat-flat-button [mat-dialog-close]="true" cdkFocusInitial [disabled]="billForm.invalid" (click)="updateBill()">Update Data</button>
+      <button *ngIf="!id" mat-flat-button cdkFocusInitial [disabled]="billForm.invalid || submitting" (click)="saveBill()">{{ submitting ? 'Saving...' : 'Save Bill' }}</button>
+      <button *ngIf="id" mat-flat-button cdkFocusInitial [disabled]="billForm.invalid || submitting" (click)="updateBill()">{{ submitting ? 'Saving...' : 'Update Bill' }}</button>
     </mat-dialog-actions>
   </div>
   

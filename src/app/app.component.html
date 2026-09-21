@@ -1,5 +1,6 @@
-@if (pageLoaded()) {
-  <emr-page-loading-bar fixed></emr-page-loading-bar>
+@if (isLoginRoute()) {
+  <app-screen-loader [loadingText]="loadingText()" />
+} @else {
+  <emr-page-loading-bar fixed />
 }
-<app-screen-loader [loadingText]="loadingText()"></app-screen-loader>
-<router-outlet/>
+<router-outlet />

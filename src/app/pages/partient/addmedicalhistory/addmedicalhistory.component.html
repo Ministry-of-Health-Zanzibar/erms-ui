@@ -5,22 +5,13 @@
 </h3>
 
 <p
-  class="text-sm text-red-700 text-center mb-6
-         border-2 border-blue-600
-         rounded-lg px-4 py-3 font-medium"
+  class="text-sm text-red-700 text-center mb-6 border-2 border-blue-600 rounded-lg px-4 py-3 font-medium"
 >
   Capture the patient’s clinical history to support referral review and
   decision-making by the medical board.
 </p>
 
-
-
-
-
   <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()" class="space-y-4">
-    <!-- <p class="text-xs text-gray-500">
-      Patient ID: {{ medicalForm.get('patient_id')?.value }}
-    </p> -->
 
     <!-- First Row -->
     <div class="grid grid-cols-2 gap-4">
@@ -55,9 +46,6 @@
         />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
-
-
-
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
@@ -104,61 +92,52 @@
       </mat-form-field>
     </div>
 
-    <!-- Board Comments -->
-   
-
     <!-- Diagnoses Section -->
-     <div>
+    <div>
       <mat-form-field appearance="outline" class="w-full">
-  <mat-label>Case Type</mat-label>
-  <mat-select formControlName="case_type">
-    <mat-option [value]="'Emergency'">Emergency</mat-option>
-    <mat-option [value]="'Routine'">Routine</mat-option>
-  </mat-select>
-</mat-form-field>
+        <mat-label>Case Type</mat-label>
+        <mat-select formControlName="case_type">
+          <mat-option [value]="'Emergency'">Emergency</mat-option>
+          <mat-option [value]="'Routine'">Routine</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
-     </div>
-     <div>
+    <div>
       <mat-form-field appearance="outline" class="w-full">
-  <mat-label>Select Diagnoses</mat-label>
+        <mat-label>Select Diagnoses</mat-label>
 
-  <mat-select
-    formControlName="diagnosis_ids"
-    multiple
-    [disabled]="loadingDiagnoses"
-    (openedChange)="onDiagnosesDropdownOpened()"
-  >
-    <!-- Loading -->
-    <mat-option *ngIf="loadingDiagnoses" disabled>
-      <div class="flex items-center gap-2">
-        <mat-spinner diameter="18"></mat-spinner>
-        <span>Loading diagnoses…</span>
-      </div>
-    </mat-option>
+        <mat-select
+          formControlName="diagnosis_ids"
+          multiple
+          [disabled]="loadingDiagnoses"
+          (openedChange)="onDiagnosesDropdownOpened()"
+        >
+          <mat-option *ngIf="loadingDiagnoses" disabled>
+            Loading diagnoses…
+          </mat-option>
 
-    <!-- Search (disabled option) -->
-    <mat-option *ngIf="!loadingDiagnoses" disabled>
-      <input
-        matInput
-        placeholder="Search diagnoses..."
-        [(ngModel)]="diagnosisSearch"
-        (ngModelChange)="filterDiagnoses()"
-        class="w-full px-2 py-1 border border-gray-300 rounded"
-      />
-    </mat-option>
+          <!-- Search (disabled option) -->
+          <mat-option *ngIf="!loadingDiagnoses" disabled>
+            <input
+              matInput
+              placeholder="Search diagnoses..."
+              [(ngModel)]="diagnosisSearch"
+              (ngModelChange)="filterDiagnoses()"
+              class="w-full px-2 py-1 border border-gray-300 rounded"
+            />
+          </mat-option>
 
-    <!-- Diagnoses -->
-    <mat-option
-      *ngFor="let d of filteredDiagnoses"
-      [value]="d.diagnosis_id"
-    >
-      {{ d.diagnosis_name }}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
-     </div>
-
-
+          <!-- Diagnoses -->
+          <mat-option
+            *ngFor="let d of filteredDiagnoses"
+            [value]="d.diagnosis_id"
+          >
+            {{ d.diagnosis_name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
 
     <!-- File Upload -->
     <div>
@@ -170,35 +149,28 @@
     </div>
 
     <!-- Buttons -->
-  <div class="flex justify-end items-center gap-3 pt-4">
-  <!-- Cancel Button -->
-  <button
-    mat-stroked-button
-    type="button"
-    color="warn"
-    (click)="onCancel()"
-    [disabled]="loading"
-  >
-    Cancel
-  </button>
+    <div class="flex justify-end items-center gap-3 pt-4">
+      <!-- Cancel Button -->
+      <button
+        mat-stroked-button
+        type="button"
+        color="warn"
+        (click)="onCancel()"
+        [disabled]="loading"
+      >
+        Cancel
+      </button>
 
-  <!-- Save Button / Spinner -->
-  <button
-    *ngIf="!loading"
-    mat-raised-button
-    color="primary"
-    (click)="onSubmit()"
-    [disabled]="medicalForm.invalid"
-  >
-    Save
-  </button>
-
-  <mat-progress-spinner
-    *ngIf="loading"
-    diameter="26"
-    mode="indeterminate"
-  ></mat-progress-spinner>
-</div>
+      <!-- Save Button / Spinner -->
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSubmit()"
+        [disabled]="medicalForm.invalid || loading"
+      >
+        {{ loading ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
 
   </form>
 </div>

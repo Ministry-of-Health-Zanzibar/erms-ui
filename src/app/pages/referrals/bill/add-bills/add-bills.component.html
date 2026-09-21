@@ -42,7 +42,7 @@
         min="0"
         step="0.01"
       />
-      <span matPrefix>TZS&nbsp;</span>
+     
       <mat-error *ngIf="billForm.get('total_amount')?.hasError('required')">
         Total amount is required
       </mat-error>
@@ -105,10 +105,7 @@
         type="submit"
         [disabled]="!billForm.valid || loading"
       >
-        <span *ngIf="loading" class="flex items-center">
-          <mat-spinner diameter="20" class="mr-2"></mat-spinner>
-          Processing...
-        </span>
+        <span *ngIf="loading">Processing…</span>
         <span *ngIf="!loading">{{
           data.billData ? "Update Bill" : "Create Bill"
         }}</span>

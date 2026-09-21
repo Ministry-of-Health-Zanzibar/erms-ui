@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -7,7 +8,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { ReferralStatusDialogComponent } from '../referral-status-dialog/referral-status-dialog.component';
 import Swal from 'sweetalert2';
@@ -18,6 +19,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ConversationModalComponent } from '../conversation-modal/conversation-modal.component';
 import { BoardedOutLetterComponent } from '../boarded-out-letter/boarded-out-letter.component';
+import { FlightInformationDialogComponent } from '../flight-information-dialog/flight-information-dialog.component';
+import { combineLatest } from 'rxjs';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-referral-details',
@@ -36,6 +40,7 @@ import { BoardedOutLetterComponent } from '../boarded-out-letter/boarded-out-let
     MatExpansionModule,
     MatIconModule,
     MatTooltipModule,
+    FlightInformationDialogComponent,
   ],
   templateUrl: './referral-details.component.html',
   styleUrl: './referral-details.component.scss',
@@ -57,33 +62,26 @@ export class ReferralDetailsComponent {
   boardReason = this.history?.board_reason;
   boardMembers: any[] = [];
   referralType: 'referral' | 'history' = 'referral';
+  showFlightInformation = false;
 
   constructor(
     private route: ActivatedRoute,
     public referralsService: ReferralService,
     private dialog: MatDialog,
-    private router: Router
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit() {
 
-    this.route.paramMap.subscribe(params => {
+    combineLatest([this.route.paramMap, this.route.queryParamMap]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(([params, query]) => {
       this.referralID = params.get('id');
-  
-      this.route.queryParamMap.subscribe(query => {
-  
-        const type = query.get('type');
-  
-        this.referralType =
-          type === 'history'
-            ? 'history'
-            : 'referral';
-  
-        if (this.referralID) {
-          this.getMoreData();
-        }
-  
-      });
+      this.referralType = query.get('type') === 'history' ? 'history' : 'referral';
+
+      if (this.referralID) {
+        this.getMoreData();
+      }
     });
   
   }
@@ -91,7 +89,9 @@ export class ReferralDetailsComponent {
   public getMoreData() {
     if (!this.referralID) return;
 
-    this.referralsService.getReferralById(this.referralID, this.referralType).subscribe(
+    this.referralsService.getReferralById(this.referralID, this.referralType).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(
       (response) => {
         this.referral = response.data;
 
@@ -116,8 +116,8 @@ export class ReferralDetailsComponent {
         this.boardMembers =
           response.data.patient?.patient_list?.[0]?.board_members || [];
       },
-      (error) => {
-        console.error('Failed to load patient data', error);
+      (error: unknown) => {
+        Swal.fire('Error', getApiErrorMessage(error, 'Failed to load referral details.'), 'error');
       }
     );
   }
@@ -137,9 +137,12 @@ export class ReferralDetailsComponent {
       console.warn('No patient_histories_id found');
       return;
     }
-
+    
     const dialogRef = this.dialog.open(ReferralStatusDialogComponent, {
-      width: '700px',
+      width: '95vw',
+      maxWidth: '900px',
+      maxHeight: '100vh',
+
       data: {
         referral: this.referral,
         patient_histories_id: historyId,
@@ -150,9 +153,48 @@ export class ReferralDetailsComponent {
       },
     });
   
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.getMoreData();
+      }
+    });
+  }
+
+  openFlightInformationPopup(referral: any): void {
+
+    this.showFlightInformation = true;
+  
+  }
+
+  closeFlightInformation(): void {
+
+    this.showFlightInformation = false;
+  
+  }
+
+  saveFlightInformation(data: any): void {
+
+    this.referralsService.addReferralFlight(data).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: () => {
+        this.showFlightInformation = false;
+  
+        Swal.fire({
+          icon: 'success',
+          title: 'Saved',
+          text: 'Flight information saved successfully.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      },
+  
+      error: (error: unknown) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: getApiErrorMessage(error, 'Failed to save flight information.')
+        });
       }
     });
   }
@@ -179,7 +221,7 @@ export class ReferralDetailsComponent {
       },
     });
   
-    dialogRef.afterClosed().subscribe();
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   referralsLetterPopup(data: any): void {
@@ -189,13 +231,12 @@ export class ReferralDetailsComponent {
       data: data,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
     });
   }
 
   viewPatientListPDF(filePath: string) {
     if (!filePath) {
-      console.error('No file path provided');
       return;
     }
 

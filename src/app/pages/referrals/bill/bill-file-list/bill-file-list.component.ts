@@ -26,6 +26,13 @@ import { Router } from '@angular/router';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
 import { environment } from '../../../../../environments/environment.prod';
 import { AddbillComponent } from '../../../system-config/bill/addbill/addbill.component';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 // import { AddBillFileComponent } from '../add-bill-file/add-bill-file.component';
 
@@ -47,15 +54,16 @@ import { AddbillComponent } from '../../../system-config/bill/addbill/addbill.co
     MatAnchor,
     MatButton,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './bill-file-list.component.html',
   styleUrls: ['./bill-file-list.component.scss'],
 })
 export class BillFileListComponent {
-  getPatient(arg0: any) {
-    throw new Error('Method not implemented.');
-  }
-
    public documentUrl = environment.fileUrl;
 
   private readonly onDestroy = new Subject<void>();
@@ -84,6 +92,7 @@ export class BillFileListComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   loadBills() {
@@ -130,8 +139,8 @@ export class BillFileListComponent {
     config.role = 'dialog';
     config.maxWidth = '100vw';
     config.maxHeight = '100vh';
-    config.height = '600px';
-    config.width = '850px';
+    config.height = '700px';
+    config.width = '890px';
     config.panelClass = 'full-screen-modal';
     const dialogRef = this.dialog.open(BillFileFormComponent, config);
     dialogRef.afterClosed().subscribe((result) => {

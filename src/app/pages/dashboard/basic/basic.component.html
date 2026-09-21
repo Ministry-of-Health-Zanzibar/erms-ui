@@ -1,51 +1,21 @@
-<div class="p-10 space-y-8">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Dashboard</h1>
-  </div>
-  <div class="container mx-auto px-4 py-6">
-    <h2 class="text-2xl font-bold text-center mb-6">Document Reports</h2>
+<div class="p-4 md:p-10 space-y-6 md:space-y-8">
+  <app-page-header title="Dashboard" description="Monitor accounting document activity, sources, and classifications." icon="dashboard" />
 
-    <!-- Grid Layout for Charts -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-    <!-- <div class="col-span-1">
-      <app-total-subscribers-widget></app-total-subscribers-widget>
-    </div>
-    <div class="col-span-1">
-      <app-avg-open-rate-widget></app-avg-open-rate-widget>
-    </div>
-     <div class="col-span-1">
-      <app-avg-click-rate-widget></app-avg-click-rate-widget>
-    </div>
-    <div class="col-span-1">
-      <app-unique-visitors-widget></app-unique-visitors-widget>
-    </div> -->
-  <!-- Complaints Per Year -->
-  <div class="bg-white shadow-md rounded-lg p-4">
-    <h3 class="text-lg font-semibold text-center mb-3">Document Per Year</h3>
-    <canvas id="documentPerWeekChart"></canvas>
-  </div>
- <!-- Complaints Per Month -->
- <div class="bg-white shadow-md rounded-lg p-4">
-  <h3 class="text-lg font-semibold text-center mb-3"> Document Form Per Month</h3>
-  <canvas id="documentPerMonthChart"></canvas>
-</div>
-<!--by sources-->
-<div class="bg-white shadow-md rounded-lg p-4">
-  <h3 class="text-lg font-semibold text-center mb-3"> Report per Source</h3>
-  <canvas id="sourcePieChart"></canvas>
-</div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-section-card title="Documents per week" description="Weekly accounting document volume." icon="date_range">
+      <div class="relative min-h-72"><canvas id="documentPerWeekChart"></canvas></div>
+    </app-section-card>
 
-<!--by Document Type-->
-<div class="bg-white shadow-md rounded-lg p-4">
-  <h3 class="text-lg font-semibold text-center mb-3"> Report per Document Type</h3>
-  <canvas id="documentTypeChart"></canvas>
-</div>
+    <app-section-card title="Documents per month" description="Monthly accounting document volume." icon="calendar_month">
+      <div class="relative min-h-72"><canvas id="documentPerMonthChart"></canvas></div>
+    </app-section-card>
 
-  <!-- Complaints by Status -->
-  <!-- <div class="bg-white shadow-md rounded-lg p-4">
-    <h3 class="text-lg font-semibold text-center mb-3">Referral By Hospital</h3>
-    <canvas id="complainsByStatusChart" class="h-96"></canvas>
-  </div> -->
+    <app-section-card title="Documents by source" description="Distribution of documents across accounting sources." icon="source">
+      <div class="relative min-h-72"><canvas id="sourcePieChart"></canvas></div>
+    </app-section-card>
 
+    <app-section-card title="Documents by type" description="Distribution of documents across document types." icon="description">
+      <div class="relative min-h-72"><canvas id="documentTypeChart"></canvas></div>
+    </app-section-card>
   </div>
 </div>

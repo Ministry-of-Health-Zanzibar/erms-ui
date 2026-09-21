@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,8 @@ import { environment } from '../../../../environments/environment.prod';
 import { AddmedicalhistoryComponent } from '../addmedicalhistory/addmedicalhistory.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ConversationModalComponent } from '../../referrals/conversation-modal/conversation-modal.component';
+import { finalize } from 'rxjs';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-patient-details',
@@ -29,11 +32,12 @@ export class PatientDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private patientService: PartientService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.fetchPatientHistory(+id);
@@ -45,19 +49,19 @@ export class PatientDetailsComponent implements OnInit {
 
   private fetchPatientHistory(id: number) {
     this.loading = true;
-    this.patientService.getPartientById(id).subscribe({
+    this.patientService.getPartientById(id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.loading = false)
+    ).subscribe({
       next: (response: any) => {
-        this.loading = false;
         if (response?.status && response?.data) {
           this.medicalHistory = response.data;
         } else {
           Swal.fire('Error', 'No medical history found', 'error');
         }
       },
-      error: (error) => {
-        this.loading = false;
-        console.error('Error fetching history:', error);
-        Swal.fire('Error', 'Failed to fetch patient history', 'error');
+      error: (error: unknown) => {
+        Swal.fire('Error', getApiErrorMessage(error, 'Failed to fetch patient history.'), 'error');
       },
     });
   }
@@ -84,7 +88,7 @@ export class PatientDetailsComponent implements OnInit {
 
     const dialogRef = this.dialog.open(AddmedicalhistoryComponent, config);
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result && result.success) {
         // console.log('✅ New medical history saved:', result.data);
 

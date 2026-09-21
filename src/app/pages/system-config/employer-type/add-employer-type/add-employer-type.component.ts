@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { EmployerTypeService } from '../../../../services/system-configuration/employer-type.service';
 import { GlobalConstants } from '@shared/global-constants';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-employer-type',
@@ -30,7 +31,7 @@ import { GlobalConstants } from '@shared/global-constants';
   templateUrl: './add-employer-type.component.html',
   styleUrl: './add-employer-type.component.scss'
 })
-export class AddEmployerTypeComponent {
+export class AddEmployerTypeComponent implements OnInit, OnDestroy {
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -39,6 +40,7 @@ export class AddEmployerTypeComponent {
   employerTypeForm: FormGroup;
   employerType: any;
   id: any;
+  submitting = false;
 
   constructor(
     private employerTypeService: EmployerTypeService,
@@ -57,6 +59,7 @@ export class AddEmployerTypeComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
 
   onClose() {
@@ -71,7 +74,7 @@ export class AddEmployerTypeComponent {
   }
 
   getEmployerType(id: any) {
-    this.employerTypeService.getIEmployerTypeById(id).subscribe(response=>{
+    this.employerTypeService.getIEmployerTypeById(id).pipe(takeUntil(this.onDestroy)).subscribe({ next: response=>{
       if(response.statusCode == 200){
         this.employerType = response.data[0];
         this.employerTypeForm.patchValue(this.employerType);
@@ -85,56 +88,46 @@ export class AddEmployerTypeComponent {
           confirmButtonText: "Close"
         });
       }
-    })
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load the employer type.')) })
   }
 
   saveEmployerType(){
-    if(this.employerTypeForm.valid){
-      this.employerTypeService.addEmployerType(this.employerTypeForm.value).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-        else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-      })
+    if (this.employerTypeForm.invalid || this.submitting) {
+      this.employerTypeForm.markAllAsTouched();
+      return;
     }
+    this.submit(this.employerTypeService.addEmployerType(this.employerTypeForm.value));
   }
 
   updateEmployerType(){
-    if(this.employerTypeForm.valid){
-      this.employerTypeService.updateEmployerType(this.employerTypeForm.value,this.id).subscribe(response=>{
-        if(response.statusCode == 201){
-          Swal.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-        else{
-          Swal.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Close"
-          });
-        }
-      })
+    if (this.employerTypeForm.invalid || this.submitting) {
+      this.employerTypeForm.markAllAsTouched();
+      return;
     }
+    this.submit(this.employerTypeService.updateEmployerType(this.employerTypeForm.value, this.id));
+  }
+
+  private submit(request: any): void {
+    this.submitting = true;
+    request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+      next: (response: any) => {
+        if (response.statusCode === 200 || response.statusCode === 201) {
+          Swal.fire({
+            title: 'Success',
+            text: response.message,
+            icon: 'success',
+            confirmButtonColor: '#4690eb',
+            confirmButtonText: 'Continue'
+          }).then(() => this.dialogRef.close(true));
+          return;
+        }
+        this.showError(response.message || 'Unable to save the employer type.');
+      },
+      error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the employer type.'))
+    });
+  }
+
+  private showError(message: string): void {
+    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }

@@ -12,6 +12,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import Swal from 'sweetalert2';
 import { HospitalService } from '../../../services/system-configuration/hospital.service';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-referral-status-dialog',
@@ -26,6 +27,8 @@ import { HospitalService } from '../../../services/system-configuration/hospital
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatIconModule
+    
   ],
   templateUrl: './referral-status-dialog.component.html',
   styleUrl: './referral-status-dialog.component.scss',

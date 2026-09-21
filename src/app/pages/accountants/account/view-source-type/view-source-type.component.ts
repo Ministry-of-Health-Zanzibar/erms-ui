@@ -1,4 +1,3 @@
-import { Response } from './../../../../../../node_modules/webpack-dev-server/node_modules/http-proxy-middleware/dist/types.d';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -16,13 +15,11 @@ import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
-import { SourcesService } from '../../../../services/accountants/sources.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { AddsourceComponent } from '../addsource/addsource.component';
 import Swal from 'sweetalert2';
 import { SourceTypeService } from '../../../../services/accountants/source-type.service';
-import { response } from 'express';
 import { AddSourceTypeComponent } from '../add-source-type/add-source-type.component';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-view-source-type',
@@ -42,7 +39,11 @@ import { AddSourceTypeComponent } from '../add-source-type/add-source-type.compo
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './view-source-type.component.html',
   styleUrl: './view-source-type.component.scss'
@@ -69,6 +70,7 @@ export class ViewSourceTypeComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getSourceType();

@@ -1,7 +1,14 @@
 <div>
   <div class="w-full">
     <div class="relative h-full rounded-lg group p-6">
-      <div class="font-semibold">ADD FOLLOW UP FORM</div>
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md px-5 py-4 mb-4">
+  <h2 class="text-xl font-bold tracking-wide">
+    ADD FOLLOW UP FORM
+  </h2>
+    <p class="text-sm opacity-90 mt-1">
+      Record and manage patient follow-up information
+    </p>
+  </div>
       <form
         [formGroup]="patientForm"
         class="horizontal-form"
@@ -96,51 +103,70 @@
 
         <!-- Row 4: Date of Birth, File Upload -->
         <div class="form-row">
-          <mat-form-field class="form-field">
-            <mat-label>Follow up Date</mat-label>
-            <input matInput type="date" formControlName="followup_date" />
-            <mat-error
-              *ngIf="
-                patientForm.get('followup_date')?.invalid &&
-                patientForm.get('followup_date')?.touched
-              "
-            >
-              This field is mandatory
-            </mat-error>
-          </mat-form-field>
+        <mat-form-field class="form-field">
+  <mat-label>Date of Review</mat-label>
 
-          <mat-form-field class="form-field">
-            <mat-label>Upload File</mat-label>
-            <input
-              matInput
-              type="text"
-              formControlName="letter_file"
-              readonly
-              placeholder="No file chosen"
-              (click)="fileInput.click()"
-            />
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,.jpg,.png"
-              hidden
-              #fileInput
-              (change)="onAttachmentSelected($event)"
-            />
-            <mat-icon
-              matSuffix
-              style="cursor: pointer"
-              (click)="fileInput.click()"
-              >attach_file</mat-icon
-            >
-            <mat-error
-              *ngIf="
-                patientForm.get('letter_file')?.invalid &&
-                patientForm.get('letter_file')?.touched
-              "
-            >
-              File is required
-            </mat-error>
-          </mat-form-field>
+  <input
+    matInput
+    type="date"
+          formControlName="followup_date"
+          matTooltip="Date of recording the follow-up in the system."
+          matTooltipPosition="above" />
+
+        <mat-error
+          *ngIf="
+            patientForm.get('followup_date')?.invalid &&
+            patientForm.get('followup_date')?.touched
+          ">
+          This field is mandatory
+        </mat-error>
+      </mat-form-field>
+
+       <mat-form-field class="form-field">
+  <mat-label>Upload File</mat-label>
+
+  <input
+    matInput
+    type="text"
+    formControlName="letter_file"
+    readonly
+    placeholder="No file chosen"
+    (click)="fileInput.click()"
+  />
+
+  <input
+    type="file"
+    hidden
+    #fileInput
+    accept=".pdf,.doc,.docx,.jpg,.png"
+    (change)="onAttachmentSelected($event)"
+  />
+
+  <mat-icon
+    matSuffix
+    style="cursor:pointer"
+    (click)="fileInput.click()">
+    attach_file
+  </mat-icon>
+
+        <mat-error *ngIf="fileSizeError">
+          {{ fileSizeError }}
+        </mat-error>
+
+        <mat-error
+          *ngIf="
+            !fileSizeError &&
+            patientForm.get('letter_file')?.hasError('required')
+          ">
+          File is required.
+        </mat-error>
+      </mat-form-field>
+      <small class="text-gray-500 block mt-1">
+  Max file size: 1MB. If file is large, compress it using
+  <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" class="text-blue-600 underline">
+    iLovePDF Compress Tool
+  </a>
+</small>
         </div>
       </form>
     </div>
@@ -151,10 +177,10 @@
     <button
       mat-flat-button
       cdkFocusInitial
-      [disabled]="patientForm.invalid"
+      [disabled]="patientForm.invalid || submitting"
       (click)="saveClient()"
     >
-      Add FollowUp
+      {{ submitting ? 'Saving…' : 'Add Follow-Up' }}
     </button>
   </mat-dialog-actions>
 </div>

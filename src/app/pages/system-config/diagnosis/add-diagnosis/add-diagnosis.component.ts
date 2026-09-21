@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { GlobalConstants } from '@shared/global-constants';
-import { Subject, takeUntil } from 'rxjs';
+import { getApiErrorMessage } from '@shared/utils/api-error';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { DiagnosisService } from '../../../../services/system-configuration/diagnosis.service';
 import Swal from 'sweetalert2';
 
@@ -41,9 +40,9 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
   uploadProgress: number = 0;
   uploading: boolean = false;
   errorMessage: string | null = null;
+  submitting = false;
 
-  constructor(private formBuilder:FormBuilder,
-    private diagnosesService: DiagnosisService,
+  constructor(private diagnosesService: DiagnosisService,
     private dialogRef: MatDialogRef<AddDiagnosisComponent>) {
 
   }
@@ -54,6 +53,7 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   onClose() {
     this.dialogRef.close(false)
@@ -68,23 +68,29 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
   }
 
 
-   saveDiagnosis() {
-  if (this.diagnosisForm.valid) {
-    this.diagnosesService.addDiagnoses(this.diagnosisForm.value).subscribe({
-      next: (response) => {
+  saveDiagnosis(): void {
+    if (this.diagnosisForm.invalid || this.submitting) {
+      this.diagnosisForm.markAllAsTouched();
+      return;
+    }
+
+    this.submitting = true;
+    this.diagnosesService.addDiagnoses(this.diagnosisForm.value).pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.submitting = false)
+    ).subscribe({
+      next: response => {
         if (response.statusCode === 201) {
           Swal.fire({
-            title: 'Success ✅',
+            title: 'Success',
             text: 'Diagnosis saved successfully.',
             icon: 'success',
             confirmButtonColor: '#4690eb',
             confirmButtonText: 'Continue',
-          });
-          this.diagnosisForm.reset();
+          }).then(() => this.dialogRef.close(true));
         } else {
-          // Handle custom backend message (duplicate or error)
           Swal.fire({
-            title: 'Error ❌',
+            title: 'Error',
             text: response.message || 'Failed to save diagnosis.',
             icon: 'error',
             confirmButtonColor: '#4690eb',
@@ -92,40 +98,15 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
           });
         }
       },
-      error: (error) => {
-        // If backend sends a duplicate entry message or 409 conflict
-        if (
-          error.status === 409 ||
-          (error.error && error.error.message && error.error.message.includes('already exists'))
-        ) {
-          Swal.fire({
-            title: 'Duplicate Diagnosis ⚠️',
-            text: 'This diagnosis name already exists. Please enter a unique name.',
-            icon: 'warning',
-            confirmButtonColor: '#4690eb',
-            confirmButtonText: 'OK',
-          });
-        } else {
-          Swal.fire({
-            title: 'Server Error ❌',
-            text: 'Something went wrong.(Code Already Exit) Please try again later.',
-            icon: 'error',
-            confirmButtonColor: '#4690eb',
-            confirmButtonText: 'OK',
-          });
-        }
+      error: (error: unknown) => {
+        Swal.fire({
+          title: 'Unable to save diagnosis',
+          text: getApiErrorMessage(error, 'Please check the diagnosis name and code, then try again.'),
+          icon: 'error',
+          confirmButtonColor: '#4690eb',
+          confirmButtonText: 'Try Again',
+        });
       },
     });
-  } else {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Incomplete Form ⚠️',
-      text: 'Please complete all required fields before saving.',
-      confirmButtonText: 'OK',
-    });
   }
-}
-
-
-
 }

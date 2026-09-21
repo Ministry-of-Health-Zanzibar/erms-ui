@@ -13,6 +13,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-permission-board',
@@ -30,7 +31,11 @@ import { CommonModule } from '@angular/common';
     MatSlideToggleModule,
     FormsModule,
     MatAnchor,
-    MatButton
+    MatButton,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
 
   ],
   templateUrl: './permission-board.component.html',
@@ -56,6 +61,7 @@ export class PermissionBoardComponent implements OnInit,OnDestroy {
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.permissionDataTable();

@@ -1,6 +1,6 @@
 import { PartientService } from './../../../services/partient/partient.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,9 +11,10 @@ import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-f
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { LocationService } from '../../../services/system-configuration/location.service';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-insurance',
@@ -37,7 +38,7 @@ import { LocationService } from '../../../services/system-configuration/location
   templateUrl: './insurance.component.html',
   styleUrl: './insurance.component.scss'
 })
-export class InsuranceComponent {
+export class InsuranceComponent implements OnInit, OnDestroy {
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -51,6 +52,7 @@ export class InsuranceComponent {
   myControl = new FormControl('');
   filteredOptions: Observable<any[]>;
   selectedAttachement: File | null = null;
+  submitting = false;
 
 
 
@@ -78,6 +80,7 @@ export class InsuranceComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
 
   onClose() {
@@ -111,7 +114,7 @@ export class InsuranceComponent {
   }
 
    getLocation() {
-    this.locationService.getLocation().subscribe(response => {
+    this.locationService.getLocation().pipe(takeUntil(this.onDestroy)).subscribe({ next: response => {
       this.locations = response.data;
 
       this.options = response.data;
@@ -119,7 +122,7 @@ export class InsuranceComponent {
         startWith(''),
         map((value: any) => typeof value === 'string' ? this._filter(value) : this.options.slice())
       );
-    });
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load locations.')) });
   }
 
   private _filter(value: string): any[] {
@@ -135,15 +138,20 @@ export class InsuranceComponent {
     return option.location_id;
   }
 
-saveClient() {
-  if (this.patientForm.valid) {
+saveClient(): void {
+  if (this.patientForm.invalid || this.submitting) {
+    this.patientForm.markAllAsTouched();
+    return;
+  }
+
     const formData = new FormData();
 
    Object.keys(this.patientForm.value).forEach(key => {
-  if (key === 'location_id' && this.patientForm.value[key]) {
-    formData.append('location_id', this.patientForm.value[key].location_id);
-  } else if (key !== 'patient_file') {
-    formData.append(key, this.patientForm.value[key]);
+  const value = this.patientForm.value[key];
+  if (key === 'location_id' && value) {
+    formData.append('location_id', typeof value === 'object' ? value.location_id : value);
+  } else if (key !== 'patient_file' && key !== 'patient_list_id') {
+    formData.append(key, value ?? '');
   }
 });
 
@@ -156,7 +164,11 @@ saveClient() {
     // append patient_list_id explicitly
     formData.append('patient_list_id', this.id);
 
-    this.insurance.addPatientfromBodyList(formData).subscribe(response => {
+    this.submitting = true;
+    this.insurance.addPatientfromBodyList(formData).pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.submitting = false)
+    ).subscribe({ next: response => {
       if (response.statusCode === 201) {
         Swal.fire({
           title: "Success",
@@ -164,18 +176,16 @@ saveClient() {
           icon: "success",
           confirmButtonColor: "#4690eb",
           confirmButtonText: "Continue"
-        });
+        }).then(() => this.dialogRef.close(true));
+        return;
       } else {
-        Swal.fire({
-          title: "Error",
-          text: response.message,
-          icon: "error",
-          confirmButtonColor: "#4690eb",
-          confirmButtonText: "Close"
-        });
+        this.showError(response.message || 'Unable to add the patient.');
       }
-    });
-  }
+    }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to add the patient. Please try again.')) });
+}
+
+private showError(message: string): void {
+  Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
 }
 
 

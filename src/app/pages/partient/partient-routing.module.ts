@@ -3,6 +3,10 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: 'top-diagnoses',
+    loadComponent: () => import('./top-diagnoses/top-diagnoses.component').then(c => c.TopDiagnosesComponent),
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./viewpartient/viewpartient.component').then(

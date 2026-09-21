@@ -25,6 +25,14 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { BillComponent } from '../bill/bill.component';
 import { ReferralpaymentComponent } from '../referralpayment/referralpayment.component';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-referralwithbills',
@@ -45,6 +53,12 @@ import { ReferralpaymentComponent } from '../referralpayment/referralpayment.com
     MatButton,
     RouterLink,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './referralwithbills.component.html',
   styleUrl: './referralwithbills.component.scss',
@@ -81,6 +95,7 @@ export class ReferralwithbillsComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.getReferrals();

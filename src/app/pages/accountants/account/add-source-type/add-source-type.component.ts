@@ -6,7 +6,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatError, MatFormField, MatInput, MatInputModule, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
 
 import Swal from 'sweetalert2';
@@ -16,7 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { SourceTypeService } from '../../../../services/accountants/source-type.service';
-import { response } from 'express';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-source-type',
@@ -41,7 +41,7 @@ import { response } from 'express';
   templateUrl: './add-source-type.component.html',
   styleUrl: './add-source-type.component.scss'
 })
-export class AddSourceTypeComponent {
+export class AddSourceTypeComponent implements OnInit, OnDestroy {
 
  readonly data = inject<any>(MAT_DIALOG_DATA);
     private readonly onDestroy = new Subject<void>()
@@ -54,6 +54,7 @@ export class AddSourceTypeComponent {
     errorMessage: string | null = null;
     sourceData: any;
     source:any;
+    submitting = false;
 
     constructor(private formBuilder:FormBuilder,
       private sources:SourceTypeService,
@@ -73,6 +74,7 @@ export class AddSourceTypeComponent {
 
       ngOnDestroy(): void {
         this.onDestroy.next()
+        this.onDestroy.complete()
       }
       onClose() {
         this.dialogRef.close(false)
@@ -91,67 +93,46 @@ export class AddSourceTypeComponent {
       }
 
       getSource(){
-        this.sourceServices.getAllSource().subscribe(response=>{
+        this.sourceServices.getAllSource().pipe(takeUntil(this.onDestroy)).subscribe({ next: response=>{
           this.source=response.data;
-          console.log("source ",this.source);
-        })
+        }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load sources.')) })
 
       }
 
       savesource(){
-        if(this.sourceForm.valid){
-          this.sources.addSourceType(this.sourceForm.value).subscribe(response=>{
-            if(response.statusCode == 201){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-
-        );
-        }else{
-
+        if (this.sourceForm.invalid || this.submitting) {
+          this.sourceForm.markAllAsTouched();
+          return;
         }
+        this.submit(this.sources.addSourceType(this.sourceForm.value));
       }
 
       updatesource(){
-        if(this.sourceForm.valid){
-          this.sources.updateSource(this.sourceForm.value, this.sourceData.source_type_id).subscribe(response=>{
-            if(response.statusCode == 200){
-              Swal.fire({
-                title: "Success",
-                text: "Data saved successfull",
-                icon: "success",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }else{
-              Swal.fire({
-                title: "Error",
-                text: response.message,
-                icon: "error",
-                confirmButtonColor: "#4690eb",
-                confirmButtonText: "Continue"
-              });
-            }
-          }
-
-        );
-        }else{
-
+        if (this.sourceForm.invalid || this.submitting) {
+          this.sourceForm.markAllAsTouched();
+          return;
         }
+        this.submit(this.sources.updateSource(this.sourceForm.value, this.sourceData.source_type_id));
       }
 
+      private submit(request: any): void {
+        this.submitting = true;
+        request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
+          next: (response: any) => {
+            if (response.statusCode === 200 || response.statusCode === 201) {
+              Swal.fire({
+                title: 'Success', text: response.message || 'Source type saved successfully.', icon: 'success',
+                confirmButtonColor: '#4690eb', confirmButtonText: 'Continue'
+              }).then(() => this.dialogRef.close(true));
+              return;
+            }
+            this.showError(response.message || 'Unable to save the source type.');
+          },
+          error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the source type.'))
+        });
+      }
+
+      private showError(message: string): void {
+        Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+      }
 }

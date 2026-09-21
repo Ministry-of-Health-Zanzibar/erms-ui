@@ -36,20 +36,13 @@
 
     <!-- Buttons -->
     <div class="flex justify-end gap-2 mt-4">
-      <button mat-stroked-button color="warn" (click)="close()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="submit()" [disabled]="loading">
-        Assign
+      <button type="button" mat-stroked-button color="warn" (click)="close()">Cancel</button>
+      <button type="submit" mat-raised-button color="primary" (click)="submit()" [disabled]="loading || assignForm.invalid">
+        {{ loading ? 'Assigning…' : 'Assign' }}
       </button>
     </div>
   </form>
 
   <!-- Loading Spinner -->
-  <div
-    *ngIf="loading"
-    class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50"
-  >
-    <div
-      class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"
-    ></div>
-  </div>
+  <app-loading-state *ngIf="loading" label="Saving hospital assignment…" [overlay]="true" />
 </mat-card>

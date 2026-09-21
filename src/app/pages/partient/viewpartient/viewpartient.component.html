@@ -1,13 +1,17 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Patient'])">
-  <div class="flex items-center justify-between">
-    <h1 class="text-lg font-bold">Patient</h1>
-  </div>
-  <div class="w-full">
+  <app-page-header
+    title="Patients"
+    description="Review and manage registered patient records."
+    icon="personal_injury"
+  />
 
-    <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-      <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Partient</div>
-      <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
+  <app-section-card
+    title="Patient directory"
+    description="Search patient records or register a new patient."
+    icon="group"
+  >
+      <app-table-toolbar>
+        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
             <mat-icon class="font-icon visibilityData">refresh</mat-icon>
           </div>
@@ -15,14 +19,14 @@
           <input type="text" placeholder="Search..."
                  class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
         </div>
-        <div>
+        <div uiToolbarActions>
           <button mat-flat-button (click)="addPatient()" *ngIf="permission.parmissionMatched(['Create Patient'])">
             <mat-icon class="font-icon">add</mat-icon>Add Patient
           </button>
         </div>
-      </div>
+      </app-table-toolbar>
 
-      <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+      <div class="border dark:border-inverse rounded-lg overflow-x-auto">
         <table mat-table [dataSource]="dataSource" class="not-prose">
           <!-- Position Column -->
           <ng-container matColumnDef="id">
@@ -93,7 +97,13 @@
 
           <!-- Row shown when there is no matching data. -->
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell tablefoter" colspan="10" >No data matching the filter " {{input.value}} "</td>
+            <td class="mat-cell tablefoter" colspan="10">
+              <app-empty-state
+                title="No patients found"
+                [message]="input.value ? 'No patients match your search.' : 'Registered patients will appear here.'"
+                icon="person_search"
+              />
+            </td>
           </tr>
         </table>
         <mat-paginator [pageSizeOptions]="[10, 20]"
@@ -101,12 +111,13 @@
                        aria-label="Select page of permission" class="pt-3">
         </mat-paginator>
       </div>
-    </div>
-  </div>
+  </app-section-card>
 
-  <div *ngIf="loading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
-    <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-  </div>
+  <app-loading-state
+    *ngIf="loading"
+    label="Loading patients…"
+    [overlay]="true"
+  />
 
 </div>
 

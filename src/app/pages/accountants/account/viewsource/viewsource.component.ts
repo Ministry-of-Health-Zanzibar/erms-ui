@@ -19,6 +19,7 @@ import { SourcesService } from '../../../../services/accountants/sources.service
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddsourceComponent } from '../addsource/addsource.component';
 import Swal from 'sweetalert2';
+import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-viewsource',
@@ -38,7 +39,11 @@ import Swal from 'sweetalert2';
     MatAnchor,
     MatButton,
     RouterLink,
-    EmrSegmentedModule
+    EmrSegmentedModule,
+    EmptyStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent
   ],
   templateUrl: './viewsource.component.html',
   styleUrl: './viewsource.component.scss'
@@ -64,6 +69,7 @@ export class ViewsourceComponent implements OnInit,OnDestroy{
   }
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
   renew(){
     this.getSources();
@@ -204,4 +210,3 @@ export class ViewsourceComponent implements OnInit,OnDestroy{
   }
 
 }
-

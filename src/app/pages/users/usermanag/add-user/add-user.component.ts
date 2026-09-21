@@ -9,7 +9,7 @@ import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-f
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
-import { map, Observable, startWith, Subject } from 'rxjs';
+import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 import { UserService } from '../../../../services/users/user.service';
 import { LocationService } from '../../../../services/system-configuration/location.service';
@@ -17,6 +17,7 @@ import { RolePermissionService } from '../../../../services/users/role-permissio
 import { GlobalConstants } from '@shared/global-constants';
 import { CouncilService } from '../../../../services/system-configuration/council.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-add-user',
@@ -56,6 +57,7 @@ export class AddUserComponent {
   options: any[] = [];
   myControl = new FormControl('');
   filteredOptions: Observable<any[]>;
+  submitting = false;
 
   constructor(
     private userService: UserService,
@@ -80,6 +82,7 @@ export class AddUserComponent {
 
   ngOnDestroy(): void {
     this.onDestroy.next()
+    this.onDestroy.complete()
   }
 
   onClose() {
@@ -105,7 +108,7 @@ export class AddUserComponent {
   }
 
   getLocation() {
-    this.locationService.getLocation().subscribe(response => {
+    this.locationService.getLocation().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.locations = response.data;
       this.options = response.data;
       this.filteredOptions = this.userForm.get('location_id')!.valueChanges.pipe(
@@ -131,7 +134,7 @@ export class AddUserComponent {
 
 
   getRoles() {
-    this.roleService.getAllRoles().subscribe(response => {
+    this.roleService.getAllRoles().pipe(takeUntil(this.onDestroy)).subscribe(response => {
       this.roles = response.data;
       // console.log("role",this.roles)
     });
@@ -155,17 +158,22 @@ export class AddUserComponent {
   //   })
   // }
         saveUser(){
-         if(this.userForm.valid){
-           this.userService.addUser(this.userForm.value).subscribe(response=>{
+         if(this.userForm.valid && !this.submitting){
+           this.submitting = true;
+           this.userService.addUser(this.userForm.value).pipe(
+             takeUntil(this.onDestroy),
+             finalize(() => this.submitting = false)
+           ).subscribe({
+             next: response=>{
              if(response.statusCode == 201){
                Swal.fire({
                  title: "Success",
-                 text: "Data saved successfull",
+                 text: "User saved successfully",
                  html: "<b>Default Credential</b><br> Username: <b>"+response.email +"</b><br> Password: <b>" +response.password +"</b>",
                  icon: "success",
                  confirmButtonColor: "#4690eb",
                  confirmButtonText: "Continue"
-               });
+               }).then(() => this.dialogRef.close(true));
              }else{
                Swal.fire({
                  title: "Error",
@@ -175,25 +183,30 @@ export class AddUserComponent {
                  confirmButtonText: "Continue"
                });
              }
-           }
-
-         );
+           },
+           error: error => this.showRequestError(error)
+         });
          }else{
-
+           this.userForm.markAllAsTouched();
          }
        }
 
        updateUser(){
-         if(this.userForm.valid){
-          this.userService.updateUser(this.userForm.value, this.userData.id).subscribe(response=>{
+         if(this.userForm.valid && !this.submitting){
+          this.submitting = true;
+          this.userService.updateUser(this.userForm.value, this.userData.id).pipe(
+            takeUntil(this.onDestroy),
+            finalize(() => this.submitting = false)
+          ).subscribe({
+            next: response=>{
              if(response.statusCode == 201){
                Swal.fire({
                  title: "Success",
-                 text: "Data saved successfull",
+                 text: "User updated successfully",
                  icon: "success",
                  confirmButtonColor: "#4690eb",
                  confirmButtonText: "Continue"
-               });
+               }).then(() => this.dialogRef.close(true));
              }else{
                Swal.fire({
                  title: "Error",
@@ -203,12 +216,21 @@ export class AddUserComponent {
                  confirmButtonText: "Continue"
                });
              }
-           }
-
-         );
+           },
+           error: error => this.showRequestError(error)
+         });
          }else{
-
+           this.userForm.markAllAsTouched();
          }
        }
- }
 
+       private showRequestError(error: any): void {
+         Swal.fire({
+           title: 'Error',
+           text: getApiErrorMessage(error, 'Unable to save the user. Please try again.'),
+           icon: 'error',
+           confirmButtonColor: '#4690eb',
+           confirmButtonText: 'Continue'
+         });
+       }
+ }

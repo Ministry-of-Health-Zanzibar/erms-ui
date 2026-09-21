@@ -1,13 +1,17 @@
 <div class="p-10 space-y-8" >
-    <div class="flex items-center justify-between">
-      <h1 class="text-lg font-bold">View Referrals </h1>
-    </div>
-    <div class="w-full">
+    <app-page-header
+      title="Confirmed referrals"
+      description="Review confirmed referrals and print their referral letters."
+      icon="task_alt"
+    />
 
-      <div class="relative h-full rounded-lg border group dark:border-inverse p-4">
-        <div class="font-semibold pb-2.5 border-b-2 border-b-secondary-400">View Referrals </div>
-        <div class="mt-4 flex items-center justify-between">
-          <div class="flex items-center gap-1.5">
+    <app-section-card
+      title="Confirmed referral records"
+      description="Search confirmed cases and access their printable letters."
+      icon="assignment_turned_in"
+    >
+        <app-table-toolbar>
+          <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
             <div class="size-9 rounded-full border bg-surface flex flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
               <mat-icon class="font-icon visibilityData">refresh</mat-icon>
             </div>
@@ -15,10 +19,9 @@
             <input type="text" placeholder="Search..."
                   class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
           </div>
+        </app-table-toolbar>
 
-        </div>
-
-        <div class="border dark:border-inverse rounded-lg overflow-hidden mt-4">
+        <div class="border dark:border-inverse rounded-lg overflow-x-auto">
           <table mat-table [dataSource]="dataSource" class="not-prose">
             <!-- Position Column -->
             <ng-container matColumnDef="id">
@@ -49,13 +52,9 @@
 
               <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef class="text-neutral-500 dark:text-neutral-400">Status </th>
-                <td mat-cell *matCellDef="let element,"
-                [ngClass]="{
-                  'text-green-600': element.status === 'Confirmed',
-                  'text-red-600':  element.status === 'Denied',
-                  'text-yellow-600': element.status === 'Pending'
-                }"
-                > {{element.status}} </td>
+                <td mat-cell *matCellDef="let element,">
+                  <app-status-badge [status]="element.status" />
+                </td>
               </ng-container>
 
                 <!-- Name Column -->
@@ -107,7 +106,13 @@
 
             <!-- Row shown when there is no matching data. -->
             <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell tablefoter" colspan="10" >No data matching the filter " {{input.value}} "</td>
+              <td class="mat-cell tablefoter" colspan="10">
+                <app-empty-state
+                  title="No confirmed referrals found"
+                  [message]="input.value ? 'No confirmed referrals match your search.' : 'Confirmed referrals will appear here.'"
+                  icon="task_alt"
+                />
+              </td>
             </tr>
           </table>
           <mat-paginator [pageSizeOptions]="[10, 20]"
@@ -115,12 +120,12 @@
                          aria-label="Select page of country" class="pt-3">
           </mat-paginator>
         </div>
-      </div>
-    </div>
+    </app-section-card>
 
-    <div *ngIf="loading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
-      <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-    </div>
+    <app-loading-state
+      *ngIf="loading"
+      label="Loading confirmed referrals…"
+      [overlay]="true"
+    />
   </div>
-
 

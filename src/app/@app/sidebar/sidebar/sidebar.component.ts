@@ -6,8 +6,8 @@ import { Location } from '@angular/common';
 import { EmrNavigationModule, HDividerComponent } from '@elementar/components';
 import { MatRipple } from '@angular/material/core';
 import { OrderByPipe } from '@elementar/components';
-import { ToolbarComponent } from '@app/sidebar/_toolbar/toolbar.component';
-import { PermissionService } from '../../../services/authentication/permission.service';
+import { ToolbarComponent } from '@layout/sidebar/_toolbar/toolbar.component';
+import { PermissionService } from '@core/authentication/permission.service';
 
 export interface NavItem {
   type: string;
@@ -78,7 +78,7 @@ export class SidebarComponent {
       id: 'users',
       type: 'group',
       name: 'Config Users & Audit',
-      icon: 'person',
+      icon: 'manage_accounts',
       permission: ['View User', 'View Permission', 'View Role'],
       children: [
         {
@@ -149,7 +149,7 @@ export class SidebarComponent {
      {
       id: 'bodies',
       type: 'Single',
-      icon: 'medical',
+      icon: 'medical_services',
       name: 'Medical Board',
       link: '/pages/patient/bodylist',
       permission: 'View Patient List',
@@ -157,7 +157,7 @@ export class SidebarComponent {
     {
       id: 'patients',
       type: 'Single',
-      icon: 'patients',
+      icon: 'people',
       name: 'Patients',
       link: '/pages/patient/partient',
       permission: 'View Patient',
@@ -165,7 +165,7 @@ export class SidebarComponent {
     {
       id: 'history',
       type: 'Single',
-      icon: 'Medical',
+      icon: 'history',
       name: 'View Patient History',
       link: '/pages/patient/patientfromhospital',
       permission: 'View Patient History',
@@ -181,10 +181,18 @@ export class SidebarComponent {
       permission: 'View Referral',
     },
     {
+      id: 'referral',
+      type: 'Single',
+      name: 'Follow-up',
+      icon: 'update',
+      link: '/pages/config/referrals/searchfollow-up',
+      permission: 'View Referral',
+    },
+    {
       id: 'bills',
       type: 'Single',
       name: 'Month Bill',
-      icon: 'bill',
+      icon: 'receipt_long',
       link: '/pages/config/referrals/bill-file-list',
       permission: 'View Bill',
     },
@@ -205,10 +213,18 @@ export class SidebarComponent {
     //   permission: 'View Monthly Bill',
     // },
     {
+      id: 'top-diagnoses',
+      type: 'Single',
+      name: 'Top Diagnoses',
+      icon: 'analytics',
+      permission: 'View Report',
+      link: '/pages/patient/top-diagnoses',
+    },
+    {
       id: 'report3',
       type: 'Single', // Changed from 'group' to 'link'
       name: 'Range Report',
-      icon: 'report',
+      icon: 'assessment',
       permission: 'View Report',
       link: '/pages/patient/referralreport0990',
     },

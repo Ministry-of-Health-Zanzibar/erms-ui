@@ -27,6 +27,15 @@ import { EmrSegmentedModule } from '../../../../../projects/components/src/lib/s
 import { BillComponent } from '../bill/bill.component';
 import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.component';
 import { DisplaycommentsComponent } from '../displaycomments/displaycomments.component';
+import {
+  EmptyStateComponent,
+  IconActionComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 @Component({
   selector: 'app-view-referrals',
@@ -41,6 +50,13 @@ import { DisplaycommentsComponent } from '../displaycomments/displaycomments.com
     MatSlideToggleModule,
     FormsModule,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    IconActionComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './view-referrals.component.html',
   styleUrl: './view-referrals.component.scss',
@@ -74,8 +90,15 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getReferrals();
   }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
   renew() {
     this.getReferrals();
@@ -491,5 +514,17 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       this.getReferrals();
     });
+  }
+
+  canViewFollowup(element: any): boolean {
+    if (element.status === 'Pending') {
+      return false;
+    }
+  
+    if (element.status === 'BoardedOut') {
+      return element.hospitals?.some((h: any) => h?.hospital_id) ?? false;
+    }
+  
+    return true;
   }
 }

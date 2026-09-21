@@ -1,29 +1,9 @@
 import { GraphreportService } from './../../../services/accountants/graphreport.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import {
-  TotalSubscribersWidgetComponent
-} from '@shared/widgets/total-subscribers-widget/total-subscribers-widget.component';
-import { AvgOpenRateWidgetComponent } from '@shared/widgets/avg-open-rate-widget/avg-open-rate-widget.component';
-import { AvgClickRateWidgetComponent } from '@shared/widgets/avg-click-rate-widget/avg-click-rate-widget.component';
-import { UniqueVisitorsWidgetComponent } from '@shared/widgets/unique-visitors-widget/unique-visitors-widget.component';
-import { ExchangeWidgetComponent } from "../../../@shared/widgets/exchange-widget/exchange-widget.component";
-import { MyInvestmentsComponent } from "../../../@shared/widgets/my-investments/my-investments.component";
-import { PaymentInformationWidgetComponent } from "../../../@shared/widgets/payment-information-widget/payment-information-widget.component";
-import { PurchasesByChannelsWidgetComponent } from "../../../@shared/widgets/purchases-by-channels-widget/purchases-by-channels-widget.component";
-import { SiteVisitorsWidgetComponent } from "../../../@shared/widgets/site-visitors-widget/site-visitors-widget.component";
-import { EventsWidgetComponent } from '@shared/widgets/events-widget/events-widget.component';
-import { TeamWidgetComponent } from '@shared/widgets/team-widget/team-widget.component';
-import { TasksInProgressWidgetComponent } from '@shared/widgets/tasks-in-progress-widget/tasks-in-progress-widget.component';
-import { CustomerSatisfactionWidgetComponent } from '@shared/widgets/customer-satisfaction-widget/customer-satisfaction-widget.component';
-import { StatisticalService } from '../../../services/report/statistical.service';
 import { Chart, registerables } from 'chart.js';
+import { Subject, takeUntil } from 'rxjs';
+import { PageHeaderComponent, SectionCardComponent } from '@shared/ui';
 Chart.register(...registerables);
 
 
@@ -34,53 +14,45 @@ Chart.register(...registerables);
   imports: [
 
    
-    CommonModule, // Required for Angular standalone components
-    MatButtonModule,
-    MatDividerModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatCheckboxModule,
+    CommonModule,
+    PageHeaderComponent,
+    SectionCardComponent,
 
 
   ],
   templateUrl: './basic.component.html',
   styleUrl: './basic.component.scss'
 })
-export class BasicComponent implements OnInit {
-  complain: any = {};
-  totalMaleComplain: any;
+export class BasicComponent implements OnInit, OnDestroy {
+  private readonly onDestroy = new Subject<void>();
+  private readonly charts = new Map<string, Chart>();
 
 
 
-  constructor(private dashboardService: StatisticalService,
-    private reportService: GraphreportService
-  ) {}
+  constructor(private reportService: GraphreportService) {}
 
 
   ngOnInit(): void {
 
-    // this.dashboardService.getClientReport().subscribe((data) => {
-
-    //   this.createChart(
-    //     'referralPerMonthChart',
-    //     data.referral_per_month,
-    //     'Referral Per Month'
-    //   );
-
-
-    // });
+  
    this.getDocumentPerWeekReport();
    this.getDocumentPerMonthReport();
    this.getSourceSummaryReport();
    this.getDocumentTypeSummaryReport();
   }
 
+  ngOnDestroy(): void {
+    this.onDestroy.next();
+    this.onDestroy.complete();
+    this.charts.forEach(chart => chart.destroy());
+    this.charts.clear();
+  }
+
 
 
 
   public getDocumentPerWeekReport(): void {
-    this.reportService.getDocumentPerWeekReport().subscribe((data) => {
+    this.reportService.getDocumentPerWeekReport().pipe(takeUntil(this.onDestroy)).subscribe((data) => {
       if (!data.weeklyData) {
         console.error('No weeklyData found');
         return;
@@ -107,6 +79,7 @@ export class BasicComponent implements OnInit {
 
   public getDocumentPerMonthReport(): void {
     this.reportService.getDocumentPerMonthReport()
+      .pipe(takeUntil(this.onDestroy))
       .subscribe((data) => {
         if (!data.monthlyData) {
           console.error('No monthlyData data found');
@@ -140,7 +113,7 @@ export class BasicComponent implements OnInit {
   }
 
   public getSourceSummaryReport(): void {
-    this.reportService.getSourceReport().subscribe((data) => {
+    this.reportService.getSourceReport().pipe(takeUntil(this.onDestroy)).subscribe((data) => {
       if (!data.sourceSummary) {
         console.error('No sourceSummary data found');
         return;
@@ -160,7 +133,7 @@ export class BasicComponent implements OnInit {
   }
 
   public getDocumentTypeSummaryReport(): void {
-    this.reportService.getDocumentTypeReport().subscribe((data) => {
+    this.reportService.getDocumentTypeReport().pipe(takeUntil(this.onDestroy)).subscribe((data) => {
       if (!data.documentTypeSummary) {
         console.error('No documentTypeSummary data found');
         return;
@@ -192,7 +165,8 @@ export class BasicComponent implements OnInit {
       chartType: any,
       chartName: string
     ): void {
-      new Chart(canvasId, {
+      this.charts.get(canvasId)?.destroy();
+      const chart = new Chart(canvasId, {
         type: chartType,
         data: {
           labels: labels,
@@ -232,47 +206,6 @@ export class BasicComponent implements OnInit {
           },
         },
       });
+      this.charts.set(canvasId, chart);
     }
-
-
-  createChart(canvasId: string, data: any[], label: string) {
-    new Chart(canvasId, {
-      type: 'line',
-      data: {
-        labels: data.map((d) => d.day || d.month || d.year || d.status),
-        datasets: [
-          {
-            label: label,
-            data: data.map((d) => d.total),
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-              'rgba(255, 205, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(201, 203, 207, 0.2)',
-            ],
-            borderColor: [
-              'rgb(255, 99, 132)',
-              'rgb(255, 159, 64)',
-              'rgb(255, 205, 86)',
-              'rgb(75, 192, 192)',
-              'rgb(54, 162, 235)',
-              'rgb(153, 102, 255)',
-              'rgb(201, 203, 207)',
-            ],
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true },
-        },
-      },
-    });
-  }
-
 }

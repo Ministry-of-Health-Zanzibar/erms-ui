@@ -1,4 +1,3 @@
-
 import { Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
@@ -6,7 +5,11 @@ import { PartientService } from '../../../services/partient/partient.service';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import {
   MatDialog,
@@ -22,6 +25,7 @@ import Swal from 'sweetalert2';
 import { PartientFormComponent } from '../partient-form/partient-form.component';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
+import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-patiant',
@@ -38,6 +42,11 @@ import { EmrSegmentedModule } from '@elementar/components';
     FormsModule,
     MatSlideToggle,
     EmrSegmentedModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './patiant.component.html',
   styleUrls: ['./patiant.component.scss'],
@@ -46,6 +55,10 @@ export class PatiantComponent {
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+
+  totalItems = 0;
+  pageSize = 10;
+  currentPage = 1;
 
   displayedColumns: string[] = [
     'id',
@@ -70,38 +83,44 @@ export class PatiantComponent {
   ) {}
 
   ngOnInit(): void {
-    this.loadPatients();
+    // this.getPartients();
+    this.loadPartients();
   }
 
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
   }
 
   renew() {
-    this.loadPatients();
+    this.loadPartients();
   }
 
-  loadPatients() {
+  loadPartients() { // Zimeondolewa parameters za page na perPage hapa
     this.loading = true;
+  
     this.userService
-      .getAllPartients()
+      .getPartients() // Imeondolewa page na perPage hapa pia
       .pipe(takeUntil(this.onDestroy))
-      .subscribe(
-        (response: any) => {
+      .subscribe({
+        next: (response: any) => {
           this.loading = false;
-          if (response.data) {
+  
+          if (response && response.data) {
             this.dataSource = new MatTableDataSource(response.data);
+  
+            // Kama bado unatumia Client-side pagination (Pagination ya Angular Material kwenye Frontend):
             this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
-          } else {
-            // console.log('No patient data found');
+            
+            // Kama una vigezo vya kuonyesha jumla ya data kwenye template, unaweza kutumia urefu wa array:
+            this.totalItems = response.data.length; 
           }
         },
-        (error) => {
+        error: () => {
           this.loading = false;
-          // console.log('Failed to load patient data', error);
-        },
-      );
+        }
+      });
   }
 
   applyFilter(event: Event) {
@@ -133,11 +152,9 @@ export class PatiantComponent {
 
     const dialogRef = this.dialog.open(PartientFormComponent, config);
     dialogRef.afterClosed().subscribe(() => {
-      this.loadPatients();
+      this.loadPartients();
     });
   }
-
- 
 
   updatePatient(patientData: any) {
     const config = new MatDialogConfig();
@@ -155,7 +172,7 @@ export class PatiantComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadPatients();
+        this.loadPartients();
       }
     });
   }
@@ -185,7 +202,7 @@ export class PatiantComponent {
       this.userService.unblockPatients(data, data?.patient_id).subscribe(
         (res: any) => {
           Swal.fire('Success', res.message, 'success');
-          this.loadPatients();
+          this.loadPartients();
         },
         (err) => {
           Swal.fire('Error', 'Failed to unblock patient', 'error');
@@ -195,7 +212,7 @@ export class PatiantComponent {
       this.userService.deletePatients(data?.patient_id).subscribe(
         (res: any) => {
           Swal.fire('Success', res.message, 'success');
-          this.loadPatients();
+          this.loadPartients();
         },
         (err) => {
           Swal.fire('Error', 'Failed to delete patient', 'error');
