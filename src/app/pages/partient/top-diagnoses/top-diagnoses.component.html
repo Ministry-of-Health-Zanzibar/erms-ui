@@ -2,12 +2,23 @@
   <app-page-header title="Top Diagnoses" description="The 10 most common diagnoses, ranked by unique patients." icon="analytics" />
   <app-section-card title="Report period" description="Dates apply to history creation and referral creation. Each patient counts once per diagnosis name." icon="date_range">
     <form (ngSubmit)="generate()" class="flex flex-wrap gap-4 items-end">
-      <label class="flex flex-col gap-2">Start date
-        <input type="date" name="startDate" [(ngModel)]="startDate" [max]="endDate" required class="border rounded p-2 bg-transparent" />
-      </label>
-      <label class="flex flex-col gap-2">End date
-        <input type="date" name="endDate" [(ngModel)]="endDate" [min]="startDate" [max]="today" required class="border rounded p-2 bg-transparent" />
-      </label>
+      <app-date-picker
+        name="startDate"
+        [(ngModel)]="startDate"
+        [ngModelOptions]="{ standalone: true }"
+        label="Start date"
+        [max]="endDate"
+        outputFormat="iso"
+      />
+      <app-date-picker
+        name="endDate"
+        [(ngModel)]="endDate"
+        [ngModelOptions]="{ standalone: true }"
+        label="End date"
+        [min]="startDate"
+        [max]="today"
+        outputFormat="iso"
+      />
       <button mat-flat-button color="primary" type="submit" [disabled]="loading || exporting">{{ loading ? 'Generating…' : 'Generate report' }}</button>
     </form>
   </app-section-card>

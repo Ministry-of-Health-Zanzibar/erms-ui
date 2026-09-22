@@ -14,73 +14,42 @@
   <div class="search-container rounded-xl mt-4">
     <form [formGroup]="reportForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      <!-- Source -->
-      <div class="flex flex-col">
-        <label for="referral_reason_name" class="mb-1 text-sm font-semibold text-gray-700">Search By Reasons</label>
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-select formControlName="referral_reason_name">
-            <mat-option value="">Select Reason Name</mat-option>
-            <mat-option *ngFor="let s of reasons" [value]="s.referral_reason_name">
-              {{ s.referral_reason_name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+      <app-filter-select
+        formControlName="referral_reason_name"
+        label="Search By Reasons"
+        placeholder="All referral reasons"
+        icon="rule"
+        [options]="reasons"
+      />
 
-
-      <div class="flex flex-col">
-        <label for="hospital_name" class="mb-1 text-sm font-semibold text-gray-700">Search By Hospital</label>
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-select formControlName="hospital_name">
-            <mat-option value="">Select Hospital</mat-option>
-            <mat-option *ngFor="let s of hospital" [value]="s.hospital_name">
-              {{ s.hospital_name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+      <app-filter-select
+        formControlName="hospital_name"
+        label="Search By Hospital"
+        placeholder="All hospitals"
+        icon="local_hospital"
+        [options]="hospital"
+      />
 
 
 
-      <!-- Name -->
-      <div class="flex flex-col">
-        <label for="patient_name" class="mb-1 text-sm font-semibold text-gray-700">Search By Name</label>
-        <input
-          type="text"
-          id="patient_name"
-          formControlName="patient_name"
-          class="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      <!-- Start Date -->
-<div class="flex flex-col">
-  <label for="start_date" class="mb-1 text-sm font-semibold text-gray-700">Start Date</label>
-  <mat-form-field appearance="fill" class="w-full">
-    <input
-      matInput
-      [matDatepicker]="picker1"
-      formControlName="start_date"
-      placeholder="Select Start Date"
-    />
-    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-    <mat-datepicker #picker1></mat-datepicker>
-  </mat-form-field>
-</div>
+      <app-text-input
+        formControlName="patient_name"
+        label="Search By Name"
+        placeholder="Enter patient name"
+        icon="person_search"
+      />
 
-<!-- End Date -->
-<div class="flex flex-col">
-  <label for="end_date" class="mb-1 text-sm font-semibold text-gray-700">End Date</label>
-  <mat-form-field appearance="fill" class="w-full">
-    <input
-      matInput
-      [matDatepicker]="picker2"
-      formControlName="end_date"
-      placeholder="Select End Date"
-    />
-    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-    <mat-datepicker #picker2></mat-datepicker>
-  </mat-form-field>
-</div>
+      <app-date-picker
+        formControlName="start_date"
+        label="Start Date"
+        placeholder="Select start date"
+      />
+
+      <app-date-picker
+        formControlName="end_date"
+        label="End Date"
+        placeholder="Select end date"
+      />
 
 
 
@@ -112,8 +81,8 @@
     </div>
   </app-table-toolbar>
 
-  <div class="border dark:border-inverse rounded-lg overflow-x-auto">
-   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <app-report-table [dataSource]="dataSource">
+   <table mat-table [dataSource]="dataSource" class="ui-report-table__data">
 
   <!-- No -->
   <ng-container matColumnDef="no">
@@ -218,19 +187,15 @@
     </td>
   </tr>
 
-</table>
+   </table>
     <mat-paginator [pageSizeOptions]="[10, 20, 100]" showFirstLastButtons></mat-paginator>
-  </div>
+  </app-report-table>
   </app-section-card>
 
   <app-loading-state *ngIf="loading" label="Searching referral records…" [overlay]="true" />
 
 
 </div>
-
-
-
-
 
 
 

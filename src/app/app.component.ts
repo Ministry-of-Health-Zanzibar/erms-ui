@@ -48,7 +48,9 @@ export class AppComponent implements OnInit {
             left: 0
           });
           if (this.isLoginRoute()) {
-            setTimeout(() => this._screenLoader.hide(), 3000);
+            // Logout navigates to the sign-in route. Do not keep the global
+            // screen loader over that page for an artificial delay.
+            this._screenLoader.hide();
           }
         })
       ;

@@ -1,0 +1,104 @@
+<section class="file-viewer" [class.file-viewer--maximized]="isMaximized" aria-labelledby="file-viewer-title">
+  <header class="file-viewer__header">
+    <div class="file-viewer__identity">
+      <span class="file-viewer__file-icon" aria-hidden="true">
+        <mat-icon>{{ fileIcon }}</mat-icon>
+      </span>
+      <div class="file-viewer__title-group">
+        <span class="file-viewer__eyebrow">Secure in-app preview</span>
+        <h2 id="file-viewer-title" [title]="title">{{ title }}</h2>
+        <span class="file-viewer__meta">{{ fileTypeLabel }} <span aria-hidden="true">•</span> {{ fileName }}</span>
+      </div>
+    </div>
+
+    <nav class="file-viewer__actions" aria-label="File actions">
+      <button
+        mat-stroked-button
+        type="button"
+        class="file-viewer__action"
+        (click)="shareFile()"
+        matTooltip="Share or copy the file link"
+      >
+        <mat-icon aria-hidden="true">share</mat-icon>
+        <span>Share</span>
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        class="file-viewer__action"
+        [disabled]="isDownloading"
+        (click)="downloadFile()"
+        matTooltip="Download this file"
+      >
+        <mat-icon aria-hidden="true">download</mat-icon>
+        <span>{{ isDownloading ? 'Preparing…' : 'Download' }}</span>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        class="file-viewer__icon-action"
+        [attr.aria-label]="isMaximized ? 'Restore viewer size' : 'Maximize viewer'"
+        [matTooltip]="isMaximized ? 'Restore viewer size' : 'Maximize viewer'"
+        (click)="toggleMaximized()"
+      >
+        <mat-icon aria-hidden="true">{{ isMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        type="button"
+        class="file-viewer__icon-action"
+        aria-label="Close file viewer"
+        matTooltip="Close viewer"
+        (click)="close()"
+      >
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    </nav>
+  </header>
+
+  <div class="file-viewer__toolbar">
+    <span class="file-viewer__secure-note">
+      <mat-icon aria-hidden="true">verified_user</mat-icon>
+      Viewing stays inside ERIS. The original record remains open underneath.
+    </span>
+    <span *ngIf="statusMessage" class="file-viewer__status" role="status">{{ statusMessage }}</span>
+  </div>
+
+  <main class="file-viewer__stage">
+    <iframe
+      *ngIf="isPdf; else imageOrFallback"
+      class="file-viewer__pdf"
+      [src]="safePreviewUrl"
+      [title]="title"
+      loading="lazy"
+    ></iframe>
+
+    <ng-template #imageOrFallback>
+      <div *ngIf="isImage; else unsupportedFile" class="file-viewer__image-stage">
+        <img class="file-viewer__image" [src]="fileUrl" [alt]="title" />
+      </div>
+    </ng-template>
+
+    <ng-template #unsupportedFile>
+      <div class="file-viewer__unsupported">
+        <span class="file-viewer__unsupported-icon" aria-hidden="true">
+          <mat-icon>{{ fileIcon }}</mat-icon>
+        </span>
+        <h3>Preview is not available for this file type</h3>
+        <p>{{ fileName }} can still be downloaded securely from this viewer.</p>
+        <button mat-flat-button color="primary" type="button" (click)="downloadFile()" [disabled]="isDownloading">
+          <mat-icon aria-hidden="true">download</mat-icon>
+          Download file
+        </button>
+      </div>
+    </ng-template>
+  </main>
+
+  <footer class="file-viewer__footer">
+    <span><mat-icon aria-hidden="true">info</mat-icon> Use Share to send the link or copy it for a colleague.</span>
+    <button mat-button type="button" class="file-viewer__copy-link" (click)="copyFileLink()">
+      <mat-icon aria-hidden="true">link</mat-icon>
+      Copy link
+    </button>
+  </footer>
+</section>

@@ -36,7 +36,7 @@ import { RangereportService } from '../../../../services/accountants/rangereport
 import { SourcesService } from '../../../../services/accountants/sources.service';
 import { SourceTypeService } from '../../../../services/accountants/source-type.service';
 import { CategoryService } from '../../../../services/accountants/category.service';
-import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
+import { EmptyStateComponent, FilterSelectComponent, FilterSelectOption, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent, TextInputComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-parameter-report',
@@ -56,10 +56,12 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
     MatFormFieldModule,
     EmrSegmentedModule,
     EmptyStateComponent,
+    FilterSelectComponent,
     LoadingStateComponent,
     PageHeaderComponent,
     SectionCardComponent,
-    TableToolbarComponent
+    TableToolbarComponent,
+    TextInputComponent,
   ],
   templateUrl: './parameter-report.component.html',
   styleUrl: './parameter-report.component.scss'
@@ -74,9 +76,9 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<any>();
 
   documents: any[] = [];
-  sources:any;
-  sourceType:any;
-  category:any;
+  sources: FilterSelectOption[] = [];
+  sourceType: FilterSelectOption[] = [];
+  category: FilterSelectOption[] = [];
 
   errorMessage = '';
 
@@ -134,17 +136,26 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
 
   getSource(): void {
     this.sourceServices.getAllSource().pipe(takeUntil(this.onDestroy)).subscribe(response => {
-      this.sources = response.data;
+      this.sources = response.data.map((source: any) => ({
+        label: source.source_name,
+        value: source.source_name,
+      }));
     });
   }
   getSourceType(): void {
     this.sourceTypeService.getAllSourceType().pipe(takeUntil(this.onDestroy)).subscribe(response => {
-      this.sourceType = response.data;
+      this.sourceType = response.data.map((sourceType: any) => ({
+        label: sourceType.source_type_name,
+        value: sourceType.source_type_name,
+      }));
     });
   }
   getCategory(): void {
     this.categoryServices.getAllCategory().pipe(takeUntil(this.onDestroy)).subscribe(response => {
-      this.category = response.data;
+      this.category = response.data.map((category: any) => ({
+        label: category.category_name,
+        value: category.category_name,
+      }));
     });
   }
 
@@ -213,5 +224,4 @@ export class ParameterReportComponent implements OnInit, OnDestroy {
 
 
 }
-
 

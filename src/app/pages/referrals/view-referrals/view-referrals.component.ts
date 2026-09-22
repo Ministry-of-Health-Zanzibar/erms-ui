@@ -29,7 +29,6 @@ import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.c
 import { DisplaycommentsComponent } from '../displaycomments/displaycomments.component';
 import {
   EmptyStateComponent,
-  IconActionComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
@@ -51,7 +50,6 @@ import {
     FormsModule,
     EmrSegmentedModule,
     EmptyStateComponent,
-    IconActionComponent,
     LoadingStateComponent,
     PageHeaderComponent,
     SectionCardComponent,

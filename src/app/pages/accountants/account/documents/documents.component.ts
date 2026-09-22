@@ -1,4 +1,4 @@
-import { AdddocumentsComponent } from './../adddocuments/adddocuments.component';
+import { AdddocumentsComponent } from '../adddocuments/adddocuments.component';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';

@@ -6,11 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConversationService } from '../../../services/conversation.service';
 import { finalize } from 'rxjs';
+import { FilterSelectComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-conversation-modal',
@@ -23,9 +23,9 @@ import { finalize } from 'rxjs';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    FilterSelectComponent
   ],
   templateUrl: './conversation-modal.component.html',
   styleUrl: './conversation-modal.component.scss'
@@ -37,6 +37,7 @@ export class ConversationModalComponent implements OnInit {
   receiver: string = '';
   activeReplyId: number | null = null;
   role: string = '';
+  currentUserId: string | null = null;
 
   sendingMessage: boolean = false;
   sendingReply: boolean = false;
@@ -56,6 +57,7 @@ export class ConversationModalComponent implements OnInit {
 
   ngOnInit() {
     this.role = localStorage.getItem('roles') || '';
+    this.currentUserId = localStorage.getItem('user_id');
     this.loadMessages();
   }
 
@@ -100,6 +102,32 @@ export class ConversationModalComponent implements OnInit {
       return ['hospital'];
     }
     return [];
+  }
+
+  get receiverOptions(): { label: string; value: string }[] {
+    const labels: Record<string, string> = {
+      mkurugenzi: 'Medical Director',
+      board: 'Medical Board',
+      hospital: 'Hospital Team',
+      dg: 'Director General'
+    };
+
+    return this.getReceivers().map((receiver) => ({
+      label: labels[receiver] || receiver,
+      value: receiver
+    }));
+  }
+
+  isCurrentUser(message: any): boolean {
+    const senderId = message?.user_id ?? message?.sender_id;
+    return this.currentUserId !== null
+      && senderId !== null
+      && senderId !== undefined
+      && String(senderId) === this.currentUserId;
+  }
+
+  getSenderLabel(message: any): string {
+    return this.isCurrentUser(message) ? 'You' : (message?.sender_full_name || 'Care team member');
   }
 
   loadMessages() {

@@ -13,8 +13,10 @@
         <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
           <div
             class="size-9 rounded-full border bg-surface flex flex items-center justify-center"
+            (click)="renew()"
+            matTooltip="Refresh"
           >
-            <app-icon-action icon="refresh" label="Refresh referrals" tone="success" (action)="renew()" />
+            <mat-icon class="font-icon visibilityData">refresh</mat-icon>
           </div>
           <emr-v-divider></emr-v-divider>
           <input

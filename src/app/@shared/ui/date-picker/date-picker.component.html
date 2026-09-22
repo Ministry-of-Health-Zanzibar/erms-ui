@@ -1,0 +1,41 @@
+<mat-form-field class="ui-date-picker" appearance="outline" subscriptSizing="dynamic">
+  @if (icon) {
+    <mat-icon matPrefix aria-hidden="true">{{ icon }}</mat-icon>
+  }
+
+  @if (label) {
+    <mat-label>{{ label }}</mat-label>
+  }
+
+  <input
+    matInput
+    [matDatepicker]="picker"
+    [ngModel]="value"
+    [ngModelOptions]="{ standalone: true }"
+    [min]="minDate"
+    [max]="maxDate"
+    [matDatepickerFilter]="dateFilter"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    (ngModelChange)="updateValue($event)"
+    (blur)="markAsTouched()"
+  />
+
+  @if (allowClear && value) {
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      class="ui-date-picker__clear"
+      [attr.aria-label]="'Clear ' + (label || 'date')"
+      (click)="clearValue($event)"
+    >
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  }
+
+  <mat-datepicker-toggle matSuffix [for]="picker" />
+  <mat-datepicker #picker />
+
+  <ng-content select="mat-error, mat-hint" />
+</mat-form-field>

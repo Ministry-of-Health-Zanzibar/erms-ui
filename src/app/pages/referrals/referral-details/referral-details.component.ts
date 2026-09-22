@@ -22,6 +22,7 @@ import { BoardedOutLetterComponent } from '../boarded-out-letter/boarded-out-let
 import { FlightInformationDialogComponent } from '../flight-information-dialog/flight-information-dialog.component';
 import { combineLatest } from 'rxjs';
 import { getApiErrorMessage } from '@shared/utils/api-error';
+import { FileViewerComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referral-details',
@@ -240,22 +241,43 @@ export class ReferralDetailsComponent {
       return;
     }
 
-    const url = this.documentUrl + filePath;
-    window.open(url, '_blank');
+    this.openFileViewer(filePath, 'Medical board list');
   }
 
   viewFile(file: any) {
     if (file?.file_path) {
-      const url = this.documentUrl + file.file_path;
-      window.open(url, '_blank');
+      this.openFileViewer(file.file_path, file.file_name || 'Patient document', file.file_name);
     }
   }
 
   viewFiles(file: any) {
     if (file?.history_file) {
-      const url = this.documentUrl + file.history_file;
-      window.open(url, '_blank');
+      this.openFileViewer(file.history_file, 'Medical history file');
     }
+  }
+
+  private openFileViewer(filePath: string, title: string, fileName?: string): void {
+    const url = this.buildDocumentUrl(filePath);
+
+    this.dialog.open(FileViewerComponent, {
+      data: { url, title, fileName },
+      width: 'min(96vw, 1200px)',
+      height: 'min(92vh, 860px)',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'file-viewer-dialog',
+      autoFocus: false,
+      restoreFocus: true,
+      ariaLabel: title,
+    });
+  }
+
+  private buildDocumentUrl(filePath: string): string {
+    if (/^(https?:|blob:|data:)/i.test(filePath)) {
+      return filePath;
+    }
+
+    return this.documentUrl.replace(/\/$/, '') + '/' + filePath.replace(/^\//, '');
   }
 
   openConversationModal(referral: any) {

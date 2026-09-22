@@ -1,409 +1,311 @@
-  <div *ngIf="medicalHistory" class="record-detail-page w-full p-4 md:p-10 space-y-6 md:space-y-8">
-    <!-- Header Banner -->
-    <div
-      class="record-detail-banner relative bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-2xl shadow-lg p-10 mb-8 flex items-center justify-center"
-    >
-      <img
-        src="../../../../assets/img/doctor.png"
-        alt="Doctor"
-        class="absolute left-4 top-1/2 transform -translate-y-1/2 w-24 h-24 opacity-80 rounded-full shadow-lg"
-      />
-      <div class="text-center z-10">
-        <h1 class="text-4xl font-bold tracking-wide">Medical History Details</h1>
-        <p class="mt-2 text-lg opacity-90">Detailed information of the record</p>
+<div *ngIf="medicalHistory" class="medical-history-page">
+  <header class="history-hero">
+    <div class="hero-copy">
+      <div class="hero-breadcrumb" aria-label="Record location">
+        <mat-icon aria-hidden="true">folder_shared</mat-icon>
+        <span>Patient record</span>
+        <span class="hero-breadcrumb-separator">/</span>
+        <span>Medical history</span>
       </div>
-      <img
-        src="../../../../assets/img/objective3.png"
-        alt="Patient"
-        class="absolute right-4 top-1/2 transform -translate-y-1/2 w-24 h-24 opacity-80 rounded-full shadow-lg"
-      />
+      <h1>Medical History Details</h1>
+      <p>Detailed information of the record</p>
     </div>
 
-    <!-- Add New Button -->
-    <!-- <div class="flex justify-end mb-4">
+    <div class="hero-actions">
+      <span *ngIf="medicalHistory.patient_histories_id" class="record-chip">
+        <mat-icon aria-hidden="true">fingerprint</mat-icon>
+        History #{{ medicalHistory.patient_histories_id }}
+      </span>
       <button
         mat-raised-button
         color="primary"
-        class="!bg-primary-600 !text-white hover:!bg-primary-700 transition"
-        (click)="openAddMedicalHistory(medicalHistory)"
+        type="button"
+        class="conversation-button"
+        (click)="openConversationModal(medicalHistory.patient_histories_id)"
       >
-        <mat-icon class="!text-white mr-1">add</mat-icon> Add Medical History
+        <mat-icon aria-hidden="true">forum</mat-icon>
+        <span>View Conversation</span>
       </button>
-    </div> -->
-     <button
-      mat-raised-button
-      color="primary"
-      (click)="openConversationModal(medicalHistory.patient_histories_id)">
-      View Conversation
-    </button>
-
-    <!-- Status Tracking Section -->
-<mat-card class="shadow-lg rounded-2xl border border-gray-200">
-  <mat-card-header>
-    <mat-card-title class="text-2xl font-semibold text-green-800 flex items-center">
-      <mat-icon color="primary" class="mr-2">timeline</mat-icon>
-      Status Tracking
-    </mat-card-title>
-  </mat-card-header>
-
-  <mat-card-content class="p-6">
-    <table class="table-auto w-full border-collapse border border-gray-300">
-      <tbody>
-        <tr class="bg-gray-50">
-          <th class="border border-gray-300 p-3 text-left">Stage</th>
-          <td class="border border-gray-300 p-3">
-            {{ medicalHistory.status_tracking.stage }}
-          </td>
-        </tr>
-
-        <tr>
-          <th class="border border-gray-300 p-3 text-left">Status Label</th>
-          <td class="border border-gray-300 p-3 font-semibold text-blue-700">
-            {{ medicalHistory.status_tracking.label }}
-          </td>
-        </tr>
-
-        <tr class="bg-gray-50">
-          <th class="border border-gray-300 p-3 text-left">Current Holder</th>
-          <td class="border border-gray-300 p-3">
-            {{ medicalHistory.status_tracking.current_holder }}
-          </td>
-        </tr>
-
-        <tr>
-          <th class="border border-gray-300 p-3 text-left">Description</th>
-          <td class="border border-gray-300 p-3">
-            {{ medicalHistory.status_tracking.description }}
-          </td>
-        </tr>
-
-        <tr class="bg-gray-50">
-          <th class="border border-gray-300 p-3 text-left">Progress</th>
-          <td class="border border-gray-300 p-3">
-            <div class="flex items-center gap-3">
-              <div class="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  class="bg-green-600 h-3 rounded-full transition-all"
-                  [style.width]="medicalHistory.progress_percentage"
-                ></div>
-              </div>
-              <span class="font-semibold text-green-700">
-                {{ medicalHistory.progress_percentage }}
-              </span>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </mat-card-content>
-</mat-card>
-
-    <!-- Patient Info -->
-    <mat-card
-      class="shadow-2xl rounded-2xl border border-gray-100 bg-gradient-to-br from-blue-50 via-white to-blue-100"
-    >
-      <mat-card-header class="pb-2 border-b border-gray-200">
-        <mat-card-title
-          class="text-2xl font-bold text-blue-800 flex items-center"
-        >
-          <mat-icon color="primary" class="mr-2 text-3xl">person</mat-icon>
-          Patient Informations
-        </mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content class="p-6">
-        <div class="grid md:grid-cols-2 gap-6 text-gray-800">
-          <!-- Name -->
-          <div
-            class="flex items-center bg-white rounded-xl p-3 shadow-sm border border-gray-100"
-          >
-            <mat-icon color="primary" class="mr-3">badge</mat-icon>
-            <div>
-              <p class="text-sm text-gray-500">Full Name</p>
-              <p class="font-semibold text-lg">
-                {{ medicalHistory.patient.name }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Gender -->
-          <div
-            class="flex items-center bg-white rounded-xl p-3 shadow-sm border border-gray-100"
-          >
-            <mat-icon color="accent" class="mr-3">wc</mat-icon>
-            <div>
-              <p class="text-sm text-gray-500">Gender</p>
-              <p class="font-semibold text-lg capitalize">
-                {{ medicalHistory.patient.gender }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Date of Birth -->
-          <div
-            class="flex items-center bg-white rounded-xl p-3 shadow-sm border border-gray-100"
-          >
-            <mat-icon color="warn" class="mr-3">calendar_month</mat-icon>
-            <div>
-              <p class="text-sm text-gray-500">Date of Birth</p>
-              <p class="font-semibold text-lg">
-                {{ medicalHistory.patient.date_of_birth | date : "mediumDate" }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Phone -->
-          <div
-            class="flex items-center bg-white rounded-xl p-3 shadow-sm border border-gray-100"
-          >
-            <mat-icon color="primary" class="mr-3">phone</mat-icon>
-            <div>
-              <p class="text-sm text-gray-500">Phone Number</p>
-              <p class="font-semibold text-lg">
-                {{ medicalHistory.patient.phone }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Job -->
-          <div
-            class="flex items-center bg-white rounded-xl p-3 shadow-sm border border-gray-100"
-          >
-            <mat-icon color="accent" class="mr-3">work</mat-icon>
-            <div>
-              <p class="text-sm text-gray-500">Matibabu Card</p>
-              <p class="font-semibold text-lg">
-                {{ medicalHistory.patient.matibabu_card }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Position -->
-          <div
-            class="flex items-center bg-white rounded-xl p-3 shadow-sm border border-gray-100"
-          >
-            <mat-icon color="primary" class="mr-3">assignment_ind</mat-icon>
-            <div>
-              <p class="text-sm text-gray-500">ZanID</p>
-              <p class="font-semibold text-lg">
-                {{ medicalHistory.patient.zan_id }}
-              </p>
-            </div>
-          </div>
-
-
-        </div>
-
-        <!-- Created Date -->
-        <div class="mt-6 text-right text-gray-500 text-sm italic">
-          Created on:
-          {{ medicalHistory.patient.created_at | date : "medium" }}
-        </div>
-      </mat-card-content>
-    </mat-card>
-
- <!-- ================= HOSPITAL DIAGNOSES ================= -->
-<mat-card class="shadow-lg rounded-2xl border border-gray-200 mt-6">
-  <mat-card-header>
-    <mat-card-title class="text-xl font-semibold text-blue-800 flex items-center">
-      <mat-icon class="mr-2">local_hospital</mat-icon>
-      Hospital Diagnoses
-    </mat-card-title>
-  </mat-card-header>
-
-  <mat-card-content class="p-4">
-
-    <!-- Hospital Reason -->
-    <div class="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
-      <p class="text-sm text-gray-600">Hospital Reason</p>
-      <p class="font-semibold text-blue-800">
-        {{ medicalHistory.reason?.referral_reason_name }}
-      </p>
     </div>
 
-    <!-- Diagnoses Table -->
-    <table class="table-auto w-full border border-gray-300 border-collapse">
-      <thead class="bg-blue-100">
-        <tr>
-          <th class="border p-2 text-left">Code</th>
-          <th class="border p-2 text-left">Diagnosis Name</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let diag of medicalHistory.diagnoses">
-          <td class="border p-2 font-semibold">
-            {{ diag.diagnosis_code }}
-          </td>
-          <td class="border p-2">
-            {{ diag.diagnosis_name }}
-          </td>
-        </tr>
+    <div class="hero-decoration hero-decoration--one" aria-hidden="true"></div>
+    <div class="hero-decoration hero-decoration--two" aria-hidden="true"></div>
+  </header>
 
-        <tr *ngIf="!medicalHistory.diagnoses?.length">
-          <td colspan="2" class="border p-3 text-center text-gray-500">
-            No hospital diagnoses recorded
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </mat-card-content>
-</mat-card>
+  <main class="history-content">
+    <div class="history-top-grid">
+      <section class="record-card status-card" aria-labelledby="status-heading">
+        <div class="card-header">
+          <div class="section-heading">
+            <div class="section-icon section-icon--blue" aria-hidden="true">
+              <mat-icon>timeline</mat-icon>
+            </div>
+            <div>
+              <span class="section-eyebrow">Workflow overview</span>
+              <h2 id="status-heading">Status Tracking</h2>
+            </div>
+          </div>
+          <span class="status-pill">
+            <span class="status-dot" aria-hidden="true"></span>
+            {{ medicalHistory.status_tracking.label }}
+          </span>
+        </div>
 
+        <div class="status-summary">
+          <div class="stage-display">
+            <span class="summary-label">Current stage</span>
+            <div class="stage-value">
+              <strong>{{ medicalHistory.status_tracking.stage }}</strong>
+              <span>Stage</span>
+            </div>
+          </div>
 
+          <div class="holder-display">
+            <span class="summary-label">Current holder</span>
+            <strong>{{ medicalHistory.status_tracking.current_holder }}</strong>
+          </div>
+        </div>
 
-     <mat-card
-    class="shadow-2xl rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-blue-50"
-  >
-    <mat-card-header>
-      <mat-card-title class="text-3xl font-extrabold text-gray-800 flex items-center">
-        <mat-icon color="warn" class="mr-3 text-3xl">description</mat-icon>
-        Medical History Information
-      </mat-card-title>
-    </mat-card-header>
+        <div class="description-block">
+          <span class="summary-label">Latest activity</span>
+          <p>{{ medicalHistory.status_tracking.description }}</p>
+        </div>
 
-    <mat-card-content class="p-8 text-gray-700">
-      <table
-        class="table-auto w-full border-collapse border border-gray-300 rounded-xl overflow-hidden"
-      >
-        <tbody>
-          <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left w-1/4">
-              Referring Doctor
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ 
-                medicalHistory?.patient?.creator?.first_name 
-              }} {{ 
-                medicalHistory?.patient?.creator?.middle_name 
-              }} {{ 
-                medicalHistory?.patient?.creator?.last_name 
-              }}
+        <div class="progress-block">
+          <div class="progress-heading">
+            <span>Case progress</span>
+            <strong>{{ medicalHistory.progress_percentage }}</strong>
+          </div>
+          <div class="progress-track" role="progressbar" [attr.aria-valuenow]="medicalHistory.progress_percentage">
+            <div
+              class="progress-value"
+              [style.width]="medicalHistory.progress_percentage"
+            ></div>
+          </div>
+        </div>
+      </section>
 
-            </td>
-            <th class="border border-gray-300 p-4 text-left w-1/4">
-              File Number
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ medicalHistory.file_number }}
-            </td>
-          </tr>
+      <section class="record-card patient-card" aria-labelledby="patient-heading">
+        <div class="card-header">
+          <div class="section-heading">
+            <div class="section-icon section-icon--teal" aria-hidden="true">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div>
+              <span class="section-eyebrow">Identity and contact</span>
+              <h2 id="patient-heading">Patient Information</h2>
+            </div>
+          </div>
+        </div>
 
-           <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left w-1/4">
-              Hospital Name
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ medicalHistory.hospital }}
-            </td>
-            <th class="border border-gray-300 p-4 text-left w-1/4">
-              Doctor Role
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ medicalHistory.hospital_role }}
-            </td>
-          </tr>
+        <div class="patient-grid">
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">badge</mat-icon>
+            <div>
+              <span class="info-label">Full Name</span>
+              <strong class="info-value">{{ medicalHistory.patient.name }}</strong>
+            </div>
+          </div>
 
-           <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left w-1/4">
-              Doctor Phone
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ medicalHistory.patient.creator.phone_no }}
-            </td>
-            <th class="border border-gray-300 p-4 text-left w-1/4">
-              Doctor Email
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ medicalHistory.patient.creator.email }}
-            </td>
-          </tr>
-           <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left">
-              Case Type
-            </th>
-            <td class="border border-gray-300 p-4">
-              {{ medicalHistory.case_type }}
-            </td>
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">wc</mat-icon>
+            <div>
+              <span class="info-label">Gender</span>
+              <strong class="info-value info-value--capitalize">{{ medicalHistory.patient.gender }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+            <div>
+              <span class="info-label">Date of Birth</span>
+              <strong class="info-value">{{ medicalHistory.patient.date_of_birth | date : "mediumDate" }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">phone</mat-icon>
+            <div>
+              <span class="info-label">Phone Number</span>
+              <strong class="info-value">{{ medicalHistory.patient.phone }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">card_membership</mat-icon>
+            <div>
+              <span class="info-label">Matibabu Card</span>
+              <strong class="info-value">{{ medicalHistory.patient.matibabu_card }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">assignment_ind</mat-icon>
+            <div>
+              <span class="info-label">ZanID</span>
+              <strong class="info-value">{{ medicalHistory.patient.zan_id }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer-meta">
+          <mat-icon aria-hidden="true">event</mat-icon>
+          <span>Created on {{ medicalHistory.patient.created_at | date : "medium" }}</span>
+        </div>
+      </section>
+    </div>
+
+    <section class="record-card" aria-labelledby="diagnoses-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--indigo" aria-hidden="true">
+            <mat-icon>local_hospital</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Clinical coding</span>
+            <h2 id="diagnoses-heading">Hospital Diagnoses</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ medicalHistory.diagnoses?.length || 0 }} recorded</span>
+      </div>
+
+      <div class="reason-panel">
+        <div class="reason-icon" aria-hidden="true">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <div>
+          <span class="info-label">Hospital Reason</span>
+          <strong>{{ medicalHistory.reason?.referral_reason_name || 'Not provided' }}</strong>
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <table class="record-table">
+          <thead>
+            <tr>
+              <th scope="col">Code</th>
+              <th scope="col">Diagnosis Name</th>
             </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let diag of medicalHistory.diagnoses">
+              <td class="code-cell">{{ diag.diagnosis_code }}</td>
+              <td>{{ diag.diagnosis_name }}</td>
+            </tr>
+            <tr *ngIf="!medicalHistory.diagnoses?.length">
+              <td colspan="2" class="empty-table-cell">
+                <mat-icon aria-hidden="true">fact_check</mat-icon>
+                <span>No hospital diagnoses recorded</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-          <tr>
-            <th class="border border-gray-300 p-4 text-left">
-              Presenting Illness
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              {{ medicalHistory.history_of_presenting_illness }}
-            </td>
-          </tr>
+    <section class="record-card history-card" aria-labelledby="history-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--amber" aria-hidden="true">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Clinical record</span>
+            <h2 id="history-heading">Medical History Information</h2>
+          </div>
+        </div>
+        <span class="case-chip">
+          <mat-icon aria-hidden="true">label</mat-icon>
+          {{ medicalHistory.case_type || 'Case details' }}
+        </span>
+      </div>
 
-          <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left">
-              Physical Findings
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              {{ medicalHistory.physical_findings }}
-            </td>
-          </tr>
+      <div class="metadata-grid">
+        <div class="metadata-item">
+          <span class="metadata-label">Referring Doctor</span>
+          <strong>
+            {{ medicalHistory?.patient?.creator?.first_name }}
+            {{ medicalHistory?.patient?.creator?.middle_name }}
+            {{ medicalHistory?.patient?.creator?.last_name }}
+          </strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">File Number</span>
+          <strong>{{ medicalHistory.file_number }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Hospital Name</span>
+          <strong>{{ medicalHistory.hospital }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Doctor Role</span>
+          <strong>{{ medicalHistory.hospital_role }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Doctor Phone</span>
+          <strong>{{ medicalHistory?.patient?.creator?.phone_no }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Doctor Email</span>
+          <strong class="metadata-value--break">{{ medicalHistory?.patient?.creator?.email }}</strong>
+        </div>
+      </div>
 
-          <tr>
-            <th class="border border-gray-300 p-4 text-left">
-              Investigations
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              {{ medicalHistory.investigations }}
-            </td>
-          </tr>
+      <div class="notes-heading">
+        <span>Clinical notes</span>
+        <span class="notes-heading-line"></span>
+      </div>
 
-          <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left">
-              Management Done
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              {{ medicalHistory.management_done }}
-            </td>
-          </tr>
+      <div class="notes-grid">
+        <article class="note-block">
+          <span class="note-label">Presenting Illness</span>
+          <p>{{ medicalHistory.history_of_presenting_illness || 'No information recorded.' }}</p>
+        </article>
+        <article class="note-block">
+          <span class="note-label">Physical Findings</span>
+          <p>{{ medicalHistory.physical_findings || 'No information recorded.' }}</p>
+        </article>
+        <article class="note-block">
+          <span class="note-label">Investigations</span>
+          <p>{{ medicalHistory.investigations || 'No information recorded.' }}</p>
+        </article>
+        <article class="note-block">
+          <span class="note-label">Management Done</span>
+          <p>{{ medicalHistory.management_done || 'No information recorded.' }}</p>
+        </article>
+        <article class="note-block">
+          <span class="note-label">Board Comments</span>
+          <p>{{ medicalHistory.board_comments || 'No comments recorded.' }}</p>
+        </article>
+        <article class="note-block">
+          <span class="note-label">DG Comments</span>
+          <p>{{ medicalHistory.dg_comments || 'No comments recorded.' }}</p>
+        </article>
+      </div>
 
-          <tr>
-            <th class="border border-gray-300 p-4 text-left">
-              Board Comments
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              {{ medicalHistory.board_comments }}
-            </td>
-          </tr>
-           <tr>
-            <th class="border border-gray-300 p-4 text-left">
-              DG Comments
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              {{ medicalHistory.dg_comments }}
-            </td>
-          </tr>
+      <div class="file-panel">
+        <div class="file-panel-copy">
+          <div class="file-icon" aria-hidden="true">
+            <mat-icon>picture_as_pdf</mat-icon>
+          </div>
+          <div>
+            <span class="info-label">History File</span>
+            <strong>{{ medicalHistory.history_file ? 'Supporting document available' : 'No file attached' }}</strong>
+          </div>
+        </div>
 
-
-
-          <tr class="bg-blue-50">
-            <th class="border border-gray-300 p-4 text-left">
-              History File
-            </th>
-            <td colspan="3" class="border border-gray-300 p-4">
-              <button
-                *ngIf="medicalHistory.history_file"
-                mat-stroked-button
-                color="primary"
-                class="rounded-full px-5 py-2 text-sm font-semibold"
-                (click)="viewPDF(medicalHistory.history_file)"
-              >
-                <mat-icon class="mr-1">picture_as_pdf</mat-icon> View File
-              </button>
-              <span
-                *ngIf="!medicalHistory.history_file"
-                class="text-gray-500 italic"
-                >No file available</span
-              >
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </mat-card-content>
-  </mat-card>
-  </div>
+        <button
+          *ngIf="medicalHistory.history_file"
+          mat-stroked-button
+          color="primary"
+          type="button"
+          class="view-file-button"
+          (click)="viewPDF(medicalHistory.history_file)"
+        >
+          <mat-icon aria-hidden="true">visibility</mat-icon>
+          <span>Preview File</span>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>

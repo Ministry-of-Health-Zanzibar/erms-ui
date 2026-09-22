@@ -1,4 +1,4 @@
-import { DocumentTypeService } from './../../../../services/accountants/document-type.service';
+import { DocumentTypeService } from '../../../../services/accountants/document-type.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

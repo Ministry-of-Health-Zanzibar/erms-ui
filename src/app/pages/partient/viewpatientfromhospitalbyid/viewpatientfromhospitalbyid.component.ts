@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -14,12 +13,13 @@ import { ForwarddialogComponent } from '../forwarddialog/forwarddialog.component
 import { ConversationModalComponent } from '../../referrals/conversation-modal/conversation-modal.component';
 import { MkurugenziConversationComponent } from '../../referrals/mkurugenzi-conversation/mkurugenzi-conversation.component';
 import { ConversationService } from '../../../services/conversation.service';
+import { FileViewerComponent } from '@shared/ui';
 
 
 @Component({
   selector: 'app-viewpatientfromhospitalbyid',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './viewpatientfromhospitalbyid.component.html',
   styleUrl: './viewpatientfromhospitalbyid.component.scss'
 })
@@ -68,10 +68,34 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
   }
 
   viewPDF(filePath: string) {
-    if (filePath) {
-      const url = this.documentUrl + filePath;
-      window.open(url, '_blank');
+    if (!filePath) {
+      return;
     }
+
+    const title = 'Patient supporting document';
+
+    this.dialog.open(FileViewerComponent, {
+      data: {
+        url: this.buildDocumentUrl(filePath),
+        title,
+      },
+      width: 'min(96vw, 1200px)',
+      height: 'min(92vh, 860px)',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'file-viewer-dialog',
+      autoFocus: false,
+      restoreFocus: true,
+      ariaLabel: title,
+    });
+  }
+
+  private buildDocumentUrl(filePath: string): string {
+    if (/^(https?:|blob:|data:)/i.test(filePath)) {
+      return filePath;
+    }
+
+    return this.documentUrl.replace(/\/$/, '') + '/' + filePath.replace(/^\//, '');
   }
 
 forwardStatus() {

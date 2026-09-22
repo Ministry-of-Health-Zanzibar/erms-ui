@@ -31,7 +31,7 @@ import { EmrSegmentedModule } from '@elementar/components';
 import { MatDialog} from '@angular/material/dialog';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { RangereportService } from '../../../../services/accountants/rangereport.service';
-import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
+import { DatePickerComponent, EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 
 @Component({
@@ -51,6 +51,7 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
     MatIcon,
     MatFormFieldModule,
     EmrSegmentedModule,
+    DatePickerComponent,
     EmptyStateComponent,
     LoadingStateComponent,
     PageHeaderComponent,

@@ -1,4 +1,4 @@
-import { MonthBillService } from './../../../services/Referral/month-bill.service';
+import { MonthBillService } from '../../../services/Referral/month-bill.service';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';

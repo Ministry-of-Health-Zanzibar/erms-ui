@@ -1,4 +1,4 @@
-import { PartientService } from './../../../services/partient/partient.service';
+import { PartientService } from '../../../services/partient/partient.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

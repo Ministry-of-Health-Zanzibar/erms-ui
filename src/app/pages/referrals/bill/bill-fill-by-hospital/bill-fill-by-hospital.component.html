@@ -1,304 +1,245 @@
-<div class="p-6 space-y-4">
-  <app-page-header title="Bills by Hospital" description="Monitor billed, allocated, and outstanding amounts for each hospital." icon="account_balance" />
+<div class="bills-by-hospital-page p-6 sm:p-8 lg:p-10 space-y-6">
+  <app-page-header
+    title="Bills by Hospital"
+    description="Monitor billed, allocated, and outstanding amounts for each hospital."
+    icon="account_balance"
+  />
 
-<app-section-card title="Billing summary" description="Consolidated local and international hospital billing totals." icon="payments">
-<div class="space-y-6">
+  <app-section-card
+    title="Billing summary"
+    description="Consolidated local and international hospital billing totals."
+    icon="payments"
+  >
+    <div class="billing-summary">
+      <section class="currency-summary currency-summary--tzs" aria-labelledby="tzs-summary-title">
+        <div class="currency-summary__header">
+          <div class="currency-summary__identity">
+            <span class="currency-summary__icon" aria-hidden="true">
+              <mat-icon>account_balance</mat-icon>
+            </span>
+            <div>
+              <h2 id="tzs-summary-title">Tanzania Shillings (TZS)</h2>
+              <p>Local hospital billing position</p>
+            </div>
+          </div>
+          <span class="currency-summary__badge">Local hospitals</span>
+        </div>
 
-  <!-- =================== TZS SUMMARY =================== -->
-  <div class="flex items-center justify-between">
-    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-      <mat-icon class="text-green-600">account_balance</mat-icon>
-      Tanzania Shillings (TZS)
-    </h2>
+        <div class="summary-card-grid">
+          <article class="summary-card summary-card--blue">
+            <div>
+              <span class="summary-card__label">Total bill</span>
+              <strong class="summary-card__value">
+                {{ totals.total_bill_file_amount | currency:'TZS':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+            <span class="summary-card__icon" aria-hidden="true">
+              <mat-icon>receipt_long</mat-icon>
+            </span>
+          </article>
 
-    <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-      Local Hospitals
-    </span>
-  </div>
+          <article class="summary-card summary-card--green">
+            <div>
+              <span class="summary-card__label">Total allocated</span>
+              <strong class="summary-card__value">
+                {{ totals.total_allocated_amount | currency:'TZS':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+            <span class="summary-card__icon" aria-hidden="true">
+              <mat-icon>payments</mat-icon>
+            </span>
+          </article>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <article class="summary-card summary-card--red">
+            <div>
+              <span class="summary-card__label">Remaining balance</span>
+              <strong class="summary-card__value">
+                {{ totals.total_balance | currency:'TZS':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+            <span class="summary-card__icon" aria-hidden="true">
+              <mat-icon>account_balance_wallet</mat-icon>
+            </span>
+          </article>
+        </div>
+      </section>
 
-  <!-- Total Bill -->
-  <div
-    class="rounded-xl bg-blue-50 border border-blue-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
-    <div class="flex justify-between items-center">
+      <section class="currency-summary currency-summary--usd" aria-labelledby="usd-summary-title">
+        <div class="currency-summary__header">
+          <div class="currency-summary__identity">
+            <span class="currency-summary__icon" aria-hidden="true">
+              <mat-icon>public</mat-icon>
+            </span>
+            <div>
+              <h2 id="usd-summary-title">United States Dollar (USD)</h2>
+              <p>International hospital billing position</p>
+            </div>
+          </div>
+          <span class="currency-summary__badge">MIOT hospital</span>
+        </div>
 
-      <div>
-        <p class="text-sm text-gray-500 font-medium">Total Bill</p>
+        <div class="summary-card-grid">
+          <article class="summary-card summary-card--yellow">
+            <div>
+              <span class="summary-card__label">Total bill</span>
+              <strong class="summary-card__value">
+                {{ miotTotals.total_bill_file_amount | currency:'USD':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+            <span class="summary-card__icon" aria-hidden="true">
+              <mat-icon>request_quote</mat-icon>
+            </span>
+          </article>
 
-        <h2 class="text-2xl font-bold text-blue-700 mt-2">
-          {{ totals.total_bill_file_amount | currency:'TZS':'symbol':'1.0-0' }}
-        </h2>
-      </div>
+          <article class="summary-card summary-card--orange">
+            <div>
+              <span class="summary-card__label">Total allocated</span>
+              <strong class="summary-card__value">
+                {{ miotTotals.total_allocated_amount | currency:'USD':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+            <span class="summary-card__icon" aria-hidden="true">
+              <mat-icon>paid</mat-icon>
+            </span>
+          </article>
 
-      <div class="bg-blue-100 text-blue-700 p-4 rounded-full">
-        <mat-icon class="text-4xl">receipt_long</mat-icon>
-      </div>
-
+          <article class="summary-card summary-card--red">
+            <div>
+              <span class="summary-card__label">Remaining balance</span>
+              <strong class="summary-card__value">
+                {{ miotTotals.total_balance | currency:'USD':'symbol':'1.0-0' }}
+              </strong>
+            </div>
+            <span class="summary-card__icon" aria-hidden="true">
+              <mat-icon>savings</mat-icon>
+            </span>
+          </article>
+        </div>
+      </section>
     </div>
-  </div>
-
-  <!-- Total Allocated -->
-  <div
-    class="rounded-xl bg-green-50 border border-green-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
-    <div class="flex justify-between items-center">
-
-      <div>
-        <p class="text-sm text-gray-500 font-medium">Total Allocated</p>
-
-        <h2 class="text-2xl font-bold text-green-700 mt-2">
-          {{ totals.total_allocated_amount | currency:'TZS':'symbol':'1.0-0' }}
-        </h2>
-      </div>
-
-      <div class="bg-green-100 text-green-700 p-4 rounded-full">
-        <mat-icon class="text-4xl">payments</mat-icon>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Remaining Balance -->
-  <div
-    class="rounded-xl bg-red-50 border border-red-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
-    <div class="flex justify-between items-center">
-
-      <div>
-        <p class="text-sm text-gray-500 font-medium">Remaining Balance</p>
-
-        <h2 class="text-2xl font-bold text-red-700 mt-2">
-          {{ totals.total_balance | currency:'TZS':'symbol':'1.0-0' }}
-        </h2>
-      </div>
-
-      <div class="bg-red-100 text-red-700 p-4 rounded-full">
-        <mat-icon class="text-4xl">account_balance_wallet</mat-icon>
-      </div>
-
-    </div>
-  </div>
-
-</div>
-
-  <!-- =================== USD SUMMARY =================== -->
-
-  <div class="flex items-center justify-between mt-8">
-    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-      <mat-icon class="text-amber-600">public</mat-icon>
-      United States Dollar (USD)
-    </h2>
-
-    <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
-      MIOT Hospital
-    </span>
-  </div>
-
- <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-  <!-- Total Bill -->
-  <div
-    class="rounded-xl bg-yellow-50 border border-yellow-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
-    <div class="flex justify-between items-center">
-
-      <div>
-        <p class="text-sm text-gray-500 font-medium">Total Bill</p>
-
-        <h2 class="text-2xl font-bold text-yellow-700 mt-2">
-          {{ miotTotals.total_bill_file_amount | currency:'USD':'symbol':'1.0-0' }}
-        </h2>
-      </div>
-
-      <div class="bg-yellow-100 text-yellow-700 p-4 rounded-full">
-        <mat-icon class="text-4xl">request_quote</mat-icon>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Total Allocated -->
-  <div
-    class="rounded-xl bg-orange-50 border border-orange-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
-    <div class="flex justify-between items-center">
-
-      <div>
-        <p class="text-sm text-gray-500 font-medium">Total Allocated</p>
-
-        <h2 class="text-2xl font-bold text-orange-700 mt-2">
-          {{ miotTotals.total_allocated_amount | currency:'USD':'symbol':'1.0-0' }}
-        </h2>
-      </div>
-
-      <div class="bg-orange-100 text-orange-700 p-4 rounded-full">
-        <mat-icon class="text-4xl">paid</mat-icon>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Remaining Balance -->
-  <div
-    class="rounded-xl bg-red-50 border border-red-100 shadow-md hover:shadow-xl transition-all duration-300 p-5">
-    <div class="flex justify-between items-center">
-
-      <div>
-        <p class="text-sm text-gray-500 font-medium">Remaining Balance</p>
-
-        <h2 class="text-2xl font-bold text-red-700 mt-2">
-          {{ miotTotals.total_balance | currency:'USD':'symbol':'1.0-0' }}
-        </h2>
-      </div>
-
-      <div class="bg-red-100 text-red-700 p-4 rounded-full">
-        <mat-icon class="text-4xl">savings</mat-icon>
-      </div>
-
-    </div>
-  </div>
-
-</div>
-
-</div>
-</app-section-card>
-
-  <app-section-card title="Hospital billing records" description="Search hospital balances and open their payment details." icon="local_hospital">
-  <app-table-toolbar>
-  <div uiToolbarPrimary class="flex items-center gap-2 w-full">
-    <mat-icon>search</mat-icon>
-    <input
-      type="text"
-      placeholder="Search hospitals..."
-      class="border-b h-10 w-80 outline-0"
-      (keyup)="applyFilter($event)"
-      #input
-    />
-  </div>
-  </app-table-toolbar>
-
-  <div class="border rounded-lg overflow-x-auto">
-    <table mat-table [dataSource]="dataSource" matSort class="w-full">
-      <ng-container matColumnDef="hospital_id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Hospital ID</th>
-        <td mat-cell *matCellDef="let element">{{ element.hospital_id }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="hospital_name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Hospital Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.hospital_name }}</td>
-      </ng-container>
-
-     <ng-container matColumnDef="total_bill_file_amount">
-  <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Bill</th>
-  <td mat-cell *matCellDef="let element">
-    {{
-      element.total_bill_file_amount
-        | currency:
-          (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
-                  ? 'USD'
-                  : 'TZS')
-                :'symbol':'1.2-2'
-          }}
-        </td>
-      </ng-container>
-
-     <ng-container matColumnDef="total_allocated_amount">
-  <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Allocated</th>
-  <td mat-cell *matCellDef="let element">
-    {{
-      element.total_allocated_amount
-        | currency:
-          (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
-                ? 'USD'
-                : 'TZS')
-              :'symbol':'1.2-2'
-        }}
-      </td>
-    </ng-container>
-
-     <ng-container matColumnDef="total_balance">
-  <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-      <td mat-cell *matCellDef="let element">
-        {{
-          element.total_balance
-            | currency:
-              (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
-                ? 'USD'
-                : 'TZS')
-              :'symbol':'1.2-2'
-        }}
-      </td>
-    </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let element">
-          <app-status-badge [status]="element.status" />
-        </td>
-      </ng-container>
-
-      <!-- <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let element">
-          <span
-            [ngClass]="{
-              'text-green-600 font-semibold': element.status === 'Paid',
-              'text-yellow-600 font-semibold':
-                element.status === 'Partially Paid',
-              'text-red-600 font-semibold': element.status === 'Pending',
-              'text-gray-600 font-semibold': element.status === 'Summary'
-            }"
-          >
-            {{ element.status }}
-          </span>
-        </td>
-      </ng-container> -->
-
-      <ng-container matColumnDef="actions">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          class="text-neutral-500 dark:text-neutral-400"
-        >
-          View
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <emr-segmented theme="simple" class="-mx-2">
-            <emr-segmented-button value="edit_squareData">
-              <span
-                class="size-9 rounded-full border bg-surface flex items-center justify-center cursor-pointer"
-                (click)="displayMoreData(element)"
-                matTooltip="View"
-              >
-                <mat-icon class="font-icon">visibility</mat-icon>
-              </span>
-            </emr-segmented-button>
-          </emr-segmented>
-        </td>
-      </ng-container>
-
-      <!-- Table headers & rows -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-      <!-- No data -->
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" [attr.colspan]="displayedColumns.length"><app-empty-state title="No hospital bills found" [message]="input.value ? 'No hospital bills match your search.' : 'Hospital billing records will appear here.'" icon="account_balance" /></td>
-      </tr>
-
-      <!-- Totals row -->
-      <tr *ngIf="totals" class="bg-gray-100 font-bold">
-        <td>{{ totals.hospital_id }}</td>
-        <td>{{ totals.hospital_name }}</td>
-        <td>{{ totals.total_bill_file_amount | number : "1.2-2" }}</td>
-        <td>{{ totals.total_allocated_amount | number : "1.2-2" }}</td>
-        <td>{{ totals.total_balance | number : "1.2-2" }}</td>
-        <td>{{ totals.status }}</td>
-      </tr>
-    </table>
-
-    <!-- Pagination -->
-    <mat-paginator [pageSizeOptions]="[10, 20 , 100]" showFirstLastButtons>
-    </mat-paginator>
-  </div>
   </app-section-card>
+
+  <app-section-card
+    title="Hospital billing records"
+    description="Search hospital balances and open their payment details."
+    icon="local_hospital"
+  >
+    <app-table-toolbar>
+      <div uiToolbarPrimary class="hospital-search">
+        <mat-icon class="hospital-search__icon" aria-hidden="true">search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search hospitals..."
+          class="hospital-search__input"
+          (keyup)="applyFilter($event)"
+          #input
+        />
+      </div>
+    </app-table-toolbar>
+
+    <div class="hospital-table-shell">
+      <table mat-table [dataSource]="dataSource" matSort class="hospital-records-table">
+        <ng-container matColumnDef="hospital_id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Hospital ID</th>
+          <td mat-cell *matCellDef="let element">{{ element.hospital_id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="hospital_name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Hospital Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.hospital_name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="total_bill_file_amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Bill</th>
+          <td mat-cell *matCellDef="let element">
+            {{
+              element.total_bill_file_amount
+                | currency:
+                  (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                    ? 'USD'
+                    : 'TZS')
+                  :'symbol':'1.2-2'
+            }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="total_allocated_amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Allocated</th>
+          <td mat-cell *matCellDef="let element">
+            {{
+              element.total_allocated_amount
+                | currency:
+                  (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                    ? 'USD'
+                    : 'TZS')
+                  :'symbol':'1.2-2'
+            }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="total_balance">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
+          <td mat-cell *matCellDef="let element">
+            {{
+              element.total_balance
+                | currency:
+                  (element.hospital_name === 'Madras Institute of Orthopaedics and Traumatology (MIOT)'
+                    ? 'USD'
+                    : 'TZS')
+                  :'symbol':'1.2-2'
+            }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            <app-status-badge [status]="element.status" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>View</th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              type="button"
+              class="hospital-view-action"
+              (click)="displayMoreData(element)"
+              matTooltip="Open payment details"
+              aria-label="Open payment details"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <app-empty-state
+              title="No hospital bills found"
+              [message]="input.value ? 'No hospital bills match your search.' : 'Hospital billing records will appear here.'"
+              icon="account_balance"
+            />
+          </td>
+        </tr>
+
+        <tr *ngIf="totals && dataSource.data.length" class="hospital-total-row">
+          <td>{{ totals.hospital_id }}</td>
+          <td>{{ totals.hospital_name }}</td>
+          <td>{{ totals.total_bill_file_amount | number : '1.2-2' }}</td>
+          <td>{{ totals.total_allocated_amount | number : '1.2-2' }}</td>
+          <td>{{ totals.total_balance | number : '1.2-2' }}</td>
+          <td>{{ totals.status }}</td>
+          <td></td>
+        </tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[10, 20, 100]" showFirstLastButtons />
+    </div>
+  </app-section-card>
+
   <app-loading-state *ngIf="loading" label="Loading hospital bills…" [overlay]="true" />
 </div>

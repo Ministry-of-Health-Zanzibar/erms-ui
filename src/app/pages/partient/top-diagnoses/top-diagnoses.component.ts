@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { environment } from '../../../../environments/environment.prod';
 import { PermissionService } from '../../../services/authentication/permission.service';
-import { PageHeaderComponent, SectionCardComponent } from '@shared/ui';
+import { DatePickerComponent, PageHeaderComponent, SectionCardComponent } from '@shared/ui';
 
 interface DiagnosisPatient {
   patient_id: number;
@@ -26,7 +26,7 @@ interface DiagnosisReport {
 @Component({
   selector: 'app-top-diagnoses',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, PageHeaderComponent, SectionCardComponent],
+  imports: [CommonModule, FormsModule, MatButtonModule, DatePickerComponent, PageHeaderComponent, SectionCardComponent],
   templateUrl: './top-diagnoses.component.html',
 })
 export class TopDiagnosesComponent implements OnDestroy {

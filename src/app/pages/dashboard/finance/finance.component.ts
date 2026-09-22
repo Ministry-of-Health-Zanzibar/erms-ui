@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { StatisticalService } from '../../../services/report/statistical.service';
-import { GraphreportService } from './../../../services/accountants/graphreport.service';
+import { GraphreportService } from '../../../services/accountants/graphreport.service';
 
 import {
   ApexAxisChartSeries,

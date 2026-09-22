@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -30,7 +29,7 @@ import { EmrSegmentedModule } from '@elementar/components';
 import { MatDialog} from '@angular/material/dialog';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { ReferralreportService } from '../../../services/Referral/referralreport.service';
-import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
+import { DatePickerComponent, EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, ReportTableComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referralrangereport',
@@ -49,9 +48,11 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
     MatIcon,
     MatFormFieldModule,
     EmrSegmentedModule,
+    DatePickerComponent,
     EmptyStateComponent,
     LoadingStateComponent,
     PageHeaderComponent,
+    ReportTableComponent,
     SectionCardComponent,
     TableToolbarComponent
   ],
@@ -69,7 +70,6 @@ export class ReferralrangereportComponent implements OnInit, OnDestroy {
   loading = false;
   errorMessage = '';
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
@@ -115,7 +115,6 @@ export class ReferralrangereportComponent implements OnInit, OnDestroy {
         this.documents = response.data;
       //  console.log("data hzii",this.documents);
         this.dataSource.data = this.documents; // Fix: Assign data to dataSource
-        this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort; // Fix: Enable sorting
         this.loading = false;
       },

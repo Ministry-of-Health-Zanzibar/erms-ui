@@ -6,10 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConversationService } from '../../../services/conversation.service';
+import { FilterSelectComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-mkurugenzi-conversation',
@@ -22,9 +22,9 @@ import { ConversationService } from '../../../services/conversation.service';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    FilterSelectComponent
   ],
   templateUrl: './mkurugenzi-conversation.component.html',
   styleUrl: './mkurugenzi-conversation.component.scss'
@@ -35,6 +35,7 @@ export class MkurugenziConversationComponent implements OnInit {
   replyMessage: string = '';
   receiver: string = 'dg'; // Pre-set default target role
   activeReplyId: number | null = null;
+  currentUserId: string | null = null;
   
   sendingMessage: boolean = false;
   sendingReply: boolean = false;
@@ -53,7 +54,25 @@ export class MkurugenziConversationComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.currentUserId = localStorage.getItem('user_id');
     this.loadMessages();
+  }
+
+  readonly receiverOptions = [{
+    label: 'Director General',
+    value: 'dg'
+  }];
+
+  isCurrentUser(message: any): boolean {
+    const senderId = message?.user_id ?? message?.sender_id;
+    return this.currentUserId !== null
+      && senderId !== null
+      && senderId !== undefined
+      && String(senderId) === this.currentUserId;
+  }
+
+  getSenderLabel(message: any): string {
+    return this.isCurrentUser(message) ? 'You' : (message?.sender_full_name || 'Care team member');
   }
 
   loadMessages() {
