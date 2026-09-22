@@ -15,25 +15,21 @@
   <div class="search-container rounded-xl mt-4">
     <form [formGroup]="reportForm" class="flex flex-wrap gap-4 items-end">
 
-      <!-- Start Date -->
-      <div class="flex flex-col w-full sm:w-1/3">
-        <label for="start_date" class="mb-1 text-sm font-semibold text-gray-700">Start Date</label>
-        <input
-          type="date"
-          id="start_date"
+      <div class="w-full sm:w-1/3">
+        <app-date-picker
           formControlName="start_date"
-          class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          label="Start Date"
+          placeholder="Select start date"
+          outputFormat="iso"
         />
       </div>
 
-      <!-- End Date -->
-      <div class="flex flex-col w-full sm:w-1/3">
-        <label for="end_date" class="mb-1 text-sm font-semibold text-gray-700">End Date</label>
-        <input
-          type="date"
-          id="end_date"
+      <div class="w-full sm:w-1/3">
+        <app-date-picker
           formControlName="end_date"
-          class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          label="End Date"
+          placeholder="Select end date"
+          outputFormat="iso"
         />
       </div>
 
@@ -144,4 +140,3 @@
   </app-section-card>
   <app-loading-state *ngIf="loading" label="Generating accounting report…" [overlay]="true" />
 </div>
-

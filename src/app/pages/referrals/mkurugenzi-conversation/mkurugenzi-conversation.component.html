@@ -1,157 +1,248 @@
-<div mat-dialog-title class="flex items-center justify-between border-b pb-3 !m-0 bg-gray-50 dark:bg-gray-800/50 px-6 py-4">
-  <div class="flex items-center gap-2">
-    <mat-icon class="text-blue-600 dark:text-blue-400">clinical_notes</mat-icon>
-    <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Internal Consultation Stream</h2>
-  </div>
-  <button mat-icon-button mat-dialog-close class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-    <mat-icon>close</mat-icon>
-  </button>
-</div>
-
-<div class="px-6 py-3 bg-blue-50 dark:bg-blue-950/40 border-b border-blue-100 dark:border-blue-900/50 flex items-start gap-3.5">
-  <div class="p-2 bg-blue-600 text-white rounded-xl shadow-sm mt-0.5">
-    <mat-icon class="block">person</mat-icon>
-  </div>
-  <div class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-y-1 gap-x-4 text-xs">
-    <div>
-      <span class="text-gray-500 dark:text-gray-400 block font-medium">Patient Name</span>
-      <span class="font-bold text-gray-800 dark:text-gray-200 text-sm">
-        {{ patientInfo?.patient_name }}
-      </span>
-    </div>
-    <div>
-      <span class="text-gray-500 dark:text-gray-400 block font-medium">File / IPD ID</span>
-      <span class="font-semibold text-gray-800 dark:text-gray-200 text-sm">
-        {{ patientInfo?.file_number }}
-      </span>
-    </div>
-    <div class="col-span-2 sm:col-span-1">
-      <span class="text-gray-500 dark:text-gray-400 block font-medium">Diagnosis / Reason</span>
-      <span class="font-medium text-gray-700 dark:text-gray-300 truncate block max-w-[180px]" [matTooltip]="patientInfo?.diagnosis">
-        {{ patientInfo?.diagnosis }}
-      </span>
-    </div>
-  </div>
-</div>
-
-<mat-dialog-content class="!px-6 !py-4 h-[400px] overflow-y-auto bg-gray-50/40 dark:bg-gray-900/10 space-y-4">
-  
-  @if (conversations.length === 0) {
-    <div class="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 py-12">
-      <mat-icon class="text-4xl mb-1.5">chat_bubble_outline</mat-icon>
-      <span class="text-xs">No entries established in this conversation channel.</span>
-    </div>
-  }
-
-  @for (msg of conversations; track msg.conversation_id) {
-    <div class="flex flex-col space-y-1">
-      
-      <div class="flex items-baseline justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
-        <span class="font-semibold text-gray-700 dark:text-gray-300">{{ msg.sender_full_name }}</span>
-        <span class="text-[10px]">{{ msg.date }}</span>
+<div class="consultation-dialog">
+  <div mat-dialog-title class="consultation-header">
+    <div class="consultation-heading">
+      <div class="consultation-icon" aria-hidden="true">
+        <mat-icon>forum</mat-icon>
       </div>
-
-      <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/80 p-3.5 rounded-2xl shadow-sm max-w-[90%] self-start transition-all">
-        <p class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-line m-0 leading-relaxed">
-          {{ msg.message }}
-        </p>
-
-        <div class="mt-2 flex justify-end">
-          <button 
-            mat-button 
-            color="primary" 
-            (click)="openReplyBox(msg)"
-            class="!text-xs !h-7 !px-2.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30"
-          >
-            <mat-icon class="text-sm mr-1">reply</mat-icon> Reply
-          </button>
+      <div class="consultation-heading-copy">
+        <span class="consultation-kicker">Patient care team</span>
+        <h2>Internal Consultation Stream</h2>
+        <div class="consultation-status">
+          <span class="online-indicator" aria-hidden="true"></span>
+          <span>Secure clinical discussion</span>
         </div>
       </div>
-
-      @if (activeReplyId === msg.conversation_id) {
-        <div class="mt-2 ml-6 border-l-2 border-blue-500 pl-4 py-2 bg-blue-50/20 dark:bg-blue-950/10 rounded-r-lg">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Type secure thread reply...</mat-label>
-            <textarea matInput [(ngModel)]="replyMessage" rows="2"></textarea>
-          </mat-form-field>
-
-          <div class="flex gap-2 mt-1">
-            <button 
-              mat-raised-button 
-              color="primary" 
-              class="!h-8 !text-xs" 
-              (click)="sendReply(msg)" 
-              [disabled]="sendingReply || !replyMessage?.trim()"
-            >
-              @if (!sendingReply) {
-                <span>Send Reply</span>
-              } @else {
-                <span>Sending…</span>
-              }
-            </button>
-            <button mat-button class="!h-8 !text-xs" color="warn" (click)="cancelReply()">
-              Cancel
-            </button>
-          </div>
-        </div>
-      }
-
-      @if (msg.replies?.length) {
-        <div class="ml-6 mt-1.5 space-y-2 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
-          @for (reply of msg.replies; track reply.date) {
-            <div class="bg-gray-100/70 dark:bg-gray-800/60 p-2.5 rounded-xl max-w-[95%]">
-              <div class="flex justify-between text-[11px] text-blue-600 dark:text-blue-400 font-medium mb-0.5">
-                <span>{{ reply.sender_full_name }}</span>
-                <span class="text-gray-400 dark:text-gray-500 font-normal">{{ reply.date }}</span>
-              </div>
-              <p class="text-xs text-gray-700 dark:text-gray-300 m-0">
-                {{ reply.message }}
-              </p>
-            </div>
-          }
-        </div>
-      }
-
     </div>
-  }
-</mat-dialog-content>
-
-<mat-dialog-actions class="flex flex-col gap-3 !p-4 border-t bg-gray-50 dark:bg-gray-800/30">
-
-  @if (!activeReplyId && canStartConversation()) {
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Send Consultation To</mat-label>
-      <mat-select [(ngModel)]="receiver">
-        @for (r of getReceivers(); track r) {
-          <mat-option [value]="r">
-            {{ r | titlecase }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  }
-
-  <div class="w-full flex items-end gap-2">
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Type secure broadcast entry...</mat-label>
-      <textarea matInput [(ngModel)]="message" rows="2" [disabled]="isHospital() && !activeReplyId"></textarea>
-    </mat-form-field>
 
     <button
-      mat-raised-button
-      color="primary"
-      class="h-[52px] px-5"
-      (click)="sendMessage()"
-      [disabled]="sendingMessage || !message?.trim() || (isHospital() && !activeReplyId)"
+      mat-icon-button
+      mat-dialog-close
+      type="button"
+      class="close-button"
+      aria-label="Close consultation"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <section class="patient-context" aria-label="Patient context">
+    <div class="patient-avatar" aria-hidden="true">
+      <mat-icon>person</mat-icon>
+    </div>
+
+    <div class="patient-summary">
+      <span class="context-label">Consultation for</span>
+      <strong class="patient-name">{{ patientInfo?.patient_name }}</strong>
+
+      <div class="context-details">
+        <span class="context-detail">
+          <mat-icon aria-hidden="true">badge</mat-icon>
+          <span>{{ patientInfo?.file_number }}</span>
+        </span>
+        <span
+          class="context-detail context-detail--diagnosis"
+          [matTooltip]="patientInfo?.diagnosis"
+        >
+          <mat-icon aria-hidden="true">medical_information</mat-icon>
+          <span>{{ patientInfo?.diagnosis }}</span>
+        </span>
+      </div>
+    </div>
+
+    <span class="secure-label">
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      <span>Private</span>
+    </span>
+  </section>
+
+  <mat-dialog-content class="conversation-content">
+    <div class="conversation-toolbar">
+      <div>
+        <span class="conversation-kicker">Clinical communication</span>
+        <strong class="conversation-title">Conversation</strong>
+        <span class="conversation-subtitle">Visible to the assigned care team</span>
+      </div>
+      <span class="message-count">
+        {{ conversations.length }} {{ conversations.length === 1 ? 'message' : 'messages' }}
+      </span>
+    </div>
+
+    @if (conversations.length === 0) {
+      <div class="empty-conversation">
+        <div class="empty-conversation-icon" aria-hidden="true">
+          <mat-icon>forum</mat-icon>
+        </div>
+        <strong>No messages yet</strong>
+        <span>Start a secure consultation with the assigned care team.</span>
+      </div>
+    }
+
+    <div class="message-list">
+      @for (msg of conversations; track msg.conversation_id) {
+        <article class="message-row" [class.message-row--outgoing]="isCurrentUser(msg)">
+          <div class="message-avatar" aria-hidden="true">
+            <mat-icon>person</mat-icon>
+          </div>
+
+          <div class="message-column">
+            <div class="message-meta">
+              <span class="sender-name">{{ getSenderLabel(msg) }}</span>
+              <span class="message-time">{{ msg.date }}</span>
+            </div>
+
+            <div class="message-bubble">
+              <p class="message-text">{{ msg.message }}</p>
+
+              <div class="message-footer">
+                @if (isCurrentUser(msg)) {
+                  <span class="message-receipt">
+                    <mat-icon aria-hidden="true">done_all</mat-icon>
+                    Sent
+                  </span>
+                }
+
+                <button
+                  mat-button
+                  type="button"
+                  class="reply-button"
+                  (click)="openReplyBox(msg)"
+                >
+                  <mat-icon aria-hidden="true">reply</mat-icon>
+                  <span>Reply</span>
+                </button>
+              </div>
+            </div>
+
+            @if (activeReplyId === msg.conversation_id) {
+              <div class="reply-composer">
+                <div class="reply-composer-heading">
+                  <mat-icon aria-hidden="true">reply</mat-icon>
+                  <span>Replying to {{ msg.sender_full_name }}</span>
+                </div>
+
+                <mat-form-field appearance="outline" class="reply-field">
+                  <mat-label>Write a reply</mat-label>
+                  <textarea
+                    matInput
+                    [(ngModel)]="replyMessage"
+                    rows="2"
+                    placeholder="Share an update with the care team"
+                  ></textarea>
+                </mat-form-field>
+
+                <div class="reply-actions">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="button"
+                    (click)="sendReply(msg)"
+                    [disabled]="sendingReply || !replyMessage?.trim()"
+                  >
+                    @if (!sendingReply) {
+                      <span>Send reply</span>
+                    } @else {
+                      <span>Sending…</span>
+                    }
+                  </button>
+                  <button
+                    mat-button
+                    color="warn"
+                    type="button"
+                    (click)="cancelReply()"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (msg.replies?.length) {
+              <div class="reply-thread">
+                <div class="thread-label">
+                  <mat-icon aria-hidden="true">subdirectory_arrow_right</mat-icon>
+                  <span>Thread replies</span>
+                </div>
+
+                @for (reply of msg.replies; track reply.conversation_id) {
+                  <div class="reply-row" [class.reply-row--outgoing]="isCurrentUser(reply)">
+                    <div class="reply-avatar" aria-hidden="true">
+                      <mat-icon>person</mat-icon>
+                    </div>
+                    <div class="reply-content">
+                      <div class="reply-meta">
+                        <span>{{ getSenderLabel(reply) }}</span>
+                        <span>{{ reply.date }}</span>
+                      </div>
+                      <p>{{ reply.message }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="consultation-composer">
+    @if (!activeReplyId && canStartConversation()) {
+      <div class="recipient-row">
+        <div class="recipient-copy">
+          <span class="recipient-kicker">New consultation</span>
+          <span class="recipient-help">Choose who should receive this message.</span>
+        </div>
+        <app-filter-select
+          class="recipient-select"
+          label="Send consultation to"
+          placeholder="Choose a care team member"
+          icon="person_add"
+          [options]="receiverOptions"
+          [(ngModel)]="receiver"
+          [searchable]="true"
+          [allowDeselect]="false"
+        ></app-filter-select>
+      </div>
+    }
+
+    <div class="compose-row">
+      <mat-form-field appearance="outline" class="message-field">
+        <mat-label>Message</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="message"
+          rows="2"
+          placeholder="Write a secure consultation message"
+          [disabled]="isHospital() && !activeReplyId"
+        ></textarea>
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        class="send-button"
+        (click)="sendMessage()"
+        [disabled]="sendingMessage || !message?.trim() || (isHospital() && !activeReplyId)"
+      aria-label="Send consultation message"
     >
       @if (!sendingMessage) {
-        <div class="flex items-center gap-1">
-          <span>Send</span>
-          <mat-icon class="text-base">send</mat-icon>
-        </div>
-      } @else {
+        <span>Send</span>
+      }
+      @if (!sendingMessage) {
+        <mat-icon aria-hidden="true">send</mat-icon>
+      }
+      @if (sendingMessage) {
         <span>Sending…</span>
       }
     </button>
-  </div>
-</mat-dialog-actions>
+    </div>
+
+    @if (isHospital() && !activeReplyId) {
+      <span class="compose-hint">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        Reply to an existing message to continue this consultation.
+      </span>
+    }
+  </mat-dialog-actions>
+</div>

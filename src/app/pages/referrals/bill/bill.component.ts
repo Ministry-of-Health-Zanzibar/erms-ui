@@ -1,4 +1,4 @@
-import { BillService } from './../../../services/system-configuration/bill.service';
+import { BillService } from '../../../services/system-configuration/bill.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Inject, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

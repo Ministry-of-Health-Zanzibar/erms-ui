@@ -308,6 +308,22 @@ html.dark #print-section {
   height: 100%;
 }
 
+/* Shared in-app document preview dialog. */
+.file-viewer-dialog {
+  .mat-mdc-dialog-surface {
+    overflow: hidden !important;
+    padding: 0 !important;
+    border-radius: 1.25rem !important;
+    background: transparent !important;
+  }
+}
+
+.file-viewer-dialog--maximized {
+  .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+  }
+}
+
 .snackbar-success {
   background-color: #4caf50 !important; /* green */
   color: white !important;

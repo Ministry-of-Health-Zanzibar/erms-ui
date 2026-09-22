@@ -1,4 +1,4 @@
-import { GraphreportService } from './../../../services/accountants/graphreport.service';
+import { GraphreportService } from '../../../services/accountants/graphreport.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';

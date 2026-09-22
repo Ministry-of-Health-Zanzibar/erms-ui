@@ -1,427 +1,637 @@
-<div *ngIf="referral" class="p-6 bg-gray-50 min-h-screen">
-
-  <!-- 🩺 Header Banner -->
-  <div class="relative bg-gradient-to-r from-blue-700 to-cyan-500 text-white rounded-2xl md:rounded-3xl shadow-2xl px-4 py-8 md:p-10 lg:p-12 flex flex-col items-center justify-center overflow-hidden text-center">
-
-    <!-- LEFT IMAGE -->
-    <img
-      src="../../../../assets/img/doctor.png"
-      alt="Doctor"
-      class="hidden md:block absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 opacity-90 rounded-full shadow-xl border-4 border-white"
-    />
-
-    <!-- TEXT -->
-    <div class="z-10 max-w-xl">
-      <h1 class="text-4xl font-extrabold tracking-wide drop-shadow-lg">
-        Patient Referral Information and Medical History Details
-      </h1>
-
-      <p class="mt-2 md:mt-3 text-sm sm:text-base md:text-lg lg:text-xl opacity-90 font-medium">
-        Comprehensive overview of the patient record
-      </p>
-    </div>
-
-    <!-- RIGHT IMAGE -->
-    <img
-      src="../../../../assets/img/objective3.png"
-      alt="Patient"
-      class="hidden md:block absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 opacity-90 rounded-full shadow-xl border-4 border-white"
-    />
-
-  </div>
-
-  <div class="bg-white shadow-2xl rounded-3xl p-8 mx-auto space-y-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Patient Info -->
-      <div
-        class="bg-indigo-50 p-6 rounded-2xl shadow-inner flex flex-col space-y-2"
-      >
-        <h3 class="text-2xl font-semibold text-indigo-700 mb-2">
-          Patient Information
-        </h3>
-        <p>
-          <span class="font-semibold w-32 inline-block">Name:</span>
-          {{ referral.patient?.name || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">Matibabu Card:</span>
-          {{ referral.patient?.matibabu_card || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">DOB:</span>
-          {{
-            referral.patient?.date_of_birth
-              ? (referral.patient.date_of_birth | date)
-              : "N/A"
-          }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">Phone:</span>
-          {{ referral.patient?.phone || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">Gender:</span>
-          {{ referral.patient?.gender || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">ZanID:</span>
-          {{ referral.patient?.zan_id || "N/A" }}
-        </p>
+<div *ngIf="referral" class="medical-history-page referral-history-page">
+  <header class="history-hero">
+    <div class="hero-copy">
+      <div class="hero-breadcrumb" aria-label="Record location">
+        <mat-icon aria-hidden="true">assignment_turned_in</mat-icon>
+        <span>Referral records</span>
+        <span class="hero-breadcrumb-separator">/</span>
+        <span>Patient history</span>
       </div>
-
-      <!-- Hospital Info -->
-      <div
-        class="bg-green-50 p-6 rounded-2xl shadow-inner flex flex-col space-y-2"
-      >
-        <h3 class="text-2xl font-semibold text-green-700 mb-2">
-          Hospital Information
-        </h3>
-        <p>
-          <span class="font-semibold w-32 inline-block">Hospital:</span>
-          {{ referral.hospital?.hospital_name || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">Address:</span>
-          {{ referral.hospital?.hospital_address || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">Contact:</span>
-          {{ referral.hospital?.contact_number || "N/A" }}
-        </p>
-        <p>
-          <span class="font-semibold w-32 inline-block">Email:</span>
-          {{ referral.hospital?.hospital_email || "N/A" }}
-        </p>
-      </div>
+      <h1>Patient Referral Information and Medical History Details</h1>
+      <p>Comprehensive overview of the patient record</p>
     </div>
 
-    <div class="bg-yellow-50 p-6 rounded-2xl shadow-inner flex flex-col space-y-2">
-      <h3 class="text-2xl font-semibold text-yellow-700 mb-2">
-        Director of Curative Services Comments
-      </h3>
-      <p>
-        <span class="font-semibold w-40 inline-block">
-          Comments:
-        </span>
-        {{
-          referral?.patient?.patient_histories?.[0]?.mkurugenzi_tiba_comments
-          || 'N/A'
-        }}
-      </p>
-    </div>
-
-    <div class="bg-green-50 p-4 mt-4 rounded-xl" *ngIf="patientHistories?.length > 0 || diagnoses?.length > 0">
-      
-      <h4 class="text-lg font-semibold text-green-600 mb-3">
-        Medical Histories ({{ patientHistories?.length || 0 }})
-      </h4>
-
-      <!-- Medical Histories -->
-      <mat-accordion class="space-y-2" *ngIf="patientHistories?.length > 0">
-        <mat-expansion-panel *ngFor="let history of patientHistories; let i = index" class="rounded-lg shadow-sm border border-green-200">
-
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              <div class="flex items-center gap-3">
-                <mat-icon class="text-green-600">history</mat-icon>
-                <span class="font-semibold text-gray-700">
-                  History #{{ i + 1 }}
-                </span>
-              </div>
-            </mat-panel-title>
-
-            <mat-panel-description>
-              <span class="text-gray-500 text-sm">
-                File No: {{ history.file_number || 'N/A' }}
-              </span>
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-
-          <div class="p-3 text-gray-700">
-            <p><strong>Doctor:</strong> {{ history.referring_doctor }}</p>
-            <p><strong>Case Type:</strong> {{ history.case_type }}</p>
-            <p><strong>Referral Date:</strong> {{ history.referring_date }}</p>
-            <p><strong>physical_findings:</strong> {{ history.physical_findings }}</p>
-            <p><strong>history_of_presenting_illness:</strong> {{ history.history_of_presenting_illness }}</p>
-            <p><strong>Investigations:</strong> {{ history.investigations }}</p>
-            <p><strong>management_done:</strong> {{ history.management_done }}</p>
-            <a
-              *ngIf="history.history_file"
-              class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer mt-2"
-              (click)="viewFiles(history)"
-            >
-              <mat-icon>picture_as_pdf</mat-icon>
-              View History PDF
-            </a>
-          </div>
-
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
-
-    <div class="mt-6" *ngIf="hospitalDiagnoses?.length > 0">
-      <table class="min-w-full bg-white border border-green-200 rounded-lg shadow">
-
-        <!-- TABLE HEADER -->
-        <thead class="bg-green-100 text-green-700">
-          <tr>
-            <th colspan="3" class="p-3 text-left text-lg font-semibold">
-              Hospital Diagnoses ({{ hospitalDiagnoses.length }})
-            </th>
-          </tr>
-
-          <!-- Reason row -->
-          <tr *ngIf="hospitalReason">
-            <th colspan="3" class="p-2 text-left text-lg font-medium text-gray-700">
-              Reason:
-              <span class="text-green-700 font-semibold">
-                {{ hospitalReason.referral_reason_name }}
-              </span>
-            </th>
-          </tr>
-
-          <!-- Column headers -->
-          <tr>
-            <th class="p-2 text-left">#</th>
-            <th class="p-2 text-left">Diagnosis Code</th>
-            <th class="p-2 text-left">Diagnosis Name</th>
-          </tr>
-        </thead>
-
-
-        <!-- TABLE BODY -->
-        <tbody>
-          <tr
-            *ngFor="let d of hospitalDiagnoses; let i = index"
-            class="border-t hover:bg-green-50"
-          >
-            <td class="p-2">{{ i + 1 }}</td>
-            <td class="p-2">{{ d.diagnosis_code }}</td>
-            <td class="p-2">{{ d.diagnosis_name }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ================= BOARD MEMBERS ================= -->
-    <div
-      class="bg-green-50 p-6 rounded-2xl shadow-inner flex flex-col space-y-2"
-    >
-      <h3 class="text-2xl font-semibold text-green-700 mb-2">
-        Medical board Info
-      </h3>
-      <p>
-        <span class="font-semibold w-32">Reference number: </span>
-        {{ referral.referral_number || "N/A" }}
-      </p>
-      <p>
-        <span class="font-semibold w-32 inline-block">Board Type:</span>
-        {{ referral.patient?.patient_list?.[0]?.board_type || "N/A" }}
-      </p>
-
-      <p *ngIf="referral.patient?.patient_list?.[0]?.patient_list_file">
-        <a
-          (click)="viewPatientListPDF(referral.patient.patient_list[0].patient_list_file)"
-          class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer"
-        >
-          <mat-icon>picture_as_pdf</mat-icon>
-          View Board Members List PDF
-        </a>
-      </p>
-    </div>
-
-    <div class="mt-6" *ngIf="boardMembers.length > 0">
-      <h4 class="text-lg font-semibold text-blue-600 mb-3">
-        Medical Board Members ({{ boardMembers.length }})
-      </h4>
-
-      <table
-        class="min-w-full bg-white border border-blue-200 rounded-lg shadow"
-      >
-        <thead class="bg-blue-100 text-blue-700">
-          <tr>
-            <th class="p-2 text-left">#</th>
-            <th class="p-2 text-left">Full Name</th>
-            <th class="p-2 text-left">Gender</th>
-            <th class="p-2 text-left">Phone</th>
-            <th class="p-2 text-left">Email</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr
-            *ngFor="let member of boardMembers; let i = index"
-            class="border-t hover:bg-blue-50"
-          >
-            <td class="p-2">{{ i + 1 }}</td>
-
-            <td class="p-2 font-medium">
-              {{ member.first_name }}
-              {{ member.middle_name }}
-              {{ member.last_name }}
-            </td>
-
-            <td class="p-2 capitalize">{{ member.gender }}</td>
-            <td class="p-2">{{ member.phone_no }}</td>
-            <td class="p-2">{{ member.email }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="bg-yellow-50 p-6 rounded-2xl shadow-inner flex flex-col space-y-2">
-      <h3 class="text-2xl font-semibold text-yellow-700 mb-2">
-      Medical Board Comments
-      </h3>
-      <p>
-        <span class="font-semibold w-40 inline-block">
-          Comments:
-        </span>
-        {{ history.board_comments }}
-      </p>
-    </div>
-
-    <div class="mt-6" *ngIf="boardDiagnoses?.length > 0">
-      <table class="min-w-full bg-white border border-blue-200 rounded-lg shadow">
-
-        <!-- TABLE HEADER -->
-        <thead class="bg-blue-100 text-blue-700">
-          <tr>
-            <th colspan="3" class="p-3 text-left text-lg font-semibold">
-              Board Diagnoses ({{ boardDiagnoses.length }})
-            </th>
-          </tr>
-
-          <!-- Board Reason row -->
-          <tr *ngIf="boardReason">
-            <th colspan="3" class="p-2 text-left text-lg font-medium text-gray-700">
-              Board Reason:
-              <span class="text-blue-700 font-semibold">
-                {{ boardReason.referral_reason_name }}
-              </span>
-            
-            </th>
-          </tr>
-
-          <!-- Column headers -->
-          <tr>
-            <th class="p-2 text-left">#</th>
-            <th class="p-2 text-left">Diagnosis Code</th>
-            <th class="p-2 text-left">Diagnosis Name</th>
-          </tr>
-        </thead>
-
-        <!-- TABLE BODY -->
-        <tbody>
-          <tr
-            *ngFor="let d of boardDiagnoses; let i = index"
-            class="border-t hover:bg-blue-50"
-          >
-            <td class="p-2">{{ i + 1 }}</td>
-            <td class="p-2">{{ d.diagnosis_code }}</td>
-            <td class="p-2">{{ d.diagnosis_name }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Status -->
-    <div class="flex items-center space-x-4">
-      <h3 class="text-2xl font-semibold text-gray-700">Status:</h3>
+    <div class="hero-actions referral-hero-actions">
+      <span *ngIf="referral.referral_number" class="record-chip">
+        <mat-icon aria-hidden="true">confirmation_number</mat-icon>
+        {{ referral.referral_number }}
+      </span>
       <span
-        class="inline-flex items-center px-5 py-2 text-base font-semibold rounded-full text-white shadow-md"
+        class="status-pill referral-status-pill"
         [ngClass]="{
-          'bg-green-500': referral.status === 'Confirmed',
-          'bg-green-400': referral.status === 'BoardedOut',
-          'bg-red-500': referral.status === 'Cancelled',
-          'bg-yellow-500': referral.status === 'Pending',
-          'bg-blue-500': referral.status === 'On-Progress'
+          'referral-status-pill--success': referral.status === 'Confirmed' || referral.status === 'BoardedOut',
+          'referral-status-pill--pending': referral.status === 'Pending',
+          'referral-status-pill--danger': referral.status === 'Cancelled',
+          'referral-status-pill--info': referral.status === 'On-Progress'
         }"
       >
-        {{ referral.status || "N/A" }}
+        <span class="status-dot" aria-hidden="true"></span>
+        {{ referral.status || 'N/A' }}
       </span>
-    </div>
-
-    <!-- Patient Files -->
-    <div
-      *ngIf="referral.patient?.files?.length > 0"
-      class="bg-purple-50 p-6 rounded-2xl shadow-inner flex flex-col space-y-3"
-    >
-      <h3 class="text-2xl font-semibold text-purple-700 mb-2">Patient Files</h3>
-      <div class="flex flex-col space-y-2">
-        <a
-          *ngFor="let file of referral.patient.files"
-          (click)="viewFile(file)"
-          class="flex items-center space-x-3 text-purple-800 hover:text-purple-600 hover:underline transition cursor-pointer"
-        >
-          <mat-icon class="text-purple-700">description</mat-icon>
-          <span>{{ file.file_name || "N/A" }}</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex justify-center mt-6 space-x-6">
-
       <button
         mat-raised-button
-        color="warn"
-        class="bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-2xl shadow-lg transition transform hover:scale-105"
+        color="primary"
+        type="button"
+        class="conversation-button"
         (click)="openConversationModal(referral)"
       >
-        <mat-icon class="mr-2">chat</mat-icon>
-        Conversation
-      </button>
-      <!-- Confirm Button -->
-      <button
-        mat-raised-button
-        color="primary"
-        class="bg-primary-600 hover:bg-primary-700 text-white px-10 py-3 rounded-2xl shadow-lg transition transform hover:scale-105"
-        (click)="updateStatusPopup()"
-        [disabled]="
-          referral.status !== 'Pending'
-        "
-      >
-        Decision
-      </button>
-
-      <!-- Print Button -->
-      <!-- ================= FLIGHT INFORMATION ================= -->
-      <button
-        *ngIf="referral?.hospital?.referral_type?.referral_type_code === 'REFTYPE2'"
-        mat-raised-button
-        class="bg-cyan-600 hover:bg-cyan-700 text-white px-10 py-3 rounded-2xl shadow-lg transition transform hover:scale-105"
-        (click)="openFlightInformationPopup(referral)"
-      >
-      <mat-icon class="mr-2">flight</mat-icon>
-        Information
-      </button>
-      <!-- ================= NORMAL REFERRAL PRINT ================= -->
-      <button
-        *ngIf="hasRealReferral"
-        mat-raised-button
-        color="accent"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-3 rounded-2xl shadow-lg transition transform hover:scale-105"
-        (click)="referralsLetterPopup(referral)"
-        [disabled]="isReferralPrintDisabled(referral)"
-      >
-        <mat-icon class="mr-2">print</mat-icon>
-        Print Referral Letter
-      </button>
-
-      <!-- ================= BOARDED OUT PRINT ================= -->
-      <button
-        *ngIf="hasBoardedOut"
-        mat-raised-button
-        color="primary"
-        class="bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-2xl shadow-lg transition transform hover:scale-105"
-        (click)="printBoardedOutLetter(referral)"
-      >
-        <mat-icon class="mr-2">description</mat-icon>
-        Print Boarded Out Letter
+        <mat-icon aria-hidden="true">forum</mat-icon>
+        <span>View Conversation</span>
       </button>
     </div>
-  </div>
+
+    <div class="hero-decoration hero-decoration--one" aria-hidden="true"></div>
+    <div class="hero-decoration hero-decoration--two" aria-hidden="true"></div>
+  </header>
+
+  <main class="history-content">
+    <div class="history-top-grid">
+      <section class="record-card status-card referral-status-card" aria-labelledby="referral-status-heading">
+        <div class="card-header">
+          <div class="section-heading">
+            <div class="section-icon section-icon--blue" aria-hidden="true">
+              <mat-icon>track_changes</mat-icon>
+            </div>
+            <div>
+              <span class="section-eyebrow">Referral overview</span>
+              <h2 id="referral-status-heading">Status Tracking</h2>
+            </div>
+          </div>
+          <span
+            class="status-pill referral-status-pill"
+            [ngClass]="{
+              'referral-status-pill--success': referral.status === 'Confirmed' || referral.status === 'BoardedOut',
+              'referral-status-pill--pending': referral.status === 'Pending',
+              'referral-status-pill--danger': referral.status === 'Cancelled',
+              'referral-status-pill--info': referral.status === 'On-Progress'
+            }"
+          >
+            <span class="status-dot" aria-hidden="true"></span>
+            {{ referral.status || 'N/A' }}
+          </span>
+        </div>
+
+        <div class="status-summary">
+          <div class="stage-display">
+            <span class="summary-label">Current status</span>
+            <div class="stage-value stage-value--status">
+              <strong>{{ referral.status || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="holder-display">
+            <span class="summary-label">Referral number</span>
+            <strong>{{ referral.referral_number || 'Not assigned' }}</strong>
+          </div>
+        </div>
+
+        <div class="description-block">
+          <span class="summary-label">Referral type</span>
+          <p>
+            {{ referral.hospital?.referral_type?.referral_type_name
+              || referral.hospital?.referral_type?.referral_type_code
+              || 'Referral record' }}
+          </p>
+        </div>
+
+        <div class="referral-status-details">
+          <div class="status-detail-item">
+            <mat-icon aria-hidden="true">medical_services</mat-icon>
+            <div>
+              <span class="summary-label">Record mode</span>
+              <strong>{{ referralType === 'history' ? 'Medical history' : 'Referral' }}</strong>
+            </div>
+          </div>
+          <div class="status-detail-item">
+            <mat-icon aria-hidden="true">event_note</mat-icon>
+            <div>
+              <span class="summary-label">History records</span>
+              <strong>{{ patientHistories?.length || 0 }} recorded</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="record-card patient-card" aria-labelledby="patient-heading">
+        <div class="card-header">
+          <div class="section-heading">
+            <div class="section-icon section-icon--teal" aria-hidden="true">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div>
+              <span class="section-eyebrow">Identity and contact</span>
+              <h2 id="patient-heading">Patient Information</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="patient-grid">
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">badge</mat-icon>
+            <div>
+              <span class="info-label">Full Name</span>
+              <strong class="info-value">{{ referral.patient?.name || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">wc</mat-icon>
+            <div>
+              <span class="info-label">Gender</span>
+              <strong class="info-value info-value--capitalize">{{ referral.patient?.gender || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">calendar_month</mat-icon>
+            <div>
+              <span class="info-label">Date of Birth</span>
+              <strong class="info-value">
+                {{ referral.patient?.date_of_birth ? (referral.patient.date_of_birth | date : 'mediumDate') : 'N/A' }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">phone</mat-icon>
+            <div>
+              <span class="info-label">Phone Number</span>
+              <strong class="info-value">{{ referral.patient?.phone || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">card_membership</mat-icon>
+            <div>
+              <span class="info-label">Matibabu Card</span>
+              <strong class="info-value">{{ referral.patient?.matibabu_card || 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="info-tile">
+            <mat-icon aria-hidden="true">assignment_ind</mat-icon>
+            <div>
+              <span class="info-label">ZanID</span>
+              <strong class="info-value">{{ referral.patient?.zan_id || 'N/A' }}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="record-card referral-info-card" aria-labelledby="hospital-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--green" aria-hidden="true">
+            <mat-icon>local_hospital</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Referring facility</span>
+            <h2 id="hospital-heading">Hospital Information</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="metadata-grid metadata-grid--two">
+        <div class="metadata-item">
+          <span class="metadata-label">Hospital</span>
+          <strong>{{ referral.hospital?.hospital_name || 'N/A' }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Address</span>
+          <strong class="metadata-value--wrap">{{ referral.hospital?.hospital_address || 'N/A' }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Contact</span>
+          <strong>{{ referral.hospital?.contact_number || 'N/A' }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Email</span>
+          <strong class="metadata-value--break">{{ referral.hospital?.hospital_email || 'N/A' }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="record-card comment-card comment-card--director" aria-labelledby="director-comments-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--amber" aria-hidden="true">
+            <mat-icon>rate_review</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Clinical review</span>
+            <h2 id="director-comments-heading">Director of Curative Services Comments</h2>
+          </div>
+        </div>
+      </div>
+      <div class="comment-body">
+        <span class="note-label">Comments</span>
+        <p>{{ referral?.patient?.patient_histories?.[0]?.mkurugenzi_tiba_comments || 'No comments recorded.' }}</p>
+      </div>
+    </section>
+
+    <section
+      *ngIf="patientHistories?.length > 0"
+      class="record-card history-collection-card"
+      aria-labelledby="medical-histories-heading"
+    >
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--amber" aria-hidden="true">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Clinical records</span>
+            <h2 id="medical-histories-heading">Medical Histories</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ patientHistories.length }} recorded</span>
+      </div>
+
+      <div class="history-record-list">
+        <article class="history-record" *ngFor="let historyRecord of patientHistories; let i = index">
+          <div class="history-record-header">
+            <div class="history-record-title">
+              <span class="history-index">{{ i + 1 }}</span>
+              <div>
+                <h3>History #{{ i + 1 }}</h3>
+                <span>Medical history record</span>
+              </div>
+            </div>
+            <span class="file-chip">File No: {{ historyRecord.file_number || 'N/A' }}</span>
+          </div>
+
+          <div class="metadata-grid history-metadata-grid">
+            <div class="metadata-item">
+              <span class="metadata-label">Referring Doctor</span>
+              <strong>{{ historyRecord.referring_doctor || 'N/A' }}</strong>
+            </div>
+            <div class="metadata-item">
+              <span class="metadata-label">Case Type</span>
+              <strong>{{ historyRecord.case_type || 'N/A' }}</strong>
+            </div>
+            <div class="metadata-item">
+              <span class="metadata-label">Referral Date</span>
+              <strong>{{ historyRecord.referring_date ? (historyRecord.referring_date | date : 'mediumDate') : 'N/A' }}</strong>
+            </div>
+          </div>
+
+          <div class="notes-grid history-notes-grid">
+            <article class="note-block">
+              <span class="note-label">Presenting Illness</span>
+              <p>{{ historyRecord.history_of_presenting_illness || 'No information recorded.' }}</p>
+            </article>
+            <article class="note-block">
+              <span class="note-label">Physical Findings</span>
+              <p>{{ historyRecord.physical_findings || 'No information recorded.' }}</p>
+            </article>
+            <article class="note-block">
+              <span class="note-label">Investigations</span>
+              <p>{{ historyRecord.investigations || 'No information recorded.' }}</p>
+            </article>
+            <article class="note-block">
+              <span class="note-label">Management Done</span>
+              <p>{{ historyRecord.management_done || 'No information recorded.' }}</p>
+            </article>
+          </div>
+
+          <div class="file-panel history-file-panel" *ngIf="historyRecord.history_file">
+            <div class="file-panel-copy">
+              <div class="file-icon" aria-hidden="true">
+                <mat-icon>picture_as_pdf</mat-icon>
+              </div>
+              <div>
+                <span class="info-label">History File</span>
+                <strong>Supporting document available</strong>
+              </div>
+            </div>
+            <button
+              mat-stroked-button
+              color="primary"
+              type="button"
+              class="view-file-button"
+              (click)="viewFiles(historyRecord)"
+            >
+              <mat-icon aria-hidden="true">visibility</mat-icon>
+              <span>Preview History PDF</span>
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="record-card" aria-labelledby="hospital-diagnoses-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--indigo" aria-hidden="true">
+            <mat-icon>local_hospital</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Clinical coding</span>
+            <h2 id="hospital-diagnoses-heading">Hospital Diagnoses</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ hospitalDiagnoses?.length || 0 }} recorded</span>
+      </div>
+
+      <div class="reason-panel">
+        <div class="reason-icon" aria-hidden="true">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <div>
+          <span class="info-label">Hospital Reason</span>
+          <strong>{{ hospitalReason?.referral_reason_name || 'Not provided' }}</strong>
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <table class="record-table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Diagnosis Code</th>
+              <th scope="col">Diagnosis Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let diagnosis of hospitalDiagnoses; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="code-cell">{{ diagnosis.diagnosis_code }}</td>
+              <td>{{ diagnosis.diagnosis_name }}</td>
+            </tr>
+            <tr *ngIf="!hospitalDiagnoses?.length">
+              <td colspan="3" class="empty-table-cell">
+                <mat-icon aria-hidden="true">fact_check</mat-icon>
+                <span>No hospital diagnoses recorded</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="record-card referral-info-card" aria-labelledby="board-info-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--green" aria-hidden="true">
+            <mat-icon>gavel</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Review authority</span>
+            <h2 id="board-info-heading">Medical Board Information</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="metadata-grid metadata-grid--two">
+        <div class="metadata-item">
+          <span class="metadata-label">Reference Number</span>
+          <strong>{{ referral.referral_number || 'N/A' }}</strong>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Board Type</span>
+          <strong>{{ referral.patient?.patient_list?.[0]?.board_type || 'N/A' }}</strong>
+        </div>
+      </div>
+
+      <div class="file-panel board-file-panel" *ngIf="referral.patient?.patient_list?.[0]?.patient_list_file">
+        <div class="file-panel-copy">
+          <div class="file-icon" aria-hidden="true">
+            <mat-icon>picture_as_pdf</mat-icon>
+          </div>
+          <div>
+            <span class="info-label">Board list document</span>
+            <strong>Medical board members list available</strong>
+          </div>
+        </div>
+        <button
+          mat-stroked-button
+          color="primary"
+          type="button"
+          class="view-file-button"
+          (click)="viewPatientListPDF(referral.patient.patient_list[0].patient_list_file)"
+        >
+          <mat-icon aria-hidden="true">visibility</mat-icon>
+          <span>Preview Board List PDF</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="record-card" aria-labelledby="board-members-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--teal" aria-hidden="true">
+            <mat-icon>groups</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Review authority</span>
+            <h2 id="board-members-heading">Medical Board Members</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ boardMembers?.length || 0 }} members</span>
+      </div>
+
+      <div class="member-grid referral-member-grid" *ngIf="boardMembers?.length; else noBoardMembers">
+        <article class="member-card" *ngFor="let member of boardMembers">
+          <div class="member-identity">
+            <span class="member-avatar" aria-hidden="true">
+              {{ member.first_name?.charAt(0) || 'M' }}{{ member.last_name?.charAt(0) || '' }}
+            </span>
+            <div>
+              <strong>{{ member.first_name }} {{ member.middle_name }} {{ member.last_name }}</strong>
+              <span>{{ member.gender || 'Gender not provided' }}</span>
+            </div>
+          </div>
+          <div class="member-detail">
+            <mat-icon aria-hidden="true">phone</mat-icon>
+            <span>{{ member.phone_no || 'Phone not provided' }}</span>
+          </div>
+          <div class="member-detail">
+            <mat-icon aria-hidden="true">mail</mat-icon>
+            <span>{{ member.email || 'Email not provided' }}</span>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #noBoardMembers>
+        <div class="empty-state-panel">
+          <mat-icon aria-hidden="true">groups</mat-icon>
+          <span>No medical board members recorded</span>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="record-card comment-card comment-card--board" aria-labelledby="board-comments-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--amber" aria-hidden="true">
+            <mat-icon>comment</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Board review</span>
+            <h2 id="board-comments-heading">Medical Board Comments</h2>
+          </div>
+        </div>
+      </div>
+      <div class="comment-body">
+        <span class="note-label">Comments</span>
+        <p>{{ history?.board_comments || 'No comments recorded.' }}</p>
+      </div>
+    </section>
+
+    <section class="record-card" aria-labelledby="board-diagnoses-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--indigo" aria-hidden="true">
+            <mat-icon>fact_check</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Board assessment</span>
+            <h2 id="board-diagnoses-heading">Board Diagnoses</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ boardDiagnoses?.length || 0 }} recorded</span>
+      </div>
+
+      <div class="reason-panel reason-panel--blue">
+        <div class="reason-icon" aria-hidden="true">
+          <mat-icon>assignment_turned_in</mat-icon>
+        </div>
+        <div>
+          <span class="info-label">Board Reason</span>
+          <strong>{{ boardReason?.referral_reason_name || 'Not provided' }}</strong>
+        </div>
+      </div>
+
+      <div class="table-shell">
+        <table class="record-table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Diagnosis Code</th>
+              <th scope="col">Diagnosis Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let diagnosis of boardDiagnoses; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="code-cell">{{ diagnosis.diagnosis_code }}</td>
+              <td>{{ diagnosis.diagnosis_name }}</td>
+            </tr>
+            <tr *ngIf="!boardDiagnoses?.length">
+              <td colspan="3" class="empty-table-cell">
+                <mat-icon aria-hidden="true">fact_check</mat-icon>
+                <span>No board diagnoses recorded</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="record-card" *ngIf="referral.patient?.files?.length" aria-labelledby="patient-files-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--amber" aria-hidden="true">
+            <mat-icon>folder</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Supporting documents</span>
+            <h2 id="patient-files-heading">Patient Files</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ referral.patient.files.length }} files</span>
+      </div>
+
+      <div class="referral-file-list">
+        <div class="referral-file-row" *ngFor="let file of referral.patient.files">
+          <div class="file-panel-copy">
+            <div class="file-icon" aria-hidden="true">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div>
+              <span class="info-label">Patient document</span>
+              <strong>{{ file.file_name || 'Unnamed file' }}</strong>
+            </div>
+          </div>
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            class="view-file-button"
+            (click)="viewFile(file)"
+          >
+            <mat-icon aria-hidden="true">visibility</mat-icon>
+            <span>Preview File</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="record-card action-card" aria-labelledby="record-actions-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--blue" aria-hidden="true">
+            <mat-icon>bolt</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Available actions</span>
+            <h2 id="record-actions-heading">Record Actions</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="referral-action-buttons">
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          class="referral-action-button referral-action-button--decision"
+          (click)="updateStatusPopup()"
+          [disabled]="referral.status !== 'Pending'"
+        >
+          <mat-icon aria-hidden="true">rule</mat-icon>
+          <span>Decision</span>
+        </button>
+
+        <button
+          *ngIf="referral?.hospital?.referral_type?.referral_type_code === 'REFTYPE2'"
+          mat-raised-button
+          type="button"
+          class="referral-action-button referral-action-button--flight"
+          (click)="openFlightInformationPopup(referral)"
+        >
+          <mat-icon aria-hidden="true">flight</mat-icon>
+          <span>Flight Information</span>
+        </button>
+
+        <button
+          *ngIf="hasRealReferral"
+          mat-raised-button
+          color="accent"
+          type="button"
+          class="referral-action-button referral-action-button--print"
+          (click)="referralsLetterPopup(referral)"
+          [disabled]="isReferralPrintDisabled(referral)"
+        >
+          <mat-icon aria-hidden="true">print</mat-icon>
+          <span>Print Referral Letter</span>
+        </button>
+
+        <button
+          *ngIf="hasBoardedOut"
+          mat-raised-button
+          color="primary"
+          type="button"
+          class="referral-action-button referral-action-button--success"
+          (click)="printBoardedOutLetter(referral)"
+        >
+          <mat-icon aria-hidden="true">description</mat-icon>
+          <span>Print Boarded Out Letter</span>
+        </button>
+      </div>
+    </section>
+  </main>
 </div>
 
 <app-flight-information-dialog

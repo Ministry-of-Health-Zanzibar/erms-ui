@@ -1,11 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
@@ -13,7 +10,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInput } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { MatIcon } from '@angular/material/icon';
 
@@ -42,8 +38,7 @@ import { ReferralreportService } from '../../../services/Referral/referralreport
 import { HospitalService } from '../../../services/system-configuration/hospital.service';
 import { ReasonsService } from '../../../services/system-configuration/reasons.service';
 import { ReferalTypeService } from '../../../services/system-configuration/referal-type.service';
-import { MatDatepicker, MatDatepickerModule } from "@angular/material/datepicker";
-import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
+import { EmptyStateComponent, FilterSelectComponent, FilterSelectOption, DatePickerComponent, LoadingStateComponent, PageHeaderComponent, ReportTableComponent, SectionCardComponent, TableToolbarComponent, TextInputComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referralsearchreport',
@@ -53,24 +48,23 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
-    MatSelectModule,
-    MatOptionModule,
     MatTableModule,
     MatPaginatorModule,
     MatAutocompleteModule,
     MatInput,
     MatIcon,
-    MatFormFieldModule,
     EmrSegmentedModule,
 
 
-    MatDatepickerModule,
-    MatNativeDateModule,
+    DatePickerComponent,
     EmptyStateComponent,
+    FilterSelectComponent,
     LoadingStateComponent,
     PageHeaderComponent,
+    ReportTableComponent,
     SectionCardComponent,
     TableToolbarComponent,
+    TextInputComponent,
 ],
   templateUrl: './referralsearchreport.component.html',
   styleUrl: './referralsearchreport.component.scss'
@@ -95,15 +89,14 @@ displayedColumns: string[] = [
   dataSource = new MatTableDataSource<any>();
 
   documents: any[] = [];
-  reasons:any;
+  reasons: FilterSelectOption[] = [];
   referralType:any;
-  hospital:any;
+  hospital: FilterSelectOption[] = [];
 
   errorMessage = '';
   noResults = false;
 
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
@@ -158,7 +151,10 @@ displayedColumns: string[] = [
 
   getReasons(): void {
     this.reasonServi.getAllReasons().pipe(takeUntil(this.onDestroy)).subscribe(response => {
-      this.reasons = response.data;
+      this.reasons = response.data.map((reason: any) => ({
+        label: reason.referral_reason_name,
+        value: reason.referral_reason_name,
+      }));
     });
   }
   getReferralType(): void {
@@ -170,7 +166,10 @@ displayedColumns: string[] = [
    getHospital() {
     this.hospitalServices.getAllHospital().pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response: any) => {
-        this.hospital = response.data;
+        this.hospital = response.data.map((item: any) => ({
+          label: item.hospital_name,
+          value: item.hospital_name,
+        }));
       },
       error: (err) => {
         console.error('Error fetching hospitals:', err);
@@ -203,7 +202,6 @@ searchReport(): void {
     next: response => {
       this.loading = false;
       this.dataSource.data = response.data;
-      this.dataSource.paginator = this.paginator;
       this.noResults = response.data.length === 0;
     },
     error: err => {

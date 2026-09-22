@@ -1,0 +1,41 @@
+<mat-form-field class="ui-text-input" appearance="outline" subscriptSizing="dynamic">
+  @if (icon) {
+    <mat-icon matPrefix aria-hidden="true">{{ icon }}</mat-icon>
+  }
+
+  @if (label) {
+    <mat-label>{{ label }}</mat-label>
+  }
+
+  <input
+    matInput
+    [type]="type"
+    [value]="value ?? ''"
+    [placeholder]="placeholder"
+    [autocomplete]="autocomplete"
+    [attr.inputmode]="inputmode || null"
+    [required]="required"
+    [readonly]="readonly"
+    [disabled]="disabled"
+    [attr.min]="min"
+    [attr.max]="max"
+    [attr.step]="step"
+    (input)="updateValue($any($event.target).value)"
+    (blur)="markAsTouched()"
+  />
+
+  @if (allowClear && hasValue) {
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      class="ui-text-input__clear"
+      [attr.aria-label]="'Clear ' + (label || 'input')"
+      (click)="clearValue($event)"
+    >
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  }
+
+  <ng-content select="mat-error, mat-hint" />
+</mat-form-field>

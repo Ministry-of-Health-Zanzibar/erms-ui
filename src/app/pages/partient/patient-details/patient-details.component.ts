@@ -1,7 +1,6 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import Swal from 'sweetalert2';
@@ -13,13 +12,14 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ConversationModalComponent } from '../../referrals/conversation-modal/conversation-modal.component';
 import { finalize } from 'rxjs';
 import { getApiErrorMessage } from '@shared/utils/api-error';
+import { FileViewerComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-patient-details',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './patient-details.component.html',
-  styleUrls: ['./patient-details.component.scss'],
+  styleUrl: './patient-details.component.scss',
 })
 export class PatientDetailsComponent implements OnInit {
   public documentUrl = environment.fileUrl;
@@ -67,10 +67,35 @@ export class PatientDetailsComponent implements OnInit {
   }
 
   viewPDF(filePath: string) {
-    if (filePath) {
-      const url = this.documentUrl + filePath;
-      window.open(url, '_blank');
+    if (!filePath) {
+      return;
     }
+
+    this.openFileViewer(filePath, 'Medical history file');
+  }
+
+  private openFileViewer(filePath: string, title: string): void {
+    const url = this.buildDocumentUrl(filePath);
+
+    this.dialog.open(FileViewerComponent, {
+      data: { url, title },
+      width: 'min(96vw, 1200px)',
+      height: 'min(92vh, 860px)',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'file-viewer-dialog',
+      autoFocus: false,
+      restoreFocus: true,
+      ariaLabel: title,
+    });
+  }
+
+  private buildDocumentUrl(filePath: string): string {
+    if (/^(https?:|blob:|data:)/i.test(filePath)) {
+      return filePath;
+    }
+
+    return this.documentUrl.replace(/\/$/, '') + '/' + filePath.replace(/^\//, '');
   }
 
   openAddMedicalHistory(patient: any) {

@@ -1,0 +1,62 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ui-date-picker {
+  width: 100%;
+}
+
+:host ::ng-deep .ui-date-picker .mat-mdc-text-field-wrapper {
+  min-height: 3.25rem;
+  border-radius: 0.75rem;
+  background: var(--rms-surface);
+}
+
+:host ::ng-deep .ui-date-picker .mdc-notched-outline__leading,
+:host ::ng-deep .ui-date-picker .mdc-notched-outline__notch,
+:host ::ng-deep .ui-date-picker .mdc-notched-outline__trailing {
+  border-color: var(--rms-border-strong) !important;
+}
+
+:host ::ng-deep .ui-date-picker:hover .mdc-notched-outline__leading,
+:host ::ng-deep .ui-date-picker:hover .mdc-notched-outline__notch,
+:host ::ng-deep .ui-date-picker:hover .mdc-notched-outline__trailing {
+  border-color: #60a5fa !important;
+}
+
+:host ::ng-deep .ui-date-picker.mat-focused .mdc-notched-outline__leading,
+:host ::ng-deep .ui-date-picker.mat-focused .mdc-notched-outline__notch,
+:host ::ng-deep .ui-date-picker.mat-focused .mdc-notched-outline__trailing {
+  border-width: 2px;
+  border-color: #2563eb !important;
+}
+
+:host ::ng-deep .ui-date-picker .mat-mdc-form-field-infix {
+  min-height: 3.25rem;
+  padding-top: 0.85rem;
+  padding-bottom: 0.45rem;
+}
+
+:host ::ng-deep .ui-date-picker .mat-mdc-input-element,
+:host ::ng-deep .ui-date-picker .mat-mdc-floating-label,
+:host ::ng-deep .ui-date-picker .mat-icon {
+  color: var(--rms-text);
+}
+
+:host ::ng-deep .ui-date-picker .mat-mdc-input-element::placeholder {
+  color: var(--rms-text-muted);
+  opacity: 1;
+}
+
+:host ::ng-deep .ui-date-picker__clear {
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.25rem;
+  color: var(--rms-text-muted);
+}
+
+:host ::ng-deep .ui-date-picker__clear .mat-icon {
+  color: inherit;
+  font-size: 1.1rem;
+}

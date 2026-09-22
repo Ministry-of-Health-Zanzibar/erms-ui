@@ -9,15 +9,23 @@
         <mat-icon>picture_as_pdf</mat-icon> Export PDF
       </button>
     </div>
-  <div class="search-container rounded-xl">
+  <div class="search-container rounded-xl mt-4">
     <form [formGroup]="reportForm" class="flex flex-wrap gap-4 items-end">
-      <div class="flex flex-col w-full sm:w-1/3">
-        <label>Start Date</label>
-        <input type="date" formControlName="start_date" class="h-10 rounded-md border border-neutral-300 bg-transparent px-3"/>
+      <div class="w-full sm:w-1/3">
+        <app-date-picker
+          formControlName="start_date"
+          label="Start Date"
+          placeholder="Select start date"
+          outputFormat="iso"
+        />
       </div>
-      <div class="flex flex-col w-full sm:w-1/3">
-        <label>End Date</label>
-        <input type="date" formControlName="end_date" class="h-10 rounded-md border border-neutral-300 bg-transparent px-3"/>
+      <div class="w-full sm:w-1/3">
+        <app-date-picker
+          formControlName="end_date"
+          label="End Date"
+          placeholder="Select end date"
+          outputFormat="iso"
+        />
       </div>
       <button mat-flat-button color="primary" (click)="fetchReports()">
         <mat-icon>search</mat-icon> Search
@@ -28,17 +36,16 @@
 
   <app-section-card title="Report results" description="Filter the generated hospital billing summary or export it as PDF." icon="table_view">
   <app-table-toolbar>
-    <div uiToolbarPrimary class="flex items-center gap-2 w-full">
-      <button mat-icon-button (click)="renew()" matTooltip="Refresh">
-        <mat-icon>refresh</mat-icon>
-      </button>
-      <input #input matInput placeholder="Search..." (keyup)="applyFilter($event)" class="border-b h-10 w-96"/>
+    <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
+      <div class="size-9 rounded-full border bg-surface flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
+        <mat-icon class="font-icon visibilityData">refresh</mat-icon>
+      </div>
+      <input #input type="text" matInput placeholder="Search..." (keyup)="applyFilter($event)" class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950"/>
     </div>
   </app-table-toolbar>
 
-  <!-- Data Table -->
-  <div class="border rounded-lg overflow-x-auto">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <app-report-table [dataSource]="dataSource">
+    <table mat-table [dataSource]="dataSource" class="ui-report-table__data">
 
       <!-- No Column -->
       <ng-container matColumnDef="no">
@@ -91,14 +98,14 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="8"><app-empty-state title="No report data found" [message]="input.value ? 'No report rows match your search.' : 'Choose a date range and generate the report.'" icon="analytics" /></td>
+        <td class="mat-cell tablefoter" [attr.colspan]="displayedColumns.length"><app-empty-state title="No report data found" [message]="input.value ? 'No report rows match your search.' : 'Choose a date range and generate the report.'" icon="analytics" /></td>
       </tr>
 
     </table>
 
     <!-- Pagination -->
-    <mat-paginator [pageSizeOptions]="[10,20,100]" showFirstLastButtons></mat-paginator>
-  </div>
+    <mat-paginator [pageSizeOptions]="[10, 20, 100]" showFirstLastButtons></mat-paginator>
+  </app-report-table>
   </app-section-card>
   <app-loading-state *ngIf="loading" label="Generating referral report…" [overlay]="true" />
 </div>

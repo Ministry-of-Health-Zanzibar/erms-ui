@@ -1,0 +1,314 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.file-viewer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--rms-text);
+  background: var(--rms-surface);
+}
+
+.file-viewer__header,
+.file-viewer__toolbar,
+.file-viewer__footer {
+  flex: 0 0 auto;
+}
+
+.file-viewer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--rms-border);
+  background: var(--rms-surface);
+}
+
+.file-viewer__identity,
+.file-viewer__actions,
+.file-viewer__secure-note,
+.file-viewer__footer > span,
+.file-viewer__copy-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.file-viewer__identity {
+  min-width: 0;
+  gap: 0.7rem;
+}
+
+.file-viewer__file-icon,
+.file-viewer__unsupported-icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.file-viewer__file-icon {
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 0.75rem;
+}
+
+.file-viewer__file-icon .mat-icon {
+  font-size: 1.35rem;
+}
+
+.file-viewer__title-group {
+  min-width: 0;
+}
+
+.file-viewer__eyebrow {
+  display: block;
+  margin-bottom: 0.12rem;
+  color: #2563eb;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.file-viewer__title-group h2 {
+  max-width: min(42vw, 34rem);
+  margin: 0;
+  overflow: hidden;
+  color: var(--rms-text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-viewer__meta {
+  display: block;
+  max-width: min(42vw, 34rem);
+  overflow: hidden;
+  color: var(--rms-text-muted);
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-viewer__actions {
+  flex: 0 0 auto;
+  gap: 0.35rem;
+}
+
+.file-viewer__action {
+  min-width: auto;
+  height: 2.25rem;
+  padding-inline: 0.7rem !important;
+  color: var(--rms-text) !important;
+  border-color: var(--rms-border-strong) !important;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.file-viewer__action .mat-icon,
+.file-viewer__icon-action .mat-icon,
+.file-viewer__copy-link .mat-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-right: 0.22rem;
+  font-size: 1.05rem;
+}
+
+.file-viewer__icon-action {
+  color: var(--rms-text-muted);
+}
+
+.file-viewer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 1rem;
+  color: var(--rms-text-muted);
+  background: var(--rms-surface-subtle);
+  border-bottom: 1px solid var(--rms-border);
+  font-size: 0.68rem;
+}
+
+.file-viewer__secure-note {
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.file-viewer__secure-note .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #0f766e;
+  font-size: 1rem;
+}
+
+.file-viewer__status {
+  flex: 0 0 auto;
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.file-viewer__stage {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.8rem;
+  background: #dbe4ef;
+}
+
+.file-viewer__pdf {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 18rem;
+  border: 0;
+  background: #ffffff;
+  box-shadow: 0 0.5rem 1.5rem rgb(15 23 42 / 0.16);
+}
+
+.file-viewer__image-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.file-viewer__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 0.45rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(15 23 42 / 0.2);
+}
+
+.file-viewer__unsupported {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 28rem;
+  padding: 2rem;
+  color: var(--rms-text-muted);
+  text-align: center;
+}
+
+.file-viewer__unsupported-icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  margin-bottom: 1rem;
+  border-radius: 1.2rem;
+}
+
+.file-viewer__unsupported-icon .mat-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 2.2rem;
+}
+
+.file-viewer__unsupported h3 {
+  margin: 0;
+  color: var(--rms-text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.file-viewer__unsupported p {
+  margin: 0.45rem 0 1.2rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.file-viewer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 1rem;
+  color: var(--rms-text-muted);
+  border-top: 1px solid var(--rms-border);
+  background: var(--rms-surface);
+  font-size: 0.66rem;
+}
+
+.file-viewer__footer .mat-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-right: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.file-viewer__copy-link {
+  flex: 0 0 auto;
+  min-width: auto;
+  padding: 0 0.35rem !important;
+  color: #2563eb !important;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.file-viewer__copy-link .mat-icon {
+  margin-right: 0.15rem;
+}
+
+@media (max-width: 700px) {
+  .file-viewer__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .file-viewer__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .file-viewer__title-group h2,
+  .file-viewer__meta {
+    max-width: calc(100vw - 7rem);
+  }
+
+  .file-viewer__toolbar,
+  .file-viewer__footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .file-viewer__stage {
+    padding: 0.35rem;
+  }
+}
+
+@media (max-width: 460px) {
+  .file-viewer__action span {
+    display: none;
+  }
+
+  .file-viewer__action {
+    width: 2.25rem;
+    padding: 0 !important;
+  }
+
+  .file-viewer__action .mat-icon {
+    margin-right: 0;
+  }
+}

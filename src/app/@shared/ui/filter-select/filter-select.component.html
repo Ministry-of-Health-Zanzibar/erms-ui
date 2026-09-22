@@ -1,0 +1,65 @@
+<mat-form-field class="ui-filter-select" appearance="outline" subscriptSizing="dynamic">
+  @if (icon) {
+    <mat-icon matPrefix aria-hidden="true">{{ icon }}</mat-icon>
+  }
+
+  <mat-label>{{ label }}</mat-label>
+  <mat-select
+    [value]="value"
+    [disabled]="disabled"
+    [multiple]="multiple"
+    panelClass="ui-filter-select-panel"
+    [attr.aria-label]="label"
+    (selectionChange)="updateValue($event.value)"
+    (openedChange)="handleOpenedChange($event)"
+  >
+    @if (searchable) {
+      <mat-option
+        class="ui-filter-select__search-option"
+        [value]="searchOptionValue"
+        (click)="$event.stopPropagation()"
+      >
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input
+          #searchInput
+          matInput
+          type="search"
+          [value]="searchTerm"
+          placeholder="Search options..."
+          [attr.aria-label]="'Search ' + label"
+          autocomplete="off"
+          (input)="updateSearch($event)"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+        />
+      </mat-option>
+    }
+
+    @if (!multiple && allowDeselect) {
+      <mat-option [value]="emptyValue">{{ placeholder }}</mat-option>
+    }
+
+    @for (option of filteredOptions; track $index) {
+      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+    }
+
+    @if (filteredOptions.length === 0) {
+      <mat-option disabled>No matching options</mat-option>
+    }
+  </mat-select>
+
+  @if (allowDeselect && hasValue) {
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      class="ui-filter-select__clear"
+      [attr.aria-label]="'Clear ' + label"
+      (click)="clearSelection($event)"
+    >
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  }
+
+  <ng-content select="mat-error, mat-hint" />
+</mat-form-field>
