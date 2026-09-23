@@ -5,7 +5,7 @@
       <div>
         <span>Backend-generated document</span>
         <h2 id="referral-letter-picker-title">Referral letter</h2>
-        <p>Choose a language and review the official PDF before printing.</p>
+        <p>The referral type selects the official English-abroad or Kiswahili version before printing.</p>
       </div>
     </div>
     <button mat-icon-button type="button" aria-label="Close" (click)="close()"><mat-icon>close</mat-icon></button>
@@ -17,17 +17,12 @@
       Printing is recorded for DG and Super Admin audit visibility.
     </div>
 
-    <div class="referral-letter-picker__choices" role="radiogroup" aria-label="Letter language">
-      <button type="button" [class.selected]="language === 'en'" (click)="language = 'en'" role="radio" [attr.aria-checked]="language === 'en'">
-        <mat-icon>translate</mat-icon>
-        <span><strong>English version</strong><small>Official English referral letter</small></span>
-        <mat-icon>{{ language === 'en' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
-      </button>
-      <button type="button" [class.selected]="language === 'sw'" (click)="language = 'sw'" role="radio" [attr.aria-checked]="language === 'sw'">
-        <mat-icon>language</mat-icon>
-        <span><strong>Toleo la Kiswahili</strong><small>Barua rasmi ya Kiswahili</small></span>
-        <mat-icon>{{ language === 'sw' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
-      </button>
+    <div class="referral-letter-picker__choices" role="status" aria-label="Selected letter language">
+      <div class="selected">
+        <mat-icon>{{ language === 'en' ? 'translate' : 'language' }}</mat-icon>
+        <span><strong>{{ language === 'en' ? 'English version · Abroad' : 'Toleo la Kiswahili' }}</strong><small>{{ language === 'en' ? 'REFTYPE2 international referral' : 'Official Kiswahili referral letter' }}</small></span>
+        <mat-icon>verified</mat-icon>
+      </div>
     </div>
   </div>
 

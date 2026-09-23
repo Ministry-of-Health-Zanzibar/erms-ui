@@ -5,7 +5,8 @@
 .referral-letter-picker__identity,
 .referral-letter-picker__footer,
 .referral-letter-picker__notice,
-.referral-letter-picker__choices button { display: flex; align-items: center; }
+.referral-letter-picker__choices button,
+.referral-letter-picker__choices > div { display: flex; align-items: center; }
 .referral-letter-picker__header { justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem; color: #fff; background: linear-gradient(135deg, #1d4ed8, #4f46e5); }
 .referral-letter-picker__identity { align-items: flex-start; gap: .7rem; min-width: 0; }
 .referral-letter-picker__icon { display: grid; width: 2.4rem; height: 2.4rem; flex: 0 0 2.4rem; place-items: center; border: 1px solid rgb(255 255 255 / .3); border-radius: .7rem; background: rgb(255 255 255 / .15); }
@@ -17,13 +18,17 @@
 .referral-letter-picker__notice { gap: .4rem; margin-bottom: .8rem; padding: .65rem .7rem; border: 1px solid color-mix(in srgb, #0d9488 24%, var(--rms-border)); border-radius: .65rem; color: var(--rms-text-muted); background: color-mix(in srgb, #0d9488 7%, var(--rms-surface)); font-size: .7rem; }
 .referral-letter-picker__notice .mat-icon { color: #0f766e; }
 .referral-letter-picker__choices { display: grid; gap: .65rem; }
-.referral-letter-picker__choices button { width: 100%; gap: .65rem; padding: .75rem; border: 1px solid var(--rms-border); border-radius: .75rem; color: var(--rms-text); background: var(--rms-surface); text-align: left; cursor: pointer; }
-.referral-letter-picker__choices button.selected { border-color: #2563eb; background: color-mix(in srgb, #2563eb 7%, var(--rms-surface)); box-shadow: 0 0 0 2px rgb(37 99 235 / .12); }
-.referral-letter-picker__choices button > .mat-icon:first-child { display: grid; width: 2.1rem; height: 2.1rem; flex: 0 0 2.1rem; place-items: center; border-radius: .6rem; color: #1d4ed8; background: #dbeafe; }
+.referral-letter-picker__choices button,
+.referral-letter-picker__choices > div { width: 100%; gap: .65rem; padding: .75rem; border: 1px solid var(--rms-border); border-radius: .75rem; color: var(--rms-text); background: var(--rms-surface); text-align: left; }
+.referral-letter-picker__choices button.selected,
+.referral-letter-picker__choices > div.selected { border-color: #2563eb; background: color-mix(in srgb, #2563eb 7%, var(--rms-surface)); box-shadow: 0 0 0 2px rgb(37 99 235 / .12); }
+.referral-letter-picker__choices button > .mat-icon:first-child,
+.referral-letter-picker__choices > div > .mat-icon:first-child { display: grid; width: 2.1rem; height: 2.1rem; flex: 0 0 2.1rem; place-items: center; border-radius: .6rem; color: #1d4ed8; background: #dbeafe; }
 .referral-letter-picker__choices span { display: flex; min-width: 0; flex: 1 1 auto; flex-direction: column; gap: .15rem; }
 .referral-letter-picker__choices strong { font-size: .78rem; font-weight: 800; }
 .referral-letter-picker__choices small { color: var(--rms-text-muted); font-size: .68rem; }
-.referral-letter-picker__choices button > .mat-icon:last-child { color: #2563eb; }
+.referral-letter-picker__choices button > .mat-icon:last-child,
+.referral-letter-picker__choices > div > .mat-icon:last-child { color: #2563eb; }
 .referral-letter-picker__footer { justify-content: flex-end; gap: .5rem; padding: .75rem 1.1rem; border-top: 1px solid var(--rms-border); background: var(--rms-surface); }
 
 @media (max-width: 500px) {

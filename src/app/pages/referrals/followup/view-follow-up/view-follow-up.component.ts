@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,12 +17,14 @@ import { ActivatedRoute } from '@angular/router';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { PartientService } from '../../../../services/partient/partient.service';
 import { FollowsService } from '../../../../services/Referral/follows.service';
+import { LetterDocumentsService, resolveReferralLetterLanguage } from '../../../../services/letters/letter-documents.service';
+import { FeedbackService } from '@shared/services/feedback.service';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import { AddFollowUpComponent } from '../add-follow-up/add-follow-up.component';
 import { environment } from '../../../../../environments/environment.prod';
 import {
   EmptyStateComponent,
   FileViewerComponent,
-  LetterPreviewDialogComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
@@ -50,6 +52,7 @@ import {
   styleUrl: './view-follow-up.component.scss',
 })
 export class ViewFollowUpComponent implements OnInit {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   public displayRoleForm!: FormGroup;
   loading: boolean = false;
@@ -66,8 +69,9 @@ export class ViewFollowUpComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     public permission: PermissionService,
-    private followService: FollowsService,
-    private dialog: MatDialog
+  private followService: FollowsService,
+    private dialog: MatDialog,
+    private readonly documents: LetterDocumentsService
   ) {}
 
   ngOnInit() {
@@ -125,7 +129,7 @@ export class ViewFollowUpComponent implements OnInit {
           fileName: url.split('/').pop() || 'follow-up-letter',
           title: 'Uploaded follow-up letter',
           printTrackingUrl: `${environment.baseUrl}letter-documents/follow-ups/${element.letter_id}/print`,
-          printTrackingBody: { language: 'sw' },
+          printTrackingBody: { language: resolveReferralLetterLanguage(this.follow, element?.referral_id) },
         },
       });
     }
@@ -159,22 +163,22 @@ export class ViewFollowUpComponent implements OnInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      width: 'min(96vw, 560px)',
-      data: {
-        kind: 'follow_up',
-        id: letter.letter_id,
-        patientName: data?.patient?.name || this.follow?.patient?.name,
-        defaultLanguage: 'sw',
-      },
-    });
+    const language = resolveReferralLetterLanguage(this.follow, letter.referral_id);
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.printed) {
-        this.getFeedbackById();
-      }
+    this.documents.openFollowUpLetter(
+      Number(letter.letter_id),
+      language,
+      data?.patient?.name || this.follow?.patient?.name,
+    ).subscribe({
+      next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => {
+        if (result?.printed) {
+          this.getFeedbackById();
+        }
+      }),
+      error: (error: unknown) => this.uiFeedback.error(
+        'Unable to prepare letter',
+        getApiErrorMessage(error, 'The follow-up letter could not be generated.'),
+      ),
     });
   }
 

@@ -3,7 +3,14 @@
     title="Referrals"
     description="Review and manage patient referral cases."
     icon="clinical_notes"
-  />
+  >
+    <div uiPageActions class="flex flex-wrap gap-2 justify-end" *ngIf="canManageLetterBranding">
+      <button mat-stroked-button type="button" (click)="openLetterBranding()" matTooltip="Manage signature and stamp">
+        <mat-icon>draw</mat-icon>
+        Letter branding
+      </button>
+    </div>
+  </app-page-header>
   <app-section-card
     title="Referral records"
     description="Search, review, and take action on current referral cases."

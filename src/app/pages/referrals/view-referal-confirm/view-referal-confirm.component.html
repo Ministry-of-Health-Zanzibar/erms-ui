@@ -3,7 +3,14 @@
       title="Confirmed referrals"
       description="Review confirmed referrals and print their referral letters."
       icon="task_alt"
-    />
+    >
+      <div uiPageActions class="flex flex-wrap gap-2 justify-end" *ngIf="canManageLetterBranding">
+        <button mat-stroked-button type="button" (click)="openLetterBranding()" matTooltip="Manage signature and stamp">
+          <mat-icon>draw</mat-icon>
+          Letter branding
+        </button>
+      </div>
+    </app-page-header>
 
     <app-section-card
       title="Confirmed referral records"

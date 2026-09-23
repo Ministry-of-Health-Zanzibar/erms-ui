@@ -19,16 +19,18 @@ import { PermissionService } from '../../../services/authentication/permission.s
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { AddReferralsComponent } from '../add-referrals/add-referrals.component';
 import { FeedbackService } from '@shared/services/feedback.service';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import { BillComponent } from '../bill/bill.component';
 import {
   EmptyStateComponent,
-  LetterPreviewDialogComponent,
+  LetterBrandingDialogComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
   StatusBadgeComponent,
   TableToolbarComponent,
 } from '@shared/ui';
+import { LetterDocumentsService, resolveReferralLetterLanguage } from '../../../services/letters/letter-documents.service';
 
 @Component({
   selector: 'app-view-referal-confirm',
@@ -50,6 +52,7 @@ import {
         RouterLink,
         EmrSegmentedModule,
         EmptyStateComponent,
+        LetterBrandingDialogComponent,
         LoadingStateComponent,
         PageHeaderComponent,
         SectionCardComponent,
@@ -80,7 +83,8 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
       constructor(public permission: PermissionService,
         public referralService:ReferralService,
         private router:Router,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private readonly documents: LetterDocumentsService
         ){}
 
       ngOnInit(): void {
@@ -285,24 +289,41 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
                 return;
               }
 
-              const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
-                maxWidth: '100vw',
-                maxHeight: '100vh',
-                width: 'min(96vw, 560px)',
-                data: {
-                  kind: 'referral',
-                  id: Number(referralId),
-                  patientName: data?.patient?.name,
-                  defaultLanguage: data?.hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw',
-                },
+              this.documents.openReferralLetter(
+                Number(referralId),
+                resolveReferralLetterLanguage(data, referralId),
+                data?.patient?.name,
+              ).subscribe({
+                next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => {
+                  if (result?.printed) {
+                    this.getReferrals();
+                  }
+                }),
+                error: (error: unknown) => this.uiFeedback.error(
+                  'Unable to prepare letter',
+                  getApiErrorMessage(error, 'The referral letter could not be generated.'),
+                ),
               });
+      }
 
-              dialogRef.afterClosed().subscribe((result) => {
-                if (result?.printed) {
-                  this.getReferrals();
-                }
-              });
-            }
+      public get canManageLetterBranding(): boolean {
+        return [
+          'ROLE ADMIN',
+          'ROLE DG',
+          'ROLE DIRECTOR GENERAL',
+          'ROLE SUPER ADMIN',
+          'ROLE SUPERADMIN',
+        ].includes(this.getUserRole());
+      }
+
+      openLetterBranding(): void {
+        this.dialog.open(LetterBrandingDialogComponent, {
+          width: 'min(96vw, 720px)',
+          maxWidth: '100vw',
+          maxHeight: '92vh',
+          panelClass: 'letter-branding-dialog-panel',
+        });
+      }
 
 
       }

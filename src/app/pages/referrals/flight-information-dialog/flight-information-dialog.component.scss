@@ -1,0 +1,400 @@
+:host {
+  display: block;
+  color: var(--rms-text);
+  color-scheme: light;
+}
+
+:host-context(html.dark) {
+  color-scheme: dark;
+}
+
+.flight-dialog__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--rms-overlay);
+  backdrop-filter: blur(5px);
+}
+
+.flight-dialog {
+  display: flex;
+  width: min(100%, 760px);
+  max-height: calc(100vh - 2rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--rms-border);
+  border-radius: 1rem;
+  background: var(--rms-surface);
+  box-shadow: 0 24px 64px rgb(15 23 42 / 0.24);
+}
+
+.flight-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.35rem 1.5rem;
+  color: #fff;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 52%, #2563eb 100%);
+}
+
+.flight-dialog__heading,
+.flight-dialog__header-actions,
+.flight-dialog__badge,
+.flight-dialog__footer,
+.flight-dialog__actions,
+.flight-dialog__footer-note {
+  display: flex;
+  align-items: center;
+}
+
+.flight-dialog__heading {
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.flight-dialog__icon {
+  display: grid;
+  width: 2.7rem;
+  height: 2.7rem;
+  flex: 0 0 2.7rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.34);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.16);
+}
+
+.flight-dialog__icon .mat-icon {
+  width: 1.45rem;
+  height: 1.45rem;
+  font-size: 1.45rem;
+}
+
+.flight-dialog__eyebrow {
+  margin: 0 0 0.2rem;
+  color: rgb(204 251 241 / 0.9);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.flight-dialog__header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.flight-dialog__subtitle {
+  max-width: 38rem;
+  margin: 0.38rem 0 0;
+  color: rgb(240 253 250 / 0.86);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.flight-dialog__header-actions {
+  align-items: flex-start;
+  gap: 0.65rem;
+  flex: 0 0 auto;
+}
+
+.flight-dialog__badge {
+  gap: 0.35rem;
+  padding: 0.38rem 0.62rem;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.13);
+  font-size: 0.68rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.flight-dialog__badge .mat-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  font-size: 0.95rem;
+}
+
+.flight-dialog__close {
+  display: grid;
+  width: 2.15rem;
+  height: 2.15rem;
+  place-items: center;
+  border: 0;
+  border-radius: 0.6rem;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+}
+
+.flight-dialog__close:hover {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.flight-dialog__form {
+  min-height: 0;
+  overflow: auto;
+}
+
+.flight-dialog__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 1.15rem 1.5rem 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid color-mix(in srgb, #0d9488 22%, var(--rms-border));
+  border-radius: 0.65rem;
+  color: var(--rms-text-muted);
+  background: color-mix(in srgb, #0d9488 7%, var(--rms-surface));
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.flight-dialog__notice .mat-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 1.1rem;
+  color: #0f766e;
+  font-size: 1.1rem;
+}
+
+.flight-dialog__section {
+  margin: 1rem 1.5rem 1.25rem;
+  padding: 1.1rem 1.1rem 1.25rem;
+  border: 1px solid var(--rms-border);
+  border-radius: 0.85rem;
+  background: var(--rms-surface);
+}
+
+.flight-dialog__section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.flight-dialog__step {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 1.75rem;
+  place-items: center;
+  border-radius: 0.55rem;
+  color: #0f766e;
+  background: #ccfbf1;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.flight-dialog__section-heading h3,
+.flight-dialog__section-heading p {
+  margin: 0;
+}
+
+.flight-dialog__section-heading h3 {
+  color: var(--rms-text);
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+.flight-dialog__section-heading p {
+  margin-top: 0.2rem;
+  color: var(--rms-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.flight-dialog__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.flight-dialog__field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.38rem;
+  color: var(--rms-text);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.flight-dialog__field--full {
+  grid-column: 1 / -1;
+}
+
+.flight-dialog__field b {
+  color: #dc2626;
+}
+
+.flight-dialog__field input {
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--rms-border-strong);
+  border-radius: 0.55rem;
+  outline: 0;
+  color: var(--rms-text);
+  background: var(--rms-surface-muted);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.flight-dialog__field input::placeholder {
+  color: var(--rms-text-muted);
+  opacity: 0.9;
+}
+
+.flight-dialog__field input:focus {
+  border-color: #0d9488;
+  background: var(--rms-surface);
+  box-shadow: 0 0 0 3px rgb(13 148 136 / 0.16);
+}
+
+.flight-dialog__field input[aria-invalid='true'] {
+  border-color: #dc2626;
+}
+
+.flight-dialog__error {
+  color: #dc2626;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.flight-dialog__footer {
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.5rem;
+  border-top: 1px solid var(--rms-border);
+  background: var(--rms-surface-subtle);
+}
+
+.flight-dialog__footer-note {
+  gap: 0.35rem;
+  color: var(--rms-text-muted);
+  font-size: 0.7rem;
+}
+
+.flight-dialog__footer-note .mat-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  font-size: 0.95rem;
+}
+
+.flight-dialog__actions {
+  gap: 0.55rem;
+  flex: 0 0 auto;
+}
+
+.flight-dialog__button {
+  display: inline-flex;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: var(--rms-button-radius);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+}
+
+.flight-dialog__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.flight-dialog__button--secondary {
+  border-color: var(--rms-border-strong);
+  color: var(--rms-text);
+  background: var(--rms-surface);
+}
+
+.flight-dialog__button--secondary:hover:not(:disabled) {
+  background: var(--rms-surface-muted);
+}
+
+.flight-dialog__button--primary {
+  color: #fff;
+  background: #0f766e;
+  box-shadow: 0 0.35rem 0.75rem rgb(15 118 110 / 0.2);
+}
+
+.flight-dialog__button--primary:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.flight-dialog__button .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .flight-dialog__backdrop {
+    padding: 0.5rem;
+  }
+
+  .flight-dialog {
+    max-height: calc(100vh - 1rem);
+    border-radius: 0.85rem;
+  }
+
+  .flight-dialog__header,
+  .flight-dialog__footer {
+    padding-inline: 1rem;
+  }
+
+  .flight-dialog__header {
+    gap: 0.75rem;
+  }
+
+  .flight-dialog__badge {
+    display: none;
+  }
+
+  .flight-dialog__notice,
+  .flight-dialog__section {
+    margin-inline: 1rem;
+  }
+
+  .flight-dialog__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flight-dialog__field--full {
+    grid-column: auto;
+  }
+
+  .flight-dialog__footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .flight-dialog__footer-note {
+    justify-content: center;
+  }
+
+  .flight-dialog__actions {
+    width: 100%;
+  }
+
+  .flight-dialog__button {
+    flex: 1;
+  }
+}

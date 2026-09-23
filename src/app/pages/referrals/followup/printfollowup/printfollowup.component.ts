@@ -27,6 +27,8 @@ export class PrintfollowupComponent {
     private readonly feedback: FeedbackService,
   ) {
     this.letterId = Number(data?.letter_id || data?.hospital_letters?.[0]?.letter_id) || null;
+    const hospital = data?.hospital || data?.hospitals?.[0] || data?.referrals?.[0]?.hospital;
+    this.language = hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw';
   }
 
   preview(): void {

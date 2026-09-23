@@ -23,18 +23,20 @@ import { PermissionService } from '../../../services/authentication/permission.s
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { AddReferralsComponent } from '../add-referrals/add-referrals.component';
 import { FeedbackService } from '@shared/services/feedback.service';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 import { EmrSegmentedModule } from '../../../../../projects/components/src/lib/segmented/segmented.module';
 import { BillComponent } from '../bill/bill.component';
 import { DisplaycommentsComponent } from '../displaycomments/displaycomments.component';
 import {
   EmptyStateComponent,
-  LetterPreviewDialogComponent,
+  LetterBrandingDialogComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
   StatusBadgeComponent,
   TableToolbarComponent,
 } from '@shared/ui';
+import { LetterDocumentsService, resolveReferralLetterLanguage } from '../../../services/letters/letter-documents.service';
 
 @Component({
   selector: 'app-view-referrals',
@@ -50,6 +52,7 @@ import {
     FormsModule,
     EmrSegmentedModule,
     EmptyStateComponent,
+    LetterBrandingDialogComponent,
     LoadingStateComponent,
     PageHeaderComponent,
     SectionCardComponent,
@@ -61,6 +64,7 @@ import {
 })
 export class ViewReferralsComponent implements OnInit, OnDestroy {
   private readonly uiFeedback = inject(FeedbackService);
+  private readonly documents = inject(LetterDocumentsService);
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
 
@@ -488,6 +492,25 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
     return this.getUserRole() === 'ROLE ADMIN';
   }
 
+  public get canManageLetterBranding(): boolean {
+    return [
+      'ROLE ADMIN',
+      'ROLE DG',
+      'ROLE DIRECTOR GENERAL',
+      'ROLE SUPER ADMIN',
+      'ROLE SUPERADMIN',
+    ].includes(this.getUserRole());
+  }
+
+  openLetterBranding(): void {
+    this.dialog.open(LetterBrandingDialogComponent, {
+      width: 'min(96vw, 720px)',
+      maxWidth: '100vw',
+      maxHeight: '92vh',
+      panelClass: 'letter-branding-dialog-panel',
+    });
+  }
+
   referralsLetterPopup(data: any): void {
     const referralId = data?.referrals?.find((item: any) => item?.referral_id)?.referral_id;
 
@@ -500,22 +523,20 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      width: 'min(96vw, 560px)',
-      data: {
-        kind: 'referral',
-        id: referralId,
-        patientName: data?.patient?.name,
-        defaultLanguage: data?.hospitals?.[0]?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.printed) {
-        this.getReferrals();
-      }
+    this.documents.openReferralLetter(
+      Number(referralId),
+      resolveReferralLetterLanguage(data, referralId),
+      data?.patient?.name,
+    ).subscribe({
+      next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => {
+        if (result?.printed) {
+          this.getReferrals();
+        }
+      }),
+      error: (error: unknown) => this.uiFeedback.error(
+        'Unable to prepare letter',
+        getApiErrorMessage(error, 'The referral letter could not be generated.'),
+      ),
     });
   }
 

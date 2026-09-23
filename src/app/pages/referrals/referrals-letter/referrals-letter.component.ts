@@ -29,7 +29,8 @@ export class ReferralsLetterComponent implements OnInit {
 
   ngOnInit(): void {
     this.referralId = Number(this.data?.referral_id || this.data?.referrals?.[0]?.referral_id) || null;
-    this.language = this.data?.hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw';
+    const hospital = this.data?.hospital || this.data?.hospitals?.[0] || this.data?.referrals?.[0]?.hospital;
+    this.language = hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw';
   }
 
   preview(): void {

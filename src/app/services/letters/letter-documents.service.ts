@@ -7,6 +7,22 @@ import { FileViewerComponent } from '../../@shared/ui/file-viewer/file-viewer.co
 
 export type LetterLanguage = 'en' | 'sw';
 
+export function resolveReferralLetterLanguage(data: any, referralId?: number | string): LetterLanguage {
+  const selectedReferral = referralId
+    ? data?.referrals?.find((item: any) => String(item?.referral_id) === String(referralId))
+    : data?.referrals?.[0];
+  const selectedHospitalId = selectedReferral?.hospital_id;
+  const hospital = selectedReferral?.hospital
+    || data?.hospital
+    || data?.referral?.hospital
+    || (selectedHospitalId
+      ? data?.hospitals?.find((item: any) => String(item?.hospital_id) === String(selectedHospitalId))
+      : null)
+    || data?.hospitals?.[0];
+
+  return hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw';
+}
+
 @Injectable({ providedIn: 'root' })
 export class LetterDocumentsService {
   private readonly baseUrl = `${environment.baseUrl}letter-documents`;
@@ -73,6 +89,7 @@ export class LetterDocumentsService {
     return this.http.get(endpoint, { params, responseType: 'blob' }).pipe(
       map((blob) => {
         const objectUrl = URL.createObjectURL(blob);
+        const previewUrl = `${objectUrl}#zoom=page-width`;
         const dialogRef = this.dialog.open(FileViewerComponent, {
           width: 'min(96vw, 1200px)',
           height: 'min(92vh, 860px)',
@@ -80,7 +97,7 @@ export class LetterDocumentsService {
           maxHeight: '100vh',
           panelClass: 'file-viewer-dialog',
           data: {
-            url: objectUrl,
+            url: previewUrl,
             shareUrl,
             fileName: options.fileName,
             title: options.title,

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { inject, Component, DestroyRef } from '@angular/core';
+import { inject, Component, DestroyRef, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +20,8 @@ import { ConversationModalComponent } from '../conversation-modal/conversation-m
 import { FlightInformationDialogComponent } from '../flight-information-dialog/flight-information-dialog.component';
 import { combineLatest } from 'rxjs';
 import { getApiErrorMessage } from '@shared/utils/api-error';
-import { FileViewerComponent, LetterPreviewDialogComponent } from '@shared/ui';
+import { FileViewerComponent } from '@shared/ui';
+import { LetterDocumentsService, resolveReferralLetterLanguage } from '../../../services/letters/letter-documents.service';
 
 @Component({
   selector: 'app-referral-details',
@@ -47,6 +48,7 @@ import { FileViewerComponent, LetterPreviewDialogComponent } from '@shared/ui';
 
 export class ReferralDetailsComponent {
   private readonly uiFeedback = inject(FeedbackService);
+  private readonly documents = inject(LetterDocumentsService);
   public displayRoleForm!: FormGroup;
   referralID: string | null = null;
   referral: any = null;
@@ -63,6 +65,10 @@ export class ReferralDetailsComponent {
   boardMembers: any[] = [];
   referralType: 'referral' | 'history' = 'referral';
   showFlightInformation = false;
+  selectedFlight: any | null = null;
+
+  @ViewChild(FlightInformationDialogComponent)
+  private flightInformationDialog?: FlightInformationDialogComponent;
 
   constructor(
     private route: ActivatedRoute,
@@ -162,35 +168,43 @@ export class ReferralDetailsComponent {
   }
 
   openFlightInformationPopup(referral: any): void {
-
+    this.selectedFlight = this.latestFlight(referral);
     this.showFlightInformation = true;
-  
   }
 
   closeFlightInformation(): void {
-
     this.showFlightInformation = false;
-  
+    this.selectedFlight = null;
   }
 
   saveFlightInformation(data: any): void {
+    const flightId = Number(data?.referral_flight_id) || null;
+    const payload = { ...data };
+    delete payload.referral_flight_id;
+    const request$ = flightId
+      ? this.referralsService.updateReferralFlight(flightId, payload)
+      : this.referralsService.addReferralFlight(payload);
 
-    this.referralsService.addReferralFlight(data).pipe(
+    request$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
-        this.showFlightInformation = false;
-  
+        this.closeFlightInformation();
+        this.getMoreData();
+
         this.uiFeedback.fire({
           icon: 'success',
-          title: 'Saved',
-          text: 'Flight information saved successfully.',
+          title: flightId ? 'Flight details updated' : 'Flight details saved',
+          text: flightId
+            ? 'The flight information was updated successfully.'
+            : 'The flight information was saved successfully.',
           timer: 2000,
           showConfirmButton: false
         });
       },
   
       error: (error: unknown) => {
+        this.flightInformationDialog?.resetSubmissionState();
         this.uiFeedback.fire({
           icon: 'error',
           title: 'Error',
@@ -201,14 +215,27 @@ export class ReferralDetailsComponent {
   }
 
   isReferralPrintDisabled(referral: any): boolean {
-
     const blockedStatuses = [
       'Pending',
       'Cancelled',
       'Closed'
     ];
-  
+
     return blockedStatuses.includes(referral?.status);
+  }
+
+  hasFlightInformation(referral: any): boolean {
+    return !!this.latestFlight(referral);
+  }
+
+  private latestFlight(referral: any): any | null {
+    const flights = referral?.referral_flights ?? referral?.referralFlights;
+
+    if (Array.isArray(flights)) {
+      return flights[flights.length - 1] || null;
+    }
+
+    return flights || null;
   }
 
   printBoardedOutLetter(data: any): void {
@@ -223,22 +250,16 @@ export class ReferralDetailsComponent {
       return;
     }
 
-    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      width: 'min(96vw, 560px)',
-      data: {
-        kind: 'boarded_out',
-        id: Number(historyId),
-        patientName: data?.patient?.name,
-        defaultLanguage: 'sw',
-      },
-    });
-
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-      if (result?.printed) {
-        this.getMoreData();
-      }
+    this.documents.openBoardedOutLetter(Number(historyId), 'sw', data?.patient?.name).subscribe({
+      next: (viewerRef) => viewerRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+        if (result?.printed) {
+          this.getMoreData();
+        }
+      }),
+      error: (error: unknown) => this.uiFeedback.error(
+        'Unable to prepare letter',
+        getApiErrorMessage(error, 'The boarded-out letter could not be generated.'),
+      ),
     });
   }
 
@@ -254,22 +275,20 @@ export class ReferralDetailsComponent {
       return;
     }
 
-    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      width: 'min(96vw, 560px)',
-      data: {
-        kind: 'referral',
-        id: Number(referralId),
-        patientName: data?.patient?.name,
-        defaultLanguage: data?.hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw',
-      },
-    });
-
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-      if (result?.printed) {
-        this.getMoreData();
-      }
+    this.documents.openReferralLetter(
+      Number(referralId),
+      resolveReferralLetterLanguage(data, referralId),
+      data?.patient?.name,
+    ).subscribe({
+      next: (viewerRef) => viewerRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+        if (result?.printed) {
+          this.getMoreData();
+        }
+      }),
+      error: (error: unknown) => this.uiFeedback.error(
+        'Unable to prepare letter',
+        getApiErrorMessage(error, 'The referral letter could not be generated.'),
+      ),
     });
   }
 

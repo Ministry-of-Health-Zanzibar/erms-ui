@@ -4,7 +4,7 @@ export * from './feedback/confirmation-dialog.component';
 export * from './feedback/feedback-alert.component';
 export * from './feedback/feedback.types';
 export * from './file-viewer/file-viewer.component';
-export * from './letter-preview-dialog/letter-preview-dialog.component';
+export * from './letter-branding-dialog/letter-branding-dialog.component';
 export * from './filter-select/filter-select.component';
 export * from './icon-action/icon-action.component';
 export * from './loading-state/loading-state.component';

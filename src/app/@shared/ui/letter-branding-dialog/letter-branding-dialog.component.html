@@ -1,0 +1,89 @@
+<section class="letter-branding-dialog" aria-labelledby="letter-branding-title">
+  <header class="letter-branding-dialog__header">
+    <div class="letter-branding-dialog__identity">
+      <span class="letter-branding-dialog__icon" aria-hidden="true">
+        <mat-icon>draw</mat-icon>
+      </span>
+      <div>
+        <span class="letter-branding-dialog__eyebrow">Official document settings</span>
+        <h2 id="letter-branding-title">Letter signature &amp; stamp</h2>
+        <p>Manage the DG signature and Ministry stamp used on all generated referral letters.</p>
+      </div>
+    </div>
+    <button mat-icon-button type="button" aria-label="Close" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="letter-branding-dialog__body" *ngIf="!loading; else loadingState">
+    <div class="letter-branding-dialog__notice">
+      <mat-icon>verified_user</mat-icon>
+      <span>Only a DG or Super Admin can change these assets. Updates are recorded with the acting user.</span>
+    </div>
+
+    <div class="letter-branding-dialog__grid">
+      <article class="letter-branding-dialog__asset">
+        <div class="letter-branding-dialog__asset-heading">
+          <div>
+            <span class="letter-branding-dialog__asset-label">DG signature</span>
+            <small>{{ signatureFile?.name || (branding?.using_default_signature ? 'System default' : 'Custom upload') }}</small>
+          </div>
+          <mat-icon>draw</mat-icon>
+        </div>
+        <div class="letter-branding-dialog__preview letter-branding-dialog__preview--signature">
+          <img *ngIf="signaturePreview; else missingSignature" [src]="signaturePreview" alt="Current DG signature">
+          <ng-template #missingSignature><mat-icon>hide_image</mat-icon></ng-template>
+        </div>
+        <label class="letter-branding-dialog__file-button">
+          <mat-icon>upload</mat-icon>
+          <span>Choose signature</span>
+          <input type="file" accept="image/png,image/jpeg" (change)="onFileSelected($event, 'signature')">
+        </label>
+      </article>
+
+      <article class="letter-branding-dialog__asset">
+        <div class="letter-branding-dialog__asset-heading">
+          <div>
+            <span class="letter-branding-dialog__asset-label">Ministry stamp</span>
+            <small>{{ stampFile?.name || (branding?.using_default_stamp ? 'System default' : 'Custom upload') }}</small>
+          </div>
+          <mat-icon>verified</mat-icon>
+        </div>
+        <div class="letter-branding-dialog__preview letter-branding-dialog__preview--stamp">
+          <img *ngIf="stampPreview; else missingStamp" [src]="stampPreview" alt="Current Ministry stamp">
+          <ng-template #missingStamp><mat-icon>hide_image</mat-icon></ng-template>
+        </div>
+        <label class="letter-branding-dialog__file-button">
+          <mat-icon>upload</mat-icon>
+          <span>Choose stamp</span>
+          <input type="file" accept="image/png,image/jpeg" (change)="onFileSelected($event, 'stamp')">
+        </label>
+      </article>
+    </div>
+
+    <p class="letter-branding-dialog__metadata" *ngIf="branding?.updated_at">
+      Last changed {{ branding?.updated_at | date:'dd MMM yyyy, HH:mm' }}
+      <span *ngIf="branding?.updated_by?.full_name">by {{ branding?.updated_by?.full_name }}</span>
+    </p>
+  </div>
+
+  <ng-template #loadingState>
+    <div class="letter-branding-dialog__loading">
+      <mat-icon class="letter-branding-dialog__spinner">sync</mat-icon>
+      <span>Loading current letter assets…</span>
+    </div>
+  </ng-template>
+
+  <footer class="letter-branding-dialog__footer">
+    <button mat-button type="button" [disabled]="saving" (click)="resetToDefaults()">
+      <mat-icon>restart_alt</mat-icon>
+      Restore defaults
+    </button>
+    <span class="letter-branding-dialog__spacer"></span>
+    <button mat-button type="button" [disabled]="saving" (click)="close()">Cancel</button>
+    <button mat-flat-button color="primary" type="button" [disabled]="loading || saving || (!signatureFile && !stampFile)" (click)="save()">
+      <mat-icon>{{ saving ? 'hourglass_top' : 'save' }}</mat-icon>
+      {{ saving ? 'Saving…' : 'Save branding' }}
+    </button>
+  </footer>
+</section>
