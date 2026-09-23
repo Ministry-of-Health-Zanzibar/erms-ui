@@ -168,6 +168,10 @@ export class ReferralDetailsComponent {
   }
 
   openFlightInformationPopup(referral: any): void {
+    if (!this.isReftype2Referral(referral)) {
+      return;
+    }
+
     this.selectedFlight = this.latestFlight(referral);
     this.showFlightInformation = true;
   }
@@ -347,6 +351,18 @@ export class ReferralDetailsComponent {
 
   get hasRealReferral(): boolean {
     return this.referral?.referral_id != null;
+  }
+
+  get canManageFlightInformation(): boolean {
+    return this.isReftype2Referral(this.referral);
+  }
+
+  isReftype2Referral(referral: any): boolean {
+    const hospital = referral?.hospital ?? referral?.confirmed_hospital;
+    const referralType = hospital?.referral_type ?? hospital?.referralType;
+    const code = referralType?.referral_type_code ?? hospital?.referral_type_code;
+
+    return String(code ?? '').trim().toUpperCase() === 'REFTYPE2';
   }
   
   get hasBoardedOut(): boolean {

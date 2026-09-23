@@ -9,6 +9,7 @@ import {
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
   MAT_DIALOG_DATA,
@@ -51,6 +52,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
     MatAutocompleteModule,
     MatSelect,
     MatDatepickerModule,
+    MatNativeDateModule,
   ],
   templateUrl: './add-follow-up.component.html',
   styleUrl: './add-follow-up.component.scss',
@@ -95,6 +97,12 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
       }
     }
 
+    this.patientForm.get('outcome')?.valueChanges
+      .pipe(takeUntil(this.onDestroy))
+      .subscribe((outcome) => this.setOutcomeState(outcome));
+
+    this.setOutcomeState(this.patientForm.get('outcome')?.value);
+
     this.getHospital();
   }
 
@@ -126,6 +134,52 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
 
       followup_date: new FormControl(null),
     });
+  }
+
+  get normalizedOutcome(): string {
+    return String(this.patientForm?.get('outcome')?.value ?? '')
+      .trim()
+      .toLowerCase();
+  }
+
+  get isTransferredOutcome(): boolean {
+    return this.normalizedOutcome === 'transferred';
+  }
+
+  get showsNextAppointmentDate(): boolean {
+    return ['follow-up', 'transferred'].includes(this.normalizedOutcome);
+  }
+
+  onOutcomeSelectionChanged(outcome: unknown): void {
+    this.setOutcomeState(outcome);
+  }
+
+  private setOutcomeState(outcome: unknown): void {
+    const normalizedOutcome = String(outcome ?? '').trim().toLowerCase();
+
+    this.updateOutcomeDependentValidation(normalizedOutcome);
+  }
+
+  private updateOutcomeDependentValidation(outcome: unknown): void {
+    const nextAppointmentControl = this.patientForm.get('next_appointment_date');
+    const hospitalControl = this.patientForm.get('hospital_id');
+
+    if (!nextAppointmentControl || !hospitalControl) {
+      return;
+    }
+
+    const normalizedOutcome = String(outcome ?? '').trim().toLowerCase();
+
+    if (normalizedOutcome === 'transferred') {
+      nextAppointmentControl.setValidators([Validators.required]);
+      hospitalControl.setValidators([Validators.required]);
+    } else {
+      nextAppointmentControl.clearValidators();
+      hospitalControl.clearValidators();
+    }
+
+    nextAppointmentControl.updateValueAndValidity({ emitEvent: false });
+    hospitalControl.updateValueAndValidity({ emitEvent: false });
   }
 
   getSelectedHospitalName(): string {
@@ -185,7 +239,14 @@ onAttachmentSelected(event: any): void {
         if (key !== 'letter_file') {
           const value = this.patientForm.get(key)?.value;
           if (value !== null && value !== undefined) {
-            formData.append(key, String(value));
+            const serializedValue =
+              key === 'next_appointment_date' || key === 'followup_date'
+                ? this.formatDate(value)
+                : String(value);
+
+            if (serializedValue !== null && serializedValue !== '') {
+              formData.append(key, serializedValue);
+            }
           }
         }
       });
@@ -224,6 +285,28 @@ onAttachmentSelected(event: any): void {
         confirmButtonText: 'Ok',
       });
     }
+  }
+
+  private formatDate(value: unknown): string | null {
+    if (!value) {
+      return null;
+    }
+
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+
+    const date = value instanceof Date ? value : new Date(String(value));
+
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   private showError(message: string): void {

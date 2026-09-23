@@ -1,7 +1,7 @@
 <div *ngIf="follow" class="mx-auto p-6">
   <app-page-header
     title="Patient follow-up records"
-    description="Review treatment progress, outcomes, appointments, and supporting letters."
+    description="Review follow-up outcomes, appointment dates, and supporting letters for this patient."
     icon="event_note"
   >
   <div uiPageActions class="flex flex-wrap gap-3 justify-end">
@@ -59,6 +59,34 @@
   </div>
   </app-page-header>
 
+  <section class="follow-up-patient-summary" aria-label="Patient summary">
+    <div class="follow-up-patient-summary__identity">
+      <span class="follow-up-patient-summary__icon" aria-hidden="true">
+        <mat-icon>person</mat-icon>
+      </span>
+      <div>
+        <span class="follow-up-patient-summary__label">Patient</span>
+        <strong>{{ follow.patient?.name || 'Patient record' }}</strong>
+      </div>
+    </div>
+
+    <div class="follow-up-patient-summary__item">
+      <mat-icon aria-hidden="true">badge</mat-icon>
+      <div>
+        <span class="follow-up-patient-summary__label">Matibabu card</span>
+        <strong>{{ follow.patient?.matibabu_card || 'Not recorded' }}</strong>
+      </div>
+    </div>
+
+    <div class="follow-up-patient-summary__item">
+      <mat-icon aria-hidden="true">history</mat-icon>
+      <div>
+        <span class="follow-up-patient-summary__label">Recorded entries</span>
+        <strong>{{ hospitalLetters.length }}</strong>
+      </div>
+    </div>
+  </section>
+
   <!-- Patient Table -->
   <app-section-card
     class="block mt-6"
@@ -76,14 +104,6 @@
           <tr>
             <th class="border border-gray-300 p-2 text-center">#</th>
             <th class="border border-gray-300 p-2 text-center">
-              <mat-icon class="text-gray-600 align-middle">person</mat-icon>
-              Patient Name
-            </th>
-            <th class="border border-gray-300 p-2 text-center">
-              <mat-icon class="text-gray-600 align-middle">card</mat-icon>
-              Matibabu Card No
-            </th>
-            <th class="border border-gray-300 p-2 text-center">
               <mat-icon class="text-gray-600 align-middle"
                 >description</mat-icon
               >
@@ -93,7 +113,7 @@
               <mat-icon class="text-gray-600 align-middle"
                 >calendar_today</mat-icon
               >
-              Next Appointment
+              Next Appointment Date
             </th>
             <th class="border border-gray-300 p-2 text-center">
               <mat-icon class="text-gray-600 align-middle">home</mat-icon>
@@ -123,16 +143,10 @@
           >
             <td class="border border-gray-300 p-2 text-center">{{ i + 1 }}</td>
             <td class="border border-gray-300 p-2 text-center">
-              {{ follow.patient?.name }}
-            </td>
-            <td class="border border-gray-300 p-2 text-center">
-              {{ follow.patient?.matibabu_card }}
-            </td>
-            <td class="border border-gray-300 p-2 text-center">
               {{ letter.content_summary }}
             </td>
             <td class="border border-gray-300 p-2 text-center">
-              {{ letter.next_appointment_date || "" }}
+              {{ letter.next_appointment_date || "Not recorded" }}
             </td>
 
             <td class="border border-gray-300 p-2 text-center">

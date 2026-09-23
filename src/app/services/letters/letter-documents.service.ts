@@ -20,7 +20,11 @@ export function resolveReferralLetterLanguage(data: any, referralId?: number | s
       : null)
     || data?.hospitals?.[0];
 
-  return hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw';
+  const referralTypeCode = String(hospital?.referral_type?.referral_type_code ?? '')
+    .trim()
+    .toUpperCase();
+
+  return referralTypeCode === 'REFTYPE2' ? 'en' : 'sw';
 }
 
 @Injectable({ providedIn: 'root' })

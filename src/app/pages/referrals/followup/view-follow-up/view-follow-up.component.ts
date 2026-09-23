@@ -144,9 +144,9 @@ export class ViewFollowUpComponent implements OnInit {
     config.disableClose = false;
     config.role = 'dialog';
     config.maxWidth = '100vw';
-    config.maxHeight = '100vh';
-    config.width = '850px';
-    config.panelClass = 'full-screen-modal';
+    config.maxHeight = 'calc(100vh - 32px)';
+    config.width = 'min(920px, calc(100vw - 32px))';
+    config.panelClass = ['full-screen-modal', 'follow-up-dialog-panel'];
     config.data = { referral_id, outcome };
 
     const dialogRef = this.dialog.open(AddFollowUpComponent, config);

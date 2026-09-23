@@ -595,7 +595,7 @@
         </button>
 
         <button
-          *ngIf="hasRealReferral"
+          *ngIf="hasRealReferral && canManageFlightInformation"
           mat-raised-button
           type="button"
           class="referral-action-button referral-action-button--flight"

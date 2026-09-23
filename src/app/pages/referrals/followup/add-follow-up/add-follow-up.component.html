@@ -1,186 +1,287 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md px-5 py-4 mb-4">
-  <h2 class="text-xl font-bold tracking-wide">
-    ADD FOLLOW UP FORM
-  </h2>
-    <p class="text-sm opacity-90 mt-1">
-      Record and manage patient follow-up information
-    </p>
-  </div>
-      <form
-        [formGroup]="patientForm"
-        class="horizontal-form"
-        enctype="multipart/form-data"
+<div class="follow-up-dialog">
+  <header class="follow-up-dialog__header">
+    <div class="follow-up-dialog__heading">
+      <span class="follow-up-dialog__icon" aria-hidden="true">
+        <mat-icon>event_note</mat-icon>
+      </span>
+      <div>
+        <p class="follow-up-dialog__eyebrow">Patient referral workflow</p>
+        <h2 id="follow-up-dialog-title">Add follow-up record</h2>
+        <p class="follow-up-dialog__subtitle">
+          Record the patient’s treatment progress, outcome, and supporting documentation.
+        </p>
+      </div>
+    </div>
+
+    <div class="follow-up-dialog__header-actions">
+      <span class="follow-up-dialog__badge">
+        <mat-icon aria-hidden="true">verified_user</mat-icon>
+        Clinical record
+      </span>
+      <button
+        type="button"
+        class="follow-up-dialog__close"
+        aria-label="Close follow-up form"
+        (click)="onClose()"
       >
-        <!-- Row 1: Full Name, Gender -->
-        <div class="form-row">
-          <mat-form-field class="form-field">
-            <mat-label>Content Summary</mat-label>
-            <input
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <mat-dialog-content
+    class="follow-up-dialog__content"
+    aria-labelledby="follow-up-dialog-title"
+  >
+    <div class="follow-up-dialog__notice" role="note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <p>
+        Complete the follow-up summary and outcome. The next appointment date is
+        available for Follow-up and Transferred outcomes, and is required for Transferred.
+      </p>
+    </div>
+
+    <form
+      id="follow-up-form"
+      [formGroup]="patientForm"
+      class="follow-up-dialog__form"
+      enctype="multipart/form-data"
+      (ngSubmit)="saveClient()"
+      novalidate
+    >
+      <section class="follow-up-dialog__section" aria-labelledby="follow-up-summary-title">
+        <div class="follow-up-dialog__section-heading">
+          <span class="follow-up-dialog__step" aria-hidden="true">01</span>
+          <div>
+            <h3 id="follow-up-summary-title">Outcome and summary</h3>
+            <p>Capture the clinical update and current direction of care.</p>
+          </div>
+        </div>
+
+        <div class="follow-up-dialog__grid follow-up-dialog__grid--two">
+          <mat-form-field appearance="outline" class="follow-up-dialog__field follow-up-dialog__field--wide">
+            <mat-label>Content summary</mat-label>
+            <textarea
               matInput
-              placeholder="Ex. Content Summary"
+              rows="3"
               formControlName="content_summary"
-              type="text"
-            />
+              placeholder="Summarize the patient’s progress, treatment, or clinical findings"
+            ></textarea>
+            <mat-hint>Use a concise clinical summary for the patient record.</mat-hint>
             <mat-error
               *ngIf="
                 patientForm.get('content_summary')?.invalid &&
                 patientForm.get('content_summary')?.touched
               "
             >
-              <span
-                *ngIf="patientForm.get('content_summary')?.errors?.['required']"
-                >This field is mandatory</span
-              >
-              <span
-                *ngIf="patientForm.get('content_summary')?.errors?.['pattern']"
-                >Must contain alphabetical characters only</span
-              >
+              A content summary is required.
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field
-            class="form-field"
-            [class.readonly-select]="!!data?.outcome"
-          >
+          <mat-form-field appearance="outline" class="follow-up-dialog__field">
             <mat-label>Outcome</mat-label>
-
-            <mat-select formControlName="outcome">
+            <mat-select
+              formControlName="outcome"
+              (selectionChange)="onOutcomeSelectionChanged($event.value)"
+            >
               <mat-option value="Follow-up">Follow-up</mat-option>
               <mat-option value="Finished">Finished</mat-option>
               <mat-option value="Transferred">Transferred</mat-option>
               <mat-option value="Death">Death</mat-option>
             </mat-select>
-
+            <mat-hint>Select the current outcome for this case.</mat-hint>
             <mat-error
               *ngIf="
                 patientForm.get('outcome')?.invalid &&
                 patientForm.get('outcome')?.touched
               "
             >
-              This field is mandatory
+              Select an outcome.
             </mat-error>
           </mat-form-field>
-        </div>
 
-        <div
-          class="form-row"
-          *ngIf="patientForm.get('outcome')?.value === 'Follow-up'"
-        >
-          <mat-form-field class="form-field">
-            <mat-label>Next Appoitment Date</mat-label>
+          <mat-form-field
+            *ngIf="showsNextAppointmentDate"
+            appearance="outline"
+            class="follow-up-dialog__field"
+          >
+            <mat-label>
+              Next appointment date
+              <span *ngIf="isTransferredOutcome" aria-hidden="true">*</span>
+            </mat-label>
             <input
               matInput
-              type="date"
+              [matDatepicker]="nextAppointmentPicker"
               formControlName="next_appointment_date"
+              [required]="isTransferredOutcome"
+              placeholder="Select appointment date"
             />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="nextAppointmentPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #nextAppointmentPicker></mat-datepicker>
+            <mat-hint *ngIf="isTransferredOutcome">
+              Required for transferred patients.
+            </mat-hint>
             <mat-error
               *ngIf="
                 patientForm.get('next_appointment_date')?.invalid &&
                 patientForm.get('next_appointment_date')?.touched
               "
             >
-              This field is mandatory
+              Next appointment date is required for transferred patients.
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section
+        *ngIf="isTransferredOutcome"
+        class="follow-up-dialog__section follow-up-dialog__section--highlight"
+        aria-labelledby="follow-up-destination-title"
+      >
+        <div class="follow-up-dialog__section-heading">
+          <span class="follow-up-dialog__step" aria-hidden="true">02</span>
+          <div>
+            <h3 id="follow-up-destination-title">Transfer destination</h3>
+            <p>Select the hospital that will continue the patient’s care.</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="follow-up-dialog__field">
+          <mat-label>Receiving hospital</mat-label>
+          <mat-select
+            formControlName="hospital_id"
+            [required]="isTransferredOutcome"
+          >
+            <mat-option *ngFor="let r of hospital" [value]="r.hospital_id">
+              {{ r.hospital_name }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Required when the outcome is Transferred.</mat-hint>
+          <mat-error
+            *ngIf="
+              patientForm.get('hospital_id')?.invalid &&
+              patientForm.get('hospital_id')?.touched
+            "
+          >
+            Select the receiving hospital.
+          </mat-error>
+        </mat-form-field>
+      </section>
+
+      <section class="follow-up-dialog__section" aria-labelledby="follow-up-support-title">
+        <div class="follow-up-dialog__section-heading">
+          <span class="follow-up-dialog__step" aria-hidden="true">
+            {{ showsNextAppointmentDate ? '03' : '02' }}
+          </span>
+          <div>
+            <h3 id="follow-up-support-title">Review and supporting file</h3>
+            <p>Add the review date and attach the supporting follow-up document.</p>
+          </div>
+        </div>
+
+        <div class="follow-up-dialog__grid follow-up-dialog__grid--two">
+          <mat-form-field appearance="outline" class="follow-up-dialog__field">
+            <mat-label>Date of review</mat-label>
+            <input
+              matInput
+              [matDatepicker]="followupDatePicker"
+              formControlName="followup_date"
+              matTooltip="Date the follow-up was recorded in the system."
+              matTooltipPosition="above"
+              placeholder="Select review date"
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="followupDatePicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #followupDatePicker></mat-datepicker>
+            <mat-hint>Leave blank to use today’s date.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="follow-up-dialog__field">
+            <mat-label>Supporting file</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="letter_file"
+              readonly
+              placeholder="Choose a PDF or document"
+              (click)="fileInput.click()"
+            />
+            <button
+              mat-icon-button
+              matIconSuffix
+              type="button"
+              aria-label="Choose supporting file"
+              (click)="fileInput.click()"
+            >
+              <mat-icon>attach_file</mat-icon>
+            </button>
+            <input
+              #fileInput
+              type="file"
+              hidden
+              accept=".pdf,.doc,.docx,.jpg,.png"
+              (change)="onAttachmentSelected($event)"
+            />
+            <mat-hint>PDF, DOC, DOCX, JPG, or PNG up to 1 MB.</mat-hint>
+            <mat-error *ngIf="fileSizeError">
+              {{ fileSizeError }}
+            </mat-error>
+            <mat-error
+              *ngIf="
+                !fileSizeError &&
+                patientForm.get('letter_file')?.hasError('required')
+              "
+            >
+              A supporting file is required.
             </mat-error>
           </mat-form-field>
         </div>
 
-        <div
-          class="form-row"
-          *ngIf="patientForm.get('outcome')?.value === 'Transferred'"
-        >
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Hospital</mat-label>
-            <mat-select formControlName="hospital_id">
-              <mat-option *ngFor="let r of hospital" [value]="r.hospital_id">
-                {{ r.hospital_name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+        <p class="follow-up-dialog__upload-note">
+          Need to reduce a large PDF? Use the
+          <a
+            href="https://www.ilovepdf.com/compress_pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            iLovePDF compression tool
+          </a>.
+        </p>
+      </section>
+    </form>
+  </mat-dialog-content>
 
-        <!-- Row 4: Date of Birth, File Upload -->
-        <div class="form-row">
-        <mat-form-field class="form-field">
-  <mat-label>Date of Review</mat-label>
-
-  <input
-    matInput
-    type="date"
-          formControlName="followup_date"
-          matTooltip="Date of recording the follow-up in the system."
-          matTooltipPosition="above" />
-
-        <mat-error
-          *ngIf="
-            patientForm.get('followup_date')?.invalid &&
-            patientForm.get('followup_date')?.touched
-          ">
-          This field is mandatory
-        </mat-error>
-      </mat-form-field>
-
-       <mat-form-field class="form-field">
-  <mat-label>Upload File</mat-label>
-
-  <input
-    matInput
-    type="text"
-    formControlName="letter_file"
-    readonly
-    placeholder="No file chosen"
-    (click)="fileInput.click()"
-  />
-
-  <input
-    type="file"
-    hidden
-    #fileInput
-    accept=".pdf,.doc,.docx,.jpg,.png"
-    (change)="onAttachmentSelected($event)"
-  />
-
-  <mat-icon
-    matSuffix
-    style="cursor:pointer"
-    (click)="fileInput.click()">
-    attach_file
-  </mat-icon>
-
-        <mat-error *ngIf="fileSizeError">
-          {{ fileSizeError }}
-        </mat-error>
-
-        <mat-error
-          *ngIf="
-            !fileSizeError &&
-            patientForm.get('letter_file')?.hasError('required')
-          ">
-          File is required.
-        </mat-error>
-      </mat-form-field>
-      <small class="text-gray-500 block mt-1">
-  Max file size: 1MB. If file is large, compress it using
-  <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" class="text-blue-600 underline">
-    iLovePDF Compress Tool
-  </a>
-</small>
-        </div>
-      </form>
+  <mat-dialog-actions class="follow-up-dialog__footer" align="end">
+    <span class="follow-up-dialog__footer-note">
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      Saved securely against this referral
+    </span>
+    <div class="follow-up-dialog__actions">
+      <button
+        mat-button
+        type="button"
+        class="follow-up-dialog__button follow-up-dialog__button--secondary"
+        (click)="onClose()"
+        [disabled]="submitting"
+      >
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        form="follow-up-form"
+        class="follow-up-dialog__button follow-up-dialog__button--primary"
+        [disabled]="patientForm.invalid || submitting"
+      >
+        <mat-icon aria-hidden="true">save</mat-icon>
+        {{ submitting ? 'Saving…' : 'Save follow-up' }}
+      </button>
     </div>
-  </div>
-
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancel</button>
-    <button
-      mat-flat-button
-      cdkFocusInitial
-      [disabled]="patientForm.invalid || submitting"
-      (click)="saveClient()"
-    >
-      {{ submitting ? 'Saving…' : 'Add Follow-Up' }}
-    </button>
   </mat-dialog-actions>
 </div>

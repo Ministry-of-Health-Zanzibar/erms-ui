@@ -308,6 +308,13 @@ html.dark #print-section {
   height: 100%;
 }
 
+.follow-up-dialog-panel .mat-mdc-dialog-surface,
+.follow-up-dialog-panel .mat-dialog-container {
+  padding: 0 !important;
+  overflow: hidden !important;
+  max-height: calc(100vh - 32px) !important;
+}
+
 .patient-form-dialog .mat-mdc-dialog-surface,
 .patient-form-dialog .mat-dialog-container {
   overflow: hidden !important;

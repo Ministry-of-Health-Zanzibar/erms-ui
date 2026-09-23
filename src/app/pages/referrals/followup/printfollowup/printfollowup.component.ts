@@ -6,7 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { FeedbackService } from '@shared/services/feedback.service';
-import { LetterDocumentsService, LetterLanguage } from '../../../../services/letters/letter-documents.service';
+import {
+  LetterDocumentsService,
+  LetterLanguage,
+  resolveReferralLetterLanguage,
+} from '../../../../services/letters/letter-documents.service';
 
 @Component({
   selector: 'app-printfollowup',
@@ -27,8 +31,7 @@ export class PrintfollowupComponent {
     private readonly feedback: FeedbackService,
   ) {
     this.letterId = Number(data?.letter_id || data?.hospital_letters?.[0]?.letter_id) || null;
-    const hospital = data?.hospital || data?.hospitals?.[0] || data?.referrals?.[0]?.hospital;
-    this.language = hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw';
+    this.language = resolveReferralLetterLanguage(data, data?.referral_id);
   }
 
   preview(): void {
