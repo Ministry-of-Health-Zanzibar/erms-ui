@@ -21,7 +21,7 @@ import {
 } from '@elementar/components';
 import { NotificationListComponent } from '@layout/header/_notifications/notification-list/notification-list.component';
 import { AssistantSearchComponent } from '@layout/header/_assistant-search/assistant-search.component';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { InactivityService } from '../../../services/accountants/inactivity.service';
 import { ConversationService } from '../../../services/conversation.service'; 
 import { Subscription, interval } from 'rxjs';
@@ -72,6 +72,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private route = inject(Router);
   private inactivityService = inject(InactivityService);
+  private uiFeedback = inject(FeedbackService);
   
   isDark = this._themeManager.isDark();
 
@@ -161,15 +162,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logoutHead() {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to logout from this system',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, Logout',
-    }).then((result) => {
+    this.uiFeedback.confirm(
+      'Sign out of ERIS?',
+      'You will be returned to the sign-in page.',
+      {
+        icon: 'warning',
+        confirmButtonText: 'Yes, sign out',
+        cancelButtonText: 'Stay signed in',
+      },
+    ).then((result) => {
       if (result.isConfirmed) {
         localStorage.clear();
         this.route.navigate(['/auth/sign-in']);

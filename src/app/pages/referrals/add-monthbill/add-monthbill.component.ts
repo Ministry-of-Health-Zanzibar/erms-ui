@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatError, MatFormField, MatInput, MatInputModule, MatLabel } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
 import { Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MonthBillService } from '../../../services/Referral/month-bill.service';
 import { RolePermissionService } from '../../../services/users/role-permission.service';
 import { MatIcon } from '@angular/material/icon';
@@ -41,6 +41,7 @@ import { HospitalService } from '../../../services/system-configuration/hospital
   styleUrl: './add-monthbill.component.scss'
 })
 export class AddMonthbillComponent  {
+  private readonly uiFeedback = inject(FeedbackService);
 
  readonly data = inject<any>(MAT_DIALOG_DATA);
        private readonly onDestroy = new Subject<void>()
@@ -127,7 +128,7 @@ saveReferrals() {
 
     this.monthService.addMonthBill(formData).subscribe(response => {
       if (response.statusCode === 201) {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Success",
           text: "Data saved successfully",
           icon: "success",
@@ -137,7 +138,7 @@ saveReferrals() {
           this.dialogRef.close(true);
         });
       } else {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Error",
           text: response.message,
           icon: "error",
@@ -147,7 +148,7 @@ saveReferrals() {
       }
     });
   } else {
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Form Invalid",
       text: "Please fill all required fields correctly.",
       icon: "warning",
@@ -194,7 +195,7 @@ saveReferrals() {
 
     this.monthService.updateMonth(formData, this.patientData.monthly_bill_id).subscribe(response => {
       if (response.statusCode === 200) {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Success',
           text: 'Referral updated successfully',
           icon: 'success',
@@ -203,7 +204,7 @@ saveReferrals() {
         });
         this.dialogRef.close(true); // optional: close modal
       } else {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: response.message,
           icon: 'error',
@@ -213,7 +214,7 @@ saveReferrals() {
       }
     });
   } else {
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Form Invalid',
       text: 'Please fill all required fields correctly.',
       icon: 'warning',

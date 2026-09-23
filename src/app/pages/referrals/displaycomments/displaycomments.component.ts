@@ -12,7 +12,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
 import { Subject } from 'rxjs';
-import Swal from 'sweetalert2';
 import { ReferralService } from '../../../services/Referral/referral.service';
 
 @Component({

@@ -4,7 +4,7 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { LocationService } from '../../../../services/system-configuration/location.service';
 
 @Component({
@@ -20,6 +20,7 @@ import { LocationService } from '../../../../services/system-configuration/locat
   styleUrl: './upload-location.component.scss'
 })
 export class UploadLocationComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   readonly dialogRef = inject(MatDialogRef<UploadLocationComponent>);
   selectedFile: File | null = null;
@@ -56,7 +57,7 @@ export class UploadLocationComponent {
               this.uploadProgress = 0;
               // console.log('Upload complete:', event.body);
               this.onClose();
-              Swal.fire({
+              this.uiFeedback.fire({
                 title: "Success",
                 text: event.body.message,
                 icon: "success",
@@ -73,7 +74,7 @@ export class UploadLocationComponent {
             console.error('Error occurred:', err);
             this.onClose();
             // Handle error response here
-            Swal.fire({
+            this.uiFeedback.fire({
               title: "Error",
               text: this.errorMessage,
               icon: "error",
@@ -90,4 +91,3 @@ export class UploadLocationComponent {
     this.dialogRef.close();
   }
 }
-

@@ -24,7 +24,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
 import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { FollowsService } from '../../../../services/Referral/follows.service';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -56,6 +56,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './add-follow-up.component.scss',
 })
 export class AddFollowUpComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   readonly data = inject<any>(MAT_DIALOG_DATA);
   public sidebarVisible: boolean = true;
@@ -197,7 +198,7 @@ onAttachmentSelected(event: any): void {
         finalize(() => this.submitting = false)
       ).subscribe({ next: response => {
         if (response.statusCode === 200) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: response.message,
             icon: 'success',
@@ -215,7 +216,7 @@ onAttachmentSelected(event: any): void {
         }
       }, error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to save the follow-up.')) });
     } else {
-      Swal.fire({
+      this.uiFeedback.fire({
         title: 'Invalid Form',
         text: 'Please fill all required fields',
         icon: 'warning',
@@ -226,6 +227,6 @@ onAttachmentSelected(event: any): void {
   }
 
   private showError(message: string): void {
-    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+    this.uiFeedback.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }

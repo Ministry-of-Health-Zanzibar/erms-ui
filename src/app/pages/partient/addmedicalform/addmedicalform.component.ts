@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { inject, Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { DiagnosisService } from '../../../services/system-configuration/diagnosis.service';
 import { ReasonsService } from '../../../services/system-configuration/reasons.service';
 import { MedicalhistoryService } from '../../../services/partient/medicalhistory.service';
@@ -51,6 +51,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   styleUrls: ['./addmedicalform.component.scss'],
 })
 export class AddmedicalformComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   mode: 'add' | 'edit' = 'add';
   medicalForm!: FormGroup;
   loading = false;
@@ -61,6 +62,11 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
   selectedFile: File | null = null;
   diagnosisSearchCtrl = new FormControl('');
   selectedDiagnoses: any[] = [];
+  patientName = 'Patient record';
+  patientCard = 'Not available';
+  hasExistingReferral = false;
+  existingReferralStatus = '';
+  existingFileName: string | null = null;
   private onDestroy$ = new Subject<void>();
   @ViewChild(MatAutocompleteTrigger) autoTrigger!: MatAutocompleteTrigger;
   @ViewChild('diagInput') diagInput!: any;
@@ -75,8 +81,10 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.mode = this.data.mode;
-    const patient = this.data.patient;
+    this.mode = this.data?.mode === 'edit' ? 'edit' : 'add';
+    const patient = this.data?.patient ?? {};
+    this.patientName = patient.name || patient.patient?.name || 'Patient record';
+    this.patientCard = patient.matibabu_card || patient.patient?.matibabu_card || 'Not available';
     this.buildForm(patient);
     this.loadReasons();
     this.loadDiagnoses();
@@ -95,8 +103,10 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
       board_comments: ['', Validators.required],
       board_reason_id: ['', Validators.required],
       board_diagnosis_ids: [[], Validators.required],
-    
-      create_referral_record: [true] // default value
+
+      // A referral is the default decision. The board can switch this off
+      // when the outcome is recommendation-only.
+      create_referral_record: [true],
     });
   }
 
@@ -104,28 +114,39 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
     const history = patient.latest_history;
     if (!history) return;
 
-    // 1. Patch Basic Fields
+    const referrals = Array.isArray(history.referrals) ? history.referrals : [];
+    this.hasExistingReferral = referrals.length > 0;
+    this.existingReferralStatus = referrals[0]?.status || '';
+    this.existingFileName =
+      history.patient_file?.name || history.history_file?.split('/').pop() || null;
+
+    // 1. Patch the board assessment fields.
     this.medicalForm.patchValue({
-      board_comments: history.board_comments,
-      board_reason_id: history.board_reason_id,
-      create_referral_record: history.referrals && history.referrals.length > 0
+      board_comments: history.board_comments ?? '',
+      board_reason_id:
+        history.board_reason_id ??
+        history.board_reason?.reason_id ??
+        history.boardReason?.reason_id ??
+        '',
+      create_referral_record: this.hasExistingReferral,
     });
 
-    // 2. Populate Selected Diagnoses (the visual chips)
-    if (history.board_diagnoses && Array.isArray(history.board_diagnoses)) {
-      this.selectedDiagnoses = [...history.board_diagnoses];
+    // 2. Populate selected diagnoses (the visual chips).
+    const boardDiagnoses = history.board_diagnoses || history.boardDiagnoses || [];
+    if (Array.isArray(boardDiagnoses)) {
+      this.selectedDiagnoses = [...boardDiagnoses];
 
-      // 3. Update the hidden form control with IDs so validation passes
       const ids = this.selectedDiagnoses.map((d) => d.diagnosis_id);
       this.medicalForm.get('board_diagnosis_ids')?.setValue(ids);
     }
 
     this.selectedFile = null;
 
-      // ✅ OPTIONAL: lock checkbox if referral already exists
-    if (history.referrals && history.referrals.length > 0) {
-      this.medicalForm.get('create_referral_record')?.disable();
-    }
+    // Keep the decision editable in both directions. The API will hard-delete
+    // an active referral and its dependent records when the board explicitly
+    // saves the recommendation-only option.
+    const referralControl = this.medicalForm.get('create_referral_record');
+    referralControl?.enable({ emitEvent: false });
   }
 
   loadReasons() {
@@ -161,7 +182,7 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
           this.filteredDiagnoses = [];
           return;
         }
-        const lowerSearch = search.toLowerCase();
+        const lowerSearch = query.toLowerCase();
         this.filteredDiagnoses = this.diagnosesList.filter((diag) =>
           diag.diagnosis_name.toLowerCase().includes(lowerSearch),
         );
@@ -215,6 +236,8 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
       this.medicalForm
         .get('board_diagnosis_ids')
         ?.setErrors({ required: true });
+    } else {
+      this.medicalForm.get('board_diagnosis_ids')?.setErrors(null);
     }
   }
 
@@ -222,9 +245,9 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (!file) return;
 
-    const maxSize = 1 * 1024 * 1024; // 1MB
+    const maxSize = 5 * 1024 * 1024; // Keep in sync with the API validation.
     if (file.size > maxSize) {
-      Swal.fire('Error', 'File must be 1MB or less', 'error');
+      this.uiFeedback.fire('File too large', 'The file must be 5 MB or less.', 'error');
       this.selectedFile = null;
       event.target.value = '';
       return;
@@ -232,22 +255,39 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
     this.selectedFile = file;
   }
 
-  onSubmit() {
-    // Debugging: Check why form is invalid
+  async onSubmit() {
     if (this.medicalForm.invalid) {
-      console.error('Form Invalid:', this.medicalForm.value);
       this.medicalForm.markAllAsTouched();
       return;
     }
 
-    this.loading = true;
-    // const formValue = this.medicalForm.value;
     const formValue = this.medicalForm.getRawValue();
+    const referralRequested = !!formValue.create_referral_record;
+    const willDeleteReferral =
+      this.mode === 'edit' && this.hasExistingReferral && !referralRequested;
+
+    if (willDeleteReferral) {
+      const confirmation = await this.uiFeedback.fire({
+        title: 'Delete this referral permanently?',
+        text: 'The referral and all related letters, follow-ups, diagnoses, bills, payments, flights, and treatments will be permanently removed.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete and save',
+        cancelButtonText: 'Keep referral',
+        confirmButtonColor: '#dc2626',
+        reverseButtons: true,
+      });
+
+      if (!confirmation.isConfirmed) {
+        return;
+      }
+    }
+
+    this.loading = true;
     const formData = new FormData();
 
-    formData.append('board_comments', formValue.board_comments);
-    formData.append('board_reason_id', formValue.board_reason_id);
-    // Append diagnosis IDs correctly for PHP/Spring/Node backend arrays
+    formData.append('board_comments', formValue.board_comments.trim());
+    formData.append('board_reason_id', String(formValue.board_reason_id));
     formValue.board_diagnosis_ids.forEach((id: any) => {
       formData.append('board_diagnosis_ids[]', id);
     });
@@ -261,7 +301,7 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
       formValue.create_referral_record ? '1' : '0'
     );
 
-    const patientHistoryId = this.data.patientHistoryId;
+    const patientHistoryId = this.data?.patientHistoryId;
 
     const request$ =
       this.mode === 'edit'
@@ -276,18 +316,26 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
 
     request$.pipe(takeUntil(this.onDestroy$)).subscribe({
       next: () => {
-        Swal.fire(
-          'Success',
-          `Medical history ${this.mode}ed successfully`,
+        this.uiFeedback.fire(
+          this.mode === 'edit' ? 'Assessment updated' : 'Assessment saved',
+          willDeleteReferral
+            ? 'Saved as recommendation-only. The referral and related records were permanently deleted.'
+            : referralRequested
+              ? 'The referral decision has been saved and the referral workflow is ready.'
+              : 'Saved as recommendation-only. No referral record was created.',
           'success',
         );
         this.loading = false;
         this.dialogRef.close(true);
       },
       error: (err) => {
-        this.backendErrors = err.error.errors || {};
+        this.backendErrors = err.error?.errors || {};
         this.loading = false;
-        Swal.fire('Error', 'Failed to save medical history', 'error');
+        this.uiFeedback.fire(
+          'Unable to save assessment',
+          err.error?.message || 'Please review the form and try again.',
+          'error',
+        );
       },
     });
   }

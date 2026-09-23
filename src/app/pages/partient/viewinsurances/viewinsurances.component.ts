@@ -9,7 +9,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { PermissionService } from '../../../services/authentication/permission.service';

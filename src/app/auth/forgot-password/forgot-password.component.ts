@@ -7,7 +7,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { AuthService } from '@core/authentication/auth.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { NgIf } from '@angular/common';
 
@@ -29,6 +29,7 @@ import { NgIf } from '@angular/common';
   styleUrl: './forgot-password.component.scss'
 })
 export class ForgotPasswordComponent implements OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   private _router = inject(Router);
   private authService = inject(AuthService);
@@ -53,11 +54,11 @@ export class ForgotPasswordComponent implements OnDestroy {
       finalize(() => this.submitting = false)
     ).subscribe({
       next: response => {
-        Swal.fire('Check your email', response.message, 'success')
+        this.uiFeedback.fire('Check your email', response.message, 'success')
           .then(() => this._router.navigateByUrl('/auth/sign-in'));
       },
       error: error => {
-        Swal.fire('Unable to send reset link', getApiErrorMessage(error, 'Please try again later.'), 'error');
+        this.uiFeedback.fire('Unable to send reset link', getApiErrorMessage(error, 'Please try again later.'), 'error');
       }
     });
   }

@@ -1,305 +1,252 @@
-<div class="w-full max-w-4xl mx-auto">
-  <div class="w-full max-w-screen-2xl mx-auto p-4">
+<div class="status-dialog">
+  <header class="status-dialog__header">
+    <div class="status-dialog__header-main">
+      <div class="status-dialog__header-icon" aria-hidden="true">
+        <mat-icon>fact_check</mat-icon>
+      </div>
+      <div>
+        <p class="status-dialog__eyebrow">Director General workflow</p>
+        <h2 class="status-dialog__title">Confirm referral outcome</h2>
+        <p class="status-dialog__subtitle">
+          Record the final disposition and any supporting referral or boarded-out details.
+        </p>
+      </div>
+    </div>
 
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-md p-5 mb-6 flex items-center justify-between">
+    <div class="status-dialog__header-actions">
+      <span class="status-dialog__header-badge">
+        <mat-icon>verified_user</mat-icon>
+        DG review
+      </span>
+      <button
+        mat-icon-button
+        type="button"
+        class="status-dialog__close"
+        aria-label="Close confirmation form"
+        (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </header>
 
-    <div>
-      <h2 class="text-2xl font-bold tracking-wide">
-        CONFIRM STATUS FORM
-      </h2>
-      <p class="text-sm opacity-90 mt-1">
-        Manage referral confirmation and boarded-out information
+  <div class="status-dialog__body">
+    <section class="status-dialog__record" aria-label="Referral record summary">
+      <div class="status-dialog__record-item">
+        <span class="status-dialog__record-label">Patient</span>
+        <strong>{{ data?.referral?.patient_name || data?.referral?.patient?.full_name || 'Patient referral' }}</strong>
+      </div>
+      <div class="status-dialog__record-item">
+        <span class="status-dialog__record-label">Record reference</span>
+        <strong>
+          {{ data?.referral?.referral_number || data?.referral?.referral_id || patientHistoryId || '—' }}
+        </strong>
+      </div>
+      <div class="status-dialog__record-item">
+        <span class="status-dialog__record-label">Current workflow</span>
+        <span class="status-dialog__status-pill">
+          <span class="status-dialog__status-dot"></span>
+          Awaiting confirmation
+        </span>
+      </div>
+    </section>
+
+    <div class="status-dialog__notice" role="status">
+      <mat-icon>info</mat-icon>
+      <p *ngIf="!isRecommendationOnly">
+        Select the outcome that matches the DG decision. Required supporting information will appear automatically.
+      </p>
+      <p *ngIf="isRecommendationOnly">
+        This is a recommendation-only record. Use the boarded-out outcome to capture the DG decision and supporting reference.
       </p>
     </div>
 
-    <div class="text-sm bg-white/20 px-3 py-1 rounded-full">
-      Health System Module
-    </div>
+    <form [formGroup]="statusForm" (ngSubmit)="saveReferralLetter()" novalidate>
+      <section class="status-dialog__section">
+        <div class="status-dialog__section-heading">
+          <span class="status-dialog__step">01</span>
+          <div>
+            <h3>Decision</h3>
+            <p>Choose the final outcome for this referral case.</p>
+          </div>
+        </div>
 
-  </div>
-
-    <form [formGroup]="statusForm">
-
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <!-- ================= ONLY REFERRAL ================= -->
-          <ng-container *ngIf="hasRealReferral && !hasBoardedOut">
-            <mat-option value="Confirmed"> Confirmed</mat-option>
-            <mat-option value="Cancelled"> Rejected</mat-option>
-            <mat-option value="Confirmed and BoardedOut"> Confirmed and Boarded Out</mat-option>
-          </ng-container>
-
-          <!-- ================= ONLY BOARDED OUT ================= -->
-          <ng-container *ngIf="!hasRealReferral && hasBoardedOut">
-            <mat-option value="BoardedOut"> Boarded Out
-            </mat-option>
-          </ng-container>
-
-          <!-- ================= PURE HISTORY / PENDING ================= -->
-          <ng-container *ngIf="!hasRealReferral && !hasBoardedOut">
-            <mat-option value="BoardedOut"> Boarded Out</mat-option>
-          </ng-container>
-        </mat-select>
-        <mat-error
-          *ngIf="
-            statusForm.controls['status'].touched &&
-            statusForm.controls['status'].invalid
-          "
-        >
-          Please select a status
-        </mat-error>
-      </mat-form-field>
-
-      <ng-container *ngIf="statusForm.get('status')?.value === 'Cancelled'">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Description</mat-label>
-          <textarea
-            formControlName="letter_text"
-            matInput
-            rows="5"
-            class="text-black"
-            placeholder="Enter reason for cancellation"
-          ></textarea>
-          <mat-error
-            *ngIf="
-              statusForm.controls['letter_text'].touched &&
-              statusForm.controls['letter_text'].invalid
-            "
-          >
-            Description is required when status is Cancelled
-          </mat-error>
-        </mat-form-field>
-      </ng-container>
-
-      <ng-container *ngIf="statusForm.get('status')?.value === 'Confirmed'">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Select Hospital</mat-label>
-          <mat-select formControlName="hospital_id">
-            <mat-option
-              *ngFor="let hospital of hospitals"
-              [value]="hospital.hospital_id"
-            >
-              {{ hospital.hospital_name }}
-            </mat-option>
+        <mat-form-field appearance="outline" class="status-dialog__field status-dialog__field--wide">
+          <mat-label>Final outcome</mat-label>
+          <mat-select formControlName="status">
+            <ng-container *ngIf="hasRealReferral">
+              <mat-option value="Confirmed">Confirm referral</mat-option>
+              <mat-option value="Cancelled">Reject referral</mat-option>
+              <mat-option value="Confirmed and BoardedOut">Confirm and board out</mat-option>
+            </ng-container>
+            <mat-option *ngIf="!hasRealReferral" value="BoardedOut">Record boarded-out outcome</mat-option>
           </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Description</mat-label>
-          <textarea
-            formControlName="letter_text"
-            matInput
-            rows="5"
-            class="text-black"
-            placeholder="Enter confirmation letter text"
-          ></textarea>
-          <mat-error
-            *ngIf="
-              statusForm.controls['letter_text'].touched &&
-              statusForm.controls['letter_text'].invalid
-            "
-          >
-            This field is mandatory
+          <mat-hint *ngIf="!selectedStatus">Select an outcome to continue.</mat-hint>
+          <mat-error *ngIf="statusForm.controls['status'].touched && statusForm.controls['status'].invalid">
+            Please select a final outcome
           </mat-error>
         </mat-form-field>
+      </section>
 
-        <!-- Start Date -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Start Date</mat-label>
-          <input
-            matInput
-            formControlName="start_date"
-            [matDatepicker]="picker1"
-            placeholder="Choose start date"
-          />
-          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-          <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
+      <section *ngIf="selectedStatus === 'Cancelled'" class="status-dialog__section status-dialog__section--danger">
+        <div class="status-dialog__section-heading">
+          <span class="status-dialog__step">02</span>
+          <div>
+            <h3>Rejection reason</h3>
+            <p>Provide a clear explanation for the decision before closing the case.</p>
+          </div>
+        </div>
 
-        <!-- End Date -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>End Date</mat-label>
-          <input
+        <mat-form-field appearance="outline" class="status-dialog__field status-dialog__field--wide">
+          <mat-label>Decision note</mat-label>
+          <textarea
             matInput
-            formControlName="end_date"
-            [matDatepicker]="picker2"
-            [matDatepickerFilter]="endDateFilter"
-            placeholder="Choose end date"
-          />
-          <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-          <mat-datepicker #picker2></mat-datepicker>
+            formControlName="letter_text"
+            rows="4"
+            placeholder="Explain why this referral is being rejected"></textarea>
+          <mat-hint>Use concise, professional language that can be retained in the case record.</mat-hint>
+          <mat-error *ngIf="statusForm.controls['letter_text'].touched && statusForm.controls['letter_text'].invalid">
+            A rejection reason is required
+          </mat-error>
         </mat-form-field>
-      </ng-container>
+      </section>
 
-      <ng-container *ngIf="statusForm.get('status')?.value === 'BoardedOut'">
-        <!-- Receiver -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Recipient Address</mat-label>
-          <input
-            matInput
-            formControlName="receiver"
-            placeholder="e.g. Managing Director, ZHIC"
-          />
-        </mat-form-field>
-      
-        <!-- Reference -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Reference Number</mat-label>
-          <input
-            matInput
-            formControlName="reference_number"
-            placeholder="e.g. AB.221/300/01/61"
-          />
-        </mat-form-field>
-      
-        <!-- Reference Date -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Reference Date</mat-label>
-          <input
-            matInput
-            formControlName="reference_date"
-            [matDatepicker]="picker3"
-          />
-          <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
-          <mat-datepicker #picker3></mat-datepicker>
-        </mat-form-field>
-      
-        <!-- Recommendations -->
-        <div class="w-full">
-          <label class="font-semibold mb-2 block">Recommendations</label>
-      
-          <div *ngFor="let rec of recommendations.controls; let i = index" class="flex gap-2 mb-2">
-            <input
+      <section *ngIf="showsReferralDetails" class="status-dialog__section">
+        <div class="status-dialog__section-heading">
+          <span class="status-dialog__step">02</span>
+          <div>
+            <h3>Referral confirmation</h3>
+            <p>Document where the patient will receive care and the approved treatment period.</p>
+          </div>
+        </div>
+
+        <div class="status-dialog__grid status-dialog__grid--two">
+          <mat-form-field appearance="outline" class="status-dialog__field status-dialog__field--wide">
+            <mat-label>Receiving hospital</mat-label>
+            <mat-select formControlName="hospital_id">
+              <mat-option *ngFor="let hospital of hospitals" [value]="hospital.hospital_id">
+                {{ hospital.hospital_name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="statusForm.controls['hospital_id'].touched && statusForm.controls['hospital_id'].invalid">
+              Select the receiving hospital
+            </mat-error>
+          </mat-form-field>
+
+          <div class="status-dialog__field-spacer"></div>
+
+          <mat-form-field appearance="outline" class="status-dialog__field">
+            <mat-label>Treatment start date</mat-label>
+            <input matInput formControlName="start_date" [matDatepicker]="referralStartPicker" placeholder="Choose a date" />
+            <mat-datepicker-toggle matSuffix [for]="referralStartPicker"></mat-datepicker-toggle>
+            <mat-datepicker #referralStartPicker></mat-datepicker>
+            <mat-error *ngIf="statusForm.controls['start_date'].touched && statusForm.controls['start_date'].invalid">
+              Select a start date
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="status-dialog__field">
+            <mat-label>Treatment end date</mat-label>
+            <input matInput formControlName="end_date" [matDatepicker]="referralEndPicker" [matDatepickerFilter]="endDateFilter" placeholder="Choose a date" />
+            <mat-datepicker-toggle matSuffix [for]="referralEndPicker"></mat-datepicker-toggle>
+            <mat-datepicker #referralEndPicker></mat-datepicker>
+            <mat-error *ngIf="statusForm.controls['end_date'].touched && statusForm.controls['end_date'].invalid">
+              Select an end date on or after the start date
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="status-dialog__field status-dialog__field--wide">
+            <mat-label>Confirmation note</mat-label>
+            <textarea
               matInput
-              [formControl]="rec"
-              placeholder="Enter recommendation"
-              class="w-full border p-2 rounded"
-            />
-      
-            <button mat-icon-button color="warn" (click)="removeRecommendation(i)">
-              <mat-icon>delete</mat-icon>
+              formControlName="letter_text"
+              rows="3"
+              placeholder="Add the confirmation note or formal instructions"></textarea>
+            <mat-error *ngIf="statusForm.controls['letter_text'].touched && statusForm.controls['letter_text'].invalid">
+              A confirmation note is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section *ngIf="showsBoardedOutDetails" class="status-dialog__section status-dialog__section--boarded-out">
+        <div class="status-dialog__section-heading">
+          <span class="status-dialog__step">{{ selectedStatus === 'Confirmed and BoardedOut' ? '03' : '02' }}</span>
+          <div>
+            <h3>Boarded-out record</h3>
+            <p>Capture the receiving authority, reference details, and any follow-up recommendations.</p>
+          </div>
+        </div>
+
+        <div class="status-dialog__grid status-dialog__grid--two">
+          <mat-form-field appearance="outline" class="status-dialog__field status-dialog__field--wide">
+            <mat-label>Receiving authority or recipient</mat-label>
+            <input matInput formControlName="receiver" placeholder="e.g. Managing Director, ZHIC" />
+            <mat-error *ngIf="statusForm.controls['receiver'].touched && statusForm.controls['receiver'].invalid">
+              Enter the receiving authority or recipient
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="status-dialog__field">
+            <mat-label>Reference number</mat-label>
+            <input matInput formControlName="reference_number" placeholder="e.g. AB.221/300/01/61" />
+            <mat-error *ngIf="statusForm.controls['reference_number'].touched && statusForm.controls['reference_number'].invalid">
+              Enter the reference number
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="status-dialog__field">
+            <mat-label>Reference date</mat-label>
+            <input matInput formControlName="reference_date" [matDatepicker]="boardedOutDatePicker" placeholder="Choose a date" />
+            <mat-datepicker-toggle matSuffix [for]="boardedOutDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #boardedOutDatePicker></mat-datepicker>
+            <mat-error *ngIf="statusForm.controls['reference_date'].touched && statusForm.controls['reference_date'].invalid">
+              Select the reference date
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="status-dialog__recommendations" formArrayName="recommendations">
+          <div class="status-dialog__recommendations-heading">
+            <div>
+              <h4>Recommendations</h4>
+              <p>Add practical follow-up instructions for the receiving team.</p>
+            </div>
+            <button mat-stroked-button type="button" (click)="addRecommendation()">
+              <mat-icon>add</mat-icon>
+              Add recommendation
             </button>
           </div>
-      
-          <button mat-button color="primary" (click)="addRecommendation()">
-            + Add Recommendation
-          </button>
-        </div>
-      
-    </ng-container>
-      <ng-container *ngIf="statusForm.get('status')?.value === 'Confirmed and BoardedOut'">
-          <div class="grid grid-cols-2 gap-4">
 
-        <!-- Hospital -->
-        <mat-form-field appearance="outline" class="w-full col-span-2">
-          <mat-label>Select Hospital</mat-label>
-          <mat-select formControlName="hospital_id">
-            <mat-option
-              *ngFor="let hospital of hospitals"
-              [value]="hospital.hospital_id">
-              {{ hospital.hospital_name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+          <div *ngIf="!recommendations.length" class="status-dialog__recommendations-empty">
+            No recommendations added yet. This section is optional.
+          </div>
 
-        <!-- Start Date -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Start Date</mat-label>
-          <input matInput formControlName="start_date" [matDatepicker]="picker1" />
-          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-          <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
-
-        <!-- End Date -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>End Date</mat-label>
-          <input matInput formControlName="end_date" [matDatepicker]="picker2" />
-          <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-          <mat-datepicker #picker2></mat-datepicker>
-        </mat-form-field>
-
-        <!-- Receiver -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Recipient Address</mat-label>
-          <input matInput formControlName="receiver" />
-        </mat-form-field>
-
-        <!-- Reference Number -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Reference Number</mat-label>
-          <input matInput formControlName="reference_number" />
-        </mat-form-field>
-
-        <!-- Reference Date -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Reference Date</mat-label>
-          <input
-            matInput
-            formControlName="reference_date"
-            [matDatepicker]="picker3" />
-          <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
-          <mat-datepicker #picker3></mat-datepicker>
-        </mat-form-field>
-
-        <!-- Recommendation -->
-        <div class="w-full">
-          <label class="font-semibold block mb-1">Recommendation</label>
-
-          <div
-            *ngFor="let rec of recommendations.controls; let i = index"
-            class="flex gap-2 mb-2">
-
-            <input
-              matInput
-              [formControl]="rec"
-              placeholder="Enter recommendation"
-              class="w-full border p-2 rounded" />
-
+          <div *ngFor="let rec of recommendations.controls; let i = index" class="status-dialog__recommendation-row">
+            <mat-form-field appearance="outline" class="status-dialog__field">
+              <mat-label>Recommendation {{ i + 1 }}</mat-label>
+              <textarea matInput [formControlName]="i" rows="2" placeholder="Enter follow-up recommendation"></textarea>
+            </mat-form-field>
             <button
               mat-icon-button
-              color="warn"
+              type="button"
+              class="status-dialog__remove-button"
+              aria-label="Remove recommendation"
               (click)="removeRecommendation(i)">
-              <mat-icon>delete</mat-icon>
+              <mat-icon>delete_outline</mat-icon>
             </button>
           </div>
-
-          <button
-            mat-stroked-button
-            color="primary"
-            type="button"
-            (click)="addRecommendation()">
-            + Add
-          </button>
         </div>
+      </section>
 
-        <!-- Description -->
-        <mat-form-field appearance="outline" class="w-full col-span-2">
-          <mat-label>Description</mat-label>
-          <textarea
-            matInput
-            formControlName="letter_text"
-            rows="2"
-            placeholder="Enter confirmation letter text">
-          </textarea>
-        </mat-form-field>
-
-      </div>
-   </ng-container>
-
-      <div class="flex justify-end gap-6 pt-4">
-        <button mat-button mat-dialog-close>Cancel</button>
-        <button
-          mat-flat-button
-          color="primary"
-          [disabled]="statusForm.invalid"
-          (click)="saveReferralLetter()"
-        >
-          SEND CONFIRMATION
+      <footer class="status-dialog__actions">
+        <button mat-button type="button" class="status-dialog__cancel" (click)="onClose()">
+          Cancel
         </button>
-      </div>
-
+        <button mat-flat-button color="primary" type="submit" [disabled]="statusForm.invalid || saving">
+          <mat-icon>{{ selectedStatus === 'Cancelled' ? 'block' : 'save' }}</mat-icon>
+          {{ actionLabel }}
+        </button>
+      </footer>
     </form>
-
   </div>
 </div>

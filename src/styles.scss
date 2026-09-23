@@ -308,6 +308,70 @@ html.dark #print-section {
   height: 100%;
 }
 
+.patient-form-dialog .mat-mdc-dialog-surface,
+.patient-form-dialog .mat-dialog-container {
+  overflow: hidden !important;
+  padding: 0 !important;
+  border-radius: 1.25rem !important;
+  background: transparent !important;
+}
+
+.medical-board-dialog .mat-mdc-dialog-surface,
+.medical-board-dialog .mat-dialog-container {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.referral-status-dialog-panel .mat-mdc-dialog-surface,
+.referral-status-dialog-panel .mat-dialog-container {
+  overflow: hidden !important;
+  padding: 0 !important;
+  border-radius: 1rem !important;
+}
+
+.feedback-dialog-panel .mat-mdc-dialog-surface,
+.feedback-dialog-panel .mat-dialog-container {
+  overflow: hidden !important;
+  padding: 0 !important;
+  border-radius: 1rem !important;
+  background: transparent !important;
+}
+
+.feedback-snackbar {
+  --feedback-snackbar-bg: var(--rms-surface);
+  --feedback-snackbar-fg: var(--rms-text);
+  --feedback-snackbar-accent: #2563eb;
+  border-left: 0.25rem solid var(--feedback-snackbar-accent) !important;
+  color: var(--feedback-snackbar-fg) !important;
+  background: var(--feedback-snackbar-bg) !important;
+  box-shadow: 0 12px 30px var(--rms-shadow) !important;
+}
+
+.feedback-snackbar .mdc-snackbar__surface {
+  color: inherit !important;
+  background: inherit !important;
+}
+
+.feedback-snackbar .mdc-snackbar__label {
+  color: inherit !important;
+}
+
+.feedback-snackbar .mat-mdc-snack-bar-action {
+  color: var(--feedback-snackbar-accent) !important;
+}
+
+.feedback-snackbar--success {
+  --feedback-snackbar-accent: #16a34a;
+}
+
+.feedback-snackbar--error {
+  --feedback-snackbar-accent: #dc2626;
+}
+
+.feedback-snackbar--warning {
+  --feedback-snackbar-accent: #d97706;
+}
+
 /* Shared in-app document preview dialog. */
 .file-viewer-dialog {
   .mat-mdc-dialog-surface {

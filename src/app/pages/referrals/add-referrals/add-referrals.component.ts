@@ -23,7 +23,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { Subject, forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { HospitalService } from '../../../services/system-configuration/hospital.service';
 import { PartientService } from '../../../services/partient/partient.service';
@@ -53,6 +53,7 @@ import { HDividerComponent } from '@elementar/components';
   styleUrls: ['./add-referrals.component.scss'],
 })
 export class AddReferralsComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly onDestroy = new Subject<void>();
 
@@ -117,7 +118,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
 
   saveReferrals() {
     if (this.referralsForm.invalid) {
-      Swal.fire({
+      this.uiFeedback.fire({
         title: 'Form Invalid',
         text: 'Please fill all required fields correctly.',
         icon: 'warning',
@@ -130,7 +131,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
     this.referralsService.addReferral(this.referralsForm.value).subscribe(
       (response) => {
         if (response.statusCode === 201) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: 'Data saved successfully',
             icon: 'success',
@@ -138,7 +139,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
             confirmButtonText: 'Continue',
           }).then(() => this.dialogRef.close(true));
         } else {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Error',
             text: response.message,
             icon: 'error',
@@ -148,7 +149,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
         }
       },
       (err) => {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: err.error?.message || 'Failed to save referral',
           icon: 'error',
@@ -166,7 +167,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
         .subscribe(
           (response) => {
             if (response.statusCode === 201) {
-              Swal.fire({
+              this.uiFeedback.fire({
                 title: 'Success',
                 text: 'Referral updated successfully',
                 icon: 'success',
@@ -174,7 +175,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
                 confirmButtonText: 'Continue',
               }).then(() => this.dialogRef.close(true));
             } else {
-              Swal.fire({
+              this.uiFeedback.fire({
                 title: 'Error',
                 text: response.message,
                 icon: 'error',
@@ -184,7 +185,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
             }
           },
           (err) => {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Error',
               text: err.error?.message || 'Failed to update referral',
               icon: 'error',

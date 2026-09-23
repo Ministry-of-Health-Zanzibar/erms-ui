@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -7,7 +7,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { GlobalConstants } from '@shared/global-constants';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { RolePermissionService } from '../../../../services/users/role-permission.service';
 import { CommonModule } from '@angular/common';
 import { HDividerComponent } from '@elementar/components';
@@ -34,6 +34,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './role-permission-form.component.scss'
 })
 export class RolePermissionFormComponent implements OnInit,OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
 
   private readonly onDestroy = new Subject<void>()
@@ -123,7 +124,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
       ).subscribe({
         next: response => {
         if(response.statusCode == 201){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -131,7 +132,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
             confirmButtonText: "Continue"
           }).then(() => this.dialogRef.close(true));
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "error",
             text: response.message,
             icon: "error",
@@ -142,7 +143,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
 
       },
       error: error => {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: getApiErrorMessage(error, 'Unable to create the role. Please try again.'),
             icon: "error",
@@ -151,7 +152,7 @@ export class RolePermissionFormComponent implements OnInit,OnDestroy {
           });
       }});
     }else{
-      Swal.fire({
+      this.uiFeedback.fire({
         title: "warning",
       text: 'No permission selected. Please select at least one permission for this role.',
         icon: "warning",

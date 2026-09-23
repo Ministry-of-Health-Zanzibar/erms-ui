@@ -9,7 +9,7 @@ import { HDividerComponent } from '@elementar/components';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
 import { getApiErrorMessage } from '@shared/utils/api-error';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ReferalTypeService } from '../../../../services/system-configuration/referal-type.service';
 
 @Component({
@@ -32,6 +32,7 @@ import { ReferalTypeService } from '../../../../services/system-configuration/re
   styleUrl: './add-referral-type.component.scss'
 })
 export class AddReferralTypeComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   readonly data = inject<any>(MAT_DIALOG_DATA);
     private readonly onDestroy = new Subject<void>()
@@ -114,7 +115,7 @@ export class AddReferralTypeComponent implements OnInit, OnDestroy {
         ).subscribe({
           next: (response: any) => {
             if (response.statusCode === successCode) {
-              Swal.fire({
+              this.uiFeedback.fire({
                 title: 'Success',
                 text: 'Referral type saved successfully.',
                 icon: 'success',
@@ -131,7 +132,7 @@ export class AddReferralTypeComponent implements OnInit, OnDestroy {
       }
 
       private showError(message: string): void {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: message,
           icon: 'error',

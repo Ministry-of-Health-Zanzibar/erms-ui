@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAnchor, MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -17,7 +17,7 @@ import { DiagnosisService } from '../../../../services/system-configuration/diag
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddDiagnosisComponent } from '../add-diagnosis/add-diagnosis.component';
 import { UploadDiagnosisComponent } from '../upload-diagnosis/upload-diagnosis.component';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PageEvent } from '@angular/material/paginator';
 import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
@@ -41,6 +41,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './view-diagnosis.component.scss'
 })
 export class ViewDiagnosisComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
 
@@ -150,7 +151,7 @@ export class ViewDiagnosisComponent {
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.diagnosis_name + ' </b> ',
       icon: "warning",
@@ -173,7 +174,7 @@ export class ViewDiagnosisComponent {
     if(deleted){
       this.diagnosisService.unblockDiagnosis(id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -182,7 +183,7 @@ export class ViewDiagnosisComponent {
           });
           this.getDiagnosis();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -194,7 +195,7 @@ export class ViewDiagnosisComponent {
     }else{
       this.diagnosisService.deleteDiagnosis(id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -203,7 +204,7 @@ export class ViewDiagnosisComponent {
           });
           this.getDiagnosis()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

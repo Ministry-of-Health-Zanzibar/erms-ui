@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAnchor, MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -12,7 +12,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
 import { Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { EmployerTypeService } from '../../../../services/system-configuration/employer-type.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -47,6 +47,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './employer-type.component.scss'
 })
 export class EmployerTypeComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
 
@@ -140,7 +141,7 @@ export class EmployerTypeComponent {
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.employer_type_name + ' </b> ',
       icon: "warning",
@@ -163,7 +164,7 @@ export class EmployerTypeComponent {
     if(deleted){
       this.employerTypeService.unblockEmployerType(id).subscribe(response=>{
         if(response.statusCode == 201){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -172,7 +173,7 @@ export class EmployerTypeComponent {
           });
           this.getEmployerType();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -184,7 +185,7 @@ export class EmployerTypeComponent {
     }else{
       this.employerTypeService.deleteEmploerType(id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -193,7 +194,7 @@ export class EmployerTypeComponent {
           });
           this.getEmployerType()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

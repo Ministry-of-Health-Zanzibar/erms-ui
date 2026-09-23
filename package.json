@@ -48,7 +48,6 @@
     "ngx-markdown": "^18.0.0",
     "prismjs": "^1.29.0",
     "rxjs": "~7.8.0",
-    "sweetalert2": "^11.6.13",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
     "zone.js": "~0.14.3"

@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
 import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { LocationService } from '../../../services/system-configuration/location.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 
@@ -39,6 +39,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './insurance.component.scss'
 })
 export class InsuranceComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -170,7 +171,7 @@ saveClient(): void {
       finalize(() => this.submitting = false)
     ).subscribe({ next: response => {
       if (response.statusCode === 201) {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Success",
           text: response.message,
           icon: "success",
@@ -185,7 +186,7 @@ saveClient(): void {
 }
 
 private showError(message: string): void {
-  Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+  this.uiFeedback.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
 }
 
 

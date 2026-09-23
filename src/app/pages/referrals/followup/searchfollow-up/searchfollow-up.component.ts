@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -20,7 +20,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { ReferralService } from '../../../../services/Referral/referral.service';
 import {
@@ -57,6 +57,7 @@ import {
   styleUrl: './searchfollow-up.component.scss'
 })
 export class SearchfollowUpComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
 
@@ -185,7 +186,7 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
 
     viewfollowup(data: any) {
       if (data.is_recommendation_only) {
-        Swal.fire(
+        this.uiFeedback.fire(
           'Not Available',
           'This case is a recommendation only. No follow-up exists.',
           'info'

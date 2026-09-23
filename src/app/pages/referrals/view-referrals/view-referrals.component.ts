@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -22,13 +22,13 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { AddReferralsComponent } from '../add-referrals/add-referrals.component';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { EmrSegmentedModule } from '../../../../../projects/components/src/lib/segmented/segmented.module';
 import { BillComponent } from '../bill/bill.component';
-import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.component';
 import { DisplaycommentsComponent } from '../displaycomments/displaycomments.component';
 import {
   EmptyStateComponent,
+  LetterPreviewDialogComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
@@ -60,6 +60,7 @@ import {
   styleUrl: './view-referrals.component.scss',
 })
 export class ViewReferralsComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
 
@@ -70,6 +71,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
     'board_comments',
     'diagnoses',
     'status',
+    'letter_status',
     'action',
   ];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -303,7 +305,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
       ? 'Are you sure you want to unblock'
       : 'Are you sure you want to block';
 
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Confirm',
       html: `${message} <b>${data.referral_id}</b>`,
       icon: 'warning',
@@ -328,7 +330,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
         .unblockReferral(data.referral_id)
         .subscribe((response) => {
           if (response.statusCode === 200) {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Success',
               text: response.message,
               icon: 'success',
@@ -337,7 +339,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
             });
             this.getReferrals();
           } else {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Error',
               text: response.message,
               icon: 'error',
@@ -352,7 +354,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
         .deleteReferral(data.referral_id)
         .subscribe((response) => {
           if (response.statusCode === 200) {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Success',
               text: response.message,
               icon: 'success',
@@ -361,7 +363,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
             });
             this.getReferrals();
           } else {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Error',
               text: response.message,
               icon: 'error',
@@ -444,7 +446,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
 
   displayReport(element: any) {
     if (element.is_recommendation_only) {
-      Swal.fire(
+      this.uiFeedback.fire(
         'Not Available',
         'No report available for recommendation-only cases.',
         'info'
@@ -460,7 +462,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
 
   viewfollowup(data: any) {
     if (data.is_recommendation_only) {
-      Swal.fire(
+      this.uiFeedback.fire(
         'Not Available',
         'This case is a recommendation only. No follow-up exists.',
         'info'
@@ -487,13 +489,33 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
   }
 
   referralsLetterPopup(data: any): void {
-    const dialogRef = this.dialog.open(ReferralsLetterComponent, {
+    const referralId = data?.referrals?.find((item: any) => item?.referral_id)?.referral_id;
+
+    if (!referralId) {
+      this.uiFeedback.alert(
+        'Letter not available',
+        'This record does not have a confirmed referral letter yet.',
+        'info',
+      );
+      return;
+    }
+
+    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
       maxWidth: '100vw',
       maxHeight: '100vh',
-      data: data,
+      width: 'min(96vw, 560px)',
+      data: {
+        kind: 'referral',
+        id: referralId,
+        patientName: data?.patient?.name,
+        defaultLanguage: data?.hospitals?.[0]?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw',
+      },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+      if (result?.printed) {
+        this.getReferrals();
+      }
     });
   }
 

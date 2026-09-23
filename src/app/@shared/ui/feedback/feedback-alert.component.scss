@@ -1,0 +1,138 @@
+:host {
+  display: block;
+  color: var(--rms-text);
+}
+
+.feedback-dialog {
+  width: min(100%, 430px);
+  overflow: hidden;
+  border: 1px solid var(--rms-border);
+  border-radius: 1rem;
+  background: var(--rms-surface);
+  box-shadow: 0 24px 60px rgb(15 23 42 / 0.2);
+}
+
+.feedback-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.feedback-dialog__icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 0.9rem;
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.feedback-dialog__icon .mat-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 1.6rem;
+}
+
+.feedback-dialog--warning .feedback-dialog__icon {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.feedback-dialog--error .feedback-dialog__icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.feedback-dialog--success .feedback-dialog__icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.feedback-dialog--question .feedback-dialog__icon {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.feedback-dialog__close {
+  color: var(--rms-text-muted) !important;
+}
+
+.feedback-dialog__content {
+  padding: 0.7rem 1.25rem 1.15rem;
+}
+
+.feedback-dialog__eyebrow {
+  margin: 0 0 0.35rem;
+  color: #2563eb;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.feedback-dialog--success .feedback-dialog__eyebrow {
+  color: #16a34a;
+}
+
+.feedback-dialog--error .feedback-dialog__eyebrow {
+  color: #dc2626;
+}
+
+.feedback-dialog__content h2 {
+  margin: 0;
+  color: var(--rms-text);
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.feedback-dialog__message {
+  margin: 0.55rem 0 0;
+  color: var(--rms-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.feedback-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0.9rem 1.25rem 1.25rem;
+  border-top: 1px solid var(--rms-border);
+}
+
+.feedback-dialog__actions--alert button {
+  min-width: 6.5rem;
+}
+
+.feedback-dialog__confirm {
+  min-width: 7rem;
+  color: #ffffff !important;
+  background: #2563eb;
+}
+
+:host-context(html.dark) .feedback-dialog {
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.42);
+}
+
+:host-context(html.dark) .feedback-dialog__icon {
+  background: rgb(59 130 246 / 0.2);
+  color: #bfdbfe;
+}
+
+:host-context(html.dark) .feedback-dialog--warning .feedback-dialog__icon {
+  background: rgb(245 158 11 / 0.2);
+  color: #fcd34d;
+}
+
+:host-context(html.dark) .feedback-dialog--error .feedback-dialog__icon {
+  background: rgb(239 68 68 / 0.2);
+  color: #fca5a5;
+}
+
+:host-context(html.dark) .feedback-dialog--success .feedback-dialog__icon {
+  background: rgb(34 197 94 / 0.2);
+  color: #86efac;
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
+import { inject, Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 
 import { BillItermService } from '../../../../services/Bills/bill-iterm.service';
 import { BillItermFormComponent } from '../bill-iterm-form/bill-iterm-form.component';
@@ -57,6 +57,7 @@ interface BillItem {
   providers: [DatePipe],
 })
 export class BillItermDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   public loading = false;
   public bill_id: string | null = null;
@@ -120,7 +121,7 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit, OnDestr
       },
       error: () => {
         this.loading = false;
-        Swal.fire('Error', 'Failed to fetch bill items', 'error');
+        this.uiFeedback.fire('Error', 'Failed to fetch bill items', 'error');
       },
     });
   }
@@ -155,7 +156,7 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit, OnDestr
   }) {
     this.billService.addbillIterms(payload).pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response) => {
-        Swal.fire('Success', 'Bill item added successfully', 'success');
+        this.uiFeedback.fire('Success', 'Bill item added successfully', 'success');
         if (payload.bill_id) {
           this.getBillItemsByBillId(payload.bill_id.toString());
         }
@@ -167,7 +168,7 @@ export class BillItermDetailsComponent implements OnInit, AfterViewInit, OnDestr
           errorMessage = error.error.message;
         }
 
-        Swal.fire('Error', errorMessage, 'error');
+        this.uiFeedback.fire('Error', errorMessage, 'error');
       },
     });
   }

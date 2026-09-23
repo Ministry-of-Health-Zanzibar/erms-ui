@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -19,7 +19,7 @@ import { HospitalService } from '../../../../services/system-configuration/hospi
 
 import { AddhospitalComponent } from '../addhospital/addhospital.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
@@ -51,6 +51,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './viewhospital.component.scss'
 })
 export class ViewhospitalComponent implements OnInit,OnDestroy{
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>()
 
   displayedColumns: string[] = ['id','name','code','address','email','action'];
@@ -146,7 +147,7 @@ export class ViewhospitalComponent implements OnInit,OnDestroy{
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.hospital_name + ' </b> ',
       icon: "warning",
@@ -169,7 +170,7 @@ export class ViewhospitalComponent implements OnInit,OnDestroy{
     if(deleted){
       this.hospitalService.unblockHospital(data, data?.hospital_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -178,7 +179,7 @@ export class ViewhospitalComponent implements OnInit,OnDestroy{
           });
           this.getHospital();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -190,7 +191,7 @@ export class ViewhospitalComponent implements OnInit,OnDestroy{
     }else{
       this.hospitalService.deleteHospital(data?.hospital_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -199,7 +200,7 @@ export class ViewhospitalComponent implements OnInit,OnDestroy{
           });
           this.getHospital()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

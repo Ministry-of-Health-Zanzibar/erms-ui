@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { inject, Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -17,7 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PartientService } from '../../../services/partient/partient.service';
 import { LocationService } from '../../../services/system-configuration/location.service';
 import { MatCardModule } from '@angular/material/card';
@@ -50,6 +50,7 @@ export interface AddMultiplePatientDialogData {
   styleUrls: ['./addmultiplepatient.component.scss'],
 })
 export class AddmultiplepatientComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   patients: any[] = [];
   patientForm: FormGroup;
   loading = false;
@@ -108,12 +109,12 @@ export class AddmultiplepatientComponent implements OnInit, OnDestroy {
     this.patientService.addMultiplePartient(payload, patient_list_id).subscribe({
       next: (res) => {
         this.loading = false;
-        Swal.fire('Success', res.message, 'success');
+        this.uiFeedback.fire('Success', res.message, 'success');
         this.dialogRef.close(res);
       },
       error: (err) => {
         this.loading = false;
-        Swal.fire(
+        this.uiFeedback.fire(
           'Error',
           err.error?.message || 'Failed to assign patients',
           'error'

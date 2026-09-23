@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatDivider } from '@angular/material/divider';
 import { AsyncPipe } from '@angular/common';
 import { EmrAvatarModule } from '@elementar/components';
@@ -6,7 +6,7 @@ import { MatBadge } from '@angular/material/badge';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -26,6 +26,8 @@ import { Router } from '@angular/router';
 })
 export class ToolbarComponent implements OnInit{
 
+  private readonly uiFeedback = inject(FeedbackService);
+
   constructor(private route:Router,){}
 
   fullName:any;
@@ -37,23 +39,20 @@ export class ToolbarComponent implements OnInit{
   }
 
   logoutHead(){
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You want to logout in this system",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Logout",
-      allowOutsideClick: () => !Swal.isVisible()
-    }).then((result) => {
+    this.uiFeedback.confirm(
+      'Sign out of ERIS?',
+      'You will be returned to the sign-in page.',
+      {
+        icon: 'warning',
+        confirmButtonText: 'Yes, sign out',
+        cancelButtonText: 'Stay signed in',
+      },
+    ).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Congratulation!!!!",
-          text: "You have a succeessfully to logout",
-          icon: "success",
-          allowOutsideClick: () => !Swal.isVisible()
-        }).then(() => {
+        this.uiFeedback.success(
+          'Signed out successfully',
+          'Your ERIS session has been closed.',
+        ).then(() => {
           localStorage.clear();
           this.route.navigate(['/']);
         });

@@ -1,49 +1,64 @@
-<div class="p-6 w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200">
-
-  <!-- Header -->
-  <div class="flex items-center mb-4">
-    <mat-icon class="text-blue-600 mr-2">forward</mat-icon>
-   <h2 mat-dialog-title>
-      {{ data?.editMode ? 'View / Edit Message' : 'Send Message' }}
-    </h2>
-  </div>
-
-  <p class="text-gray-500 text-sm mb-6">
-    Please enter comments before forwarding this case to the next level.
-  </p>
-
-  <!-- Form -->
-  <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
-
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Comments</mat-label>
-      <textarea
-        matInput
-        rows="4"
-        formControlName="mkurugenzi_tiba_comments"
-        placeholder="Enter your comments here..."
-      ></textarea>
-
-      <mat-error *ngIf="form.controls['mkurugenzi_tiba_comments'].hasError('required')">
-        Comments are required.
-      </mat-error>
-    </mat-form-field>
-
-    <!-- Actions -->
-    <div class="flex justify-end space-x-3 pt-2">
-      <button
-        mat-button
-        type="button"
-        (click)="close()"
-        class="text-gray-600"
-      >
-        Cancel
-      </button>
-
-     <button mat-raised-button color="primary" (click)="submit()">
-      {{ data?.editMode ? 'Update' : 'Send' }}
-    </button>
+<section class="forward-dialog" aria-labelledby="forward-dialog-title">
+  <header class="forward-dialog__header">
+    <div class="forward-dialog__icon" aria-hidden="true">
+      <mat-icon>forward_to_inbox</mat-icon>
     </div>
-  </form>
 
-</div>
+    <div class="forward-dialog__heading">
+      <span class="forward-dialog__eyebrow">
+        {{ isEditMode ? 'Workflow note' : 'Case handover' }}
+      </span>
+      <h2 id="forward-dialog-title" mat-dialog-title>
+        {{ isEditMode ? 'Review forwarding note' : 'Forward case for review' }}
+      </h2>
+      <p>
+        {{ isEditMode
+          ? 'Review or update the note attached to this case.'
+          : 'Add a concise handover note for the next responsible reviewer.' }}
+      </p>
+    </div>
+  </header>
+
+  <div class="forward-dialog__body">
+    <div class="forward-dialog__notice" role="note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <span>This note will be recorded in the case history and shared with the next workflow level.</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="forward-dialog__field">
+        <mat-label>Handover note</mat-label>
+        <textarea
+          matInput
+          rows="5"
+          maxlength="1000"
+          formControlName="mkurugenzi_tiba_comments"
+          placeholder="Summarize the relevant context, action taken, or recommendation..."
+          aria-describedby="forward-note-help"
+        ></textarea>
+        <mat-hint id="forward-note-help">Keep the note clear and relevant to the next reviewer.</mat-hint>
+        <mat-hint align="end">{{ commentLength }}/1000</mat-hint>
+        <mat-error *ngIf="form.controls['mkurugenzi_tiba_comments'].hasError('required')">
+          A handover note is required before forwarding.
+        </mat-error>
+      </mat-form-field>
+
+      <footer class="forward-dialog__actions">
+        <button mat-stroked-button type="button" (click)="close()">
+          <mat-icon aria-hidden="true">close</mat-icon>
+          <span>Cancel</span>
+        </button>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="loading || form.invalid"
+        >
+          <mat-icon aria-hidden="true">{{ isEditMode ? 'save' : 'forward_to_inbox' }}</mat-icon>
+          <span>{{ isEditMode ? 'Save note' : 'Forward case' }}</span>
+        </button>
+      </footer>
+    </form>
+  </div>
+</section>

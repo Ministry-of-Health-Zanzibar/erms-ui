@@ -9,7 +9,7 @@ import { HDividerComponent } from '@elementar/components';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
 import { getApiErrorMessage } from '@shared/utils/api-error';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { BillService } from '../../../../services/system-configuration/bill.service';
 
 @Component({
@@ -32,6 +32,7 @@ import { BillService } from '../../../../services/system-configuration/bill.serv
   styleUrl: './addbill.component.scss'
 })
 export class AddbillComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly onDestroy = new Subject<void>()
@@ -110,7 +111,7 @@ export class AddbillComponent implements OnInit, OnDestroy {
     request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
       next: (response: any) => {
         if (response.statusCode === 200 || response.statusCode === 201) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: response.message || 'Bill saved successfully.',
             icon: 'success',
@@ -126,6 +127,6 @@ export class AddbillComponent implements OnInit, OnDestroy {
   }
 
   private showError(message: string): void {
-    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+    this.uiFeedback.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }

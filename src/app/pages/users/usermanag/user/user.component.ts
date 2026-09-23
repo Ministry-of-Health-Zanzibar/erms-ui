@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAnchor, MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -9,7 +9,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { AddUserComponent } from '../add-user/add-user.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
@@ -51,6 +51,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './user.component.scss'
 })
 export class UserComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
 
@@ -139,7 +140,7 @@ export class UserComponent {
     if(deleted){
       this.userService.activateUser(data).subscribe(response=>{
         if(response.statusCode == 201){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -148,7 +149,7 @@ export class UserComponent {
           });
           this.userDataTable();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -160,7 +161,7 @@ export class UserComponent {
     }else{
       this.userService.blockUser(data).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -169,7 +170,7 @@ export class UserComponent {
           });
           this.userDataTable()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -183,7 +184,7 @@ export class UserComponent {
 
    resetUserPassword(userId: number) {
 
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Reset Password?',
       text: 'A new password will be generated and sent to user email.',
       icon: 'warning',
@@ -197,7 +198,7 @@ export class UserComponent {
         this.userService.resetPassword(userId).subscribe({
           next: (response) => {
             if (response.statusCode === 201) {
-              Swal.fire(
+              this.uiFeedback.fire(
                 'Success',
                 response.message,
                 'success'
@@ -205,7 +206,7 @@ export class UserComponent {
             }
           },
           error: (error) => {
-            Swal.fire(
+            this.uiFeedback.fire(
               'Error',
               error.error?.message || 'Something went wrong',
               'error'

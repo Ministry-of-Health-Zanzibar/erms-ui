@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { inject, Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 
 import { PartientService } from '../../../services/partient/partient.service';
 import { PermissionService } from '../../../services/authentication/permission.service';
@@ -70,6 +70,19 @@ interface Patient {
     mkurugenzi_tiba_id?: number | null;
     dg_id?: number | null;
     board_reason_id?: number | null;
+    board_reason?: {
+      reason_id: number;
+      referral_reason_name?: string;
+    } | null;
+    board_diagnoses?: {
+      diagnosis_id: number;
+      diagnosis_name?: string;
+      diagnosis_code?: string;
+    }[];
+    referrals?: {
+      referral_id?: number;
+      status?: string;
+    }[];
     diagnoses?: {
       diagnosis_id: number;
       uuid?: string;
@@ -129,6 +142,7 @@ interface Patient {
   providers: [DatePipe],
 })
 export class BodyListMoreComponent implements OnInit, AfterViewInit {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   public bodyList: BodyList[] = [];
   public loading = false;
@@ -228,7 +242,7 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
     error: (error) => {
       this.loading = false;
       console.error("Error fetching body list:", error);
-      Swal.fire("Error", "Failed to fetch body list", "error");
+      this.uiFeedback.fire("Error", "Failed to fetch body list", "error");
     },
   });
 }
@@ -310,7 +324,7 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
       error: (error) => {
         this.loading = false;
         console.error('Error refreshing patients:', error);
-        Swal.fire('Error', 'Failed to refresh patients', 'error');
+        this.uiFeedback.fire('Error', 'Failed to refresh patients', 'error');
       },
     });
   }
@@ -370,9 +384,10 @@ openMedicalHistory(patient: any) {
 
   const config = new MatDialogConfig();
 
-  config.maxWidth = '100vw';
-  config.maxHeight = '98vh';
-  config.panelClass = 'full-screen-modal';
+  config.width = '960px';
+  config.maxWidth = 'calc(100vw - 24px)';
+  config.maxHeight = 'calc(100vh - 24px)';
+  config.panelClass = 'medical-board-dialog';
 
   config.data = {
     patient: patient,

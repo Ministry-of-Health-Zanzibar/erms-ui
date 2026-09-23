@@ -1,139 +1,625 @@
-.horizontal-form {
-  display: flex;
-  flex-wrap: wrap;
+:host {
+  display: block;
+  color: #172033;
 }
 
-.form-row {
+.medical-board-form {
+  width: min(960px, calc(100vw - 24px));
+  overflow: hidden;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+}
+
+.form-header {
   display: flex;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 24px 16px;
+  border-bottom: 1px solid #e8edf4;
+  background: linear-gradient(135deg, #f8fbff 0%, #ffffff 72%);
+}
+
+.header-leading {
+  display: flex;
+  align-items: flex-start;
   gap: 16px;
 }
 
-.form-field {
-  flex: 1 1 30%;  /* badala ya full width, weka approx 30% */
-  min-width: 250px;
+.header-icon,
+.patient-avatar,
+.decision-icon,
+.upload-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
 }
 
-
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
-
-  .form-field {
-    min-width: 100%;
-  }
+.header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #0f766e;
+  background: #dff7f1;
 }
 
-.file-input {
-  border: 1px solid rgba(0,0,0,0.23);
-  border-radius: 4px;
-  padding: 8px;
-  width: 100%;
-  cursor: pointer;
+.header-icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
 }
 
-/* Form container */
-
-
-/* Title styling */
-.font-semibold {
-  font-size: 1.8rem;
-  color: #00796b; /* Complementary color for headings */
-  margin-bottom: 24px;
-  text-align: center;
-  font-weight: bold;
+.eyebrow,
+.decision-eyebrow {
+  margin: 0 0 5px;
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-/* mat-form-field styles */
-.mat-form-field {
-  width: 100%;
-  margin-bottom: 20px; /* Space between fields */
+.form-header h2 {
+  margin: 0;
+  color: #172033;
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+  font-weight: 750;
+  line-height: 1.2;
 }
 
-.mat-form-field .mat-label {
-  font-size: 1.1rem;
-  color: #00796b;
+.header-description {
+  max-width: 650px;
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
-.mat-form-field .mat-input-element {
-  padding: 12px;
-  border-radius: 8px;
-  background-color: #f9f9f9; /* Light gray input background */
-  border: 1px solid #ccc; /* Subtle border for inputs */
+.close-button {
+  color: #64748b;
 }
 
-.mat-form-field.mat-focused .mat-input-element {
-  border-color: #00796b; /* Change border color on focus */
-  box-shadow: 0 0 8px rgba(0, 121, 107, 0.3); /* Soft focus effect */
+.close-button:hover {
+  color: #172033;
+  background: #eef2f7;
 }
 
-/* Error message styles */
-.mat-form-field .error-message {
-  color: #f44336; /* Red error color */
-  font-size: 0.85rem;
-  margin-top: 6px;
+.patient-summary {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1.4fr) minmax(160px, 1fr) minmax(180px, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin: 12px 24px 0;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
 }
 
-/* Autocomplete option styling */
-.mat-option {
-  font-size: 1rem;
-  color: #333;
+.patient-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #2563eb;
+  background: #dbeafe;
 }
 
-/* Button styling */
-mat-dialog-actions {
-  margin-top: 20px;
+.patient-summary-main,
+.summary-item {
   display: flex;
-  justify-content: flex-end;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
 }
 
-button.mat-flat-button {
-  background-color: #00796b;
-  color: #ffffff;
-  padding: 10px 24px;
+.summary-label {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.patient-summary strong,
+.summary-item strong {
+  overflow: hidden;
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.state-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 0 4px #fef3c7;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 24px 18px;
+}
+
+.form-section {
+  padding: 14px 16px 10px;
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  color: #2563eb;
+  background: #eff6ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.section-heading h3,
+.decision-copy h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.section-heading p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.comments-field {
+  margin-top: 0;
+}
+
+.diagnosis-field {
+  margin-top: 0;
+}
+
+.form-section:first-child {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+  column-gap: 16px;
+}
+
+.form-section:first-child .section-heading,
+.form-section:first-child .diagnosis-field {
+  grid-column: 1 / -1;
+}
+
+.comments-field textarea {
+  min-height: 76px;
+  max-height: 88px;
+}
+
+.decision-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.decision-panel--referral {
+  border-color: #99d8cc;
+  background: #f0fdfa;
+}
+
+.decision-panel--recommendation {
+  border-color: #c7d2fe;
+  background: #f8faff;
+}
+
+.decision-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #0f766e;
+  background: #d5f5ed;
+}
+
+.decision-panel--recommendation .decision-icon {
+  color: #4f46e5;
+  background: #e0e7ff;
+}
+
+.decision-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.decision-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 0.66rem;
+}
+
+.decision-copy p {
+  margin: 3px 0 0;
+  color: #526176;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.decision-checkbox {
+  flex: 0 0 auto;
+}
+
+.existing-note,
+.permanent-delete-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: #2563eb;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.existing-note mat-icon,
+.permanent-delete-note mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.permanent-delete-note {
+  color: #b91c1c;
+  font-weight: 650;
+}
+
+.optional-label {
+  margin-left: 6px;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.attachment-section {
+  padding-bottom: 12px;
+}
+
+.file-upload {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px dashed #b8c4d4;
+  border-radius: 13px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.file-upload:hover {
+  border-color: #2563eb;
+  background: #f5f9ff;
+}
+
+.file-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.upload-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: #2563eb;
+  background: #dbeafe;
+}
+
+.upload-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.upload-copy strong {
+  overflow: hidden;
+  color: #334155;
+  font-size: 0.87rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-copy small {
+  color: #64748b;
+  font-size: 0.74rem;
+}
+
+.upload-copy .existing-file {
+  color: #0f766e;
+  font-weight: 650;
+}
+
+.browse-button {
+  padding: 8px 13px;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
+  color: #334155;
+  background: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
-button.mat-flat-button:hover {
-  background-color: #004d40; /* Darker on hover */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 0;
 }
 
-button[mat-dialog-close] {
-  color: #333;
-  border: 1px solid #ddd;
-  margin-right: 12px;
-  padding: 10px 24px;
+.form-actions button {
+  min-height: 36px;
+  border-radius: 10px;
+  font-weight: 700;
 }
 
-button[mat-dialog-close]:hover {
-  background-color: #f0f0f0;
+.form-actions button[mat-flat-button] {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 18px;
 }
 
-/* Responsive form on smaller screens */
-@media (max-width: 768px) {
-  .form-container {
-    padding: 16px;
-    max-width: 100%;
+.form-actions button[mat-flat-button] mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+::ng-deep .medical-board-form .mat-mdc-form-field {
+  width: 100%;
+}
+
+::ng-deep .medical-board-form .mat-mdc-form-field-subscript-wrapper {
+  min-height: 20px;
+}
+
+::ng-deep .medical-board-form .mat-mdc-chip-grid {
+  min-height: 44px;
+}
+
+@media (max-width: 720px) {
+  .medical-board-form {
+    width: calc(100vw - 20px);
+    border-radius: 14px;
   }
 
-  mat-dialog-actions {
-    flex-direction: column;
+  .form-header,
+  .form-content {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .patient-summary {
+    grid-template-columns: auto 1fr;
+    margin-right: 18px;
+    margin-left: 18px;
+  }
+
+  .summary-item {
+    grid-column: 2;
+  }
+
+  .summary-status {
+    grid-column: 2;
+  }
+
+  .form-section {
+    padding: 17px;
+  }
+
+  .form-section:first-child {
+    display: block;
+  }
+
+  .decision-panel {
+    align-items: flex-start;
+  }
+
+  .decision-checkbox {
+    margin-top: 7px;
+  }
+
+  .file-upload {
+    align-items: flex-start;
+  }
+
+  .browse-button {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-description {
+    display: none;
+  }
+
+  .form-header {
+    gap: 10px;
+    padding-top: 20px;
+    padding-bottom: 18px;
+  }
+
+  .header-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-icon mat-icon {
+    font-size: 22px;
+  }
+
+  .patient-summary {
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
     align-items: stretch;
   }
 
-  button.mat-flat-button {
+  .form-actions button {
     width: 100%;
-    margin-top: 10px;
+  }
+
+  .file-upload {
+    flex-wrap: wrap;
+  }
+
+  .upload-copy {
+    max-width: calc(100% - 54px);
+  }
+
+  .browse-button {
+    margin-left: 54px;
   }
 }
 
-::ng-deep .mat-mdc-form-field {
-  width: 100% !important;   /* force full width */
+/* The application toggles html.dark through ThemeManagerService. */
+:host-context(html.dark) {
+  .medical-board-form {
+    color: var(--rms-text);
+    background: var(--rms-surface);
+    box-shadow: 0 24px 70px var(--rms-shadow);
+  }
+
+  .form-header {
+    border-color: var(--rms-border);
+    background: linear-gradient(135deg, #172554 0%, var(--rms-surface) 72%);
+  }
+
+  .form-header h2,
+  .section-heading h3,
+  .decision-copy h3,
+  .patient-summary strong,
+  .summary-item strong {
+    color: var(--rms-text);
+  }
+
+  .header-description,
+  .section-heading p,
+  .decision-copy p,
+  .summary-label,
+  .record-state,
+  .upload-copy small {
+    color: var(--rms-text-muted);
+  }
+
+  .close-button {
+    color: var(--rms-text-muted);
+  }
+
+  .patient-summary,
+  .form-section {
+    border-color: var(--rms-border);
+    background: var(--rms-surface-subtle);
+  }
+
+  .decision-panel {
+    border-color: var(--rms-border-strong);
+  }
+
+  .decision-panel--referral {
+    border-color: #2f887d;
+    background: #123c3b;
+  }
+
+  .decision-panel--recommendation {
+    border-color: #4f46a5;
+    background: #20204b;
+  }
+
+  .existing-note {
+    color: #93c5fd;
+  }
+
+  .permanent-delete-note {
+    color: #fca5a5;
+  }
+
+  .file-upload {
+    border-color: var(--rms-border-strong);
+    background: var(--rms-surface-muted);
+  }
+
+  .file-upload:hover {
+    border-color: #60a5fa;
+    background: #1e3a5f;
+  }
+
+  .upload-copy strong,
+  .browse-button {
+    color: var(--rms-text);
+  }
+
+  .browse-button {
+    border-color: var(--rms-border-strong);
+    background: var(--rms-surface);
+  }
+
+  .form-actions button[mat-stroked-button] {
+    color: var(--rms-text);
+    border-color: var(--rms-border-strong);
+  }
+
+  ::ng-deep .medical-board-form .mat-mdc-form-field {
+    color: var(--rms-text);
+  }
+
+  ::ng-deep .medical-board-form .mat-mdc-chip {
+    color: var(--rms-text);
+    background: var(--rms-surface-muted);
+  }
 }
-
-
-
-

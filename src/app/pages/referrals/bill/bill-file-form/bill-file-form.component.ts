@@ -20,7 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
 import { BillFileService } from '../../../../services/Bills/bill-file.service';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
 
 @Component({
@@ -42,6 +42,7 @@ import { HospitalService } from '../../../../services/system-configuration/hospi
   styleUrls: ['./bill-file-form.component.scss'],
 })
 export class BillFileFormComponent {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   readonly data = inject<any>(MAT_DIALOG_DATA);
 
@@ -131,7 +132,7 @@ hospitalSearch: string = '';
   const maxSizeInBytes = 1 * 1024 * 1024; // 1MB
 
   if (file.size > maxSizeInBytes) {
-    Swal.fire({
+    this.uiFeedback.fire({
       icon: 'error',
       title: 'File Too Large',
       html: `
@@ -182,15 +183,15 @@ hospitalSearch: string = '';
       this.isLoading = false; // 🔥 stop loader
 
       if (response.statusCode === 201) {
-        Swal.fire('Success', response.message, 'success');
+        this.uiFeedback.fire('Success', response.message, 'success');
         this.dialogRef.close(true);
       } else {
-        Swal.fire('Error', response.message, 'error');
+        this.uiFeedback.fire('Error', response.message, 'error');
       }
     },
     error: () => {
       this.isLoading = false; // 🔥 stop loader on error
-      Swal.fire('Error', 'Something went wrong', 'error');
+      this.uiFeedback.fire('Error', 'Something went wrong', 'error');
     }
   });
 }
@@ -219,15 +220,15 @@ updateBill() {
         this.isLoading = false;
 
         if (response.statusCode === 200) {
-          Swal.fire('Success', response.message, 'success');
+          this.uiFeedback.fire('Success', response.message, 'success');
           this.dialogRef.close(true);
         } else {
-          Swal.fire('Error', response.message, 'error');
+          this.uiFeedback.fire('Error', response.message, 'error');
         }
       },
       error: () => {
         this.isLoading = false;
-        Swal.fire('Error', 'Something went wrong', 'error');
+        this.uiFeedback.fire('Error', 'Something went wrong', 'error');
       }
     });
 }

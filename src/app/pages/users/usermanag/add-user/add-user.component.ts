@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
 import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { UserService } from '../../../../services/users/user.service';
 import { LocationService } from '../../../../services/system-configuration/location.service';
 import { RolePermissionService } from '../../../../services/users/role-permission.service';
@@ -43,6 +43,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './add-user.component.scss'
 })
 export class AddUserComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -147,7 +148,7 @@ export class AddUserComponent {
   //       this.userForm.patchValue(this.user);
   //     }
   //     else{
-  //       Swal.fire({
+  //       this.uiFeedback.fire({
   //         title: "error",
   //         text: response.message,
   //         icon: "error",
@@ -166,7 +167,7 @@ export class AddUserComponent {
            ).subscribe({
              next: response=>{
              if(response.statusCode == 201){
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Success",
                  text: "User saved successfully",
                  html: "<b>Default Credential</b><br> Username: <b>"+response.email +"</b><br> Password: <b>" +response.password +"</b>",
@@ -175,7 +176,7 @@ export class AddUserComponent {
                  confirmButtonText: "Continue"
                }).then(() => this.dialogRef.close(true));
              }else{
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Error",
                  text: response.message,
                  icon: "error",
@@ -200,7 +201,7 @@ export class AddUserComponent {
           ).subscribe({
             next: response=>{
              if(response.statusCode == 201){
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Success",
                  text: "User updated successfully",
                  icon: "success",
@@ -208,7 +209,7 @@ export class AddUserComponent {
                  confirmButtonText: "Continue"
                }).then(() => this.dialogRef.close(true));
              }else{
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Error",
                  text: response.message,
                  icon: "error",
@@ -225,7 +226,7 @@ export class AddUserComponent {
        }
 
        private showRequestError(error: any): void {
-         Swal.fire({
+         this.uiFeedback.fire({
            title: 'Error',
            text: getApiErrorMessage(error, 'Unable to save the user. Please try again.'),
            icon: 'error',

@@ -18,7 +18,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PartientService } from '../../../services/partient/partient.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
@@ -44,6 +44,7 @@ import { UserService } from '../../../services/users/user.service';
   styleUrls: ['./addbodylist.component.scss'],
 })
 export class AddbodylistComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   readonly data = inject<any>(MAT_DIALOG_DATA);
 
@@ -169,7 +170,7 @@ maxDate: Date | null = null;
     if (file) {
       const maxSize = 2 * 1024 * 1024;
       if (file.size > maxSize) {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'File Too Large',
           text: 'The file must not exceed 2MB.',
           icon: 'error',
@@ -239,7 +240,7 @@ maxDate: Date | null = null;
         this.loading = false;
 
         if (response.statusCode === 200) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: response.message,
             icon: 'success',
@@ -247,7 +248,7 @@ maxDate: Date | null = null;
           });
           this.dialogRef.close(true);
         } else {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Error',
             text: response.message,
             icon: 'error',
@@ -259,7 +260,7 @@ maxDate: Date | null = null;
         console.error('Error saving patient:', err);
         this.loading = false;
 
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: 'Something went wrong. Please try again.',
           icon: 'error',
@@ -302,7 +303,7 @@ maxDate: Date | null = null;
         next: (response) => {
           this.loading = false;
           if (response.statusCode === 200) {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Success',
               text: response.message,
               icon: 'success',
@@ -311,7 +312,7 @@ maxDate: Date | null = null;
             });
             this.dialogRef.close(true);
           } else {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Error',
               text: response.message,
               icon: 'error',
@@ -323,7 +324,7 @@ maxDate: Date | null = null;
         error: (err) => {
           console.error('Error updating patient:', err);
           this.loading = false;
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Error',
             text: 'Something went wrong. Please try again.',
             icon: 'error',

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { inject, Component, OnDestroy } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { EmrPinInputModule, HDividerComponent } from '@elementar/components';
@@ -7,7 +7,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatError, MatFormField, MatHint, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { PasswordStrengthModule } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { AuthService } from '@core/authentication/auth.service';
 import { GlobalConstants } from '@shared/global-constants';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -42,6 +42,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './set-new-password.component.scss'
 })
 export class SetNewPasswordComponent implements OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   credentialForm:any = FormGroup;
   passwordVisible: boolean = false;
@@ -111,7 +112,7 @@ export class SetNewPasswordComponent implements OnDestroy {
       finalize(() => this.submitting = false)
     ).subscribe((response) => {
       if(response.statusCode == 201){
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Success",
           text: response.message,
           icon: "success",
@@ -121,7 +122,7 @@ export class SetNewPasswordComponent implements OnDestroy {
         this.route.navigateByUrl("auth")
       }
       else{
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Error",
           text: response.message,
           icon: "error",
@@ -130,7 +131,7 @@ export class SetNewPasswordComponent implements OnDestroy {
         });
       }
     },(error) => {
-      Swal.fire({
+      this.uiFeedback.fire({
         title: 'Unable to change password',
         text: getApiErrorMessage(error, GlobalConstants.genericErrorConnectFail),
         icon: 'error',

@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root'

@@ -13,7 +13,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
-import Swal from 'sweetalert2';
 
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { BillFileService } from '../../../../services/Bills/bill-file.service';

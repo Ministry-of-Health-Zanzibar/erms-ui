@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { inject, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { UserService } from '../../../services/users/user.service';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { LoadingStateComponent } from '@shared/ui';
 import { getApiErrorMessage } from '@shared/utils/api-error';
@@ -31,6 +31,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrls: ['./assign-user-hospital.component.scss']
 })
 export class AssignUserHospitalComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
 
   assignForm!: FormGroup;
@@ -89,7 +90,7 @@ export class AssignUserHospitalComponent implements OnInit, OnDestroy {
         this.hospitals = res.data; 
       },
       error: () => {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: 'Failed to load hospitals',
           icon: 'error',
@@ -117,7 +118,7 @@ export class AssignUserHospitalComponent implements OnInit, OnDestroy {
       finalize(() => this.loading = false)
     ).subscribe({
       next: (res) => {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Success',
           text: res.message || 'Hospital assigned successfully',
           icon: 'success',
@@ -126,7 +127,7 @@ export class AssignUserHospitalComponent implements OnInit, OnDestroy {
         this.dialogRef.close(true);
       },
       error: (err) => {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: getApiErrorMessage(err, 'Failed to assign hospital'),
           icon: 'error',

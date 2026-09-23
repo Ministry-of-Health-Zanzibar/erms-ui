@@ -1,156 +1,41 @@
-<div
-  id="print-section"
-  *ngIf="referral"
-  class="p-10 bg-white rounded-lg text-gray-900 print:ml-40 print:w-[70%]"
->
- 
- <div class="flex justify-center mb-4">
-    <img src="../../../../assets/img/smz.png" alt="" class="w-auto h-24" />
-  </div>
-
-  <div class="text-center space-y-1 mb-6">
-    <p class="text-lg font-semibold">SERIKALI YA MAPINDUZI YA ZANZIBAR</p>
-    <p class="text-lg font-semibold">WIZARA YA AFYA</p>
-
-    <div class="grid grid-cols-2 gap-4 text-sm text-left">
+<section class="follow-up-letter-picker" aria-labelledby="follow-up-letter-title">
+  <header class="follow-up-letter-picker__header">
+    <div class="follow-up-letter-picker__identity">
+      <span class="follow-up-letter-picker__icon"><mat-icon>event_note</mat-icon></span>
       <div>
-        <p>6 Barabara ya Health Office</p>
-        <p>S.L.P 236 MNANZIMMOJA</p>
-        <p>POSTIKODI 70467 Mjini Magharibi Zanzibar</p>
+        <span>Backend-generated document</span>
+        <h2 id="follow-up-letter-title">Follow-up letter</h2>
+        <p>Choose a language and review the official PDF before printing.</p>
       </div>
-      <div class="text-right">
-        <p>
-          Tovuti:
-          <a href="http://www.mohz.go.tz" class="text-blue-600 hover:underline">
-            www.mohz.go.tz
-          </a>
-        </p>
-        <p>
-          Barua pepe:
-          <a
-            href="mailto:{{ email || 'N/A' }}"
-            class="text-blue-600 hover:underline"
-          >
-            {{ email || "N/A" }}
-          </a>
-        </p>
-      </div>
+    </div>
+    <button mat-icon-button type="button" aria-label="Close" (click)="close()"><mat-icon>close</mat-icon></button>
+  </header>
+
+  <div class="follow-up-letter-picker__body">
+    <div class="follow-up-letter-picker__notice">
+      <mat-icon>verified_user</mat-icon>
+      Printing is recorded for DG and Super Admin audit visibility.
+    </div>
+
+    <div class="follow-up-letter-picker__choices" role="radiogroup" aria-label="Letter language">
+      <button type="button" [class.selected]="language === 'en'" (click)="language = 'en'" role="radio" [attr.aria-checked]="language === 'en'">
+        <mat-icon>translate</mat-icon>
+        <span><strong>English version</strong><small>Official English follow-up letter</small></span>
+        <mat-icon>{{ language === 'en' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+      </button>
+      <button type="button" [class.selected]="language === 'sw'" (click)="language = 'sw'" role="radio" [attr.aria-checked]="language === 'sw'">
+        <mat-icon>language</mat-icon>
+        <span><strong>Toleo la Kiswahili</strong><small>Barua rasmi ya ufuatiliaji</small></span>
+        <mat-icon>{{ language === 'sw' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+      </button>
     </div>
   </div>
 
-  <hr style="border-top: 3px solid black;" />
-
-  <!-- Reference Info -->
-  <div class="flex justify-between text-sm font-medium my-4">
-    <p>KUMB: CDA.25/254/01</p>
-    <p class="font-semibold uppercase">
-      TAREHE:
-      {{ referral.hospital_letters?.[0]?.next_appointment_date | date:'dd-MM-yyyy' }}
-
-      <!-- {{ referral.hospital_letters?.[0]?.next_appointment_date || 'N/A' }} -->
-    </p>
-  </div>
-
-  <!-- Hospital Information -->
-  <div class="mb-6 space-y-1">
-    <p class="font-semibold uppercase">MKURUGENZI MTENDAJI,</p>
-    <p class="font-semibold uppercase">
-
-      {{ referral.hospitals?.[0]?.hospital_name || 'N/A' }}
-    </p>
-    <p class="font-semibold uppercase">
-      {{ referral.hospitals?.[0]?.hospital_address || "N/A" }}
-    </p>
-  </div>
-
-  <div class="mb-4 text-center">
-  <p class="font-semibold uppercase">
-    Kuh: KUMPATIA MATIBABU MGONJWA
-    {{ referral.patient?.name || "N/A" }} <br>
-    {{ formatAge(referral.patient?.age_details) }}
-  </p>
-</div>
-
-  <!-- Body Content -->
-<div class="space-y-3 text-sm leading-relaxed">
-
-  <p>Tafadhali naomba uhusike na mada ya hapo juu.</p>
-
-  <p>
-    Wizara ya Afya Zanzibar, inamleta kwa ajili ya kuendelea na matibabu zaidi
-    mtajwa hapo juu.
-  </p>
-
-  <p>
-    Kwa barua hii, tunaomba muendelee kumpatia matibabu stahiki mgonjwa
-    <b>{{ referral.patient?.name || "N/A" }}</b>
-    kama tulivyokubaliana.
-  </p>
-
-  <p>
-    Gharama za matibabu zitalipwa na Wizara ya Afya kwa mujibu wa Mkataba na
-    <b>{{ referral.hospitals?.[0]?.hospital_name || "N/A" }}</b>.
-  </p>
-
-  <p>
-    Wizara ya Afya inaomba taarifa fupi za maendeleo ya matibabu kwa mhusika
-    ikiwemo Diagnosis, Tiba aliyopewa, tathmini, na sababu ya kurudi mara
-    nyingine.
-  </p>
-
-  <p>
-    Aidha Wizara ya Afya inaomba ripoti kamili iwasilishwe mwishoni mwa
-    matibabu.
-  </p>
-
-  <p>Naomba kuwasiliana kwa hatua.</p>
-
-  <!-- SIGNATURE SECTION -->
-  <div class="mt-2">
-
-    <p class="font-bold mb-1">
-      Ahsante,
-    </p>
-
-    <!-- SIGNATURE -->
-    <div class="h-20 flex items-center">
-      <img
-        src="assets/img/sign_dgs.png"
-        alt="Signature"
-        class="dg-signature"
-      />
-    </div>
-
-  </div>
-
-</div>
-
-<!-- SIGNATORY DETAILS -->
-<div class="mt-2">
-  <p class="font-semibold">DKT. MARYAM SEIF HEMED,</p>
-  <p class="font-semibold">MKURUGENZI MKUU,</p>
-  <p class="font-semibold">WIZARA YA AFYA,</p>
-  <p class="font-semibold underline decoration-2">ZANZIBAR</p>
-</div>
-
-  <hr style="border-top: 3px solid black;" />
-
-
-  <!-- Footer Info -->
-  <div class="text-xs text-gray-600 text-center">
-    <p><em><strong>Kwa mawasiliano ya moja kwa moja:</strong></em></p>
-    <p>
-      Katibu Mkuu {{katibu}} , Mkurugenzi Mkuu barua pepe</p>
-      <p>
-        {{ dg || "dg@mohz.go.tz" }}
-    </p>
-  </div>
-
-  <!-- Print Button -->
-  <div class="flex justify-end mt-8">
-    <button (click)="print()" mat-raised-button color="primary" class="flex items-center gap-1">
-      <mat-icon>print</mat-icon>
-      Print
+  <footer class="follow-up-letter-picker__footer">
+    <button mat-button type="button" (click)="close()">Cancel</button>
+    <button mat-flat-button color="primary" type="button" [disabled]="loading || !letterId" (click)="preview()">
+      <mat-icon>{{ loading ? 'hourglass_top' : 'visibility' }}</mat-icon>
+      {{ loading ? 'Preparing letter…' : 'Review letter' }}
     </button>
-  </div>
-</div>
+  </footer>
+</section>

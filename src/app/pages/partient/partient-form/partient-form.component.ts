@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { inject, Component, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -18,7 +18,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PartientService } from '../../../services/partient/partient.service';
 import { LocationService } from '../../../services/system-configuration/location.service';
@@ -28,7 +27,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { ViewChild } from '@angular/core';
 
@@ -47,15 +46,16 @@ import { ViewChild } from '@angular/core';
     MatDatepickerModule,
     MatNativeDateModule,
     MatCardModule,
-    MatSnackBarModule,
     MatDividerModule,
     MatIconModule,
     MatAutocompleteModule,
     MatChipsModule,
   ],
   templateUrl: './partient-form.component.html',
+  styleUrl: './partient-form.component.scss',
 })
 export class PartientFormComponent implements OnInit {
+  private readonly uiFeedback = inject(FeedbackService);
   patientForm!: FormGroup;
   loading = false;
   isLoadingDiagnoses: boolean = false;
@@ -77,7 +77,7 @@ export class PartientFormComponent implements OnInit {
   history_file?: string;
   historyFileUrl: string | null = null;
 
-  @ViewChild(MatAutocompleteTrigger) autoTrigger!: MatAutocompleteTrigger;
+  @ViewChild('autoTrigger') autoTrigger!: MatAutocompleteTrigger;
   @ViewChild('diagInput') diagInput!: any;
 
   constructor(
@@ -86,7 +86,6 @@ export class PartientFormComponent implements OnInit {
     private locationService: LocationService,
     private reasonService: ReasonsService,
     private diagnosisService: DiagnosisService,
-    private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<PartientFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {}
@@ -361,9 +360,7 @@ export class PartientFormComponent implements OnInit {
 
           this.isEligible = res.success === false;
 
-          this.snackBar.open(res.message || 'Patient found', 'Close', {
-            duration: 4000,
-          });
+          this.uiFeedback.toast(res.message || 'Patient found', 'success');
 
           this.patientForm.get('basicInfo')?.patchValue({
             name: patient?.name || '',
@@ -416,12 +413,10 @@ export class PartientFormComponent implements OnInit {
 
           this.locationFilterCtrl.setValue('');
 
-          this.snackBar.open(
+          this.uiFeedback.toast(
             err?.error?.message || 'No patient found',
-            'Close',
-            {
-              duration: 4000,
-            },
+            'error',
+            4000,
           );
         },
       });
@@ -562,7 +557,7 @@ export class PartientFormComponent implements OnInit {
     const maxSize = 1 * 1024 * 1024;
 
     if (file.size > maxSize) {
-      Swal.fire({
+      this.uiFeedback.fire({
         icon: 'error',
         title: 'File Too Large',
         text: 'File must be less than 1 MB',
@@ -591,7 +586,7 @@ export class PartientFormComponent implements OnInit {
     }
 
     if (!this.isEditMode && !this.selectedFile) {
-      Swal.fire({
+      this.uiFeedback.fire({
         icon: 'error',
         title: 'Missing File',
         text: 'Please upload the History PDF file (Max 1MB)',
@@ -654,20 +649,21 @@ export class PartientFormComponent implements OnInit {
     request.subscribe({
       next: (res) => {
         this.loading = false;
-        this.snackBar.open(
+        this.uiFeedback.toast(
           this.isEditMode
             ? 'Patient updated successfully'
             : 'Patient saved successfully',
-          'Close',
-          { duration: 4000 },
+          'success',
         );
         this.dialogRef.close(res);
       },
       error: (err) => {
         this.loading = false;
-        this.snackBar.open(err?.error?.message || 'Error occurred', 'Close', {
-          duration: 5000,
-        });
+        this.uiFeedback.toast(
+          err?.error?.message || 'Unable to save patient',
+          'error',
+          5000,
+        );
       },
     });
   }

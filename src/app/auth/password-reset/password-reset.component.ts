@@ -8,7 +8,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { AuthService } from '@core/authentication/auth.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
@@ -31,6 +31,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './password-reset.component.scss'
 })
 export class PasswordResetComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   private _router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -84,11 +85,11 @@ export class PasswordResetComponent implements OnInit, OnDestroy {
       finalize(() => this.submitting = false)
     ).subscribe({
       next: response => {
-        Swal.fire('Password updated', response.message, 'success')
+        this.uiFeedback.fire('Password updated', response.message, 'success')
           .then(() => this._router.navigateByUrl('/auth/sign-in'));
       },
       error: error => {
-        Swal.fire('Unable to reset password', getApiErrorMessage(error, 'The reset link may be invalid or expired.'), 'error');
+        this.uiFeedback.fire('Unable to reset password', getApiErrorMessage(error, 'The reset link may be invalid or expired.'), 'error');
       }
     });
   }

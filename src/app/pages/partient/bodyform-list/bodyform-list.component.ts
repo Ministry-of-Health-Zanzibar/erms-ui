@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   MatAnchor,
@@ -18,7 +18,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { PermissionService } from '../../../services/authentication/permission.service';
@@ -60,6 +60,7 @@ import {
   styleUrl: './bodyform-list.component.scss',
 })
 export class BodyformListComponent {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
@@ -172,7 +173,7 @@ export class BodyformListComponent {
     const isDeleted = !!patient.deleted_at;
     const action = isDeleted ? 'Unblock' : 'Delete';
 
-    Swal.fire({
+    this.uiFeedback.fire({
       title: `Are you sure you want to ${action.toLowerCase()} this patient?`,
       icon: 'warning',
       showCancelButton: true,
@@ -192,7 +193,7 @@ export class BodyformListComponent {
         .unblockPatient(data?.patient_list_id)
         .subscribe((response) => {
           if (response.statusCode == 200) {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Success',
               text: response.message,
               icon: 'success',
@@ -201,7 +202,7 @@ export class BodyformListComponent {
             });
             this.userPetient();
           } else {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Error',
               text: response.message,
               icon: 'error',
@@ -215,7 +216,7 @@ export class BodyformListComponent {
         .deletePatient(data?.patient_list_id)
         .subscribe((response) => {
           if (response.statusCode == 200) {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Success',
               text: response.message,
               icon: 'success',
@@ -224,7 +225,7 @@ export class BodyformListComponent {
             });
             this.userPetient();
           } else {
-            Swal.fire({
+            this.uiFeedback.fire({
               title: 'Error',
               text: response.message,
               icon: 'error',

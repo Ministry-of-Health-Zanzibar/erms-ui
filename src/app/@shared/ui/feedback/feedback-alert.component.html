@@ -1,0 +1,33 @@
+<div class="feedback-dialog feedback-dialog--alert" [ngClass]="'feedback-dialog--' + icon">
+  <div class="feedback-dialog__header">
+    <div class="feedback-dialog__icon" aria-hidden="true">
+      <mat-icon>{{ iconName }}</mat-icon>
+    </div>
+    <button
+      mat-icon-button
+      type="button"
+      class="feedback-dialog__close"
+      aria-label="Close alert"
+      (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="feedback-dialog__content">
+    <p class="feedback-dialog__eyebrow">{{ icon === 'error' ? 'Action failed' : icon === 'success' ? 'Action complete' : 'System message' }}</p>
+    <h2>{{ data.title || 'Notification' }}</h2>
+    <p *ngIf="data.text" class="feedback-dialog__message">{{ data.text }}</p>
+    <div *ngIf="data.html" class="feedback-dialog__message" [innerHTML]="data.html"></div>
+  </div>
+
+  <div *ngIf="hasConfirmButton" class="feedback-dialog__actions feedback-dialog__actions--alert">
+    <button
+      mat-flat-button
+      type="button"
+      class="feedback-dialog__confirm"
+      [style.background-color]="data.confirmButtonColor || null"
+      (click)="close()">
+      {{ data.confirmButtonText || 'Close' }}
+    </button>
+  </div>
+</div>

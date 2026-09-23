@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { inject, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PartientService } from '../../../services/partient/partient.service';
@@ -24,6 +24,7 @@ import { FileViewerComponent } from '@shared/ui';
   styleUrl: './viewpatientfromhospitalbyid.component.scss'
 })
 export class ViewpatientfromhospitalbyidComponent implements OnInit {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   public loading = false;
   medicalHistory: any = null;
@@ -56,13 +57,13 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
         if (response?.data) {
           this.medicalHistory = response.data;
         } else {
-          Swal.fire('Error', 'No medical history found', 'error');
+          this.uiFeedback.fire('Error', 'No medical history found', 'error');
         }
       },
       error: (error) => {
         this.loading = false;
         console.error('Error fetching history:', error);
-        Swal.fire('Error', 'Failed to fetch patient history', 'error');
+        this.uiFeedback.fire('Error', 'Failed to fetch patient history', 'error');
       },
     });
   }
@@ -100,7 +101,7 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
 
 forwardStatus() {
   if (!this.medicalHistory) {
-    Swal.fire('Error', 'Patient record not loaded yet.', 'error');
+    this.uiFeedback.fire('Error', 'Patient record not loaded yet.', 'error');
     return;
   }
 
@@ -111,12 +112,12 @@ forwardStatus() {
     this.medicalHistory.patient_id;
 
   if (!id) {
-    Swal.fire('Error', 'Record ID not found. Please reload the page.', 'error');
+    this.uiFeedback.fire('Error', 'Record ID not found. Please reload the page.', 'error');
     return;
   }
 
   if (this.medicalHistory.status !== 'pending') {
-    Swal.fire(
+    this.uiFeedback.fire(
       'Info',
       `Status is already "${this.medicalHistory.status}".`,
       'info'
@@ -133,7 +134,7 @@ forwardStatus() {
 
       // ✅ FIXED: Check "success"
       if (res.success === true) {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Forwarded Successfully',
           text: res.message || 'Status updated.',
           icon: 'success',
@@ -142,7 +143,7 @@ forwardStatus() {
 
         this.fetchPatientHistory(id); // refresh
       } else {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Error',
           text: res.message || 'Failed to update record.',
           icon: 'error',
@@ -153,7 +154,7 @@ forwardStatus() {
     error: (err) => {
       this.loading = false;
       console.error('Error forwarding status:', err);
-      Swal.fire(
+      this.uiFeedback.fire(
         'Error',
         err.error?.message || 'Something went wrong.',
         'error'
@@ -166,7 +167,8 @@ forwardStatus() {
 
 openForwardDialog() {
   const dialogRef = this.dialog.open(ForwarddialogComponent, {
-    width: '450px',
+    width: '520px',
+    maxWidth: 'calc(100vw - 32px)',
     disableClose: true
   });
 
@@ -186,7 +188,8 @@ openViewEditDialog() {
     .subscribe((res: any) => {
 
       const dialogRef = this.dialog.open(ForwarddialogComponent, {
-        width: '450px',
+        width: '520px',
+        maxWidth: 'calc(100vw - 32px)',
         disableClose: true,
         data: {
           editMode: true,
@@ -218,7 +221,7 @@ forwardToRequestedStatus(data: any) {
     next: (res) => {
       this.loading = false;
 
-      Swal.fire({
+      this.uiFeedback.fire({
         icon: 'success',
         title: 'Success!',
         text: 'Forwarded successfully!',
@@ -240,7 +243,7 @@ forwardToRequestedStatus(data: any) {
           ? Object.values(err.error.errors).join('\n')
           : 'Failed to forward. Please try again.';
 
-      Swal.fire({
+      this.uiFeedback.fire({
         icon: 'error',
         title: 'Error!',
         html: errorMessage.replace(/\n/g, '<br>'),
@@ -268,7 +271,7 @@ forwardToRequestedStatus(data: any) {
     const dialogRef = this.dialog.open(AddmedicalhistoryComponent, config);
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.success) {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Medical History Added',
           text: 'The patient medical history was saved successfully!',
           icon: 'success',

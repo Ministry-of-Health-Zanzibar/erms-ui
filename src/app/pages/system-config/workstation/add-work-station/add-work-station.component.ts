@@ -9,7 +9,7 @@ import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-f
 import { MatInputModule } from '@angular/material/input';
 import { HDividerComponent } from '@elementar/components';
 import { finalize, map, Observable, startWith, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { WorkStationService } from '../../../../services/work-station.service';
 import { LocationService } from '../../../../services/system-configuration/location.service';
 import { EmployerService } from '../../../../services/system-configuration/employer.service';
@@ -38,6 +38,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './add-work-station.component.scss'
 })
 export class AddWorkStationComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -149,7 +150,7 @@ export class AddWorkStationComponent implements OnInit, OnDestroy {
         })
       }
       else{
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "error",
           text: response.message,
           icon: "error",
@@ -189,7 +190,7 @@ export class AddWorkStationComponent implements OnInit, OnDestroy {
     request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
       next: response => {
         if (response.statusCode === 200 || response.statusCode === 201) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: response.message,
             icon: 'success',
@@ -205,6 +206,6 @@ export class AddWorkStationComponent implements OnInit, OnDestroy {
   }
 
   private showError(message: string): void {
-    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+    this.uiFeedback.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 }

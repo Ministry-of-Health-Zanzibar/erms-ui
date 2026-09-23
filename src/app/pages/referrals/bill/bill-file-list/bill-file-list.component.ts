@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   MatAnchor,
@@ -14,7 +14,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { PermissionService } from '../../../../services/authentication/permission.service';
@@ -64,6 +64,7 @@ import {
   styleUrls: ['./bill-file-list.component.scss'],
 })
 export class BillFileListComponent {
+  private readonly uiFeedback = inject(FeedbackService);
    public documentUrl = environment.fileUrl;
 
   private readonly onDestroy = new Subject<void>();
@@ -150,7 +151,7 @@ export class BillFileListComponent {
 
   // Delete confirmation
   confirmDelete(element: any) {
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Confirm',
       text: `Are you sure you want to delete "${element.bill_file_title}"?`,
       icon: 'warning',
@@ -168,10 +169,10 @@ export class BillFileListComponent {
   deleteBill(id: number) {
     this.billService.deletebillFiles(id).subscribe((res) => {
       if (res.statusCode === 200) {
-        Swal.fire('Deleted!', res.message, 'success');
+        this.uiFeedback.fire('Deleted!', res.message, 'success');
         this.loadBills();
       } else {
-        Swal.fire('Error', res.message, 'error');
+        this.uiFeedback.fire('Error', res.message, 'error');
       }
     });
   }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { inject, Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { BillFileService } from '../../../services/Bills/bill-file.service';
@@ -52,6 +52,7 @@ import {
   styleUrls: ['./billpayment.component.scss'],
 })
 export class BillpaymentComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   public documentUrl = environment.fileUrl;
 
@@ -126,7 +127,7 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
         if (this.sort) this.dataSource.sort = this.sort;
       },
       error: () => {
-        Swal.fire('Error', 'Failed to fetch bill files', 'error');
+        this.uiFeedback.fire('Error', 'Failed to fetch bill files', 'error');
       },
     });
   }
@@ -172,7 +173,7 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
   }
 
   confirmDelete(element: any) {
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Confirm',
       text: `Are you sure you want to delete "${element.bill_file_title}"?`,
       icon: 'warning',
@@ -189,10 +190,10 @@ export class BillpaymentComponent implements OnInit, OnDestroy {
   deleteBill(id: number) {
     this.billFileService.deletebillFiles(id).pipe(takeUntil(this.onDestroy)).subscribe((res) => {
       if (res.statusCode === 200) {
-        Swal.fire('Deleted!', res.message, 'success');
+        this.uiFeedback.fire('Deleted!', res.message, 'success');
         this.getAllPaymentByHospital(this.hospital_id!);
       } else {
-        Swal.fire('Error', res.message, 'error');
+        this.uiFeedback.fire('Error', res.message, 'error');
       }
     });
   }

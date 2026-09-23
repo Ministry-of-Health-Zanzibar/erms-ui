@@ -8,7 +8,7 @@ import { MatError, MatFormField, MatInput, MatInputModule, MatLabel } from '@ang
 import { HDividerComponent } from '@elementar/components';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -40,6 +40,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './add-category.component.scss'
 })
 export class AddCategoryComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
  readonly data = inject<any>(MAT_DIALOG_DATA);
     private readonly onDestroy = new Subject<void>()
@@ -109,7 +110,7 @@ export class AddCategoryComponent implements OnInit, OnDestroy {
         request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
           next: (response: any) => {
             if (response.statusCode === 200 || response.statusCode === 201) {
-              Swal.fire({
+              this.uiFeedback.fire({
                 title: 'Success', text: response.message || 'Category saved successfully.', icon: 'success',
                 confirmButtonColor: '#4690eb', confirmButtonText: 'Continue'
               }).then(() => this.dialogRef.close(true));
@@ -122,6 +123,6 @@ export class AddCategoryComponent implements OnInit, OnDestroy {
       }
 
       private showError(message: string): void {
-        Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+        this.uiFeedback.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
       }
 }

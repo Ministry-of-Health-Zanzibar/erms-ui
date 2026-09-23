@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -15,7 +15,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ReferalTypeService } from '../../../../services/system-configuration/referal-type.service';
 import { AddReferralTypeComponent } from '../add-referral-type/add-referral-type.component';
 import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
@@ -47,6 +47,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './view-referal-type.component.scss'
 })
 export class ViewReferalTypeComponent implements OnInit,OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
   
@@ -159,7 +160,7 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
         else{
           message = 'Are you sure you want to block'
         }
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Confirm",
           html: message + ' <b> ' + data.referral_type_name + ' </b> ',
           icon: "warning",
@@ -182,7 +183,7 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
          if(deleted){
           this.referalTypeService.unBlockReferralTypes(data, data?.referral_type_id).subscribe(response=>{
             if(response.statusCode==200){
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Success",
                  text: response.message,
                  icon: "success",
@@ -191,7 +192,7 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
                });
                this.getReferalType();
              }else{
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Error",
                  text: response.message,
                  icon: "error",
@@ -203,7 +204,7 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
          }else{
            this.referalTypeService.deleteReferalType(data?.referral_type_id).subscribe(response=>{
              if(response.statusCode == 200){
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Success",
                  text: response.message,
                  icon: "success",
@@ -212,7 +213,7 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
                });
                this.getReferalType()
              }else{
-               Swal.fire({
+               this.uiFeedback.fire({
                  title: "Error",
                  text: response.message,
                  icon: "error",
@@ -230,4 +231,3 @@ export class ViewReferalTypeComponent implements OnInit,OnDestroy {
    
     
   
-

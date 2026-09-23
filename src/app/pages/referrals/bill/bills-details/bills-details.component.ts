@@ -1,9 +1,9 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { inject, Component, DestroyRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { BillService } from '../../../../services/system-configuration/bill.service';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,6 +34,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   providers: [DatePipe],
 })
 export class BillsDetailsComponent implements OnInit {
+  private readonly uiFeedback = inject(FeedbackService);
   public loading = false;
   public billId: string | null = null;
   public billData: any = null;
@@ -59,13 +60,13 @@ export class BillsDetailsComponent implements OnInit {
     ).subscribe({
       next: (res: any) => {
         if (!res?.data) {
-          Swal.fire('Info', 'No bill found', 'info');
+          this.uiFeedback.fire('Info', 'No bill found', 'info');
           return;
         }
         this.billData = res.data;
       },
       error: (error: unknown) => {
-        Swal.fire('Error', getApiErrorMessage(error, 'Failed to fetch bill details.'), 'error');
+        this.uiFeedback.fire('Error', getApiErrorMessage(error, 'Failed to fetch bill details.'), 'error');
       },
     });
   }

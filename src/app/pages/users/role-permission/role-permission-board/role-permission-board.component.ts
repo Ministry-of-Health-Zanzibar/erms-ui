@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { RolePermissionService } from '../../../../services/users/role-permission.service';
 import { RolePermissionDisplayComponent } from '../role-permission-display/role-permission-display.component';
@@ -53,6 +53,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './role-permission-board.component.scss'
 })
 export class RolePermissionBoardComponent implements OnInit,OnDestroy{
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
 
@@ -123,7 +124,7 @@ export class RolePermissionBoardComponent implements OnInit,OnDestroy{
   }
 
   deleteRoles(id:any){
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
@@ -135,17 +136,17 @@ export class RolePermissionBoardComponent implements OnInit,OnDestroy{
       if (result.isConfirmed) {
         this.roleService.deleteRole(id.id).subscribe((response)=>{
           if(response.statusCode == 200){
-            Swal.fire("Deleted!",response.message, "success").then(() => {
+            this.uiFeedback.fire("Deleted!",response.message, "success").then(() => {
               this.rolesDataTable();
             });
           }
           else{
-            Swal.fire("Error!",response.message, "error");
+            this.uiFeedback.fire("Error!",response.message, "error");
           }
         })
 
       }else{
-        Swal.fire("Cancelled !!!", "Your imaginary file is safe :)", "error");
+        this.uiFeedback.fire("Cancelled !!!", "Your imaginary file is safe :)", "error");
       }
     });
   }

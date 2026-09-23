@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -10,9 +10,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
 import { ReferralService } from '../../../services/Referral/referral.service';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { HospitalService } from '../../../services/system-configuration/hospital.service';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-referral-status-dialog',
@@ -35,6 +35,7 @@ import { MatIcon, MatIconModule } from '@angular/material/icon';
 })
 
 export class ReferralStatusDialogComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   hasRealReferral = false;
   hasBoardedOut = false;
@@ -47,6 +48,7 @@ export class ReferralStatusDialogComponent implements OnInit, OnDestroy {
   id: number;
   hospitals: any[] = [];
   patientHistoryId: number | null = null;
+  saving = false;
 
   constructor(
     public referralsService: ReferralService,
@@ -136,8 +138,27 @@ export class ReferralStatusDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close(false);
   }
 
-  get recommendations() {
-    return this.statusForm.get('recommendations') as any;
+  get recommendations(): FormArray {
+    return this.statusForm.get('recommendations') as FormArray;
+  }
+
+  get selectedStatus(): string {
+    return this.statusForm.get('status')?.value || '';
+  }
+
+  get showsReferralDetails(): boolean {
+    return this.selectedStatus === 'Confirmed' || this.selectedStatus === 'Confirmed and BoardedOut';
+  }
+
+  get showsBoardedOutDetails(): boolean {
+    return this.selectedStatus === 'BoardedOut' || this.selectedStatus === 'Confirmed and BoardedOut';
+  }
+
+  get actionLabel(): string {
+    if (this.saving) return 'Saving…';
+    if (this.selectedStatus === 'Cancelled') return 'Record rejection';
+    if (this.selectedStatus === 'BoardedOut') return 'Save boarded-out outcome';
+    return 'Save outcome';
   }
   
   addRecommendation() {
@@ -180,93 +201,68 @@ export class ReferralStatusDialogComponent implements OnInit, OnDestroy {
   }
 
   saveReferralLetter() {
-    if (this.statusForm.invalid) return;
-  
-    const status = this.statusForm.value.status;
-  
-    let formData: any = { status };
-  
-    // ----------------------------
-    // BOARDED OUT
-    // ----------------------------
-    // if (status === 'BoardedOut') {
-    if (
-      status === 'BoardedOut' ||
-      status === 'Confirmed and BoardedOut'
-    ) {
-  
+    if (this.statusForm.invalid || this.saving) {
+      this.statusForm.markAllAsTouched();
+      return;
+    }
+
+    this.saving = true;
+    const formValue = this.statusForm.getRawValue();
+    const status = formValue.status;
+    const formData: any = { status };
+
+    if (status === 'BoardedOut' || status === 'Confirmed and BoardedOut') {
       const patientId = this.patientHistoryId;
-  
+
       if (!patientId) {
-        Swal.fire({
-          title: 'Error',
-          text: 'Patient history ID is missing',
-          icon: 'error'
+        this.saving = false;
+        this.uiFeedback.fire({
+          title: 'Unable to save outcome',
+          text: 'The patient history reference is missing.',
+          icon: 'error',
         });
         return;
       }
-  
+
       formData.patient_histories_id = Number(patientId);
-  
-      formData.receiver = this.statusForm.value.receiver;
-      formData.reference_number = this.statusForm.value.reference_number;
-      formData.reference_date = this.formatDate(
-        this.statusForm.value.reference_date
-      );
-  
-      formData.recommendations =
-        this.statusForm.value.recommendations || [];
-  
-    } 
-    // ----------------------------
-    // NORMAL FLOW
-    // ----------------------------
-    // else {
-    if (
-      status === 'Confirmed' ||
-      status === 'Confirmed and BoardedOut' ||
-      status === 'Cancelled'
-    ) {
-      formData.referral_id = this.id;
-      formData.hospital_id = this.statusForm.value.hospital_id;
-      formData.letter_text = this.statusForm.value.letter_text;
-  
-      formData.start_date = this.formatDate(
-        this.statusForm.value.start_date
-      );
-  
-      formData.end_date = this.formatDate(
-        this.statusForm.value.end_date
-      );
+      formData.receiver = formValue.receiver;
+      formData.reference_number = formValue.reference_number;
+      formData.reference_date = this.formatDate(formValue.reference_date);
+      formData.recommendations = formValue.recommendations || [];
     }
-  
-    // ----------------------------
-    // API CALL
-    // ----------------------------
+
+    if (status === 'Confirmed' || status === 'Confirmed and BoardedOut' || status === 'Cancelled') {
+      formData.referral_id = this.id;
+      formData.hospital_id = formValue.hospital_id;
+      formData.letter_text = formValue.letter_text;
+      formData.start_date = this.formatDate(formValue.start_date);
+      formData.end_date = this.formatDate(formValue.end_date);
+    }
+
     this.referralsService.addReferralLetter(formData).subscribe(
       (response) => {
+        this.saving = false;
         if (response.statusCode === 201) {
-          Swal.fire({
-            title: 'Success',
+          this.uiFeedback.fire({
+            title: 'Outcome saved',
             text: response.message,
             icon: 'success',
             confirmButtonColor: '#4690eb',
-          }).then(() => {
-            this.dialogRef.close(true);
-          });
+          }).then(() => this.dialogRef.close(true));
         } else {
-          Swal.fire({
-            title: 'Error',
+          this.uiFeedback.fire({
+            title: 'Unable to save outcome',
             text: response.message,
             icon: 'error',
           });
         }
       },
       (error) => {
+        this.saving = false;
         console.error(error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Something went wrong',
+        this.uiFeedback.fire({
+          title: 'Unable to save outcome',
+          text: error?.error?.message || 'Please review the form and try again.',
           icon: 'error',
         });
       }

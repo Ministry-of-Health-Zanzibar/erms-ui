@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
-import Swal from 'sweetalert2';
 import { PartientService } from '../../../services/partient/partient.service';
 import { LoadingStateComponent } from '@shared/ui';
 

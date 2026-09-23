@@ -30,7 +30,7 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { BillService } from '../../../services/system-configuration/bill.service';
 import { Subject } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';
@@ -61,6 +61,7 @@ import { error } from 'console';
   styleUrl: './referralpayment.component.scss',
 })
 export class ReferralpaymentComponent {
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   readonly data = inject<any>(MAT_DIALOG_DATA);
   public sidebarVisible: boolean = true;
@@ -149,10 +150,10 @@ export class ReferralpaymentComponent {
     this.paymentService.addPayment(formData).subscribe({
       next: (response: any) => {
         if (response.statusCode === 200) {
-          Swal.fire('Success', response.message, 'success');
+          this.uiFeedback.fire('Success', response.message, 'success');
           this.dialogRef.close(true);
         } else {
-          Swal.fire('Error', response.message || 'Something went wrong', 'error');
+          this.uiFeedback.fire('Error', response.message || 'Something went wrong', 'error');
         }
       },
       error: (err) => {
@@ -160,7 +161,7 @@ export class ReferralpaymentComponent {
         const errorMessage =
           err.error?.message || 'An unexpected error occurred. Please try again.';
 
-        Swal.fire('Error', errorMessage, 'error');
+        this.uiFeedback.fire('Error', errorMessage, 'error');
       },
     });
   }

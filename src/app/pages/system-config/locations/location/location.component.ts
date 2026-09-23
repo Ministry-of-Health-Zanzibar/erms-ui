@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAnchor, MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -17,7 +17,7 @@ import { LocationService } from '../../../../services/system-configuration/locat
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddLocationComponent } from '../add-location/add-location.component';
 import { UploadLocationComponent } from '../upload-location/upload-location.component';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
 
 @Component({
@@ -47,6 +47,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './location.component.scss'
 })
 export class LocationComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
 
@@ -146,7 +147,7 @@ export class LocationComponent {
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.location_name + ' </b> ',
       icon: "warning",
@@ -169,7 +170,7 @@ export class LocationComponent {
     if(deleted){
       this.locationService.unblockLocation(id).subscribe(response=>{
         if(response.statusCode == 201){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -178,7 +179,7 @@ export class LocationComponent {
           });
           this.getLocation();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -190,7 +191,7 @@ export class LocationComponent {
     }else{
       this.locationService.deleteLocation(id).subscribe(response=>{
         if(response.statusCode == 201){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -199,7 +200,7 @@ export class LocationComponent {
           });
           this.getLocation()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

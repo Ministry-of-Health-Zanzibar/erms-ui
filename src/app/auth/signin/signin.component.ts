@@ -19,7 +19,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from '@core/authentication/auth.service';
 import { GlobalConstants } from '@shared/global-constants';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { CommonModule } from '@angular/common';
 import { MatTooltip } from '@angular/material/tooltip';
 import { InactivityService } from '../../services/accountants/inactivity.service';
@@ -61,7 +61,8 @@ showChat=false;
     private formBuilder: FormBuilder,
     private route: Router,
     private authService: AuthService,
-    private inactivityService: InactivityService
+    private inactivityService: InactivityService,
+    private uiFeedback: FeedbackService,
   ) {}
 
   ngOnInit(): void {
@@ -115,63 +116,21 @@ showChat=false;
 
               localStorage.setItem('isLogin', 'true');
 
-              const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                  toast.onmouseenter = Swal.stopTimer;
-                  toast.onmouseleave = Swal.resumeTimer;
-                },
-              });
-              Toast.fire({
-                icon: 'success',
-                title: 'Login Successifully',
-              });
+              this.uiFeedback.toast('Login successful.', 'success');
               this.route.navigateByUrl('pages');
             } else {
-              const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                  toast.onmouseenter = Swal.stopTimer;
-                  toast.onmouseleave = Swal.resumeTimer;
-                },
-              });
-              Toast.fire({
-                icon: 'warning',
-                title: 'Please change the password first',
-              });
+              this.uiFeedback.toast('Please change your password first.', 'warning', 6000);
               this.route.navigateByUrl('auth/set-new-password');
             }
           } else {
-            const Toast = Swal.mixin({
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000000,
-              timerProgressBar: true,
-              didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
-              },
-            });
-            Toast.fire({
-              icon: 'error',
-              title: response.message,
-            });
+            this.uiFeedback.toast(response.message || 'Unable to sign in.', 'error', 6000);
             this.route.navigateByUrl('/');
           }
         }
       },
       (error) => {
         this.loading = false;
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Warning!',
           text: GlobalConstants.genericErrorConnectFail,
           icon: 'warning',

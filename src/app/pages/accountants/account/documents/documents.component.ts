@@ -1,6 +1,6 @@
 import { AdddocumentsComponent } from '../adddocuments/adddocuments.component';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAnchor, MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
@@ -10,7 +10,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
 import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
@@ -47,6 +47,7 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   styleUrl: './documents.component.scss'
 })
 export class DocumentsComponent implements OnInit,OnDestroy{
+  private readonly uiFeedback = inject(FeedbackService);
 
 private readonly onDestroy = new Subject<void>()
  loading: boolean = false;
@@ -146,7 +147,7 @@ private readonly onDestroy = new Subject<void>()
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.payee_name + ' </b> ',
       icon: "warning",
@@ -169,7 +170,7 @@ private readonly onDestroy = new Subject<void>()
     if(deleted){
       this.docuService.unblockDocument(data, data?.document_form_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -178,7 +179,7 @@ private readonly onDestroy = new Subject<void>()
           });
           this.getDocument();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -190,7 +191,7 @@ private readonly onDestroy = new Subject<void>()
     }else{
       this.docuService.deleteDocument(data?.document_form_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -199,7 +200,7 @@ private readonly onDestroy = new Subject<void>()
           });
           this.getDocument()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

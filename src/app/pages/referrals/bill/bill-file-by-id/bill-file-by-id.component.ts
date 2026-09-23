@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { inject, Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { BillFileService } from '../../../../services/Bills/bill-file.service';
@@ -68,6 +68,7 @@ interface Bill {
   providers: [DatePipe],
 })
 export class BillFileByIdComponent implements OnInit, AfterViewInit {
+  private readonly uiFeedback = inject(FeedbackService);
   public bills: BillFile[] = [];
   public loading = false;
   public bill_id: string | null = null;
@@ -161,7 +162,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
       error: (error) => {
         this.loading = false;
         console.error('Error fetching bill file:', error);
-        Swal.fire('Error', 'Failed to fetch bill file', 'error');
+        this.uiFeedback.fire('Error', 'Failed to fetch bill file', 'error');
       },
     });
   }
@@ -181,7 +182,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
       error: (err: any) => {
         this.loading = false;
         console.error('Error fetching bills:', err);
-        Swal.fire('Error', 'Failed to fetch bills', 'error');
+        this.uiFeedback.fire('Error', 'Failed to fetch bills', 'error');
       },
     });
   }
@@ -228,7 +229,7 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
         if (response.data) {
           this.loadBillsByBillFileId(this.bill_file_id!);
         }
-        Swal.fire(
+        this.uiFeedback.fire(
           'Success',
           response.message || 'Bill created successfully',
           'success'
@@ -241,13 +242,13 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
         if (error.status === 422 && error.error?.message) {
           errorMessage = error.error.message;
         }
-        Swal.fire('Error', errorMessage, 'error');
+        this.uiFeedback.fire('Error', errorMessage, 'error');
       },
     });
   }
 
   deleteBill(billId: number) {
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
@@ -264,12 +265,12 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
               (b) => b.bill_id !== billId
             );
             this.loading = false;
-            Swal.fire('Deleted!', 'The bill has been deleted.', 'success');
+            this.uiFeedback.fire('Deleted!', 'The bill has been deleted.', 'success');
           },
           error: (error) => {
             this.loading = false;
             console.error('Error deleting bill:', error);
-            Swal.fire('Error', 'Failed to delete bill', 'error');
+            this.uiFeedback.fire('Error', 'Failed to delete bill', 'error');
           },
         });
       }
@@ -331,10 +332,10 @@ export class BillFileByIdComponent implements OnInit, AfterViewInit {
       if (result) {
         this.billService.updateBill(result, bill.bill_id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
-            Swal.fire('Updated!', 'Bill updated successfully', 'success');
+            this.uiFeedback.fire('Updated!', 'Bill updated successfully', 'success');
             this.loadBillsByBillFileId(this.bill_file_id);
           },
-          error: () => Swal.fire('Error', 'Failed to update bill', 'error'),
+          error: () => this.uiFeedback.fire('Error', 'Failed to update bill', 'error'),
         });
       }
     });

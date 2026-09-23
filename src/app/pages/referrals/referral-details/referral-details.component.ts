@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef } from '@angular/core';
+import { inject, Component, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,18 +11,16 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { ReferralStatusDialogComponent } from '../referral-status-dialog/referral-status-dialog.component';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { MatCardModule } from '@angular/material/card';
-import { ReferralsLetterComponent } from '../referrals-letter/referrals-letter.component';
 import { environment } from '../../../../environments/environment.prod';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ConversationModalComponent } from '../conversation-modal/conversation-modal.component';
-import { BoardedOutLetterComponent } from '../boarded-out-letter/boarded-out-letter.component';
 import { FlightInformationDialogComponent } from '../flight-information-dialog/flight-information-dialog.component';
 import { combineLatest } from 'rxjs';
 import { getApiErrorMessage } from '@shared/utils/api-error';
-import { FileViewerComponent } from '@shared/ui';
+import { FileViewerComponent, LetterPreviewDialogComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-referral-details',
@@ -48,6 +46,7 @@ import { FileViewerComponent } from '@shared/ui';
 })
 
 export class ReferralDetailsComponent {
+  private readonly uiFeedback = inject(FeedbackService);
   public displayRoleForm!: FormGroup;
   referralID: string | null = null;
   referral: any = null;
@@ -118,7 +117,7 @@ export class ReferralDetailsComponent {
           response.data.patient?.patient_list?.[0]?.board_members || [];
       },
       (error: unknown) => {
-        Swal.fire('Error', getApiErrorMessage(error, 'Failed to load referral details.'), 'error');
+        this.uiFeedback.fire('Error', getApiErrorMessage(error, 'Failed to load referral details.'), 'error');
       }
     );
   }
@@ -140,9 +139,10 @@ export class ReferralDetailsComponent {
     }
     
     const dialogRef = this.dialog.open(ReferralStatusDialogComponent, {
-      width: '95vw',
-      maxWidth: '900px',
-      maxHeight: '100vh',
+      width: '960px',
+      maxWidth: 'calc(100vw - 24px)',
+      maxHeight: 'calc(100vh - 24px)',
+      panelClass: 'referral-status-dialog-panel',
 
       data: {
         referral: this.referral,
@@ -181,7 +181,7 @@ export class ReferralDetailsComponent {
       next: () => {
         this.showFlightInformation = false;
   
-        Swal.fire({
+        this.uiFeedback.fire({
           icon: 'success',
           title: 'Saved',
           text: 'Flight information saved successfully.',
@@ -191,7 +191,7 @@ export class ReferralDetailsComponent {
       },
   
       error: (error: unknown) => {
-        Swal.fire({
+        this.uiFeedback.fire({
           icon: 'error',
           title: 'Error',
           text: getApiErrorMessage(error, 'Failed to save flight information.')
@@ -212,27 +212,64 @@ export class ReferralDetailsComponent {
   }
 
   printBoardedOutLetter(data: any): void {
+    const historyId = data?.history_id || data?.patient?.patient_histories?.[0]?.patient_histories_id;
 
-    const dialogRef = this.dialog.open(BoardedOutLetterComponent, {
+    if (!historyId) {
+      this.uiFeedback.alert(
+        'Letter not available',
+        'This record does not have a boarded-out letter yet.',
+        'info',
+      );
+      return;
+    }
+
+    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
       maxWidth: '100vw',
       maxHeight: '100vh',
+      width: 'min(96vw, 560px)',
       data: {
-        ...data,
-        isBoardedOutLetter: true
+        kind: 'boarded_out',
+        id: Number(historyId),
+        patientName: data?.patient?.name,
+        defaultLanguage: 'sw',
       },
     });
-  
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      if (result?.printed) {
+        this.getMoreData();
+      }
+    });
   }
 
   referralsLetterPopup(data: any): void {
-    const dialogRef = this.dialog.open(ReferralsLetterComponent, {
+    const referralId = data?.referral_id || data?.referrals?.[0]?.referral_id;
+
+    if (!referralId) {
+      this.uiFeedback.alert(
+        'Letter not available',
+        'This record does not have a confirmed referral letter yet.',
+        'info',
+      );
+      return;
+    }
+
+    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
       maxWidth: '100vw',
       maxHeight: '100vh',
-      data: data,
+      width: 'min(96vw, 560px)',
+      data: {
+        kind: 'referral',
+        id: Number(referralId),
+        patientName: data?.patient?.name,
+        defaultLanguage: data?.hospital?.referral_type?.referral_type_code === 'REFTYPE2' ? 'en' : 'sw',
+      },
     });
 
-    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      if (result?.printed) {
+        this.getMoreData();
+      }
     });
   }
 

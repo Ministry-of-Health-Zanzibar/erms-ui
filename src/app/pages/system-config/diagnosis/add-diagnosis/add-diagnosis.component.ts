@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -9,7 +9,7 @@ import { HDividerComponent } from '@elementar/components';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { DiagnosisService } from '../../../../services/system-configuration/diagnosis.service';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 
 @Component({
   selector: 'app-add-diagnosis',
@@ -31,6 +31,7 @@ import Swal from 'sweetalert2';
   styleUrl: './add-diagnosis.component.scss'
 })
 export class AddDiagnosisComponent implements OnInit,OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
   public sidebarVisible:boolean = true
@@ -81,7 +82,7 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
     ).subscribe({
       next: response => {
         if (response.statusCode === 201) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: 'Diagnosis saved successfully.',
             icon: 'success',
@@ -89,7 +90,7 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
             confirmButtonText: 'Continue',
           }).then(() => this.dialogRef.close(true));
         } else {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Error',
             text: response.message || 'Failed to save diagnosis.',
             icon: 'error',
@@ -99,7 +100,7 @@ export class AddDiagnosisComponent implements OnInit,OnDestroy {
         }
       },
       error: (error: unknown) => {
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Unable to save diagnosis',
           text: getApiErrorMessage(error, 'Please check the diagnosis name and code, then try again.'),
           icon: 'error',

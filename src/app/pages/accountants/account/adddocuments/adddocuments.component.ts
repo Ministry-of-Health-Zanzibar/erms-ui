@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
 import { finalize, Observable, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { DocumentsService } from '../../../../services/accountants/documents.service';
 import { SourcesService } from '../../../../services/accountants/sources.service';
 import { CategoryService } from '../../../../services/accountants/category.service';
@@ -40,6 +40,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './adddocuments.component.scss'
 })
 export class AdddocumentsComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
  private readonly onDestroy = new Subject<void>()
   readonly data = inject<any>(MAT_DIALOG_DATA);
@@ -126,7 +127,7 @@ export class AdddocumentsComponent implements OnInit, OnDestroy {
   //       }
 
   //     } else {
-  //       Swal.fire({
+  //       this.uiFeedback.fire({
   //         title: "Error",
   //         text: response.message,
   //         icon: "error",
@@ -219,7 +220,7 @@ export class AdddocumentsComponent implements OnInit, OnDestroy {
     request.pipe(takeUntil(this.onDestroy), finalize(() => this.submitting = false)).subscribe({
       next: response => {
         if (response.statusCode === successCode) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success', text: response.message || 'Document saved successfully.', icon: 'success',
             confirmButtonColor: '#4690eb', confirmButtonText: 'Continue'
           }).then(() => this.dialogRef.close(true));
@@ -232,7 +233,7 @@ export class AdddocumentsComponent implements OnInit, OnDestroy {
   }
 
   private showError(message: string): void {
-    Swal.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
+    this.uiFeedback.fire({ title: 'Error', text: message, icon: 'error', confirmButtonColor: '#4690eb', confirmButtonText: 'Close' });
   }
 
 

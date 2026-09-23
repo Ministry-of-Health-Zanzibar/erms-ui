@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Inject, OnDestroy, OnInit } from '@angular/core';
+import { inject, Component, EventEmitter, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GlobalConstants } from '@shared/global-constants';
 import { finalize, Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { RolePermissionService } from '../../../../services/users/role-permission.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,6 +33,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   styleUrl: './role-permission-edit.component.scss'
 })
 export class RolePermissionEditComponent implements OnInit,OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
   public sidebarVisible:boolean = true
@@ -165,7 +166,7 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
       ).subscribe({
         next: response => {
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -176,7 +177,7 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
             this.dialogRef.close(true);
           });
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "error",
             text: response.message,
             icon: "error",
@@ -187,7 +188,7 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
 
       },
       error: error => {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: getApiErrorMessage(error, 'Unable to update the role. Please try again.'),
             icon: "error",
@@ -196,7 +197,7 @@ export class RolePermissionEditComponent implements OnInit,OnDestroy {
           });
       }});
     }else{
-      Swal.fire({
+      this.uiFeedback.fire({
         title: "warning",
         text: 'No permission selected. Please select at least one permission for this role.',
         icon: "warning",

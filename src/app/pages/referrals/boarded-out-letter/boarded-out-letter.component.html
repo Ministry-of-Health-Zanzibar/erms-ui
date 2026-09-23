@@ -1,155 +1,58 @@
-<div
-    id="print-section"
-    *ngIf="referral"
-    class="p-10 bg-white rounded-lg text-gray-900 print:ml-40 print:w-[70%]"
-    >
+<section class="boarded-out-letter" aria-labelledby="boarded-out-letter-title">
+  <header class="boarded-out-letter__header">
+    <div class="boarded-out-letter__identity">
+      <span class="boarded-out-letter__icon" aria-hidden="true"><mat-icon>description</mat-icon></span>
+      <div>
+        <span class="boarded-out-letter__eyebrow">Backend-generated document</span>
+        <h2 id="boarded-out-letter-title">Boarded-out letter</h2>
+        <p>Choose the language and review the official Laravel-generated letter before printing.</p>
+      </div>
+    </div>
+    <button mat-icon-button type="button" aria-label="Close" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
 
-    <!-- ================= HEADER ================= -->
-    <div class="flex justify-center mb-4">
-        <img src="../../../../assets/img/smz.png" alt="" class="w-auto h-24" />
+  <div class="boarded-out-letter__body">
+    <div class="boarded-out-letter__notice">
+      <mat-icon>verified_user</mat-icon>
+      <span>The letter remains inside ERIS and its print event is recorded for audit.</span>
     </div>
 
-    <div class="text-center space-y-1 mb-6">
-        <p class="text-lg font-semibold">SERIKALI YA MAPINDUZI YA ZANZIBAR</p>
-        <p class="text-lg font-semibold">WIZARA YA AFYA</p>
+    <div class="boarded-out-letter__languages" role="radiogroup" aria-label="Letter language">
+      <button
+        type="button"
+        class="boarded-out-letter__language"
+        [class.boarded-out-letter__language--selected]="language === 'en'"
+        [attr.aria-checked]="language === 'en'"
+        role="radio"
+        (click)="language = 'en'"
+      >
+        <mat-icon>translate</mat-icon>
+        <span><strong>English version</strong><small>Official English document</small></span>
+        <mat-icon>{{ language === 'en' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+      </button>
 
-        <div class="grid grid-cols-2 gap-4 text-sm text-left">
-        <div>
-            <p>6 Barabara ya Health Office</p>
-            <p>S.L.P 236 MNANZIMMOJA</p>
-            <p>POSTIKODI 70467 Mjini Magharibi Zanzibar</p>
-        </div>
-        <div class="text-right">
-            <p>
-            Tovuti:
-            <a href="http://www.mohz.go.tz" class="text-blue-600 hover:underline">
-                www.mohz.go.tz
-            </a>
-            </p>
-            <p>
-            Barua pepe:
-            <a
-                href="mailto:{{ email || 'N/A' }}"
-                class="text-blue-600 hover:underline"
-            >
-                {{ email || "N/A" }}
-            </a>
-            </p>
-        </div>
-        </div>
+      <button
+        type="button"
+        class="boarded-out-letter__language"
+        [class.boarded-out-letter__language--selected]="language === 'sw'"
+        [attr.aria-checked]="language === 'sw'"
+        role="radio"
+        (click)="language = 'sw'"
+      >
+        <mat-icon>language</mat-icon>
+        <span><strong>Toleo la Kiswahili</strong><small>Barua rasmi ya Kiswahili</small></span>
+        <mat-icon>{{ language === 'sw' ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+      </button>
     </div>
+  </div>
 
-    <hr style="border-top: 3px solid black;" />
-
-    <!-- ================= SWITCH LOGIC ================= -->
-
-    <!-- ================================================= -->
-    <!-- ✅ BOARDED OUT LETTER -->
-    <!-- ================================================= -->
-    <ng-container *ngIf="referral.is_boarded_out">
-
-        <div class="flex justify-between text-sm font-medium my-4">
-        <p>
-            <b>KUMB:</b>
-            {{ referral.boarded_out_letter?.reference_number }}
-        </p>
-      <p>
-  <b>Tarehe:</b>
-
-  <span class="text-black-500">
-    {{ referral.boarded_out_letter?.created_at | date:'dd/MM/yyyy' }}
-  </span>
-</p>
-        </div>
-
-        <div class="mb-6 uppercase font-semibold">
-        <p
-            *ngFor="let line of referral.boarded_out_letter?.receiver?.split(','); let last = last"
-        >
-            {{ line.trim() }}{{ !last ? ',' : '' }}
-        </p>
-        </div>
-
-        <div class="text-center font-bold uppercase mb-4">
-        <p>
-            KUH: UCHUNGUZI WA AFYA WA
-            {{ referral.patient?.name }}
-        </p>
-        </div>
-
-        <div class="space-y-3 text-sm">
-
-        <p>
-            Tafadhali rejea barua yenye kumbukumbu
-        <b>{{ referral.boarded_out_letter?.reference_number }}</b>
-            ya tarehe
-        <b> {{ referral.boarded_out_letter?.reference_date | date:'dd/MM/yyyy' }}</b> yenye mada ya hapo juu .
-        </p>
-
-        <p>
-            Bodi ya Madaktari katika kikao chake cha tarehe <b>{{referral.patient.patient_list[0].board_date | date:'dd/MM/yyyy'}}</b> ilikaa na kumjadili mgonjwa
-            <b>{{ referral.patient?.name }}</b>.
-        </p>
-        <p>Bodi ilijadili kwa kina ripoti hiyo na ilifikia maamuzi kua <b> ndugu {{ referral.patient?.name }} </b></p>
-
-        <!-- Recommendations -->
-        <ul class="list-disc ml-6">
-        <strong> <li *ngFor="let rec of referral.boarded_out_letter?.recommendations">
-            {{ rec }}
-            </li>
-            </strong>
-        </ul>
-        <p>
-            Pamoja na barua hii ninafunganisha kopi ya ripoti halisi ya maamuzi hayo :
-        </p>
-
-        <p><strong><i>Ahsante,</i></strong></p>
-        </div>
-
-    </ng-container>
-
-    <div class="h-20 flex items-center">
-        <img
-            src="assets/img/sign_dgs.png"
-            alt="Signature"
-            class="dg-signature"
-        />
-    </div>
-
-    <!-- ================= FOOTER ================= -->
-    <div class="mt-2">
-        <p class="font-semibold">DKT. MARYAM SEIF HEMED,</p>
-        <p class="font-semibold">MKURUGENZI MKUU,</p>
-        <p class="font-semibold">WIZARA YA AFYA,</p>
-        <p class="font-semibold underline">ZANZIBAR</p>
-    </div>
-
-    <hr style="border-top: 3px solid black;" />
-
-    <div class="text-xs text-gray-600 text-center">
-        <p><em><strong>Kwa mawasiliano ya moja kwa moja:</strong></em></p>
-        <p>
-        Katibu Mkuu {{katibu}} , Mkurugenzi Mkuu barua pepe</p>
-        <p>
-            {{ dg || "dg@mohz.go.tz" }}
-        </p>
-    </div>
-
-    <div class="text-xs text-gray-600">
-    <p style="margin-top: 15px; font-size: 14px; display: flex; gap: 20px;">
-    <strong>Nakla:</strong>
-    <strong>NDG.</strong>
-    <strong>{{ referral.patient?.name }}</strong>
-    </p>
-        
-    </div>
-
-    <!-- PRINT -->
-    <div class="flex justify-end mt-8 print:hidden">
-        <button (click)="print()" mat-raised-button color="primary">
-        <mat-icon>print</mat-icon>
-        Print
-        </button>
-    </div>
-
-</div>
+  <footer class="boarded-out-letter__footer">
+    <button mat-button type="button" (click)="close()">Cancel</button>
+    <button mat-flat-button color="primary" type="button" [disabled]="loading || !historyId" (click)="preview()">
+      <mat-icon>{{ loading ? 'hourglass_top' : 'visibility' }}</mat-icon>
+      {{ loading ? 'Preparing letter…' : 'Review letter' }}
+    </button>
+  </footer>
+</section>

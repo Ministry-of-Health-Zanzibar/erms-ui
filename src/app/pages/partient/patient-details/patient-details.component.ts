@@ -1,9 +1,9 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { inject, Component, DestroyRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ActivatedRoute } from '@angular/router';
 import { PartientService } from '../../../services/partient/partient.service';
 import { environment } from '../../../../environments/environment.prod';
@@ -22,6 +22,7 @@ import { FileViewerComponent } from '@shared/ui';
   styleUrl: './patient-details.component.scss',
 })
 export class PatientDetailsComponent implements OnInit {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   public loading = false;
 
@@ -42,7 +43,7 @@ export class PatientDetailsComponent implements OnInit {
       if (id) {
         this.fetchPatientHistory(+id);
       } else {
-        Swal.fire('Error', 'No patient history ID provided', 'error');
+        this.uiFeedback.fire('Error', 'No patient history ID provided', 'error');
       }
     });
   }
@@ -57,11 +58,11 @@ export class PatientDetailsComponent implements OnInit {
         if (response?.status && response?.data) {
           this.medicalHistory = response.data;
         } else {
-          Swal.fire('Error', 'No medical history found', 'error');
+          this.uiFeedback.fire('Error', 'No medical history found', 'error');
         }
       },
       error: (error: unknown) => {
-        Swal.fire('Error', getApiErrorMessage(error, 'Failed to fetch patient history.'), 'error');
+        this.uiFeedback.fire('Error', getApiErrorMessage(error, 'Failed to fetch patient history.'), 'error');
       },
     });
   }
@@ -117,7 +118,7 @@ export class PatientDetailsComponent implements OnInit {
       if (result && result.success) {
         // console.log('✅ New medical history saved:', result.data);
 
-        Swal.fire({
+        this.uiFeedback.fire({
           title: 'Medical History Added',
           text: 'The patient medical history was saved successfully!',
           icon: 'success',

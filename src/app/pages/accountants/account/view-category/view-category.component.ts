@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -17,7 +17,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { CategoryService } from '../../../../services/accountants/category.service';
 import { AddCategoryComponent } from '../add-category/add-category.component';
 import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
@@ -50,6 +50,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './view-category.component.scss'
 })
 export class ViewCategoryComponent implements OnInit,OnDestroy{
+  private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>()
 
   displayedColumns: string[] = ['id','name','code','action'];
@@ -145,7 +146,7 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.category_name + ' </b> ',
       icon: "warning",
@@ -168,7 +169,7 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
     if(deleted){
       this.categoryService.unblockCategory(data, data?.category_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -177,7 +178,7 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
           });
           this.getCategory();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -189,7 +190,7 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
     }else{
       this.categoryService.deleteCategory(data?.category_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -198,7 +199,7 @@ export class ViewCategoryComponent implements OnInit,OnDestroy{
           });
           this.getCategory()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

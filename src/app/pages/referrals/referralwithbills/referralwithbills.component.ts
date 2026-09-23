@@ -22,7 +22,6 @@ import { Router, RouterLink } from '@angular/router';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
 import { BillComponent } from '../bill/bill.component';
 import { ReferralpaymentComponent } from '../referralpayment/referralpayment.component';
 import {

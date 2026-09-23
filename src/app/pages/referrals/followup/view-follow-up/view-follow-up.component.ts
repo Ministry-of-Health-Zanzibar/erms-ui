@@ -18,10 +18,11 @@ import { PermissionService } from '../../../../services/authentication/permissio
 import { PartientService } from '../../../../services/partient/partient.service';
 import { FollowsService } from '../../../../services/Referral/follows.service';
 import { AddFollowUpComponent } from '../add-follow-up/add-follow-up.component';
-import { PrintfollowupComponent } from '../printfollowup/printfollowup.component';
 import { environment } from '../../../../../environments/environment.prod';
 import {
   EmptyStateComponent,
+  FileViewerComponent,
+  LetterPreviewDialogComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
@@ -109,8 +110,24 @@ export class ViewFollowUpComponent implements OnInit {
 
   viewPDF(element: any) {
     if (element?.letter_file) {
-      const url = this.documentUrl + element.letter_file;
-      window.open(url, '_blank');
+      const url = element.letter_file.startsWith('http')
+        ? element.letter_file
+        : this.documentUrl + element.letter_file;
+
+      this.dialog.open(FileViewerComponent, {
+        width: 'min(96vw, 1200px)',
+        height: 'min(92vh, 860px)',
+        maxWidth: '100vw',
+        maxHeight: '100vh',
+        panelClass: 'file-viewer-dialog',
+        data: {
+          url,
+          fileName: url.split('/').pop() || 'follow-up-letter',
+          title: 'Uploaded follow-up letter',
+          printTrackingUrl: `${environment.baseUrl}letter-documents/follow-ups/${element.letter_id}/print`,
+          printTrackingBody: { language: 'sw' },
+        },
+      });
     }
   }
 
@@ -137,15 +154,28 @@ export class ViewFollowUpComponent implements OnInit {
     });
   }
 
-  printFollowUp(data: any): void {
-    const dialogRef = this.dialog.open(PrintfollowupComponent, {
+  printFollowUp(data: any, letter: any): void {
+    if (!letter?.letter_id) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(LetterPreviewDialogComponent, {
       maxWidth: '100vw',
       maxHeight: '100vh',
-      data: data,
+      width: 'min(96vw, 560px)',
+      data: {
+        kind: 'follow_up',
+        id: letter.letter_id,
+        patientName: data?.patient?.name || this.follow?.patient?.name,
+        defaultLanguage: 'sw',
+      },
     });
-    // console.log('napata data', data);
 
-    dialogRef.afterClosed().subscribe((result) => {});
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.printed) {
+        this.getFeedbackById();
+      }
+    });
   }
 
   extractFileName(url: string): string {

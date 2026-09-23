@@ -6,13 +6,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { finalize } from 'rxjs';
+import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 export interface FileViewerData {
   url: string;
   fileName?: string;
   title?: string;
   mimeType?: string;
+  shareUrl?: string;
+  printTrackingUrl?: string;
+  printTrackingBody?: Record<string, unknown>;
 }
 
 @Component({
@@ -33,9 +36,14 @@ export class FileViewerComponent {
   readonly fileName: string;
   readonly title: string;
   readonly mimeType: string;
+  readonly shareUrl: string;
+  readonly printTrackingUrl?: string;
+  readonly printTrackingBody?: Record<string, unknown>;
   readonly safePreviewUrl: SafeResourceUrl;
 
   isDownloading = false;
+  isPrinting = false;
+  printStarted = false;
   isMaximized = false;
   statusMessage = '';
 
@@ -50,6 +58,9 @@ export class FileViewerComponent {
     this.fileName = this.resolveFileName(data.fileName, data.url);
     this.title = data.title?.trim() || this.fileName;
     this.mimeType = data.mimeType?.toLowerCase() || '';
+    this.shareUrl = data.shareUrl || data.url;
+    this.printTrackingUrl = data.printTrackingUrl;
+    this.printTrackingBody = data.printTrackingBody;
     this.safePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.fileUrl);
   }
 
@@ -97,7 +108,7 @@ export class FileViewerComponent {
   }
 
   close(): void {
-    this.dialogRef.close();
+    this.dialogRef.close({ printed: this.printStarted });
   }
 
   toggleMaximized(): void {
@@ -143,11 +154,36 @@ export class FileViewerComponent {
 
     if (this.nativeShareAvailable) {
       try {
-        await navigator.share({
-          title: this.title,
-          text: 'Shared from ERIS: ' + this.fileName,
-          url: this.fileUrl,
-        });
+        const navigatorWithFileShare = navigator as Navigator & {
+          canShare?: (data?: ShareData) => boolean;
+        };
+
+        if (navigatorWithFileShare.canShare?.({ files: [new File([], this.fileName)] })) {
+          const file = await firstValueFrom(this.http.get(this.fileUrl, { responseType: 'blob' }));
+          const shareFile = new File([file], this.fileName, {
+            type: this.mimeType || 'application/octet-stream',
+          });
+
+          if (navigatorWithFileShare.canShare({ files: [shareFile] })) {
+            await navigator.share({
+              title: this.title,
+              text: 'Shared from ERIS: ' + this.fileName,
+              files: [shareFile],
+            });
+          } else {
+            await navigator.share({
+              title: this.title,
+              text: 'Shared from ERIS: ' + this.fileName,
+              url: this.shareUrl,
+            });
+          }
+        } else {
+          await navigator.share({
+            title: this.title,
+            text: 'Shared from ERIS: ' + this.fileName,
+            url: this.shareUrl,
+          });
+        }
         this.statusMessage = 'Share sheet opened.';
         return;
       } catch (error: unknown) {
@@ -171,11 +207,44 @@ export class FileViewerComponent {
     }
 
     try {
-      await navigator.clipboard.writeText(this.fileUrl);
+      await navigator.clipboard.writeText(this.shareUrl);
       this.statusMessage = 'File link copied to clipboard.';
     } catch {
       this.statusMessage = 'Unable to copy the file link.';
     }
+  }
+
+  printFile(): void {
+    if (this.isPrinting || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.isPrinting = true;
+    this.statusMessage = 'Preparing print…';
+    let auditFailed = false;
+
+    const trackingRequest = this.printTrackingUrl
+      ? this.http.post(this.printTrackingUrl, this.printTrackingBody || {}).pipe(
+          catchError(() => {
+            auditFailed = true;
+            return of(null);
+          }),
+        )
+      : of(null);
+
+    trackingRequest.pipe(
+      finalize(() => this.isPrinting = false),
+    ).subscribe(() => {
+      this.printStarted = !auditFailed || !this.printTrackingUrl;
+      this.statusMessage = auditFailed
+        ? 'Print dialog opened, but the print audit could not be saved.'
+        : 'Print dialog opened.';
+      window.setTimeout(() => {
+        const frame = document.querySelector('.file-viewer__pdf') as HTMLIFrameElement | null;
+        frame?.contentWindow?.focus();
+        frame?.contentWindow?.print();
+      });
+    });
   }
 
   private get pathWithoutQuery(): string {

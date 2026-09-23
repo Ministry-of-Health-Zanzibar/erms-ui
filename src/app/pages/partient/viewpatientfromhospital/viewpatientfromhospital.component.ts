@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
 import { PartientService } from '../../../services/partient/partient.service';
@@ -23,7 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PatienthistoryService } from '../../../services/partient/patienthistory.service';
 import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
 
@@ -52,6 +52,7 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   styleUrl: './viewpatientfromhospital.component.scss',
 })
 export class ViewpatientfromhospitalComponent {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
@@ -141,7 +142,7 @@ export class ViewpatientfromhospitalComponent {
     const message = data.deleted_at
       ? 'Are you sure you want to unblock'
       : 'Are you sure you want to block';
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Confirm',
       html: `${message} <b>${data.name}</b>?`,
       icon: 'warning',
@@ -161,21 +162,21 @@ export class ViewpatientfromhospitalComponent {
     if (deleted) {
       this.userService.unblockPatients(data, data?.patient_id).subscribe(
         (res: any) => {
-          Swal.fire('Success', res.message, 'success');
+          this.uiFeedback.fire('Success', res.message, 'success');
           this.loadPatients();
         },
         (err) => {
-          Swal.fire('Error', 'Failed to unblock patient', 'error');
+          this.uiFeedback.fire('Error', 'Failed to unblock patient', 'error');
         },
       );
     } else {
       this.userService.deletePatients(data?.patient_id).subscribe(
         (res: any) => {
-          Swal.fire('Success', res.message, 'success');
+          this.uiFeedback.fire('Success', res.message, 'success');
           this.loadPatients();
         },
         (err) => {
-          Swal.fire('Error', 'Failed to delete patient', 'error');
+          this.uiFeedback.fire('Error', 'Failed to delete patient', 'error');
         },
       );
     }
@@ -185,7 +186,7 @@ export class ViewpatientfromhospitalComponent {
     const id = data?.latest_history?.patient_histories_id;
 
     if (!id) {
-      Swal.fire('Error', 'No history ID available.', 'error');
+      this.uiFeedback.fire('Error', 'No history ID available.', 'error');
       return;
     }
 

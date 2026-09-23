@@ -41,13 +41,30 @@ export class ForwarddialogComponent {
     });
   }
 
-  // ✔ THIS is the correct method. Only returns form data to parent.
-  submit() {
-    if (this.form.invalid) return;
+  get isEditMode(): boolean {
+    return this.data?.editMode === true;
+  }
 
-    // Return only the comment
+  get commentLength(): number {
+    return String(this.form.get('mkurugenzi_tiba_comments')?.value || '').length;
+  }
+
+  submit() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const comment = String(this.form.get('mkurugenzi_tiba_comments')?.value || '').trim();
+
+    if (!comment) {
+      this.form.get('mkurugenzi_tiba_comments')?.setValue('');
+      this.form.markAllAsTouched();
+      return;
+    }
+
     this.dialogRef.close({
-      mkurugenzi_tiba_comments: this.form.value.mkurugenzi_tiba_comments
+      mkurugenzi_tiba_comments: comment
     });
   }
 

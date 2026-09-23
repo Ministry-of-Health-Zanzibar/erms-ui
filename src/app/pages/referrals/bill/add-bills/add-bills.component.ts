@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { inject, Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -19,7 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject, takeUntil } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 
 import { BillService } from '../../../../services/system-configuration/bill.service';
 
@@ -50,6 +50,7 @@ export interface AddBillDialogData {
   styleUrls: ['./add-bills.component.scss'],
 })
 export class AddBillsComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   billForm: FormGroup;
   loading = false;
   minDate: Date;
@@ -127,12 +128,12 @@ export class AddBillsComponent implements OnInit, OnDestroy {
   //           }
   //         } else {
   //           this.referrals = [];
-  //           Swal.fire('Error', res.message || 'No referrals found', 'error');
+  //           this.uiFeedback.fire('Error', res.message || 'No referrals found', 'error');
   //         }
   //       },
   //       error: () => {
   //         this.referrals = [];
-  //         Swal.fire('Error', 'Failed to load referrals', 'error');
+  //         this.uiFeedback.fire('Error', 'Failed to load referrals', 'error');
   //       },
   //     });
   // }
@@ -162,12 +163,12 @@ export class AddBillsComponent implements OnInit, OnDestroy {
             }
           } else {
             this.referrals = [];
-            Swal.fire('Error', res.message || 'No referrals found', 'error');
+            this.uiFeedback.fire('Error', res.message || 'No referrals found', 'error');
           }
         },
         error: () => {
           this.referrals = [];
-          Swal.fire('Error', 'Failed to load referrals', 'error');
+          this.uiFeedback.fire('Error', 'Failed to load referrals', 'error');
         },
       });
   }

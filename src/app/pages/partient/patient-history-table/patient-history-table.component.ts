@@ -1,10 +1,10 @@
-import { Component, DestroyRef, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, DestroyRef, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/environment.prod';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PartientService } from '../../../services/partient/partient.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { AddmedicalhistoryComponent } from '../addmedicalhistory/addmedicalhistory.component';
 import { finalize } from 'rxjs';
 
@@ -45,6 +45,7 @@ import {
   styleUrl: './patient-history-table.component.scss',
 })
 export class PatientHistoryTableComponent implements OnInit {
+  private readonly uiFeedback = inject(FeedbackService);
 
   public documentUrl = environment.fileUrl;
   public loading = false;
@@ -70,7 +71,7 @@ export class PatientHistoryTableComponent implements OnInit {
         this.patientId = +id;
         this.fetchPatientHistory(this.patientId);
       } else {
-        Swal.fire('Error', 'No patient history ID provided', 'error');
+        this.uiFeedback.fire('Error', 'No patient history ID provided', 'error');
       }
     });
   }
@@ -91,11 +92,11 @@ export class PatientHistoryTableComponent implements OnInit {
           this.dataSource = new MatTableDataSource(history);
           this.dataSource.paginator = this.paginator;
         } else {
-          Swal.fire('Error', 'No medical history found', 'error');
+          this.uiFeedback.fire('Error', 'No medical history found', 'error');
         }
       },
       error: () => {
-        Swal.fire('Error', 'Failed to fetch patient history', 'error');
+        this.uiFeedback.fire('Error', 'Failed to fetch patient history', 'error');
       },
     });
   }
@@ -124,7 +125,7 @@ export class PatientHistoryTableComponent implements OnInit {
     // console.log('Dialog closed:', result);
 
     if (result?.success) {
-      Swal.fire({
+      this.uiFeedback.fire({
         title: 'Medical History Added',
         text: 'The patient medical history was saved successfully!',
         icon: 'success',

@@ -34,13 +34,8 @@ export class ScreenLoaderComponent {
   private _loaderElement: ElementRef;
 
   constructor() {
-    const initialState = getState<GlobalState>(this._globalStore);
     effect(() => {
       const currentState = getState<GlobalState>(this._globalStore);
-
-      if (initialState.screenLoading === currentState.screenLoading) {
-        return;
-      }
 
       if (currentState.screenLoading) {
         this._show();

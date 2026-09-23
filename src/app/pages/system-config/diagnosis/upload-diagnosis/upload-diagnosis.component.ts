@@ -4,7 +4,7 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { DiagnosisService } from '../../../../services/system-configuration/diagnosis.service';
 
 @Component({
@@ -20,6 +20,7 @@ import { DiagnosisService } from '../../../../services/system-configuration/diag
   styleUrl: './upload-diagnosis.component.scss'
 })
 export class UploadDiagnosisComponent {
+  private readonly uiFeedback = inject(FeedbackService);
 
   readonly dialogRef = inject(MatDialogRef<UploadDiagnosisComponent>);
   selectedFile: File | null = null;
@@ -56,7 +57,7 @@ uploadFile(): void {
           this.uploading = false;
           this.uploadProgress = 0;
 
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: event.body.message,
             icon: "success",
@@ -79,7 +80,7 @@ uploadFile(): void {
         console.error('Error occurred:', err);
         this.onClose();
 
-        Swal.fire({
+        this.uiFeedback.fire({
           title: "Error",
           text: this.errorMessage,
           icon: "error",

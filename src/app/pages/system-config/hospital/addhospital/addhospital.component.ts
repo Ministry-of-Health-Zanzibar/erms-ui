@@ -25,7 +25,7 @@ import { finalize, Subject, takeUntil } from 'rxjs';
 import { GlobalConstants } from '@shared/global-constants';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { HospitalService } from '../../../../services/system-configuration/hospital.service';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { ReferalTypeService } from '../../../../services/system-configuration/referal-type.service';
 import { MatSelectModule } from '@angular/material/select';
 
@@ -49,6 +49,7 @@ import { MatSelectModule } from '@angular/material/select';
   styleUrl: './addhospital.component.scss',
 })
 export class AddhospitalComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly onDestroy = new Subject<void>();
   public sidebarVisible: boolean = true;
@@ -148,7 +149,7 @@ export class AddhospitalComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (response: any) => {
         if (response.statusCode === successCode) {
-          Swal.fire({
+          this.uiFeedback.fire({
             title: 'Success',
             text: 'Hospital saved successfully.',
             icon: 'success',
@@ -165,7 +166,7 @@ export class AddhospitalComponent implements OnInit, OnDestroy {
   }
 
   private showError(message: string): void {
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Error',
       text: message,
       icon: 'error',

@@ -1,0 +1,42 @@
+<div class="feedback-dialog feedback-dialog--confirmation" [ngClass]="'feedback-dialog--' + icon">
+  <div class="feedback-dialog__header">
+    <div class="feedback-dialog__icon" aria-hidden="true">
+      <mat-icon>{{ iconName }}</mat-icon>
+    </div>
+    <button
+      mat-icon-button
+      type="button"
+      class="feedback-dialog__close"
+      aria-label="Close confirmation"
+      (click)="cancel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="feedback-dialog__content">
+    <p class="feedback-dialog__eyebrow">Confirmation required</p>
+    <h2>{{ data.title || 'Please confirm' }}</h2>
+    <p *ngIf="data.text" class="feedback-dialog__message">{{ data.text }}</p>
+    <div *ngIf="data.html" class="feedback-dialog__message" [innerHTML]="data.html"></div>
+  </div>
+
+  <div class="feedback-dialog__actions" [class.feedback-dialog__actions--reverse]="data.reverseButtons">
+    <button
+      mat-stroked-button
+      type="button"
+      class="feedback-dialog__cancel"
+      [style.border-color]="data.cancelButtonColor || null"
+      (click)="cancel()">
+      {{ data.cancelButtonText || 'Cancel' }}
+    </button>
+    <button
+      mat-flat-button
+      type="button"
+      class="feedback-dialog__confirm"
+      [style.background-color]="data.confirmButtonColor || null"
+      (click)="confirm()">
+      <mat-icon>check</mat-icon>
+      {{ data.confirmButtonText || 'Confirm' }}
+    </button>
+  </div>
+</div>

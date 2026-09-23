@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
+import { inject,
   Component,
   Inject,
   OnInit,
@@ -35,7 +35,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { Observable, Subject } from 'rxjs';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 
 import { DiagnosisService } from '../../../services/system-configuration/diagnosis.service';
 import { MedicalhistoryService } from '../../../services/partient/medicalhistory.service';
@@ -68,6 +68,7 @@ import { ReasonsService } from '../../../services/system-configuration/reasons.s
   styleUrls: ['./addmedicalhistory.component.scss'],
 })
 export class AddmedicalhistoryComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   medicalForm!: FormGroup;
   loading = false;
   backendErrors: any = {};
@@ -255,7 +256,7 @@ normalize(text: string): string {
       error: (err) => {
         console.error('Backend error:', err);
         this.backendErrors = err.error?.errors || {};
-        Swal.fire('Error', 'Failed to save medical history', 'error');
+        this.uiFeedback.fire('Error', 'Failed to save medical history', 'error');
         this.loading = false;
       },
     });

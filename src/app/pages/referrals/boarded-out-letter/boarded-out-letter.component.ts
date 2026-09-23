@@ -1,8 +1,13 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, Optional } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { finalize } from 'rxjs';
+import { LetterDocumentsService, LetterLanguage } from '../../../services/letters/letter-documents.service';
+import { FeedbackService } from '@shared/services/feedback.service';
+import { getApiErrorMessage } from '@shared/utils/api-error';
 
 @Component({
   selector: 'app-boarded-out-letter',
@@ -10,36 +15,50 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     CommonModule,
     MatButtonModule,
+    MatDialogModule,
     MatIconModule
   ],
   templateUrl: './boarded-out-letter.component.html',
   styleUrls: ['./boarded-out-letter.component.scss']
 })
 export class BoardedOutLetterComponent {
-email = 'info@mohz.go.tz'
+  language: LetterLanguage = 'sw';
+  loading = false;
+
   constructor(
-    @Inject(MAT_DIALOG_DATA) public referral: any
+    @Optional() @Inject(MAT_DIALOG_DATA) public readonly referral: any,
+    private readonly documents: LetterDocumentsService,
+    private readonly feedback: FeedbackService,
+    @Optional() private readonly dialogRef: MatDialogRef<BoardedOutLetterComponent> | null,
   ) {}
 
-  async print(): Promise<void> {
-    const printContents = document.getElementById('print-section')?.outerHTML;
-    if (printContents) {
-      const originalContents = document.body.innerHTML;
-      document.body.innerHTML = printContents;
+  get historyId(): number | null {
+    const id = this.referral?.history_id || this.referral?.patient?.patient_histories?.[0]?.patient_histories_id;
+    return id ? Number(id) : null;
+  }
 
-      const images = Array.from(document.body.querySelectorAll('img'));
-      await Promise.all(images.map(image =>
-        image.complete
-          ? image.decode().catch(() => undefined)
-          : new Promise<void>(resolve => {
-              image.addEventListener('load', () => resolve(), { once: true });
-              image.addEventListener('error', () => resolve(), { once: true });
-            })
-      ));
+  get patientName(): string {
+    return this.referral?.patient?.name || '';
+  }
 
-      window.print();
-      document.body.innerHTML = originalContents;
-      window.location.reload();
+  preview(): void {
+    if (!this.historyId || this.loading) {
+      return;
     }
+
+    this.loading = true;
+    this.documents.openBoardedOutLetter(this.historyId, this.language, this.patientName)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => this.dialogRef?.close(result)),
+        error: (error: unknown) => this.feedback.error(
+          'Unable to prepare letter',
+          getApiErrorMessage(error, 'The boarded-out letter could not be generated. Please try again.'),
+        ),
+      });
+  }
+
+  close(): void {
+    this.dialogRef?.close();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -15,7 +15,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { BillService } from '../../../../services/system-configuration/bill.service';
 import { AddbillComponent } from '../addbill/addbill.component';
 import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableToolbarComponent } from '@shared/ui';
@@ -48,6 +48,7 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   styleUrl: './viewbill.component.scss'
 })
 export class ViewbillComponent {
+  private readonly uiFeedback = inject(FeedbackService);
  private readonly onDestroy = new Subject<void>()
 
   displayedColumns: string[] = ['id','referral_id','amount','notes','sent_to','bill_file','action'];
@@ -144,7 +145,7 @@ export class ViewbillComponent {
     else{
       message = 'Are you sure you want to block'
     }
-    Swal.fire({
+    this.uiFeedback.fire({
       title: "Confirm",
       html: message + ' <b> ' + data.notes + ' </b> ',
       icon: "warning",
@@ -167,7 +168,7 @@ export class ViewbillComponent {
     if(deleted){
       this.billService.unblockBill(data, data?.hospital_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -176,7 +177,7 @@ export class ViewbillComponent {
           });
           this.getBill();
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",
@@ -188,7 +189,7 @@ export class ViewbillComponent {
     }else{
       this.billService.deleteBill(data?.bill_id).subscribe(response=>{
         if(response.statusCode == 200){
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Success",
             text: response.message,
             icon: "success",
@@ -197,7 +198,7 @@ export class ViewbillComponent {
           });
           this.getBill()
         }else{
-          Swal.fire({
+          this.uiFeedback.fire({
             title: "Error",
             text: response.message,
             icon: "error",

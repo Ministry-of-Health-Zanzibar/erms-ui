@@ -26,6 +26,17 @@
         mat-stroked-button
         type="button"
         class="file-viewer__action"
+        [disabled]="isPrinting"
+        (click)="printFile()"
+        matTooltip="Print this document"
+      >
+        <mat-icon aria-hidden="true">print</mat-icon>
+        <span>{{ isPrinting ? 'Preparing…' : 'Print' }}</span>
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        class="file-viewer__action"
         [disabled]="isDownloading"
         (click)="downloadFile()"
         matTooltip="Download this file"

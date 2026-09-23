@@ -11,7 +11,7 @@ import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-f
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { HDividerComponent } from '@elementar/components';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { map, Observable, startWith, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -36,6 +36,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./bill.component.scss'],
 })
 export class BillComponent implements OnInit, OnDestroy {
+  private readonly uiFeedback = inject(FeedbackService);
   readonly data = inject<any>(MAT_DIALOG_DATA);
   public sidebarVisible:boolean = true
   private readonly onDestroy = new Subject<void>();
@@ -103,7 +104,7 @@ private router: Router
 
       },
       (error) => {
-        Swal.fire('Error', error.error.message, 'error');
+        this.uiFeedback.fire('Error', error.error.message, 'error');
       }
     );
   }
@@ -115,10 +116,10 @@ private router: Router
       (response: any) => {
         this.dialogRef.close();
         this.onEditBillEventEmitter.emit();
-        Swal.fire('Success', response.message, 'success');
+        this.uiFeedback.fire('Success', response.message, 'success');
       },
       (error) => {
-        Swal.fire('Error', error.error.message, 'error');
+        this.uiFeedback.fire('Error', error.error.message, 'error');
       }
     );
   }

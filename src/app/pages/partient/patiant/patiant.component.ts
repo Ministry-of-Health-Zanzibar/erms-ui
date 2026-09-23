@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
 import { PartientService } from '../../../services/partient/partient.service';
@@ -21,7 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { FeedbackService } from '@shared/services/feedback.service';
 import { PartientFormComponent } from '../partient-form/partient-form.component';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
@@ -52,6 +52,7 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   styleUrls: ['./patiant.component.scss'],
 })
 export class PatiantComponent {
+  private readonly uiFeedback = inject(FeedbackService);
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
@@ -148,7 +149,7 @@ export class PatiantComponent {
 
     config.maxHeight = '98vh';
     // config.width = '950px';
-    config.panelClass = 'full-screen-modal';
+    config.panelClass = ['full-screen-modal', 'patient-form-dialog'];
 
     const dialogRef = this.dialog.open(PartientFormComponent, config);
     dialogRef.afterClosed().subscribe(() => {
@@ -164,7 +165,7 @@ export class PatiantComponent {
     config.height = '80vh'; // full viewport height
     config.maxWidth = '80vw'; // override default 80%
 
-    config.panelClass = 'full-screen-modal';
+    config.panelClass = ['full-screen-modal', 'patient-form-dialog'];
 
     config.data = { patient: patientData };
 
@@ -181,7 +182,7 @@ export class PatiantComponent {
     const message = data.deleted_at
       ? 'Are you sure you want to unblock'
       : 'Are you sure you want to block';
-    Swal.fire({
+    this.uiFeedback.fire({
       title: 'Confirm',
       html: `${message} <b>${data.name}</b>?`,
       icon: 'warning',
@@ -201,21 +202,21 @@ export class PatiantComponent {
     if (deleted) {
       this.userService.unblockPatients(data, data?.patient_id).subscribe(
         (res: any) => {
-          Swal.fire('Success', res.message, 'success');
+          this.uiFeedback.fire('Success', res.message, 'success');
           this.loadPartients();
         },
         (err) => {
-          Swal.fire('Error', 'Failed to unblock patient', 'error');
+          this.uiFeedback.fire('Error', 'Failed to unblock patient', 'error');
         },
       );
     } else {
       this.userService.deletePatients(data?.patient_id).subscribe(
         (res: any) => {
-          Swal.fire('Success', res.message, 'success');
+          this.uiFeedback.fire('Success', res.message, 'success');
           this.loadPartients();
         },
         (err) => {
-          Swal.fire('Error', 'Failed to delete patient', 'error');
+          this.uiFeedback.fire('Error', 'Failed to delete patient', 'error');
         },
       );
     }

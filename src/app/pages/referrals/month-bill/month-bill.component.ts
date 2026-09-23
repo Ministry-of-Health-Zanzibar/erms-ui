@@ -19,7 +19,6 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { AddReferralsComponent } from '../add-referrals/add-referrals.component';
-import Swal from 'sweetalert2';
 import { AddMonthbillComponent } from '../add-monthbill/add-monthbill.component';
 import {
   EmptyStateComponent,
