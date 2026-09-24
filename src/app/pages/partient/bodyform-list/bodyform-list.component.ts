@@ -21,6 +21,7 @@ import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { PartientService } from '../../../services/partient/partient.service';
 import { Router } from '@angular/router';
@@ -64,9 +65,12 @@ export class BodyformListComponent {
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  errorMessage = '';
   totalItems = 0;
   pageSize = 10;
   currentPage = 1;
+  searchTerm = '';
+  private readonly searchChanged = new Subject<string>();
 
   constructor(
     public permission: PermissionService,
@@ -91,11 +95,16 @@ export class BodyformListComponent {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
+    this.searchChanged
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.userPetient();
+      });
     this.userPetient();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
@@ -104,38 +113,47 @@ export class BodyformListComponent {
     this.onDestroy.complete();
   }
   renew() {
+    this.currentPage = 1;
     this.userPetient();
   }
 
   userPetient() {
     this.loading = true;
+    this.errorMessage = '';
     this.userService
-      .getBodyList()
+      .getBodyList({
+        page: this.currentPage,
+        per_page: this.pageSize,
+        search: this.searchTerm,
+      })
       .pipe(takeUntil(this.onDestroy))
       .subscribe(
         (response: any) => {
           this.loading = false;
           if (response.data) {
             this.dataSource = new MatTableDataSource(response.data);
-            this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
+            this.totalItems = response.meta?.total ?? response.data.length;
           } else {
 
           }
         },
         (error) => {
           this.loading = false;
-
+          this.errorMessage = error?.error?.message || 'Unable to load medical board records. Please try again.';
         }
       );
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged.next(this.searchTerm);
+  }
+
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.userPetient();
   }
 
   viewPDF(element: any) {

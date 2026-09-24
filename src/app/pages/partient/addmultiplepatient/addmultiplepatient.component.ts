@@ -16,14 +16,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { PartientService } from '../../../services/partient/partient.service';
-import { LocationService } from '../../../services/system-configuration/location.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatRadioModule } from '@angular/material/radio';
-import { response } from 'express';
 
 export interface AddMultiplePatientDialogData {
   patientFileId: number;
@@ -42,9 +38,6 @@ export interface AddMultiplePatientDialogData {
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatCardModule,
-    MatAutocompleteModule,
-    MatRadioModule,
   ],
   templateUrl: './addmultiplepatient.component.html',
   styleUrls: ['./addmultiplepatient.component.scss'],
@@ -54,12 +47,15 @@ export class AddmultiplepatientComponent implements OnInit, OnDestroy {
   patients: any[] = [];
   patientForm: FormGroup;
   loading = false;
+  loadingPatients = false;
+  loadError = '';
+  patientSearch = '';
+  private readonly searchChanged$ = new Subject<string>();
   private onDestroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private patientService: PartientService,
-    private locationService: LocationService,
     public dialogRef: MatDialogRef<AddmultiplepatientComponent>,
     @Inject(MAT_DIALOG_DATA) public data: AddMultiplePatientDialogData
   ) {
@@ -70,6 +66,9 @@ export class AddmultiplepatientComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.searchChanged$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy$))
+      .subscribe(() => this.loadPatients());
     this.loadPatients();
   }
 
@@ -78,27 +77,58 @@ export class AddmultiplepatientComponent implements OnInit, OnDestroy {
     this.onDestroy$.complete();
   }
 
- loadPatients() {
-  this.patientService.getAllPartientforReferral().subscribe({
-    next: (res) => {
-      // console.log("Patients loaded:", res);
+  get selectedPatientCount(): number {
+    return (this.patientForm.get('patient_ids')?.value || []).length;
+  }
 
-      // If API returns data inside res.data
-      this.patients = res.data;
-    },
-    error: (err) => {
-      console.error('Failed to load patients', err);
-    },
-  });
-}
+  loadPatients(): void {
+    this.loadingPatients = true;
+    this.loadError = '';
+
+    this.patientService.getAllPartientforReferral({
+      page: 1,
+      per_page: 25,
+      search: this.patientSearch,
+    }).subscribe({
+      next: (res) => {
+        const selectedIds = new Set<number>(this.patientForm.get('patient_ids')?.value || []);
+        const incoming = res.data || [];
+        const selectedPatients = this.patients.filter((patient) => selectedIds.has(patient.patient_id));
+        this.patients = [
+          ...selectedPatients,
+          ...incoming.filter((patient: any) => !selectedIds.has(patient.patient_id)),
+        ];
+        this.loadingPatients = false;
+      },
+      error: (err) => {
+        console.error('Failed to load patients', err);
+        this.loadingPatients = false;
+        this.loadError = err.error?.message || 'Unable to load available patients.';
+      },
+    });
+  }
+
+  onPatientSearch(event: Event): void {
+    this.patientSearch = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged$.next(this.patientSearch);
+  }
+
+  clearPatientSearch(input: HTMLInputElement): void {
+    input.value = '';
+    this.patientSearch = '';
+    this.searchChanged$.next('');
+  }
 
 
-  onCancel() {
+  onCancel(): void {
     this.dialogRef.close();
   }
 
-  onSubmit() {
-    if (this.patientForm.invalid) return;
+  onSubmit(): void {
+    if (this.patientForm.invalid) {
+      this.patientForm.markAllAsTouched();
+      return;
+    }
 
     this.loading = true;
     const { patient_ids, patient_list_id } = this.patientForm.value;

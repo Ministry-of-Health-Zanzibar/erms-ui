@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatAnchor, MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -13,6 +13,7 @@ import { FeedbackService } from '@shared/services/feedback.service';
 import { AddUserComponent } from '../add-user/add-user.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { UserService } from '../../../../services/users/user.service';
 import { MatSort } from '@angular/material/sort';
@@ -54,6 +55,13 @@ export class UserComponent {
   private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
+  private readonly searchChanged = new Subject<string>();
+  loading = false;
+  errorMessage = '';
+  totalItems = 0;
+  pageSize = 25;
+  currentPage = 1;
+  searchTerm = '';
 
   constructor(
     public permission: PermissionService,
@@ -61,7 +69,7 @@ export class UserComponent {
     private dialog: MatDialog
   ){}
 
-  displayedColumns: string[] = ['id','name','gender','address','phone','email', 'hospital','action'];
+  displayedColumns: string[] = ['id','name','gender','address','phone','email', 'hospital', 'account_status', 'action'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -69,6 +77,12 @@ export class UserComponent {
 
 
   ngOnInit(): void {
+    this.searchChanged
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.userDataTable();
+      });
     this.userDataTable();
   }
   ngOnDestroy(): void {
@@ -76,31 +90,42 @@ export class UserComponent {
     this.onDestroy.complete()
   }
   renew(){
+    this.currentPage = 1;
     this.userDataTable();
   }
 
   userDataTable() {
-    this.userService.getAllUsers().pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
+    this.loading = true;
+    this.errorMessage = '';
+    this.userService.getAllUsers({
+      page: this.currentPage,
+      per_page: this.pageSize,
+      search: this.searchTerm,
+    }).pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
+      this.loading = false;
       if(response.data){
-        // console.log(response)
         this.dataSource = new MatTableDataSource(response.data);
-        this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.totalItems = response.meta?.total ?? response.data.length;
       }
       else{
         // console.log('permission response errors')
       }
     },(error)=>{
-      // console.log('permision getAway api fail to load')
+      this.loading = false;
+      this.errorMessage = error?.error?.message || 'Unable to load users. Please try again.';
     })
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged.next(this.searchTerm);
+  }
+
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.userDataTable();
   }
 
   addUser() {
@@ -136,50 +161,45 @@ export class UserComponent {
     });
   }
 
+  confirmBlock(data: any, currentlyBlocked: boolean): void {
+    this.uiFeedback.confirm(
+      currentlyBlocked ? 'Unblock this user?' : 'Block this user?',
+      currentlyBlocked
+        ? `${data.first_name} ${data.last_name} will be allowed to authenticate again.`
+        : `${data.first_name} ${data.last_name} will be signed out and denied access immediately.`,
+      {
+        confirmButtonText: currentlyBlocked ? 'Unblock user' : 'Block user',
+        confirmButtonColor: currentlyBlocked ? '#2563eb' : '#b91c1c',
+      },
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.blockUser(data.id, currentlyBlocked);
+      }
+    });
+  }
+
   blockUser(data: any, deleted: any): void{
-    if(deleted){
-      this.userService.activateUser(data).subscribe(response=>{
-        if(response.statusCode == 201){
-          this.uiFeedback.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
+    const request$ = deleted
+      ? this.userService.activateUser(data)
+      : this.userService.blockUser(data);
+
+    request$.subscribe({
+      next: (response: any) => {
+        if(response.statusCode == 200 || response.statusCode == 201){
+          this.uiFeedback.success('Success', response.message);
           this.userDataTable();
-        }else{
-          this.uiFeedback.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
+          return;
         }
-      })
-    }else{
-      this.userService.blockUser(data).subscribe(response=>{
-        if(response.statusCode == 200){
-          this.uiFeedback.fire({
-            title: "Success",
-            text: response.message,
-            icon: "success",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-          this.userDataTable()
-        }else{
-          this.uiFeedback.fire({
-            title: "Error",
-            text: response.message,
-            icon: "error",
-            confirmButtonColor: "#4690eb",
-            confirmButtonText: "Continue"
-          });
-        }
-      });
-    }
+
+        this.uiFeedback.error('Action failed', response.message || 'The account status could not be changed.');
+      },
+      error: (error: any) => {
+        this.uiFeedback.error(
+          'Action failed',
+          error?.error?.message || 'The account status could not be changed.',
+        );
+      },
+    });
   }
 
    resetUserPassword(userId: number) {

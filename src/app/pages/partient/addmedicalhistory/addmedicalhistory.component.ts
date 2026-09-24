@@ -34,12 +34,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
-import { Observable, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { FeedbackService } from '@shared/services/feedback.service';
 
 import { DiagnosisService } from '../../../services/system-configuration/diagnosis.service';
 import { MedicalhistoryService } from '../../../services/partient/medicalhistory.service';
 import { ReasonsService } from '../../../services/system-configuration/reasons.service';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-addmedicalhistory',
@@ -79,6 +80,7 @@ export class AddmedicalhistoryComponent implements OnInit, OnDestroy {
   diagnosisSearch = '';
   loadingDiagnoses = false;
   private onDestroy$ = new Subject<void>();
+  private diagnosisSearch$ = new Subject<string>();
 
   constructor(
     private fb: FormBuilder,
@@ -99,7 +101,7 @@ export class AddmedicalhistoryComponent implements OnInit, OnDestroy {
     
 
     this.buildForm(patient);
-    this.loadDiagnoses();
+    this.setupDiagnosisSearch();
     this.loadReasons();
   }
 
@@ -134,21 +136,31 @@ export class AddmedicalhistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadDiagnoses() {
-  this.loadingDiagnoses = true;
+  private setupDiagnosisSearch(): void {
+    this.diagnosisSearch$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((search) => {
+          const query = search.trim();
+          if (query.length < 2) {
+            return of([]);
+          }
 
-  this.diagnosisService.getAllDiagnosis().subscribe({
-    next: (res: any) => {
-      this.diagnosesList = res.data || [];
-      this.filteredDiagnoses = [...this.diagnosesList];
-      this.loadingDiagnoses = false;
-    },
-    error: (err) => {
-      console.error('Failed to load diagnoses', err);
-      this.loadingDiagnoses = false;
-    },
-  });
-}
+          this.loadingDiagnoses = true;
+          return this.diagnosisService.searchDiagnosis(query, 20).pipe(
+            map((response: any) => response?.data || []),
+            catchError(() => of([])),
+          );
+        }),
+        takeUntil(this.onDestroy$),
+      )
+      .subscribe((diagnoses: any[]) => {
+        this.diagnosesList = diagnoses;
+        this.filteredDiagnoses = diagnoses;
+        this.loadingDiagnoses = false;
+      });
+  }
 
 
 
@@ -161,25 +173,13 @@ export class AddmedicalhistoryComponent implements OnInit, OnDestroy {
   }
 
  onDiagnosesDropdownOpened() {
-  if (!this.diagnosesList.length) {
-    this.loadDiagnoses();
-  }
-  this.filteredDiagnoses = [...this.diagnosesList];
+  this.filteredDiagnoses = [];
   this.diagnosisSearch = '';
 }
 
 
   filterDiagnoses() {
-  const term = this.normalize(this.diagnosisSearch);
-
-  if (!term) {
-    this.filteredDiagnoses = [...this.diagnosesList];
-    return;
-  }
-
-  this.filteredDiagnoses = this.diagnosesList.filter(d =>
-    this.normalize(d.diagnosis_name).includes(term)
-  );
+  this.diagnosisSearch$.next(this.diagnosisSearch);
 }
 
 normalize(text: string): string {

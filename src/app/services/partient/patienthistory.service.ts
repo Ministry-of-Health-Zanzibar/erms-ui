@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 
@@ -12,14 +12,19 @@ export class PatienthistoryService {
 
   constructor(private http: HttpClient) {}
   
-  // Haina haja ya page wala perPage tena, inaleta orodha nzima
-  public getBodyList(): Observable<any> {
-    return this.http.get<any>(this.href);
+  public getBodyList(options: { page?: number; per_page?: number; search?: string; status?: string } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(this.href, { params });
   }
 
-  // Unaweza kuacha hii kwa usalama kama bado inaitwa sehemu nyingine
-  public getAllBodyList(): Observable<any> {
-    return this.http.get<any>(this.href);
+  public getAllBodyList(options: { page?: number; per_page?: number; search?: string; status?: string } = {}): Observable<any> {
+    return this.getBodyList(options);
   }
 
   public addBodyList(formData: any): Observable<any> {

@@ -12,6 +12,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { UploadAreaComponent, VDividerComponent } from '@elementar/components';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { DiagnosisService } from '../../../../services/system-configuration/diagnosis.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -44,6 +45,13 @@ export class ViewDiagnosisComponent {
   private readonly uiFeedback = inject(FeedbackService);
 
   private readonly onDestroy = new Subject<void>()
+  private readonly searchChanged = new Subject<string>();
+  loading = false;
+  errorMessage = '';
+  totalItems = 0;
+  pageSize = 25;
+  currentPage = 1;
+  searchTerm = '';
 
   displayedColumns: string[] = ['id','code','name','action'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -58,6 +66,12 @@ export class ViewDiagnosisComponent {
     ){}
 
   ngOnInit(): void {
+    this.searchChanged
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.getDiagnosis();
+      });
     this.getDiagnosis();
   }
   ngOnDestroy(): void {
@@ -65,23 +79,30 @@ export class ViewDiagnosisComponent {
     this.onDestroy.complete()
   }
   renew(){
+    this.currentPage = 1;
     this.getDiagnosis();
   }
 
   getDiagnosis() {
+    this.loading = true;
+    this.errorMessage = '';
     this.diagnosisService
-      .getDiagnosises()
+      .getDiagnosises({
+        page: this.currentPage,
+        per_page: this.pageSize,
+        search: this.searchTerm,
+      })
       .pipe(takeUntil(this.onDestroy))
       .subscribe(
         (response: any) => {
-          console.log(response);
+          this.loading = false;
 
           if(response.statusCode === 200){
-            // FIXED: Gracefully extracts the diagnosis list if response.data.data doesn't exist anymore
             const extractedData = response.data?.data || response.data || (Array.isArray(response) ? response : []);
             
             this.dataSource = new MatTableDataSource(extractedData);
             this.dataSource.sort = this.sort;
+            this.totalItems = response.meta?.total ?? response.data?.total ?? extractedData.length;
           }
 
           if(response.statusCode === 401){
@@ -89,19 +110,22 @@ export class ViewDiagnosisComponent {
           }
         },
         error => {
+          this.loading = false;
           console.error(error);
-          this.route.navigateByUrl('/');
+          this.errorMessage = error?.error?.message || 'Unable to load diagnoses. Please try again.';
         }
       );
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged.next(this.searchTerm);
+  }
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getDiagnosis();
   }
 
   addDiagnosis() {

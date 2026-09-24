@@ -10,6 +10,15 @@
           <mat-form-field appearance="outline" class="w-full">
             <mat-label>Patient Name</mat-label>
             <mat-select formControlName="patient_id">
+              <mat-option disabled class="patient-search-option">
+                <input
+                  matInput
+                  placeholder="Search patients..."
+                  [formControl]="patientSearchCtrl"
+                  (click)="$event.stopPropagation()"
+                  (keydown)="$event.stopPropagation()"
+                />
+              </mat-option>
               <mat-option *ngFor="let patient of patients" [value]="patient.patient_id">
                 {{ patient.name }}
               </mat-option>

@@ -9,7 +9,7 @@ import {
 } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -17,6 +17,7 @@ import { EmrSegmentedModule, VDividerComponent } from '@elementar/components';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { UserService } from '../../../services/users/user.service';
 import { MatSort } from '@angular/material/sort';
@@ -60,6 +61,12 @@ export class ViewpartientComponent {
   private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  errorMessage = '';
+  totalItems = 0;
+  pageSize = 25;
+  currentPage = 1;
+  searchTerm = '';
+  private readonly searchChanged = new Subject<string>();
 
   constructor(
     public permission: PermissionService,
@@ -83,11 +90,16 @@ export class ViewpartientComponent {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
+    this.searchChanged
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.userPetient();
+      });
     this.userPetient();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
@@ -96,34 +108,42 @@ export class ViewpartientComponent {
     this.onDestroy.complete();
   }
   renew() {
+    this.currentPage = 1;
     this.userPetient();
   }
 
   userPetient() {
     this.loading = true;
-    this.userService.getPatientList().pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
+    this.errorMessage = '';
+    this.userService.getPatientList({
+      page: this.currentPage,
+      per_page: this.pageSize,
+      search: this.searchTerm,
+    }).pipe(takeUntil(this.onDestroy)).subscribe((response: any)=>{
       this.loading = false;
       if(response.data){
-        console.log(response)
         this.dataSource = new MatTableDataSource(response.data);
-        this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        this.totalItems = response.meta?.total ?? response.data.length;
       }
       else{
         console.log('permission response errors')
       }
     },(error)=>{
       this.loading = false;
-      console.log('permision getAway api fail to load')
+      this.errorMessage = error?.error?.message || 'Unable to load patient records. Please try again.';
     })
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged.next(this.searchTerm);
+  }
+
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.userPetient();
   }
 
   addPatient() {

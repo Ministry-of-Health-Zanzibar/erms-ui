@@ -1,216 +1,246 @@
-<div class="record-detail-page p-4 md:p-10 space-y-6 md:space-y-8">
+<div
+  *ngIf="permission.parmissionMatched(['View Patient List'])"
+  class="board-detail-page p-4 md:p-10 space-y-6 md:space-y-8"
+>
+  <app-page-header
+    title="Medical Board Information"
+    description="Review the board record, assigned patients, supporting file, and workflow status."
+    icon="groups"
+  />
 
-  <!-- Body List Table -->
   <div
-    *ngIf="bodyListDataSource"
-    class="bg-white shadow-xl rounded-2xl overflow-hidden p-6 mb-6"
+    *ngIf="errorMessage"
+    class="board-alert board-alert--error"
+    role="alert"
   >
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Medical Board Informations</h2>
-    </div>
-
-    <table class="w-full table-auto border-collapse">
-      <thead class="bg-gray-200 text-gray-700">
-        <tr>
-          <th class="border border-gray-300 p-3 text-center">Board Title</th>
-          <th class="border border-gray-300 p-3 text-center">Board Type</th>
-          <th class="border border-gray-300 p-3 text-center">No of Patients</th>
-          <th class="border border-gray-300 p-3 text-center">File</th>
-          <th class="border border-gray-300 p-3 text-center">Add Multiple</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let file of bodyListDataSource.filteredData">
-
-          <td class="border border-gray-300 p-3 text-center font-medium text-gray-700">
-            {{ file.patient_list_title }}
-          </td>
-
-          <td class="border border-gray-300 p-3 text-center font-medium text-gray-700">
-            {{ file.board_type }}
-          </td>
-
-          <td class="border border-gray-300 p-3 text-center font-medium text-gray-700">
-            {{ file.no_of_patients }}
-          </td>
-
-          <td class="border border-gray-300 p-3 text-center">
-            <a
-              *ngIf="file?.patient_list_file"
-              (click)="viewPDF(file)"
-              class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer"
-            >
-              <mat-icon>picture_as_pdf</mat-icon> View PDF
-            </a>
-          </td>
-
-          <td class="border border-gray-300 p-3 text-center">
-            <span
-              (click)="addMultiple(file.patient_list_id)"
-              *ngIf="permission.parmissionMatched(['View Patient List'])"
-              matTooltip="Add Multiple Patients"
-              class="cursor-pointer w-10 h-10 flex items-center justify-center text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all mx-auto"
-            >
-              <mat-icon>group_add</mat-icon>
-            </span>
-          </td>
-
-        </tr>
-
-        <tr *ngIf="bodyListDataSource.filteredData.length === 0">
-          <td colspan="4" class="border border-gray-300 p-3 text-center text-gray-500">
-            No Body List Available
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <mat-icon aria-hidden="true">error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="refreshBoard()"
+    >
+      Retry
+    </button>
   </div>
 
-  <!-- Patients Table -->
-  <div class="bg-white shadow-xl rounded-2xl p-6 mb-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Patients List</h2>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Filter Patients</mat-label>
-        <input
-          matInput
-          (keyup)="applyPatientFilter($event)"
-          placeholder="Filter..."
-        />
-      </mat-form-field>
-    </div>
-
-    <table mat-table [dataSource]="patientDataSource" matSort class="min-w-full">
-
-      <!-- Matibabu Card -->
-      <ng-container matColumnDef="matibabu_card">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Matibabu Card</th>
-        <td mat-cell *matCellDef="let p" class="text-blue-600 font-medium">
-          {{ p.matibabu_card ?? 'N/A' }}
-        </td>
-      </ng-container>
-
-      <!-- Patient Name -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient Name</th>
-        <td mat-cell *matCellDef="let p">{{ p.name | uppercase }}</td>
-      </ng-container>
-
-      <!-- Gender -->
-      <ng-container matColumnDef="gender">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Gender</th>
-        <td mat-cell *matCellDef="let p">{{ p.gender | uppercase }}</td>
-      </ng-container>
-
-      <!-- Phone -->
-      <ng-container matColumnDef="phone">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Phone</th>
-        <td mat-cell *matCellDef="let p">{{ p.phone }}</td>
-      </ng-container>
-
-      <!-- Location -->
-      <ng-container matColumnDef="location">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Location</th>
-        <td mat-cell *matCellDef="let p">{{ p.location }}</td>
-      </ng-container>
-
-      <!-- Status -->
-  <ng-container matColumnDef="latest_history">
-  <th mat-header-cell *matHeaderCellDef>Status</th>
-   <td mat-cell *matCellDef="let p">
-    <span
-      class="px-3 py-1 rounded-full text-white"
-      [ngClass]="{
-        'bg-gray-400': !p.latest_history?.status,   
-        'bg-yellow-500': p.latest_history?.status === 'pending',
-        'bg-yellow-600': p.latest_history?.status === 'reviewed',
-        'bg-blue-600': p.latest_history?.status === 'requested',
-        'bg-green-600': p.latest_history?.status === 'approved',
-        'bg-green-400': p.latest_history?.status === 'confirmed',
-        'bg-red-600': p.latest_history?.status === 'rejected',
-        'bg-green-800': p.latest_history?.status === 'assigned'
-      }"
+  <ng-container *ngIf="bodyListDataSource.data[0] as board">
+    <app-section-card
+      title="Board overview"
+      description="Key information about this medical board session."
+      icon="clinical_notes"
     >
-      {{ p.latest_history?.status || 'N/A' }}
-    </span>
-  </td>
-</ng-container>
+      <div class="board-overview">
+        <div class="board-overview__item board-overview__item--wide">
+          <span class="board-overview__label">Board title</span>
+          <strong class="board-overview__value">{{ board.patient_list_title }}</strong>
+        </div>
 
+        <div class="board-overview__item">
+          <span class="board-overview__label">Board type</span>
+          <app-status-badge [status]="board.board_type || 'Not specified'" tone="info" />
+        </div>
 
+        <div class="board-overview__item">
+          <span class="board-overview__label">Patients assigned</span>
+          <strong class="board-overview__value board-overview__value--number">
+            {{ board.no_of_patients ?? patientDataSource.data.length }}
+          </strong>
+        </div>
 
+        <div class="board-overview__item board-overview__file">
+          <span class="board-overview__label">Supporting file</span>
+          <button
+            *ngIf="board.patient_list_file; else noBoardFile"
+            mat-stroked-button
+            type="button"
+            (click)="viewPDF(board)"
+          >
+            <mat-icon>picture_as_pdf</mat-icon>
+            View PDF
+          </button>
+          <ng-template #noBoardFile>
+            <span class="board-overview__muted">No file uploaded</span>
+          </ng-template>
+        </div>
+      </div>
+    </app-section-card>
+  </ng-container>
 
-      <!-- Medical History Button -->
-   <!-- <ng-container matColumnDef="files">
-  <th mat-header-cell *matHeaderCellDef>Actions</th>
-  <td mat-cell *matCellDef="let p">
-    <button
-      mat-icon-button
-      color="primary"
-      (click)="openAddMedicalHistory(p)"
-      matTooltip="Add Medical History"
-      class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-full transition-all"
-      [disabled]="p.latest_history?.status?.toLowerCase() !== 'assigned'"
-    >
-      <mat-icon>note_add</mat-icon>
-    </button>
-  </td>
-</ng-container> -->
-
-<ng-container matColumnDef="files">
-  <th mat-header-cell *matHeaderCellDef>Actions</th>
-
-  <td mat-cell *matCellDef="let p">
-    <button
-      mat-icon-button
-      color="primary"
-      (click)="openMedicalHistory(p)"
-      [matTooltip]="
-        p.latest_history?.status === 'requested' ||
-        p.latest_history?.status === 'approved'
-          ? 'Edit Medical History'
-          : 'Add Medical History'
-      "
-      class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-full transition-all"
-      [disabled]="
-        p.latest_history?.status === 'confirmed' ||
-        p.latest_history?.status === 'rejected'
-      "
-    >
-      <mat-icon>
-        {{
-          p.latest_history?.status === 'requested' ||
-          p.latest_history?.status === 'approved'
-            ? 'edit'
-            : 'note_add'
-        }}
-      </mat-icon>
-    </button>
-
-      <!-- New Conversation Button -->
-  <button
-    mat-icon-button
-    color="accent"
-    (click)="openConversationModal(p.latest_history?.patient_histories_id)"
-    [disabled]="!p.latest_history?.patient_histories_id"
-    matTooltip="View Conversations"
-    class="!bg-green-600 hover:!bg-green-700 text-white rounded-full transition-all"
+  <app-section-card
+    title="Patients List"
+    description="Review assigned patients and continue the appropriate workflow from each record."
+    icon="patient_list"
   >
-    <mat-icon>chat</mat-icon>
-  </button>
-  </td>
-</ng-container>
+    <app-table-toolbar>
+      <div uiToolbarPrimary class="board-toolbar-primary">
+        <button
+          type="button"
+          class="board-refresh-button"
+          (click)="refreshBoard()"
+          matTooltip="Refresh patients"
+          aria-label="Refresh patients"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <div class="board-search">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <input
+            #patientFilter
+            type="text"
+            placeholder="Search patients..."
+            aria-label="Search patients"
+            (keyup)="applyPatientFilter($event)"
+          />
+        </div>
+        <span class="board-record-count" role="status">
+          {{ patientDataSource.filteredData.length }} of {{ patientDataSource.data.length }} patients
+        </span>
+      </div>
+      <div uiToolbarActions>
+        <button
+          mat-flat-button
+          type="button"
+          class="board-add-button"
+          (click)="patient_list_id && addMultiple(patient_list_id)"
+          [disabled]="!patient_list_id"
+          *ngIf="permission.parmissionMatched(['View Patient List'])"
+        >
+          <mat-icon>group_add</mat-icon>
+          Add multiple
+        </button>
+      </div>
+    </app-table-toolbar>
 
-      <!-- Render Rows -->
-      <tr mat-header-row *matHeaderRowDef="displayedPatientColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedPatientColumns"></tr>
-    </table>
+    <div class="board-table-shell">
+      <table
+        mat-table
+        [dataSource]="patientDataSource"
+        matSort
+        #patientSort="matSort"
+        class="board-table not-prose min-w-[900px] md:min-w-full"
+      >
+        <ng-container matColumnDef="matibabu_card">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Matibabu card</th>
+          <td mat-cell *matCellDef="let patient">
+            <span class="board-card-number">{{ patient.matibabu_card ?? 'N/A' }}</span>
+          </td>
+        </ng-container>
 
-    <mat-paginator
-      #patientPaginator
-      [pageSizeOptions]="[5, 10, 20]"
-      showFirstLastButtons
-    ></mat-paginator>
-  </div>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Patient</th>
+          <td mat-cell *matCellDef="let patient">
+            <div class="board-patient-name">
+              <span class="board-avatar" aria-hidden="true">
+                {{ (patient.name || 'N').charAt(0) | uppercase }}
+              </span>
+              <strong>{{ patient.name || 'N/A' }}</strong>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="gender">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Gender</th>
+          <td mat-cell *matCellDef="let patient">{{ patient.gender || 'N/A' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Phone</th>
+          <td mat-cell *matCellDef="let patient">{{ patient.phone || 'N/A' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Location</th>
+          <td mat-cell *matCellDef="let patient">{{ patient.location || 'N/A' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="latest_history">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let patient">
+            <app-status-badge [status]="patient.latest_history?.status" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="files">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let patient">
+            <div class="board-row-actions">
+              <button
+                mat-icon-button
+                type="button"
+                class="board-action-button board-action-button--primary"
+                (click)="openMedicalHistory(patient)"
+                [disabled]="
+                  patient.latest_history?.status === 'confirmed' ||
+                  patient.latest_history?.status === 'rejected'
+                "
+                [matTooltip]="
+                  patient.latest_history?.status === 'requested' ||
+                  patient.latest_history?.status === 'approved'
+                    ? 'Edit Medical History'
+                    : 'Add Medical History'
+                "
+              >
+                <mat-icon>
+                  {{
+                    patient.latest_history?.status === 'requested' ||
+                    patient.latest_history?.status === 'approved'
+                      ? 'edit'
+                      : 'note_add'
+                  }}
+                </mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="board-action-button board-action-button--success"
+                (click)="openConversationModal(patient.latest_history?.patient_histories_id)"
+                [disabled]="!patient.latest_history?.patient_histories_id"
+                matTooltip="View conversation"
+              >
+                <mat-icon>chat</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedPatientColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedPatientColumns"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell board-table__empty" colspan="7">
+            <app-empty-state
+              title="No patients found"
+              [message]="
+                patientFilter.value
+                  ? 'No assigned patients match your search.'
+                  : 'No patients have been assigned to this board yet.'
+              "
+              icon="person_search"
+            />
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        #patientPaginator
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+        aria-label="Select patients page"
+      />
+    </div>
+  </app-section-card>
+
+  <app-empty-state
+    *ngIf="!loading && !errorMessage && !bodyListDataSource.data.length"
+    title="Medical board not found"
+    message="The requested medical board record is unavailable."
+    icon="groups"
+  />
+
+  <app-loading-state
+    *ngIf="loading"
+    label="Loading medical board..."
+    [overlay]="true"
+  />
 </div>

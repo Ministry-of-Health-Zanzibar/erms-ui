@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.prod';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -15,8 +15,15 @@ export class BillItermService {
     return this.http.post(this.baseUrl, billIterm);
   }
 
-  public getAllBillIterm(): Observable<any> {
-    return this.http.get<any>(this.baseUrl);
+  public getAllBillIterm(options: { page?: number; per_page?: number; search?: string } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(this.baseUrl, { params });
   }
 
   public getbillItermByID(id: any): Observable<any> {

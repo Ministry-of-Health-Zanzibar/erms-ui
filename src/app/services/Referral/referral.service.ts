@@ -67,8 +67,15 @@ public deleteReferralFlight(id: number): Observable<any> {
   );
 }
 
-  public getAllRefferal(): Observable<any> {
-    return this.http.get<any>(this.href);
+  public getAllRefferal(options: { page?: number; per_page?: number; search?: string; status?: string; has_followup?: boolean } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(this.href, { params });
   }
 
   public getReferralById(

@@ -17,12 +17,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { DiagnosisService } from '../../../services/system-configuration/diagnosis.service';
 import { ReasonsService } from '../../../services/system-configuration/reasons.service';
 import { MedicalhistoryService } from '../../../services/partient/medicalhistory.service';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
@@ -160,32 +160,25 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
   }
 
   loadDiagnoses() {
-    this.diagnosisService
-      .getAllDiagnosis()
-      .pipe(takeUntil(this.onDestroy$))
-      .subscribe((res) => {
-        this.diagnosesList = res.data || [];
-        this.filteredDiagnoses = [...this.diagnosesList];
-      });
-
     this.diagnosisSearchCtrl.valueChanges
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
+        switchMap((search: any) => {
+          const query = (search || '').trim();
+          if (query.length < 2) {
+            return of([]);
+          }
+
+          return this.diagnosisService.searchDiagnosis(query, 20).pipe(
+            map((response: any) => response?.data || []),
+            catchError(() => of([])),
+          );
+        }),
         takeUntil(this.onDestroy$),
       )
-      .subscribe((search: any) => {
-  
-        const query = (search || '').trim();
-  
-        if (query.length < 2) {
-          this.filteredDiagnoses = [];
-          return;
-        }
-        const lowerSearch = query.toLowerCase();
-        this.filteredDiagnoses = this.diagnosesList.filter((diag) =>
-          diag.diagnosis_name.toLowerCase().includes(lowerSearch),
-        );
+      .subscribe((diagnoses: any[]) => {
+        this.filteredDiagnoses = diagnoses;
       });
   }
   

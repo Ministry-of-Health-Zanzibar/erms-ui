@@ -329,6 +329,13 @@ html.dark #print-section {
   padding: 0 !important;
 }
 
+.add-multiple-patients-dialog-panel .mat-mdc-dialog-surface,
+.add-multiple-patients-dialog-panel .mat-dialog-container {
+  overflow: hidden !important;
+  padding: 0 !important;
+  border-radius: 1rem !important;
+}
+
 .referral-status-dialog-panel .mat-mdc-dialog-surface,
 .referral-status-dialog-panel .mat-dialog-container {
   overflow: hidden !important;

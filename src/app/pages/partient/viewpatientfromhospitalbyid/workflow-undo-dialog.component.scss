@@ -1,0 +1,95 @@
+@use '../patient-details/patient-details.component' as *;
+
+.undo-dialog {
+  padding: 1.35rem;
+  color: var(--rms-text);
+  background: var(--rms-surface);
+}
+
+.undo-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.undo-dialog__icon {
+  display: grid;
+  width: 2.7rem;
+  height: 2.7rem;
+  flex: 0 0 2.7rem;
+  place-items: center;
+  color: #b45309;
+  border-radius: 0.85rem;
+  background: rgb(245 158 11 / 0.14);
+}
+
+.undo-dialog__eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--rms-text-muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.undo-dialog h2 {
+  margin: 0;
+  color: var(--rms-text);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.undo-dialog p {
+  margin: 0.35rem 0 0;
+  color: var(--rms-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.undo-dialog__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  color: var(--rms-text-muted);
+  border: 1px solid rgb(245 158 11 / 0.22);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, #f59e0b 7%, var(--rms-surface));
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.undo-dialog__notice .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  color: #d97706;
+  font-size: 1rem;
+}
+
+.undo-dialog__field {
+  width: 100%;
+}
+
+.undo-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 520px) {
+  .undo-dialog {
+    padding: 1rem;
+  }
+
+  .undo-dialog__actions {
+    flex-direction: column-reverse;
+  }
+
+  .undo-dialog__actions button {
+    width: 100%;
+  }
+}

@@ -79,13 +79,19 @@ export class SidebarComponent {
       type: 'group',
       name: 'Config Users & Audit',
       icon: 'manage_accounts',
-      permission: ['View User', 'View Permission', 'View Role'],
+      permission: ['View User', 'View Permission', 'View Role', 'View Audit Logs'],
       children: [
         {
           type: 'link',
           name: 'Manage Users',
           link: '/pages/users',
           permission: 'View User',
+        },
+        {
+          type: 'link',
+          name: 'Audit Logs',
+          link: '/pages/audit-logs',
+          permission: 'View Audit Logs',
         },
         {
           type: 'link',

@@ -1,9 +1,10 @@
 import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 // import { Router } from 'express';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -68,6 +69,12 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
 
    private readonly onDestroy = new Subject<void>()
    loading: boolean = false;
+   errorMessage = '';
+   totalItems = 0;
+   pageSize = 25;
+   currentPage = 1;
+   searchTerm = '';
+   private readonly searchChanged = new Subject<string>();
 
 
       displayedColumns: string[] =
@@ -88,6 +95,12 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
         ){}
 
       ngOnInit(): void {
+        this.searchChanged
+          .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+          .subscribe(() => {
+            this.currentPage = 1;
+            this.getReferrals();
+          });
         this.getReferrals();
       }
       ngOnDestroy(): void {
@@ -95,22 +108,29 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
         this.onDestroy.complete()
       }
       renew(){
+        this.currentPage = 1;
         this.getReferrals();
       }
 
      getReferrals() {
   this.loading = true;
-  this.referralService.getAllRefferal()
+  this.errorMessage = '';
+  this.referralService.getAllRefferal({
+    page: this.currentPage,
+    per_page: this.pageSize,
+    search: this.searchTerm,
+    status: 'Confirmed',
+  })
     .pipe(takeUntil(this.onDestroy))
     .subscribe(
       (response: any) => {
         this.loading = false;
         if (response.statusCode === 200) {
   
-          const pending = response.data.filter((item: { status: string; }) => item.status === 'Confirmed');
+          const pending = response.data;
           this.dataSource = new MatTableDataSource(pending);
-          this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
+          this.totalItems = response.meta?.total ?? pending.length;
         } else if (response.statusCode === 401) {
           this.router.navigateByUrl('/');
           console.warn(response.message);
@@ -118,7 +138,7 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
       },
       (error) => {
         this.loading = false;
-        this.router.navigateByUrl('/');
+        this.errorMessage = getApiErrorMessage(error, 'Unable to load confirmed referrals. Please try again.');
         console.error('Failed to load referrals.', error);
       }
     );
@@ -127,12 +147,14 @@ export class ViewReferalConfirmComponent implements OnInit,OnDestroy{
 
 
       applyFilter(event: Event) {
-        const filterValue = (event.target as HTMLInputElement).value;
-        this.dataSource.filter = filterValue.trim().toLowerCase();
+        this.searchTerm = (event.target as HTMLInputElement).value.trim();
+        this.searchChanged.next(this.searchTerm);
+      }
 
-        if (this.dataSource.paginator) {
-          this.dataSource.paginator.firstPage();
-        }
+      pageChanged(event: PageEvent): void {
+        this.currentPage = event.pageIndex + 1;
+        this.pageSize = event.pageSize;
+        this.getReferrals();
       }
 
       addReferrals() {

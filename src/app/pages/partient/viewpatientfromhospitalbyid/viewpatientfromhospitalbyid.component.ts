@@ -14,6 +14,8 @@ import { ConversationModalComponent } from '../../referrals/conversation-modal/c
 import { MkurugenziConversationComponent } from '../../referrals/mkurugenzi-conversation/mkurugenzi-conversation.component';
 import { ConversationService } from '../../../services/conversation.service';
 import { FileViewerComponent } from '@shared/ui';
+import { PermissionService } from '../../../services/authentication/permission.service';
+import { WorkflowUndoDialogComponent } from './workflow-undo-dialog.component';
 
 
 @Component({
@@ -28,12 +30,16 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
   public documentUrl = environment.fileUrl;
   public loading = false;
   medicalHistory: any = null;
+  workflowEvents: any[] = [];
+  workflowLoading = false;
+  workflowError = false;
 
   constructor(
     private route: ActivatedRoute,
     private patientService: PartientService,
     private dialog: MatDialog,
     private conversationService: ConversationService,
+    public permission: PermissionService,
 
     private http: HttpClient
   ) {}
@@ -56,6 +62,7 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
         this.loading = false;
         if (response?.data) {
           this.medicalHistory = response.data;
+          this.loadWorkflowEvents();
         } else {
           this.uiFeedback.fire('Error', 'No medical history found', 'error');
         }
@@ -65,6 +72,86 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
         console.error('Error fetching history:', error);
         this.uiFeedback.fire('Error', 'Failed to fetch patient history', 'error');
       },
+    });
+  }
+
+  get canViewWorkflowHistory(): boolean {
+    return this.permission.parmissionMatched(['Undo Patient History Workflow']);
+  }
+
+  loadWorkflowEvents(): void {
+    if (!this.medicalHistory?.patient_histories_id || !this.canViewWorkflowHistory) {
+      return;
+    }
+
+    this.workflowLoading = true;
+    this.workflowError = false;
+    this.patientService.getWorkflowEvents(this.medicalHistory.patient_histories_id, {
+      page: 1,
+      per_page: 50,
+    }).subscribe({
+      next: (response: any) => {
+        this.workflowEvents = response?.data || [];
+        this.workflowLoading = false;
+      },
+      error: () => {
+        this.workflowEvents = [];
+        this.workflowError = true;
+        this.workflowLoading = false;
+      },
+    });
+  }
+
+  canUndoEvent(event: any): boolean {
+    const latestActive = this.workflowEvents.find((item) => !item.undone_at);
+    return this.canViewWorkflowHistory
+      && !event?.undone_at
+      && latestActive?.id === event?.id;
+  }
+
+  actorName(event: any): string {
+    const actor = event?.actor;
+    return actor
+      ? [actor.first_name, actor.middle_name, actor.last_name].filter(Boolean).join(' ') || actor.email
+      : 'System';
+  }
+
+  undoWorkflowEvent(event: any): void {
+    if (!this.canUndoEvent(event)) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(WorkflowUndoDialogComponent, {
+      width: 'min(560px, calc(100vw - 32px))',
+      maxWidth: 'calc(100vw - 32px)',
+      panelClass: 'workflow-undo-dialog-panel',
+      disableClose: true,
+      autoFocus: false,
+      data: event,
+    });
+
+    dialogRef.afterClosed().subscribe((result: { reason: string } | undefined) => {
+      if (!result?.reason) {
+        return;
+      }
+
+      this.workflowLoading = true;
+      this.patientService.undoWorkflowEvent(event.id, result.reason).subscribe({
+        next: () => {
+          this.uiFeedback.success(
+            'Workflow transition undone',
+            'The patient history and related records were restored.',
+          );
+          this.reloadData();
+        },
+        error: (error) => {
+          this.workflowLoading = false;
+          this.uiFeedback.error(
+            'Undo failed',
+            error?.error?.message || 'The transition could not be safely undone.',
+          );
+        },
+      });
     });
   }
 

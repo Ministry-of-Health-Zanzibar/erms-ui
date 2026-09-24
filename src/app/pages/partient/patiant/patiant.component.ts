@@ -1,6 +1,7 @@
 import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PartientService } from '../../../services/partient/partient.service';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { CommonModule } from '@angular/common';
@@ -56,10 +57,13 @@ export class PatiantComponent {
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  errorMessage = '';
 
   totalItems = 0;
   pageSize = 10;
   currentPage = 1;
+  searchTerm = '';
+  private readonly searchChanged$ = new Subject<string>();
 
   displayedColumns: string[] = [
     'id',
@@ -84,7 +88,12 @@ export class PatiantComponent {
   ) {}
 
   ngOnInit(): void {
-    // this.getPartients();
+    this.searchChanged$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadPartients();
+      });
     this.loadPartients();
   }
 
@@ -97,11 +106,16 @@ export class PatiantComponent {
     this.loadPartients();
   }
 
-  loadPartients() { // Zimeondolewa parameters za page na perPage hapa
+  loadPartients() {
     this.loading = true;
+    this.errorMessage = '';
   
     this.userService
-      .getPartients() // Imeondolewa page na perPage hapa pia
+      .getPartients({
+        page: this.currentPage,
+        per_page: this.pageSize,
+        search: this.searchTerm,
+      })
       .pipe(takeUntil(this.onDestroy))
       .subscribe({
         next: (response: any) => {
@@ -110,26 +124,25 @@ export class PatiantComponent {
           if (response && response.data) {
             this.dataSource = new MatTableDataSource(response.data);
   
-            // Kama bado unatumia Client-side pagination (Pagination ya Angular Material kwenye Frontend):
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-            
-            // Kama una vigezo vya kuonyesha jumla ya data kwenye template, unaweza kutumia urefu wa array:
-            this.totalItems = response.data.length; 
+            this.totalItems = response?.meta?.total ?? response.data.length;
           }
         },
         error: () => {
           this.loading = false;
+          this.errorMessage = 'Unable to load patient records. Please try again.';
         }
       });
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged$.next(this.searchTerm);
+  }
+
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadPartients();
   }
 
   viewPDF(file: any) {

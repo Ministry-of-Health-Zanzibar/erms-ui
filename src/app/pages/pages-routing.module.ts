@@ -69,6 +69,10 @@ const routes: Routes = [
         loadChildren:()=> import('./users/usermanag/usermanag.module').then(m=>m.UsermanagModule)
       },
       {
+        path: 'audit-logs',
+        loadComponent: () => import('./audit-logs/audit-logs.component').then(c => c.AuditLogsComponent),
+      },
+      {
         path:'config/work-station',
         loadChildren:()=>import('./system-config/workstation/workstation.module').then(m=>m.WorkstationModule)
       },

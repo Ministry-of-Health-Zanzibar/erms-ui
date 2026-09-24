@@ -7,10 +7,15 @@
 <div class="mat-elevation-z8" *ngIf="!loading; else loadingTemplate">
   <mat-form-field appearance="outline" class="w-full mb-4">
     <mat-label>Filter</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Search bill items">
+    <input matInput (input)="applyFilter($event)" placeholder="Search bill items">
   </mat-form-field>
 
-  <table mat-table [dataSource]="dataSource" matSort class="w-full">
+  <div *ngIf="errorMessage" class="p-4 text-red-700 bg-red-50 rounded-lg" role="alert">
+    {{ errorMessage }}
+    <button mat-button color="primary" type="button" (click)="loadBillItems()">Retry</button>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" matSort class="w-full" *ngIf="!errorMessage">
 
     <!-- Bill ID Column -->
     <ng-container matColumnDef="bill_id">
@@ -32,9 +37,23 @@
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell text-center p-4" [attr.colspan]="displayedColumns.length">
+        <app-empty-state title="No bill items found" [message]="searchTerm ? 'No bill items match your search.' : 'Bill items will appear here.'" icon="receipt_long" />
+      </td>
+    </tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  <mat-paginator
+    *ngIf="!errorMessage"
+    [length]="totalItems"
+    [pageSize]="pageSize"
+    [pageIndex]="currentPage - 1"
+    [pageSizeOptions]="[10, 25, 50]"
+    showFirstLastButtons
+    (page)="pageChanged($event)"
+  ></mat-paginator>
 </div>
 
 <ng-template #loadingTemplate>

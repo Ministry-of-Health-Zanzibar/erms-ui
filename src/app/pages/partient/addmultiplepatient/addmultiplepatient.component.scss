@@ -1,60 +1,397 @@
-/* Container styling */
-form {
+:host {
+  display: block;
+  width: 100%;
+  color: var(--rms-text);
+  color-scheme: light;
+}
+
+:host-context(html.dark) {
+  color-scheme: dark;
+}
+
+.add-patients-dialog {
+  width: 100%;
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  border: 1px solid var(--rms-border);
+  border-radius: 1rem;
+  background: var(--rms-surface);
+  box-shadow: 0 24px 64px rgb(15 23 42 / 0.24);
+}
+
+.add-patients-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.5rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 52%, #2563eb 100%);
+}
+
+.add-patients-dialog__header-main {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.add-patients-dialog__header-icon {
+  display: grid;
+  width: 2.7rem;
+  height: 2.7rem;
+  flex: 0 0 2.7rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.32);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.15);
+}
+
+.add-patients-dialog__header-icon .mat-icon {
+  width: 1.45rem;
+  height: 1.45rem;
+  font-size: 1.45rem;
+}
+
+.add-patients-dialog__eyebrow {
+  margin: 0 0 0.2rem;
+  color: rgb(204 251 241 / 0.9);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.add-patients-dialog__header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.add-patients-dialog__subtitle {
+  max-width: 38rem;
+  margin: 0.4rem 0 0;
+  color: rgb(240 253 250 / 0.86);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.add-patients-dialog__close {
+  flex: 0 0 auto;
+  color: #ffffff !important;
+}
+
+.add-patients-dialog__close:hover {
+  background: rgb(255 255 255 / 0.16);
+}
+
+.add-patients-dialog__body {
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  padding: 1.15rem 1.5rem 1.35rem;
+  background: var(--rms-surface);
+}
+
+.add-patients-dialog__notice,
+.add-patients-dialog__error,
+.add-patients-dialog__selection-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border-radius: 0.65rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.add-patients-dialog__notice {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid color-mix(in srgb, #0d9488 22%, var(--rms-border));
+  color: var(--rms-text-muted);
+  background: color-mix(in srgb, #0d9488 7%, var(--rms-surface));
+}
+
+.add-patients-dialog__notice .mat-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 1.1rem;
+  color: #0f766e;
+  font-size: 1.1rem;
+}
+
+.add-patients-dialog__form {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
-/* Smooth Material field styling */
-::ng-deep .mat-mdc-form-field {
+.add-patients-dialog__section {
+  padding: 1.05rem 1.1rem 0.7rem;
+  border: 1px solid var(--rms-border);
+  border-radius: 0.85rem;
+  background: var(--rms-surface);
+}
+
+.add-patients-dialog__section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.add-patients-dialog__step {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 1.75rem;
+  place-items: center;
+  border-radius: 0.55rem;
+  color: #0f766e;
+  background: #ccfbf1;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.add-patients-dialog__section-heading h3,
+.add-patients-dialog__section-heading p {
+  margin: 0;
+}
+
+.add-patients-dialog__section-heading h3 {
+  color: var(--rms-text);
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+.add-patients-dialog__section-heading p {
+  margin-top: 0.2rem;
+  color: var(--rms-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.add-patients-dialog__field {
+  display: block;
   width: 100%;
-  transition: all 0.3s ease;
 }
 
-::ng-deep .mat-mdc-form-field-appearance-outline .mdc-notched-outline__leading,
-::ng-deep .mat-mdc-form-field-appearance-outline .mdc-notched-outline__trailing {
-  border-color: #cce5e1 !important;
+.add-patients-dialog__field + .add-patients-dialog__field {
+  margin-top: 0.25rem;
 }
 
-::ng-deep .mat-mdc-form-field-appearance-outline.mat-focused .mdc-notched-outline__leading,
-::ng-deep .mat-mdc-form-field-appearance-outline.mat-focused .mdc-notched-outline__trailing {
-  border-color: #0d9488 !important; /* Teal when focused */
+.add-patients-dialog__loading-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-::ng-deep .mat-mdc-select-value,
-::ng-deep .mat-mdc-floating-label {
-  color: #065f46 !important;
+.add-patients-dialog__spinner {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid color-mix(in srgb, #0d9488 22%, transparent);
+  border-top-color: #0d9488;
+  border-radius: 50%;
+  animation: add-patients-spin 0.8s linear infinite;
 }
 
-button[mat-stroked-button] {
-  border-radius: 8px;
-  padding: 8px 24px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.add-patients-dialog__patient-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
 }
 
-button[mat-stroked-button]:hover {
-  background-color: #fbeaea;
+.add-patients-dialog__patient-option strong,
+.add-patients-dialog__patient-option small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-button[mat-raised-button] {
-  border-radius: 8px;
-  font-weight: 600;
-  background-color: #059669 !important;
-  color: white;
-  transition: all 0.3s ease;
+.add-patients-dialog__patient-option strong {
+  min-width: 0;
+  color: var(--rms-text);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
-button[mat-raised-button]:hover {
-  background-color: #047857 !important;
+.add-patients-dialog__patient-option small {
+  flex: 0 0 auto;
+  max-width: 45%;
+  color: var(--rms-text-muted);
+  font-size: 0.7rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .p-6 {
-    padding: 1rem;
+.add-patients-dialog__error {
+  align-items: center;
+  margin: 0.25rem 0 0.35rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgb(252 165 165);
+  color: rgb(185 28 28);
+  background: rgb(254 242 242);
+}
+
+.add-patients-dialog__error .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.add-patients-dialog__error button {
+  min-height: 2rem;
+  margin-left: auto;
+  color: inherit;
+}
+
+.add-patients-dialog__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.7rem;
+  color: var(--rms-text-muted);
+  font-size: 0.74rem;
+}
+
+.add-patients-dialog__empty .mat-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  font-size: 1.1rem;
+}
+
+.add-patients-dialog__selection-summary {
+  align-items: center;
+  margin: 0.1rem 0 0.35rem;
+  padding: 0.65rem 0.75rem;
+  color: #0f766e;
+  background: color-mix(in srgb, #0d9488 8%, var(--rms-surface));
+}
+
+.add-patients-dialog__selection-summary .mat-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 1.05rem;
+  font-size: 1.05rem;
+}
+
+.add-patients-dialog__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.15rem;
+}
+
+.add-patients-dialog__footer-note,
+.add-patients-dialog__action-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.add-patients-dialog__footer-note {
+  gap: 0.35rem;
+  color: var(--rms-text-muted);
+  font-size: 0.7rem;
+}
+
+.add-patients-dialog__footer-note .mat-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  font-size: 0.95rem;
+}
+
+.add-patients-dialog__action-buttons {
+  gap: 0.55rem;
+  flex: 0 0 auto;
+}
+
+.add-patients-dialog__button {
+  min-height: 2.45rem;
+  gap: 0.35rem;
+  padding-inline: 0.9rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.add-patients-dialog__button .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+}
+
+.add-patients-dialog__button--primary {
+  color: #ffffff !important;
+  background: #0f766e !important;
+}
+
+.add-patients-dialog__button--primary:hover:not(:disabled) {
+  background: #0d9488 !important;
+}
+
+.add-patients-dialog__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+::ng-deep .add-patients-dialog__field .mat-mdc-form-field-subscript-wrapper {
+  min-height: 1.1rem;
+}
+
+::ng-deep .mat-mdc-select-panel .add-patients-dialog__patient-option {
+  padding-block: 0.15rem;
+}
+
+:host-context(html.dark) .add-patients-dialog__error {
+  border-color: rgb(127 29 29 / 0.8);
+  color: rgb(252 165 165);
+  background: rgb(127 29 29 / 0.25);
+}
+
+@keyframes add-patients-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .add-patients-dialog__header,
+  .add-patients-dialog__body {
+    padding-inline: 1rem;
   }
 
-  form {
-    gap: 1rem;
+  .add-patients-dialog__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .add-patients-dialog__footer-note {
+    width: 100%;
+  }
+
+  .add-patients-dialog__action-buttons {
+    width: 100%;
+  }
+
+  .add-patients-dialog__button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .add-patients-dialog__patient-option {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .add-patients-dialog__patient-option small {
+    max-width: 100%;
   }
 }

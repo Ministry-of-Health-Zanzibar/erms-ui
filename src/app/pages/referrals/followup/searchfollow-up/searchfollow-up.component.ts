@@ -1,8 +1,9 @@
 import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -60,6 +61,12 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
   private readonly uiFeedback = inject(FeedbackService);
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  errorMessage = '';
+  totalItems = 0;
+  pageSize = 25;
+  currentPage = 1;
+  searchTerm = '';
+  private readonly searchChanged = new Subject<string>();
 
   displayedColumns: string[] = [
     'id',
@@ -85,11 +92,16 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.searchChanged
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.getReferrals();
+      });
     this.getReferrals();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
@@ -98,14 +110,21 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
     this.onDestroy.complete();
   }
   renew() {
+    this.currentPage = 1;
     this.getReferrals();
   }
 
  getReferrals() {
   this.loading = true;
+  this.errorMessage = '';
 
   this.referralService
-    .getAllRefferal()
+    .getAllRefferal({
+      page: this.currentPage,
+      per_page: this.pageSize,
+      search: this.searchTerm,
+      has_followup: true,
+    })
     .pipe(takeUntil(this.onDestroy))
     .subscribe(
       (response: any) => {
@@ -121,11 +140,6 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
           console.warn('Unexpected response format:', response);
           return;
         }
-
-        // ✅ Display only referrals that have follow-up
-        dataToShow = dataToShow.filter(
-          (item: any) => item.has_followup === true
-        );
 
         dataToShow = dataToShow.map((item: any) => {
           const history = item.history;
@@ -145,29 +159,25 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
         });
 
         this.dataSource = new MatTableDataSource(dataToShow);
-        this.dataSource.paginator = this.paginator;
-
-        this.dataSource.filterPredicate = (data: any, filter: string) => {
-          const patientName = data.patient?.name?.toLowerCase() || '';
-          return patientName.includes(filter);
-        };
+        this.totalItems = response.meta?.total ?? dataToShow.length;
       },
       (error) => {
         this.loading = false;
         console.error('Failed to load referrals.', error);
-        this.router.navigateByUrl('/');
+        this.errorMessage = error?.error?.message || 'Unable to load follow-up records. Please try again.';
       }
     );
 }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged.next(this.searchTerm);
+  }
 
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.getReferrals();
   }
 
   limitWords(text: string, wordLimit: number = 8): string {

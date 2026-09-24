@@ -1,0 +1,45 @@
+<section class="undo-dialog" aria-labelledby="workflow-undo-title">
+  <header class="undo-dialog__header">
+    <div class="undo-dialog__icon" aria-hidden="true">
+      <mat-icon>history</mat-icon>
+    </div>
+    <div>
+      <span class="undo-dialog__eyebrow">Super Admin control</span>
+      <h2 id="workflow-undo-title">Undo workflow transition</h2>
+      <p>Restore this case to the state before “{{ data?.action || 'the selected transition' }}”.</p>
+    </div>
+  </header>
+
+  <div class="undo-dialog__notice" role="note">
+    <mat-icon aria-hidden="true">warning</mat-icon>
+    <span>Related workflow records are restored together. This action is recorded in the audit log.</span>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="undo-dialog__field">
+      <mat-label>Reason for undo</mat-label>
+      <textarea
+        matInput
+        rows="5"
+        maxlength="2000"
+        formControlName="reason"
+        placeholder="Explain why this transition must be reversed..."
+      ></textarea>
+      <mat-hint>Provide enough detail for the audit trail.</mat-hint>
+      <mat-hint align="end">{{ reasonLength }}/2000</mat-hint>
+      <mat-error *ngIf="form.controls.reason.hasError('required')">An undo reason is required.</mat-error>
+      <mat-error *ngIf="form.controls.reason.hasError('minlength')">Use at least 5 characters.</mat-error>
+    </mat-form-field>
+
+    <footer class="undo-dialog__actions">
+      <button mat-stroked-button type="button" (click)="cancel()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+        Cancel
+      </button>
+      <button mat-flat-button color="warn" type="submit" [disabled]="form.invalid">
+        <mat-icon aria-hidden="true">undo</mat-icon>
+        Undo transition
+      </button>
+    </footer>
+  </form>
+</section>

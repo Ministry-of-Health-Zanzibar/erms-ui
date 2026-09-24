@@ -1,6 +1,7 @@
 import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PartientService } from '../../../services/partient/partient.service';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { CommonModule } from '@angular/common';
@@ -56,9 +57,12 @@ export class ViewpatientfromhospitalComponent {
   public documentUrl = environment.fileUrl;
   private readonly onDestroy = new Subject<void>();
   loading: boolean = false;
+  errorMessage = '';
   totalItems = 0;
   pageSize = 10;
   currentPage = 1;
+  searchTerm = '';
+  private readonly searchChanged = new Subject<string>();
 
   displayedColumns: string[] = [
     'id',
@@ -84,11 +88,16 @@ export class ViewpatientfromhospitalComponent {
   ) {}
 
   ngOnInit(): void {
+    this.searchChanged
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.onDestroy))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadPatients();
+      });
     this.loadPatients();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
@@ -98,37 +107,46 @@ export class ViewpatientfromhospitalComponent {
   }
 
   renew() {
+    this.currentPage = 1;
     this.loadPatients();
   }
 
   loadPatients() {
     this.loading = true;
-    this.patientHistory.getAllBodyList()
+    this.errorMessage = '';
+    this.patientHistory.getAllBodyList({
+      page: this.currentPage,
+      per_page: this.pageSize,
+      search: this.searchTerm,
+    })
       .pipe(takeUntil(this.onDestroy))
       .subscribe(
         (response: any) => {
           this.loading = false;
           if (response.data) {
             this.dataSource = new MatTableDataSource(response.data);
-            this.dataSource.paginator = this.paginator;
             this.dataSource.sort = this.sort;
+            this.totalItems = response.meta?.total ?? response.data.length;
           } else {
 
           }
         },
         (error) => {
           this.loading = false;
-
+          this.errorMessage = error?.error?.message || 'Unable to load hospital patients. Please try again.';
         }
       );
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.searchChanged.next(this.searchTerm);
+  }
+
+  pageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadPatients();
   }
 
   viewPDF(file: any) {

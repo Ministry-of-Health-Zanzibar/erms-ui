@@ -197,6 +197,75 @@
       </section>
     </div>
 
+    <section *ngIf="canViewWorkflowHistory" class="record-card workflow-history-card" aria-labelledby="workflow-history-heading">
+      <div class="card-header">
+        <div class="section-heading">
+          <div class="section-icon section-icon--amber" aria-hidden="true">
+            <mat-icon>manage_history</mat-icon>
+          </div>
+          <div>
+            <span class="section-eyebrow">Super Admin controls</span>
+            <h2 id="workflow-history-heading">Workflow History</h2>
+          </div>
+        </div>
+        <span class="section-count">{{ workflowEvents.length }} transition(s)</span>
+      </div>
+
+      <div *ngIf="workflowLoading" class="workflow-history-state">
+        <mat-icon class="workflow-history-state__spin" aria-hidden="true">sync</mat-icon>
+        <span>Loading workflow history…</span>
+      </div>
+
+      <div *ngIf="workflowError && !workflowLoading" class="workflow-history-state workflow-history-state--error">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <span>Workflow history could not be loaded.</span>
+        <button mat-stroked-button type="button" (click)="loadWorkflowEvents()">Retry</button>
+      </div>
+
+      <div *ngIf="!workflowLoading && !workflowError && !workflowEvents.length" class="workflow-history-state">
+        <mat-icon aria-hidden="true">history_toggle_off</mat-icon>
+        <span>No reversible workflow transitions have been recorded yet.</span>
+      </div>
+
+      <div *ngIf="!workflowLoading && workflowEvents.length" class="workflow-event-list">
+        <article class="workflow-event" *ngFor="let event of workflowEvents">
+          <div class="workflow-event__marker" [class.workflow-event__marker--undone]="event.undone_at">
+            <mat-icon aria-hidden="true">{{ event.undone_at ? 'undo' : 'check_circle' }}</mat-icon>
+          </div>
+          <div class="workflow-event__content">
+            <div class="workflow-event__heading">
+              <div>
+                <span class="workflow-event__action">{{ event.action | titlecase }}</span>
+                <span class="workflow-event__meta">{{ event.created_at | date:'medium' }} · {{ actorName(event) }}</span>
+              </div>
+              <span class="workflow-event__state" [class.workflow-event__state--undone]="event.undone_at">
+                {{ event.undone_at ? 'Undone' : 'Active' }}
+              </span>
+            </div>
+            <div class="workflow-event__transition">
+              <span>{{ event.from_status || '—' }}</span>
+              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+              <strong>{{ event.to_status || '—' }}</strong>
+            </div>
+            <div *ngIf="event.undone_at" class="workflow-event__reason">
+              Undone {{ event.undone_at | date:'medium' }}<span *ngIf="event.undo_reason"> · {{ event.undo_reason }}</span>
+            </div>
+            <button
+              *ngIf="canUndoEvent(event)"
+              mat-stroked-button
+              color="warn"
+              type="button"
+              class="workflow-event__undo"
+              (click)="undoWorkflowEvent(event)"
+            >
+              <mat-icon aria-hidden="true">undo</mat-icon>
+              Undo latest transition
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="record-card" aria-labelledby="hospital-diagnoses-heading">
       <div class="card-header">
         <div class="section-heading">

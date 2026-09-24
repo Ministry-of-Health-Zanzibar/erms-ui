@@ -22,7 +22,8 @@ import {
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { Subject, forkJoin } from 'rxjs';
+import { of, Subject, forkJoin } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { ReferralService } from '../../../services/Referral/referral.service';
 import { HospitalService } from '../../../services/system-configuration/hospital.service';
@@ -63,6 +64,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
   hospital: any[] = [];
   referralTypes: any[] = [];
   reason: any[] = [];
+  patientSearchCtrl = new FormControl('');
 
   constructor(
     private referralsService: ReferralService,
@@ -75,6 +77,7 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
+    this.setupPatientSearch();
     this.loadAllOptions().subscribe(() => {
       if (this.data?.id != null && !isNaN(this.data.id)) {
         this.id = Number(this.data.id);
@@ -101,19 +104,54 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
 
   private loadAllOptions() {
     return forkJoin({
-      patients: this.patientService.getAllPartientforReferral(),
+      patients: this.patientService.getAllPartientforReferral({ page: 1, per_page: 25 }),
       hospitals: this.hostpitalService.getAllHospital(),
       referralTypes: this.referralsTypeService.getAllReferalType(),
       reasons: this.reasonService.getAllReasons(),
-    }).pipe((res$) => {
-      res$.subscribe((res: any) => {
+    }).pipe(
+      tap((res: any) => {
         this.patients = res.patients.data || [];
         this.hospital = res.hospitals.data || [];
         this.referralTypes = res.referralTypes.data || [];
         this.reason = res.reasons.data || [];
+      }),
+    );
+  }
+
+  private setupPatientSearch(): void {
+    this.patientSearchCtrl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((value) => {
+          const query = (value || '').trim();
+          if (query.length < 2) {
+            return of(null);
+          }
+
+          return this.patientService.getAllPartientforReferral({
+            page: 1,
+            per_page: 25,
+            search: query,
+          }).pipe(
+            map((response: any) => response),
+            catchError(() => of(null)),
+          );
+        }),
+        takeUntil(this.onDestroy),
+      )
+      .subscribe((response: any) => {
+        if (!response) {
+          return;
+        }
+
+        const selectedId = this.referralsForm.get('patient_id')?.value;
+        const results = response.data || [];
+        const selected = this.patients.find((patient) => patient.patient_id === selectedId);
+        this.patients = selected && !results.some((patient: any) => patient.patient_id === selectedId)
+          ? [selected, ...results]
+          : results;
       });
-      return res$;
-    });
   }
 
   saveReferrals() {
@@ -201,6 +239,10 @@ export class AddReferralsComponent implements OnInit, OnDestroy {
     this.referralsService.getReferralById(id).subscribe((response) => {
       if (response.statusCode === 200 && response.data) {
         const referral = response.data;
+
+        if (referral.patient && !this.patients.some((patient) => patient.patient_id === referral.patient.patient_id)) {
+          this.patients = [referral.patient, ...this.patients];
+        }
 
         // Ensure number conversion for form patching
         this.referralsForm.patchValue({

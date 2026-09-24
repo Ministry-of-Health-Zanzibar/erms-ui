@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 
@@ -20,8 +20,15 @@ export class UserService {
     return this.http.get<any>(this.href_member);
   }
 
-  public getAllUsers(): Observable<any> {
-    return this.http.get<any>(this.href);
+  public getAllUsers(options: { page?: number; per_page?: number; search?: string } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(this.href, { params });
   }
 
   public addUser(user: any): Observable<any> {
@@ -44,8 +51,31 @@ export class UserService {
     return this.http.get(`${this.baseUrl}unBlockUser/${id}`)
   }
 
-  public getLogs(): Observable<any>{
-    return this.http.get(`${this.baseUrl}logsFunction`)
+  public getLogs(options: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    action?: string;
+    module?: string;
+    user_id?: number;
+    entity_id?: number;
+    patient_history_id?: number;
+    patient_id?: number;
+    date_from?: string;
+    date_to?: string;
+  } = {}): Observable<any>{
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get(`${this.baseUrl}audit-logs`, { params });
+  }
+
+  public getAuditLog(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}audit-logs/${id}`);
   }
 
   // assign hospital to user

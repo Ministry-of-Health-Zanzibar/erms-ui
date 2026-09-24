@@ -26,13 +26,23 @@ import { PartientFormComponent } from '../partient-form/partient-form.component'
 import { AddmultiplepatientComponent, AddMultiplePatientDialogData } from '../addmultiplepatient/addmultiplepatient.component';
 import { AddmedicalformComponent } from '../addmedicalform/addmedicalform.component';
 import { ConversationModalComponent } from '../../referrals/conversation-modal/conversation-modal.component';
+import {
+  EmptyStateComponent,
+  FileViewerComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+  StatusBadgeComponent,
+  TableToolbarComponent,
+} from '@shared/ui';
 
 
 interface BodyList {
   patient_list_id: number;
   patient_list_title: string;
   patient_list_file?: string;
-  boards_type?: string;
+  board_type?: string;
+  board_date?: string;
   no_of_patients?: number;
 }
 
@@ -136,6 +146,12 @@ interface Patient {
     MatTooltipModule,
     ReactiveFormsModule,
     MatMenuModule,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
+    StatusBadgeComponent,
+    TableToolbarComponent,
   ],
   templateUrl: './body-list-more.component.html',
   styleUrls: ['./body-list-more.component.scss'],
@@ -148,7 +164,8 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
   public loading = false;
   public patient_id: string | null = null;
   public patient_list_id: number | null = null;
-   public patient_histories_id: number | null = null;
+  public patient_histories_id: number | null = null;
+  public errorMessage = '';
 
   displayedBodyListColumns: string[] = [
     'patient_list_title',
@@ -210,8 +227,15 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
     this.patientDataSource.filter = filterValue.trim().toLowerCase();
   }
 
- private getBodyListFileAndPatient(bodyListId: string) {
+  refreshBoard(): void {
+    if (this.patient_id) {
+      this.getBodyListFileAndPatient(this.patient_id);
+    }
+  }
+
+  private getBodyListFileAndPatient(bodyListId: string) {
   this.loading = true;
+  this.errorMessage = '';
   this.userService.getBodyListById(bodyListId).subscribe({
     next: (response: any) => {
       this.loading = false;
@@ -237,10 +261,15 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
         } else {
           this.patientDataSource.data = [];
         }
+      } else {
+        this.bodyListDataSource.data = [];
+        this.patientDataSource.data = [];
+        this.errorMessage = 'The medical board record could not be found.';
       }
     },
     error: (error) => {
       this.loading = false;
+      this.errorMessage = 'Failed to load the medical board record.';
       console.error("Error fetching body list:", error);
       this.uiFeedback.fire("Error", "Failed to fetch body list", "error");
     },
@@ -254,7 +283,10 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
     name: patien?.name || 'N/A',
     phone: patien?.phone || 'N/A',
     gender: patien?.gender || 'N/A',
-    location: patien?.geographical_location?.label || 'N/A',
+    location: patien?.geographical_location?.location_name
+      || patien?.geographical_location?.label
+      || patien?.location
+      || 'N/A',
     files: patien?.files || [],
 
     // 🔥 IMPORTANT: Add latest_history
@@ -295,10 +327,11 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
     };
 
     const dialogRef = this.dialog.open(AddmultiplepatientComponent, {
-      // width: '1000px',
       width: '750px',
       maxWidth: '95vw',
-      height: '400px',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'add-multiple-patients-dialog-panel',
       data: dialogData,
     });
 
@@ -342,7 +375,19 @@ export class BodyListMoreComponent implements OnInit, AfterViewInit {
   viewPDF(element: any) {
     if (element?.patient_list_file) {
       const url = this.documentUrl + element.patient_list_file;
-      window.open(url, '_blank');
+      this.dialog.open(FileViewerComponent, {
+        width: 'min(1100px, 96vw)',
+        maxWidth: '96vw',
+        height: 'min(92vh, 900px)',
+        panelClass: 'file-viewer-dialog-panel',
+        data: {
+          url,
+          shareUrl: url,
+          fileName: this.extractFileName(element.patient_list_file),
+          title: element.patient_list_title || 'Medical board file',
+          mimeType: 'application/pdf',
+        },
+      });
     }
   }
 

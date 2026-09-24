@@ -113,6 +113,10 @@ showChat=false;
                 'roles',
                 response.data.roles[0]?.name || 'Default Role'
               );
+              localStorage.setItem(
+                'all_roles',
+                JSON.stringify(response.data.roles || [])
+              );
 
               localStorage.setItem('isLogin', 'true');
 

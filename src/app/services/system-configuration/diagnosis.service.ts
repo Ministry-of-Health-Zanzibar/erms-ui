@@ -1,4 +1,4 @@
-import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable,tap} from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
@@ -14,17 +14,26 @@ export class DiagnosisService {
 
   constructor(private http: HttpClient) {}
 
-  searchDiagnosis(query: string) {
-    const params = { q: query };
+  searchDiagnosis(query: string, limit = 20) {
+    const params = new HttpParams()
+      .set('q', query)
+      .set('limit', limit);
     return this.http.get<any>(`${this.href}/search`, { params });
   }
 
-  public getAllDiagnosis(): Observable<any> {
-    return this.http.get<any>(`${this.href}`);
+  public getAllDiagnosis(search = '', page = 1, perPage = 25): Observable<any> {
+    return this.getDiagnosises({ search, page, per_page: perPage });
   }
 
-  public getDiagnosises(): Observable<any> {
-    return this.http.get<any>(`${this.href}`);
+  public getDiagnosises(options: { search?: string; page?: number; per_page?: number } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(`${this.href}`, { params });
   }
 
   public addDiagnoses(diagnosis: any): Observable<any> {
@@ -65,4 +74,3 @@ export class DiagnosisService {
     return this.http.get<any>(`${this.baseUrl}diagnoses`);
   }
 }
-

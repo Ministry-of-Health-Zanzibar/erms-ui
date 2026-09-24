@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpEventType, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams, HttpRequest } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 
@@ -48,28 +48,49 @@ export class PartientService {
     return this.http.get<any>(`${this.href_bodylist}/body-form/${id}`);
   }
 
-  public getPartients(): Observable<any> {
-    return this.http.get<any>(this.href);
+  public getPartients(options: { page?: number; per_page?: number; search?: string } = {}): Observable<any> {
+    return this.getPatientList(options);
   }
 
-  public getAllPatients(): Observable<any> {
-    return this.http.get<any>(this.href);
+  public getAllPatients(options: { page?: number; per_page?: number; search?: string } = {}): Observable<any> {
+    return this.getPatientList(options);
   }
 
   /** Lightweight data for the patient table; detail screens keep the full API. */
-  public getPatientList(): Observable<any> {
-    return this.http.get<any>(this.href, { params: { summary: '1' } });
+  public getPatientList(options: { page?: number; per_page?: number; search?: string; date_from?: string; date_to?: string } = {}): Observable<any> {
+    let params = new HttpParams().set('summary', '1');
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(this.href, { params });
   }
 
-  public getBodyList(): Observable<any> {
-    return this.http.get<any>(this.href_bodylist);
+  public getBodyList(options: { page?: number; per_page?: number; search?: string } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(this.href_bodylist, { params });
   }
 
 
-  public getAllPartientforReferral(): Observable<any> {
+  public getAllPartientforReferral(options: { page?: number; per_page?: number; search?: string; patient_list_id?: number } = {}): Observable<any> {
     // This queue is changed by hospital users in other sessions, so it must be
     // fresh whenever the Medical Board opens the assignment dialog.
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params = params.set(key, String(value));
+      }
+    });
     return this.http.get<any>(this.href_for_addreferral, {
+      params,
       headers: { 'X-Skip-Cache': 'true' },
     });
   }
@@ -101,6 +122,27 @@ export class PartientService {
     return this.http.put(
       `${this.baseUrl}patient-histories/${id}/mkurugenzi-tiba`,
       comment,
+    );
+  }
+
+  public getWorkflowEvents(patientHistoryId: number, options: { page?: number; per_page?: number } = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params = params.set(key, String(value));
+      }
+    });
+
+    return this.http.get<any>(
+      `${this.baseUrl}patient-histories/${patientHistoryId}/workflow-events`,
+      { params },
+    );
+  }
+
+  public undoWorkflowEvent(eventId: number, reason: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}patient-history-workflow-events/${eventId}/undo`,
+      { reason },
     );
   }
 

@@ -1,43 +1,156 @@
-<div class="p-6 bg-white rounded-2xl shadow-lg w-[800px] max-w-full mx-auto border border-gray-100">
-  <h2 class="text-2xl font-bold text-center text-emerald-700 mb-6 uppercase tracking-wide">
-    Add Patients
-  </h2>
-
-  <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="space-y-5">
-    <!-- <p class="text-sm text-gray-500 mb-2">
-      Patient List ID: <span class="font-semibold text-gray-700">{{ patientForm.get('patient_list_id')?.value }}</span>
-    </p> -->
-
-      <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Select Patient(s)</mat-label>
-      <mat-select formControlName="patient_ids" multiple>
-        <mat-option *ngFor="let patient of patients" [value]="patient.patient_id">
-          {{ patient.name }} - {{ patient.phone }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-
-    <!-- Buttons -->
-    <div class="flex justify-end items-center gap-3 pt-4">
-      <button
-        mat-stroked-button
-        type="button"
-        color="warn"
-        (click)="onCancel()"
-        [disabled]="loading"
-      >
-        Cancel
-      </button>
-
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="patientForm.invalid || loading"
-      >
-        {{ loading ? 'Saving…' : 'Save' }}
-      </button>
+<div class="add-patients-dialog">
+  <header class="add-patients-dialog__header">
+    <div class="add-patients-dialog__header-main">
+      <div class="add-patients-dialog__header-icon" aria-hidden="true">
+        <mat-icon>group_add</mat-icon>
+      </div>
+      <div>
+        <p class="add-patients-dialog__eyebrow">Medical board session</p>
+        <h2 id="add-patients-title">Add patients</h2>
+        <p class="add-patients-dialog__subtitle">
+          Select one or more patients to assign to this medical board record.
+        </p>
+      </div>
     </div>
-  </form>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="add-patients-dialog__close"
+      aria-label="Close add patients form"
+      [disabled]="loading"
+      (click)="onCancel()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="add-patients-dialog__body">
+    <div class="add-patients-dialog__notice" role="note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <span>
+        Search the patient registry and select the records that should be reviewed in this board session.
+      </span>
+    </div>
+
+    <form
+      [formGroup]="patientForm"
+      (ngSubmit)="onSubmit()"
+      class="add-patients-dialog__form"
+      novalidate
+    >
+      <section class="add-patients-dialog__section" aria-labelledby="patient-selection-heading">
+        <div class="add-patients-dialog__section-heading">
+          <span class="add-patients-dialog__step" aria-hidden="true">01</span>
+          <div>
+            <h3 id="patient-selection-heading">Patient selection</h3>
+            <p>Find available patient records, then select one or more patients to add.</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="add-patients-dialog__field">
+          <mat-label>Search available patients</mat-label>
+          <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+          <input
+            #patientSearchInput
+            matInput
+            type="search"
+            autocomplete="off"
+            placeholder="Search by name, phone, or card number"
+            [value]="patientSearch"
+            (input)="onPatientSearch($event)"
+          />
+          <button
+            *ngIf="patientSearch"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear patient search"
+            (click)="clearPatientSearch(patientSearchInput)"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-hint *ngIf="!loadingPatients">
+            Search results are loaded as you type.
+          </mat-hint>
+          <mat-hint *ngIf="loadingPatients" class="add-patients-dialog__loading-hint">
+            <span class="add-patients-dialog__spinner" aria-hidden="true"></span>
+            Searching available patients…
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="add-patients-dialog__field">
+          <mat-label>Patients to add</mat-label>
+          <mat-select formControlName="patient_ids" multiple>
+            <mat-select-trigger>
+              {{ selectedPatientCount ? selectedPatientCount + (selectedPatientCount === 1 ? ' patient' : ' patients') + ' selected' : 'Select patients' }}
+            </mat-select-trigger>
+            <mat-option *ngFor="let patient of patients" [value]="patient.patient_id">
+              <span class="add-patients-dialog__patient-option">
+                <strong>{{ patient.name || 'Unnamed patient' }}</strong>
+                <small>
+                  {{ patient.phone || 'No phone number' }}
+                  <ng-container *ngIf="patient.matibabu_card"> · {{ patient.matibabu_card }}</ng-container>
+                </small>
+              </span>
+            </mat-option>
+          </mat-select>
+          <mat-hint *ngIf="!selectedPatientCount">
+            Select at least one patient for this board session.
+          </mat-hint>
+          <mat-error *ngIf="patientForm.controls['patient_ids'].touched && patientForm.controls['patient_ids'].invalid">
+            Select at least one patient.
+          </mat-error>
+        </mat-form-field>
+
+        <div *ngIf="loadError" class="add-patients-dialog__error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>{{ loadError }}</span>
+          <button mat-stroked-button type="button" (click)="loadPatients()">Retry</button>
+        </div>
+
+        <div
+          *ngIf="!loadingPatients && !loadError && !patients.length"
+          class="add-patients-dialog__empty"
+        >
+          <mat-icon aria-hidden="true">person_search</mat-icon>
+          <span>No available patients match this search.</span>
+        </div>
+
+        <div *ngIf="selectedPatientCount" class="add-patients-dialog__selection-summary" role="status">
+          <mat-icon aria-hidden="true">check_circle</mat-icon>
+          <span>{{ selectedPatientCount }} {{ selectedPatientCount === 1 ? 'patient is' : 'patients are' }} ready to be added.</span>
+        </div>
+      </section>
+
+      <footer class="add-patients-dialog__actions">
+        <span class="add-patients-dialog__footer-note">
+          <mat-icon aria-hidden="true">lock</mat-icon>
+          Patient records remain protected
+        </span>
+        <div class="add-patients-dialog__action-buttons">
+          <button
+            mat-stroked-button
+            type="button"
+            class="add-patients-dialog__button add-patients-dialog__button--secondary"
+            (click)="onCancel()"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            class="add-patients-dialog__button add-patients-dialog__button--primary"
+            [disabled]="patientForm.invalid || loading || loadingPatients"
+          >
+            <mat-icon *ngIf="!loading" aria-hidden="true">group_add</mat-icon>
+            <span>{{ loading ? 'Adding patients…' : 'Add selected patients' }}</span>
+          </button>
+        </div>
+      </footer>
+    </form>
+  </div>
 </div>
