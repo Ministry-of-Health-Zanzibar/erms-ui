@@ -93,7 +93,8 @@ export class LetterDocumentsService {
     return this.http.get(endpoint, { params, responseType: 'blob' }).pipe(
       map((blob) => {
         const objectUrl = URL.createObjectURL(blob);
-        const previewUrl = `${objectUrl}#zoom=page-width`;
+        // Keep the official letter at its normal readable review scale.
+        const previewUrl = `${objectUrl}#zoom=100`;
         const dialogRef = this.dialog.open(FileViewerComponent, {
           width: 'min(96vw, 1200px)',
           height: 'min(92vh, 860px)',

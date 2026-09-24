@@ -219,28 +219,34 @@ export class SidebarComponent {
     //   permission: 'View Monthly Bill',
     // },
     {
-      id: 'top-diagnoses',
-      type: 'Single',
-      name: 'Top Diagnoses',
-      icon: 'analytics',
-      permission: 'View Report',
-      link: '/pages/patient/top-diagnoses',
-    },
-    {
-      id: 'report3',
-      type: 'Single', // Changed from 'group' to 'link'
-      name: 'Range Report',
+      id: 'reports',
+      type: 'group',
+      name: 'Report',
       icon: 'assessment',
       permission: 'View Report',
-      link: '/pages/patient/referralreport0990',
-    },
-    {
-      id: 'report4',
-      type: 'Single', // Changed from 'group' to 'link'
-      name: 'Search Report',
-      icon: 'search',
-      permission: 'View Report',
-      link: '/pages/patient/searchreport99990000',
+      children: [
+        {
+          type: 'link',
+          name: 'Top Diagnoses',
+          icon: 'analytics',
+          permission: 'View Report',
+          link: '/pages/patient/top-diagnoses',
+        },
+        {
+          type: 'link',
+          name: 'Range Report',
+          icon: 'date_range',
+          permission: 'View Report',
+          link: '/pages/patient/referralreport0990',
+        },
+        {
+          type: 'link',
+          name: 'Search Report',
+          icon: 'search',
+          permission: 'View Report',
+          link: '/pages/patient/searchreport99990000',
+        },
+      ],
     },
 
 

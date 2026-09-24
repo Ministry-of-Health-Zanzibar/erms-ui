@@ -1,51 +1,415 @@
-<div class="p-6 space-y-6" *ngIf="permission.parmissionMatched(['View Report']); else forbidden">
-  <app-page-header title="Top Diagnoses" description="The 10 most common diagnoses, ranked by unique patients." icon="analytics" />
-  <app-section-card title="Report period" description="Dates apply to history creation and referral creation. Each patient counts once per diagnosis name." icon="date_range">
-    <form (ngSubmit)="generate()" class="flex flex-wrap gap-4 items-end">
-      <app-date-picker
-        name="startDate"
-        [(ngModel)]="startDate"
-        [ngModelOptions]="{ standalone: true }"
-        label="Start date"
-        [max]="endDate"
-        outputFormat="iso"
-      />
-      <app-date-picker
-        name="endDate"
-        [(ngModel)]="endDate"
-        [ngModelOptions]="{ standalone: true }"
-        label="End date"
-        [min]="startDate"
-        [max]="today"
-        outputFormat="iso"
-      />
-      <button mat-flat-button color="primary" type="submit" [disabled]="loading || exporting">{{ loading ? 'Generating…' : 'Generate report' }}</button>
-    </form>
-  </app-section-card>
-  <p *ngIf="error" role="alert" class="text-red-600">{{ error }}</p>
-  <p *ngIf="loading || exporting" role="status">{{ loading ? 'Loading diagnoses and patients…' : 'Preparing download…' }}</p>
-  <app-section-card *ngIf="generatedPeriod" title="Report results" icon="table_view">
-    <p class="mb-4">{{ generatedPeriod.start_date }} to {{ generatedPeriod.end_date }} · {{ report.length }} diagnoses</p>
-    <div class="flex flex-wrap gap-3 mb-4">
-      <button mat-stroked-button (click)="download('csv')" [disabled]="!report.length || loading || exporting">Export CSV</button>
-      <button mat-stroked-button (click)="download('pdf')" [disabled]="!report.length || loading || exporting">Export PDF</button>
-      <button mat-stroked-button (click)="download('docx')" [disabled]="!report.length || loading || exporting">Export Word</button>
-    </div>
-    <p *ngIf="!report.length">No diagnoses found for this period.</p>
-    <p *ngIf="report.length" class="mb-4">Open a diagnosis to see patients and referred hospitals. Downloads include all patient rows; diagnosis totals repeat per row.</p>
-    <details *ngFor="let diagnosis of report; let i = index" class="border rounded mb-3 p-3">
-      <summary class="cursor-pointer font-medium">{{ i + 1 }}. {{ diagnosis.diagnosis_name }} — {{ diagnosis.patient_count }} patients · {{ diagnosis.history_count }} histories</summary>
-      <div class="overflow-x-auto mt-3">
-        <table class="w-full text-left">
-          <thead><tr><th class="p-2">Patient ID</th><th class="p-2">Patient</th><th class="p-2">Gender</th><th class="p-2">Histories</th><th class="p-2">Referred hospitals</th></tr></thead>
-          <tbody><tr *ngFor="let patient of diagnosis.patients" class="border-t">
-            <td class="p-2">{{ patient.patient_id }}</td><td class="p-2">{{ patient.name }}</td>
-            <td class="p-2">{{ patient.gender || '—' }}</td><td class="p-2">{{ patient.history_count }}</td>
-            <td class="p-2">{{ hospitals(patient) }}</td>
-          </tr></tbody>
+<div class="min-h-full bg-slate-50 p-4 dark:bg-slate-950 md:p-6" *ngIf="permission.parmissionMatched(['View Report']); else forbidden">
+  <div class="mx-auto flex max-w-[1600px] flex-col gap-6">
+    <app-page-header
+      title="Reports"
+      description="Generate authorized health-system reports with one consistent preview and export."
+      icon="assessment"
+    >
+      <div uiPageActions class="flex items-center gap-2">
+        <button mat-stroked-button type="button" (click)="resetFilters()" [disabled]="loading || exporting">
+          <mat-icon>restart_alt</mat-icon>
+          Reset
+        </button>
+      </div>
+    </app-page-header>
+
+    <app-section-card
+      title="Build a report"
+      description="Choose a report and provide only the filters relevant to it. Diagnoses are searched remotely."
+      icon="tune"
+    >
+      <app-loading-state *ngIf="loadingOptions" label="Loading report options…" />
+
+      <form *ngIf="!loadingOptions" class="grid grid-cols-1 gap-4 lg:grid-cols-12" (ngSubmit)="generate()">
+        <div class="lg:col-span-4">
+          <app-filter-select
+            name="reportType"
+            label="Report type"
+            icon="description"
+            [(ngModel)]="selectedReportType"
+            [options]="reportDefinitions"
+            optionLabelKey="name"
+            optionValueKey="key"
+            [searchable]="false"
+            [allowDeselect]="false"
+            (selectionChange)="reportTypeChanged($event)"
+          />
+        </div>
+
+        <div class="flex items-end lg:col-span-4">
+          <p class="mb-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            {{ selectedDefinition?.description || 'Select a report to view its available filters.' }}
+          </p>
+        </div>
+
+        <div class="lg:col-span-2">
+          <app-date-picker
+            name="startDate"
+            [(ngModel)]="startDate"
+            label="From date"
+            [max]="endDate"
+            outputFormat="iso"
+          />
+        </div>
+        <div class="lg:col-span-2">
+          <app-date-picker
+            name="endDate"
+            [(ngModel)]="endDate"
+            label="To date"
+            [min]="startDate"
+            [max]="today"
+            outputFormat="iso"
+          />
+        </div>
+
+        <div class="lg:col-span-3" *ngIf="visibleFilter('result_limit')">
+          <app-filter-select
+            name="resultLimit"
+            label="Result limit"
+            icon="format_list_numbered"
+            [(ngModel)]="resultLimit"
+            [options]="filterOptions.result_limits"
+            [searchable]="false"
+            (selectionChange)="resultLimitChanged($event)"
+          />
+        </div>
+
+        <div class="lg:col-span-3" *ngIf="visibleFilter('group_by')">
+          <app-filter-select
+            name="groupBy"
+            label="Group by"
+            icon="view_column"
+            [(ngModel)]="groupBy"
+            [options]="selectedDefinition?.group_by || []"
+            [searchable]="false"
+            (selectionChange)="groupByChanged($event)"
+          />
+        </div>
+
+        <div class="lg:col-span-3" *ngIf="visibleFilter('detail_level')">
+          <app-filter-select
+            name="detailLevel"
+            label="Detail level"
+            icon="layers"
+            [(ngModel)]="detailLevel"
+            [options]="selectedDefinition?.detail_levels || []"
+            [searchable]="false"
+            (selectionChange)="detailLevelChanged($event)"
+          />
+        </div>
+
+        <div class="lg:col-span-3" *ngIf="visibleFilter('gender')">
+          <app-filter-select
+            name="gender"
+            label="Gender"
+            icon="wc"
+            [(ngModel)]="gender"
+            [options]="filterOptions.genders"
+            [searchable]="false"
+          />
+        </div>
+
+        <div class="lg:col-span-6" *ngIf="visibleFilter('age')">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <app-filter-select
+              name="ageGroup"
+              label="Age group"
+              icon="groups"
+              [(ngModel)]="ageGroup"
+              [options]="filterOptions.age_groups"
+              [searchable]="false"
+              (selectionChange)="ageGroupChanged($event)"
+            />
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Age from</mat-label>
+              <input matInput type="number" min="0" max="150" name="ageFrom" [(ngModel)]="ageFrom" [disabled]="!!ageGroup" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Age to</mat-label>
+              <input matInput type="number" min="0" max="150" name="ageTo" [(ngModel)]="ageTo" [disabled]="!!ageGroup" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4" *ngIf="visibleFilter('location')">
+          <app-filter-select
+            name="location"
+            label="Patient location"
+            icon="location_on"
+            [(ngModel)]="locationId"
+            [options]="filterOptions.locations"
+          />
+        </div>
+
+        <div class="lg:col-span-8" *ngIf="visibleFilter('diagnosis')">
+          <mat-form-field class="w-full" appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Diagnosis</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              matInput
+              name="diagnosisSearch"
+              [value]="diagnosisSearchText"
+              placeholder="Type at least two characters to search"
+              autocomplete="off"
+              [matAutocomplete]="diagnosisAutocomplete"
+              (input)="diagnosisInput($event)"
+            />
+            <button
+              *ngIf="selectedDiagnosis || diagnosisSearchText"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Clear diagnosis"
+              (click)="clearDiagnosis()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-hint *ngIf="diagnosisLoading">Searching diagnoses…</mat-hint>
+            <mat-autocomplete #diagnosisAutocomplete="matAutocomplete" (optionSelected)="selectDiagnosis($event.option.value)">
+              <mat-option *ngFor="let diagnosis of diagnosisResults" [value]="diagnosis">
+                {{ diagnosis.diagnosis_code }} — {{ diagnosis.diagnosis_name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <div class="lg:col-span-6" *ngIf="visibleFilter('referral_hospital')">
+          <app-filter-select
+            name="hospitalIds"
+            label="Destination hospital"
+            icon="local_hospital"
+            [(ngModel)]="hospitalIds"
+            [options]="filterOptions.hospitals"
+            multiple
+          />
+        </div>
+
+        <div class="lg:col-span-6" *ngIf="visibleFilter('source_hospital')">
+          <app-filter-select
+            name="sourceHospitalIds"
+            label="Source hospital"
+            icon="outbound"
+            [(ngModel)]="sourceHospitalIds"
+            [options]="filterOptions.source_hospitals"
+            multiple
+          />
+        </div>
+
+        <div class="lg:col-span-3" *ngIf="visibleFilter('referral_status')">
+          <app-filter-select
+            name="referralStatus"
+            label="Referral status"
+            icon="flag"
+            [(ngModel)]="referralStatus"
+            [options]="filterOptions.referral_statuses"
+          />
+        </div>
+
+        <div class="lg:col-span-3" *ngIf="visibleFilter('referral_type')">
+          <app-filter-select
+            name="referralType"
+            label="Referral type"
+            icon="category"
+            [(ngModel)]="referralTypeId"
+            [options]="filterOptions.referral_types"
+          />
+        </div>
+
+        <div class="lg:col-span-4" *ngIf="visibleFilter('patient_history_status')">
+          <app-filter-select
+            name="patientHistoryStatus"
+            label="Patient history status"
+            icon="timeline"
+            [(ngModel)]="patientHistoryStatus"
+            [options]="filterOptions.patient_history_statuses"
+          />
+        </div>
+
+        <div class="lg:col-span-4" *ngIf="visibleFilter('patient_search')">
+          <mat-form-field class="w-full" appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Patient search</mat-label>
+            <mat-icon matPrefix>person_search</mat-icon>
+            <input matInput name="patientSearch" [(ngModel)]="patientSearch" placeholder="Name, phone, card or Zan ID" />
+          </mat-form-field>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-3 lg:col-span-12">
+          <span class="mr-auto text-xs text-slate-500 dark:text-slate-400">
+            Reports are restricted to the data scope of your account.
+          </span>
+          <button mat-flat-button color="primary" type="submit" [disabled]="loading || exporting || !canGenerate">
+            <mat-icon>play_arrow</mat-icon>
+            {{ loading ? 'Generating…' : 'Generate report' }}
+          </button>
+        </div>
+      </form>
+    </app-section-card>
+
+    <p *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300" role="alert">
+      {{ error }}
+    </p>
+
+    <app-loading-state *ngIf="loading" label="Building the report from the database…" />
+
+    <app-section-card *ngIf="report" [title]="report.title" [description]="report.metric" icon="table_view">
+      <div class="mb-5 grid grid-cols-1 gap-3 border-b border-slate-200 pb-5 text-sm dark:border-slate-700 md:grid-cols-2 xl:grid-cols-4">
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Reporting period</div>
+          <div class="mt-1 font-medium text-slate-900 dark:text-white">{{ report.period }}</div>
+        </div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Generated</div>
+          <div class="mt-1 font-medium text-slate-900 dark:text-white">{{ generatedAt(report.generated_at) }}</div>
+        </div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Generated by</div>
+          <div class="mt-1 font-medium text-slate-900 dark:text-white">{{ report.generated_by }}</div>
+        </div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Rows</div>
+          <div class="mt-1 font-medium text-slate-900 dark:text-white">{{ report.pagination.total | number }}</div>
+        </div>
+      </div>
+
+      <div class="mb-5 flex flex-wrap gap-2">
+        <span *ngFor="let filter of report.filters | keyvalue" class="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+          <span class="font-semibold">{{ filter.key }}:</span> {{ filter.value }}
+        </span>
+      </div>
+
+      <div *ngIf="report.summary && (report.summary | keyvalue).length" class="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div *ngFor="let item of report.summary | keyvalue" class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ summaryLabel(item.key) }}</div>
+          <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ item.value | number }}</div>
+        </div>
+      </div>
+
+      <div class="mb-4 flex flex-wrap items-center gap-3">
+        <span class="mr-auto text-sm text-slate-600 dark:text-slate-300">The preview and exports use the same filtered report result.</span>
+        <button mat-stroked-button type="button" (click)="exportReport('xlsx')" [disabled]="!!exporting || loading">
+          <mat-icon>grid_on</mat-icon>
+          {{ exporting === 'xlsx' ? 'Preparing…' : 'Excel' }}
+        </button>
+        <button mat-stroked-button type="button" (click)="exportReport('pdf')" [disabled]="!!exporting || loading">
+          <mat-icon>picture_as_pdf</mat-icon>
+          {{ exporting === 'pdf' ? 'Preparing…' : 'PDF' }}
+        </button>
+        <button mat-stroked-button type="button" (click)="exportReport('docx')" [disabled]="!!exporting || loading">
+          <mat-icon>description</mat-icon>
+          {{ exporting === 'docx' ? 'Preparing…' : 'Word' }}
+        </button>
+      </div>
+
+      <div *ngIf="report.sections?.length" class="space-y-5">
+        <section *ngFor="let section of report.sections" class="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+          <h3 class="text-base font-semibold text-slate-900 dark:text-white">{{ section.title }}</h3>
+
+          <p *ngIf="section.kind === 'text'" class="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">
+            {{ section.text }}
+          </p>
+
+          <div *ngIf="section.kind === 'metrics'" class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div *ngFor="let metric of section.metrics" class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+              <div class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ metric.label }}</div>
+              <div class="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{{ formatMetric(metric.value, metric.type) }}</div>
+            </div>
+          </div>
+
+          <ul *ngIf="section.kind === 'list'" class="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
+            <li *ngFor="let item of section.items" class="flex gap-2">
+              <span class="text-blue-600 dark:text-blue-400">•</span>
+              <span>{{ item }}</span>
+            </li>
+          </ul>
+
+          <div *ngIf="section.kind === 'table'" class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+            <table class="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-700">
+              <thead class="bg-slate-100 text-xs uppercase tracking-wide text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                <tr>
+                  <th *ngFor="let column of section.columns" class="whitespace-nowrap px-4 py-3 font-semibold">{{ column.label }}</th>
+                </tr>
+              </thead>
+              <tbody *ngIf="section.rows?.length" class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tr *ngFor="let row of section.rows" class="align-top hover:bg-slate-50 dark:hover:bg-slate-950/70">
+                  <td *ngFor="let column of section.columns" class="max-w-xs px-4 py-3 text-slate-700 dark:text-slate-200">
+                    {{ formatCell(row[column.key], column) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div *ngIf="!section.rows?.length" class="px-4 py-5 text-center text-sm text-slate-500 dark:text-slate-400">
+              No records were found for this section.
+            </div>
+          </div>
+
+          <div *ngIf="section.pagination && section.pagination.last_page > 1" class="mt-4 flex items-center justify-between gap-3 text-sm">
+            <span class="text-slate-600 dark:text-slate-300">
+              Showing {{ section.pagination.from }}–{{ section.pagination.to }} of {{ section.pagination.total }}
+            </span>
+            <div class="flex gap-2">
+              <button mat-stroked-button type="button" (click)="goToSectionPage(section, section.pagination.current_page - 1)" [disabled]="section.pagination.current_page === 1 || !!exporting">
+                Previous
+              </button>
+              <button mat-stroked-button type="button" (click)="goToSectionPage(section, section.pagination.current_page + 1)" [disabled]="!section.pagination.has_more_pages || !!exporting">
+                Next
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700" *ngIf="!report.sections?.length && report.rows.length; else emptyReport">
+        <table class="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-700">
+          <thead class="bg-slate-100 text-xs uppercase tracking-wide text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+            <tr>
+              <th *ngFor="let column of report.columns; let i = index; trackBy: trackColumn" class="whitespace-nowrap px-4 py-3 font-semibold">
+                {{ column.label }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+            <tr *ngFor="let row of report.rows; let rowIndex = index; trackBy: trackRow" class="align-top hover:bg-slate-50 dark:hover:bg-slate-900/70">
+              <td *ngFor="let column of report.columns; trackBy: trackColumn" class="max-w-xs px-4 py-3 text-slate-700 dark:text-slate-200">
+                {{ formatCell(row[column.key], column) }}
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
-    </details>
-  </app-section-card>
+
+      <ng-template #emptyReport>
+        <app-empty-state *ngIf="!report.sections?.length"
+          title="No records found"
+          message="No records matched the selected report criteria. Adjust the filters and generate the report again."
+          icon="query_stats"
+        />
+      </ng-template>
+
+      <div *ngIf="report.pagination.last_page > 1" class="mt-4 flex items-center justify-between gap-3 text-sm">
+        <span class="text-slate-600 dark:text-slate-300">
+          Showing {{ report.pagination.from }}–{{ report.pagination.to }} of {{ report.pagination.total }}
+        </span>
+        <div class="flex gap-2">
+          <button mat-stroked-button type="button" (click)="goToPage(report.pagination.current_page - 1)" [disabled]="!report.pagination.current_page || report.pagination.current_page === 1 || !!exporting">
+            Previous
+          </button>
+          <button mat-stroked-button type="button" (click)="goToPage(report.pagination.current_page + 1)" [disabled]="!report.pagination.has_more_pages || !!exporting">
+            Next
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="report.notes?.length" class="mt-5 border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        <p *ngFor="let note of report.notes" class="mb-1">• {{ note }}</p>
+      </div>
+    </app-section-card>
+  </div>
 </div>
-<ng-template #forbidden><p class="p-6" role="alert">You do not have permission to view reports.</p></ng-template>
+
+<ng-template #forbidden>
+  <app-empty-state
+    title="Reports unavailable"
+    message="You do not have permission to view reports."
+    icon="lock"
+  />
+</ng-template>
