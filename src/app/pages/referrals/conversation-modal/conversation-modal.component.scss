@@ -333,6 +333,19 @@
   font-size: 0.64rem;
 }
 
+.message-recipient {
+  overflow: hidden;
+  color: var(--rms-text-muted);
+  font-size: 0.64rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message-row--outgoing .message-recipient,
+.reply-row--outgoing .message-recipient {
+  color: #dbeafe;
+}
+
 .message-bubble {
   min-width: 5rem;
   padding: 0.75rem 0.9rem 0.55rem;
