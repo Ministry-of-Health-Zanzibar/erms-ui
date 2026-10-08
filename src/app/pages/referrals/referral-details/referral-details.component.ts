@@ -344,7 +344,8 @@ export class ReferralDetailsComponent {
     const patientHistoryId = referral.patient.patient_histories[0].patient_histories_id;
 
     this.dialog.open(ConversationModalComponent, {
-      width: '700px',
+      width: 'min(960px, 94vw)',
+      maxWidth: '94vw',
       data: { patientHistoryId }
     });
   }

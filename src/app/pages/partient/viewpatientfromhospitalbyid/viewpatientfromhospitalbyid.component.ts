@@ -370,14 +370,16 @@ forwardToRequestedStatus(data: any) {
 
   openConversationModal(patientHistoryId: number) {
   this.dialog.open(ConversationModalComponent, {
-    width: '600px',
+    width: 'min(960px, 94vw)',
+    maxWidth: '94vw',
     data: { patientHistoryId }
   });
 }
 
 openReplyModal(patientHistoryId: number) {
   this.dialog.open(MkurugenziConversationComponent, {
-    width: '600px',
+    width: 'min(960px, 94vw)',
+    maxWidth: '94vw',
     data: { patientHistoryId }
   });
 }

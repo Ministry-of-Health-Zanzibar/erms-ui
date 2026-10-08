@@ -142,8 +142,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
         // 3. Open selected component matching layout width parameters
         this.dialog.open(targetedModalComponent as ComponentType<any>, {
-          width: '650px',
-          maxWidth: '90vw',
+          width: 'min(960px, 94vw)',
+          maxWidth: '94vw',
           data: { patientHistoryId: patientHistoryId }
         });
       },

@@ -58,14 +58,32 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Board decision reason</mat-label>
-        <mat-select formControlName="board_reason_id">
+        <mat-select formControlName="board_reason_id" (selectionChange)="onReasonChange($event.value)">
           <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
             {{ reason.referral_reason_name }}
           </mat-option>
+          <mat-option [value]="customReasonOption">Other / Custom reason</mat-option>
         </mat-select>
         <mat-hint>Select the primary reason supporting the board decision.</mat-hint>
         <mat-error *ngIf="medicalForm.get('board_reason_id')?.hasError('required')">
           A decision reason is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="isCustomReasonSelected" appearance="outline" class="full-width">
+        <mat-label>Custom board reason</mat-label>
+        <input
+          matInput
+          formControlName="custom_reason"
+          maxlength="255"
+          placeholder="Enter the reason for the board decision"
+        />
+        <mat-hint>The custom reason will be saved for future use.</mat-hint>
+        <mat-error *ngIf="medicalForm.get('custom_reason')?.hasError('required')">
+          Enter a custom board reason
+        </mat-error>
+        <mat-error *ngIf="medicalForm.get('custom_reason')?.hasError('maxlength')">
+          The custom reason must be 255 characters or less
         </mat-error>
       </mat-form-field>
 

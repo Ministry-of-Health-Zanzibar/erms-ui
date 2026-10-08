@@ -120,18 +120,12 @@
     </div>
 
     <div class="tracking-content" *ngIf="dashboardData?.medical_history?.statuses?.length; else noWorkflowData">
-      <div class="tracking-chart">
-        <apx-chart
-          [series]="patientWorkflowChartOptions.series"
-          [chart]="patientWorkflowChartOptions.chart"
-          [xaxis]="patientWorkflowChartOptions.xaxis"
-          [yaxis]="patientWorkflowChartOptions.yaxis"
-          [plotOptions]="patientWorkflowChartOptions.plotOptions"
-          [dataLabels]="patientWorkflowChartOptions.dataLabels"
-          [colors]="patientWorkflowChartOptions.colors"
-          [tooltip]="patientWorkflowChartOptions.tooltip"
-          [grid]="patientWorkflowChartOptions.grid"
-        ></apx-chart>
+      <div class="tracking-chart tracking-chart--sample">
+        <canvas
+          #patientWorkflowChart
+          role="img"
+          aria-label="Patient counts by workflow stage"
+        ></canvas>
       </div>
 
       <div class="stage-summary">

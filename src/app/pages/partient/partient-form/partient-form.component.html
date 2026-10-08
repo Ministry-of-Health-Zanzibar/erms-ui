@@ -212,7 +212,7 @@
             </div>
 
             <div formGroupName="historyInfo">
-              <div class="patient-step__grid patient-step__grid--four">
+              <div class="patient-step__grid patient-step__grid--three">
                 <mat-form-field appearance="outline" class="patient-field">
                   <mat-label>File number</mat-label>
                   <input matInput formControlName="file_number" />
@@ -234,29 +234,39 @@
 
                 <mat-form-field appearance="outline" class="patient-field">
                   <mat-label>Reason for referral</mat-label>
-                  <mat-select formControlName="reason_id">
-                    <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
+                  <mat-select formControlName="reason_id" (selectionChange)="onReasonChange($event.value)">
+                    <!-- <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
                       {{ reason.referral_reason_name }}
-                    </mat-option>
+                    </mat-option> -->
+                    <mat-option [value]="customReasonOption">Other / Custom reason</mat-option>
                   </mat-select>
                   <mat-icon matPrefix>assignment</mat-icon>
                   <mat-error *ngIf="patientForm.get('historyInfo.reason_id')?.hasError('required')">
                     Select a referral reason
                   </mat-error>
                 </mat-form-field>
-
-                <mat-form-field appearance="outline" class="patient-field">
-                  <mat-label>Case priority</mat-label>
-                  <mat-select formControlName="case_type">
-                    <mat-option value="Emergency">Emergency</mat-option>
-                    <mat-option value="Routine">Routine</mat-option>
-                  </mat-select>
-                  <mat-icon matPrefix>priority_high</mat-icon>
-                  <mat-error *ngIf="patientForm.get('historyInfo.case_type')?.hasError('required')">
-                    Select a case priority
-                  </mat-error>
-                </mat-form-field>
               </div>
+
+              <mat-form-field
+                *ngIf="isCustomReasonSelected"
+                appearance="outline"
+                class="patient-field patient-field--full"
+              >
+                <mat-label>Custom reason</mat-label>
+                <input
+                  matInput
+                  formControlName="custom_reason"
+                  maxlength="255"
+                  placeholder="Enter the reason for referral"
+                />
+                <mat-hint>The custom reason will be saved for future use.</mat-hint>
+                <mat-error *ngIf="patientForm.get('historyInfo.custom_reason')?.hasError('required')">
+                  Enter a custom reason
+                </mat-error>
+                <mat-error *ngIf="patientForm.get('historyInfo.custom_reason')?.hasError('maxlength')">
+                  The custom reason must be 255 characters or less
+                </mat-error>
+              </mat-form-field>
 
               <div class="patient-field patient-field--diagnosis">
                 <mat-form-field appearance="outline" class="patient-field__control">
@@ -436,8 +446,8 @@
                   <strong>{{ patientForm.get('basicInfo.matibabu_card')?.value || 'Not provided' }}</strong>
                 </div>
                 <div class="patient-review__item">
-                  <span>Case priority</span>
-                  <strong>{{ patientForm.get('historyInfo.case_type')?.value || 'Not provided' }}</strong>
+                  <span>Case type</span>
+                  <strong>Emergency</strong>
                 </div>
                 <div class="patient-review__item">
                   <span>Diagnoses</span>

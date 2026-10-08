@@ -109,13 +109,12 @@ displayedColumns: string[] = [
     private dialog: MatDialog
   ) {}
 
-
-
-
   ngOnInit(): void {
     this.configForm();
+    this.configureTableFilter();
+
     this.getReasons();
-    this.getReferralType()
+    this.getReferralType();
     this.getHospital();
   }
 
@@ -128,12 +127,56 @@ displayedColumns: string[] = [
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
+    const filterValue = (event.target as HTMLInputElement).value
+      .trim()
+      .toLowerCase();
+  
+    this.dataSource.filter = filterValue;
+  
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  private configureTableFilter(): void {
+    this.dataSource.filterPredicate = (data: any, filter: string): boolean => {
+  
+      const searchableText = [
+        data.referral_id,
+        data.referral_number,
+  
+        data.patient_name,
+  
+        // FROM hospital
+        data.from_hospital_name,
+        data.from_hospital_address,
+  
+        // TO hospital
+        data.to_hospital_name,
+        data.to_hospital_address,
+  
+        data.insurance_provider_name,
+  
+        data.start_date,
+        data.end_date,
+  
+        data.created_at,
+  
+        // Referral reason
+        data.referral_reason_name,
+  
+        // Diagnoses
+        ...(data.board_diagnoses || []).flatMap((diagnosis: any) => [
+          diagnosis.diagnosis_code,
+          diagnosis.diagnosis_name
+        ])
+      ]
+        .filter(value => value !== null && value !== undefined)
+        .join(' ')
+        .toLowerCase();
+  
+      return searchableText.includes(filter);
+    };
   }
 
   configForm(): void {
@@ -163,7 +206,7 @@ displayedColumns: string[] = [
     });
   }
 
-   getHospital() {
+  getHospital() {
     this.hospitalServices.getAllHospital().pipe(takeUntil(this.onDestroy)).subscribe({
       next: (response: any) => {
         this.hospital = response.data.map((item: any) => ({
@@ -176,54 +219,39 @@ displayedColumns: string[] = [
       },
     });
   }
-  // getHospital(): void {
-  //   this.hospitalServices.getAllHospital().subscribe(response => {
-  //     this.hospital = response.data;
-  //     //console.log("hospitali hiziii",response.data)
-  //   });
-  // }
 
-searchReport(): void {
-  this.loading = true;
-  this.noResults = false;
-  this.errorMessage = '';
+  searchReport(): void {
+    this.loading = true;
+    this.noResults = false;
+    this.errorMessage = '';
 
-  const formData = { ...this.reportForm.value };
+    const formData = { ...this.reportForm.value };
 
-  // format dates if they exist
-  if (formData.start_date) {
-    formData.start_date = new Date(formData.start_date).toISOString().split('T')[0];
-  }
-  if (formData.end_date) {
-    formData.end_date = new Date(formData.end_date).toISOString().split('T')[0];
-  }
-
-  this.reportService.generateReport(formData).pipe(takeUntil(this.onDestroy)).subscribe({
-    next: response => {
-      this.loading = false;
-      this.dataSource.data = response.data;
-      this.noResults = response.data.length === 0;
-    },
-    error: err => {
-      this.loading = false;
-      if (err.status === 404) {
-        this.dataSource.data = [];
-        this.noResults = true;
-      } else {
-        this.errorMessage = 'Error fetching reports';
-      }
+    // format dates if they exist
+    if (formData.start_date) {
+      formData.start_date = new Date(formData.start_date).toISOString().split('T')[0];
     }
-  });
-}
+    if (formData.end_date) {
+      formData.end_date = new Date(formData.end_date).toISOString().split('T')[0];
+    }
 
-
-
-  // Fix: Improve search filter to work across all columns
-
-
-
-
-
+    this.reportService.generateReport(formData).pipe(takeUntil(this.onDestroy)).subscribe({
+      next: response => {
+        this.loading = false;
+        this.dataSource.data = response.data;
+        this.noResults = response.data.length === 0;
+      },
+      error: err => {
+        this.loading = false;
+        if (err.status === 404) {
+          this.dataSource.data = [];
+          this.noResults = true;
+        } else {
+          this.errorMessage = 'Error fetching reports';
+        }
+      }
+    });
+  }
 
   // Export Excel
   exportExcel(): void {
@@ -233,16 +261,6 @@ searchReport(): void {
     const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
    // this.saveAsExcelFile(excelBuffer, 'reports');
   }
-
-  // private saveAsExcelFile(buffer: any, fileName: string): void {
-  //   const data: Blob = new Blob(
-  //     [buffer],
-  //     { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' }
-  //   );
-  //   saveAs(data, `${fileName}_export_${new Date().getTime()}.xlsx`);
-  // }
-
-  // Export PDF
 
   getImageBase64(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -383,50 +401,85 @@ doc.text(
 
   autoTable(doc, {
     startY: 78,
-
+  
     head: [[
       'No',
       'Patient Name',
-      'Hospital',
+      'From Hospital → To Hospital',
       'Insurance',
       'Start Date',
       'End Date',
       'Board Diagnoses',
       'Created Date'
     ]],
-
+  
     body: this.dataSource.data.map(
-      (element:any,index:number)=>[
-        index+1,
-        element.patient_name,
-        `${element.hospital_name}\n${element.hospital_address}`,
-        element.insurance_provider_name,
-        element.start_date,
-        element.end_date,
-        element.board_diagnoses?.map(
-          (d:any)=>
-          `${d.diagnosis_code} - ${d.diagnosis_name}`
-        ).join('\n') || 'N/A',
+      (element: any, index: number) => [
+  
+        index + 1,
+  
+        element.patient_name || 'N/A',
+  
+        [
+          `FROM: ${element.from_hospital_name || 'N/A'}`,
+          element.from_hospital_address || '',
+  
+          '↓ TO',
+  
+          `TO: ${element.to_hospital_name || 'N/A'}`,
+          element.to_hospital_address || ''
+        ].join('\n'),
+  
+        element.insurance_provider_name || 'N/A',
+  
+        element.start_date
+          ? formatDate(element.start_date, 'dd/MM/yyyy', 'en-US')
+          : 'N/A',
+  
+        element.end_date
+          ? formatDate(element.end_date, 'dd/MM/yyyy', 'en-US')
+          : 'N/A',
+  
+        element.board_diagnoses?.length
+          ? element.board_diagnoses
+              .map(
+                (d: any) =>
+                  `${d.diagnosis_code} - ${d.diagnosis_name}`
+              )
+              .join('\n')
+          : 'N/A',
+  
         element.created_at
+          ? formatDate(element.created_at, 'dd/MM/yyyy HH:mm', 'en-US')
+          : 'N/A'
       ]
     ),
-
-    styles:{
-      fontSize:8
+  
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      valign: 'top'
     },
-
-    headStyles:{
-      fillColor:[41,128,185],
-      textColor:255
+  
+    headStyles: {
+      fillColor: [41, 128, 185],
+      textColor: 255
+    },
+  
+    columnStyles: {
+      0: { cellWidth: 10 },
+      1: { cellWidth: 35 },
+      2: { cellWidth: 65 },
+      3: { cellWidth: 25 },
+      4: { cellWidth: 22 },
+      5: { cellWidth: 22 },
+      6: { cellWidth: 65 },
+      7: { cellWidth: 30 }
     }
   });
-
 
   doc.save('Referral_Report.pdf');
 
 }
-
-
-
 
 }

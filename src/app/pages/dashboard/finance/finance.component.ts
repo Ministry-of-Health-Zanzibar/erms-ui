@@ -1,6 +1,6 @@
 
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, ElementRef, inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,38 +10,153 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { StatisticalService } from '../../../services/report/statistical.service';
 import { GraphreportService } from '../../../services/accountants/graphreport.service';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
+
+const PATIENT_WORKFLOW_COLORS = [
+  '#4a90e2',
+  '#c0504d',
+  '#9bbb59',
+  '#2cb7a9',
+  '#8064a2',
+  '#f4b183',
+  '#7f8c8d',
+  '#5b9bd5',
+];
+
+const patientWorkflowCenterTextPlugin = {
+  id: 'patientWorkflowCenterText',
+  afterDraw(chart: any) {
+    const dataset = chart.data.datasets?.[0];
+    const values = (dataset?.data ?? []).map((value: unknown) => Number(value) || 0);
+    const total = values.reduce((sum: number, value: number) => sum + value, 0);
+    const firstArc = chart.getDatasetMeta(0)?.data?.[0];
+
+    if (!firstArc) {
+      return;
+    }
+
+    const { ctx } = chart;
+    const centerX = firstArc.x;
+    const centerY = firstArc.y;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = getComputedStyle(document.documentElement)
+      .getPropertyValue('--rms-text')
+      .trim() || '#334155';
+    ctx.font = '700 24px Arial, sans-serif';
+    ctx.fillText(total.toLocaleString(), centerX, centerY - 7);
+    ctx.font = '600 11px Arial, sans-serif';
+    ctx.fillText('Patients', centerX, centerY + 15);
+    ctx.restore();
+  },
+};
+
+const patientWorkflowOutsideLabelsPlugin = {
+  id: 'patientWorkflowOutsideLabels',
+  afterDraw(chart: any) {
+    const dataset = chart.data.datasets?.[0];
+    const labels = chart.data.labels ?? [];
+    const values = (dataset?.data ?? []).map((value: unknown) => Number(value) || 0);
+    const total = values.reduce((sum: number, value: number) => sum + value, 0);
+    const arcs = chart.getDatasetMeta(0)?.data ?? [];
+
+    if (!arcs.length || !dataset) {
+      return;
+    }
+
+    const chartArea = chart.chartArea;
+    const leftItems: any[] = [];
+    const rightItems: any[] = [];
+
+    arcs.forEach((arc: any, index: number) => {
+      const angle = (arc.startAngle + arc.endAngle) / 2;
+      const cosine = Math.cos(angle);
+      const sine = Math.sin(angle);
+      const value = values[index] ?? 0;
+      const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+      const item = {
+        arc,
+        index,
+        side: cosine >= 0 ? 'right' : 'left',
+        startX: arc.x + cosine * arc.outerRadius,
+        startY: arc.y + sine * arc.outerRadius,
+        elbowX: arc.x + cosine * (arc.outerRadius + 16),
+        elbowY: arc.y + sine * (arc.outerRadius + 16),
+        labelY: arc.y + sine * (arc.outerRadius + 22),
+        label: `${labels[index] ?? 'Unknown'}: ${percentage}%`,
+        color: dataset.backgroundColor[index] || '#64748b',
+      };
+
+      (item.side === 'right' ? rightItems : leftItems).push(item);
+    });
+
+    const lineHeight = 16;
+    const minimumY = chartArea.top + 18;
+    const maximumY = chartArea.bottom - 18;
+
+    const distributeLabels = (items: any[]) => {
+      items.sort((first, second) => first.labelY - second.labelY);
+
+      items.forEach((item, index) => {
+        item.labelY = index === 0
+          ? Math.max(minimumY, item.labelY)
+          : Math.max(item.labelY, items[index - 1].labelY + lineHeight);
+      });
+
+      const overflow = items[items.length - 1].labelY - maximumY;
+      if (overflow > 0) {
+        items.forEach((item) => item.labelY -= overflow);
+      }
+
+      const underflow = minimumY - items[0].labelY;
+      if (underflow > 0) {
+        items.forEach((item) => item.labelY += underflow);
+      }
+    };
+
+    distributeLabels(leftItems);
+    distributeLabels(rightItems);
+
+    const { ctx } = chart;
+    ctx.save();
+    ctx.font = '500 10px Arial, sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 1;
+
+    [...leftItems, ...rightItems].forEach((item) => {
+      const isRight = item.side === 'right';
+      const textX = isRight ? chartArea.right + 8 : chartArea.left - 8;
+      const lineEndX = isRight ? textX - 4 : textX + 4;
+
+      ctx.strokeStyle = item.color;
+      ctx.beginPath();
+      ctx.moveTo(item.startX, item.startY);
+      ctx.lineTo(item.elbowX, item.elbowY);
+      ctx.lineTo(lineEndX, item.labelY);
+      ctx.stroke();
+
+      ctx.fillStyle = getComputedStyle(document.documentElement)
+        .getPropertyValue('--rms-text')
+        .trim() || '#334155';
+      ctx.textAlign = isRight ? 'left' : 'right';
+      ctx.fillText(item.label, textX, item.labelY);
+    });
+
+    ctx.restore();
+  },
+};
 
 import {
-  ApexAxisChartSeries,
   ApexChart,
-  ApexDataLabels,
-  ApexPlotOptions,
-  ApexXAxis,
-  ApexYAxis,
   ApexLegend,
-  ApexFill,
-  ApexTooltip,
   ApexTitleSubtitle,
   ApexNonAxisChartSeries,
   ApexResponsive,
-  ApexMarkers,
 } from 'ng-apexcharts';
-
-export type ApexChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  dataLabels: ApexDataLabels;
-  plotOptions: ApexPlotOptions;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  fill: ApexFill;
-  tooltip: ApexTooltip;
-  legend: ApexLegend;
-  title: ApexTitleSubtitle;
-  stroke?: any;
-  markers?: ApexMarkers;
-  colors: string[];
-};
 
 @Component({
   standalone: true,
@@ -58,61 +173,12 @@ export type ApexChartOptions = {
   templateUrl: './finance.component.html',
   styleUrls: ['./finance.component.scss'],
 })
-export class FinanceComponent implements OnInit {
+export class FinanceComponent implements OnInit, OnDestroy {
   referral: any = {};
   dashboardData: any = {};
-  patientWorkflowChartOptions: any = {
-    series: [{ name: 'Patients', data: [] }],
-    chart: {
-      type: 'bar',
-      height: 390,
-      toolbar: {
-        show: true,
-        tools: {
-          download: true,
-          selection: false,
-          zoom: false,
-          zoomin: false,
-          zoomout: false,
-          pan: false,
-          reset: false,
-        },
-        export: {
-          csv: { filename: 'patient-status-tracking' },
-          svg: { filename: 'patient-status-tracking' },
-          png: { filename: 'patient-status-tracking' },
-        },
-      },
-      background: 'transparent',
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        borderRadius: 6,
-        barHeight: '58%',
-        distributed: true,
-        dataLabels: { position: 'top' },
-      },
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: (value: number) => `${value}`,
-      offsetX: 18,
-      style: { fontSize: '12px', fontWeight: 700, colors: ['#334155'] },
-    },
-    xaxis: {
-      categories: [],
-      min: 0,
-      tickAmount: 5,
-      title: { text: 'Number of patients' },
-    },
-    yaxis: { labels: { maxWidth: 260 } },
-    colors: ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b', '#8b5cf6', '#16a34a', '#64748b', '#f97316'],
-    tooltip: {
-      y: { formatter: (value: number) => `${value} patient${value === 1 ? '' : 's'}` },
-    },
-    grid: { borderColor: '#e2e8f0', strokeDashArray: 4 },
-  };
+  @ViewChild('patientWorkflowChart') patientWorkflowCanvas?: ElementRef<HTMLCanvasElement>;
+  private patientWorkflowChart?: Chart;
+  private readonly platformId = inject(PLATFORM_ID);
 
   // =========================
   // OTHER DIAGNOSES POPUP
@@ -125,6 +191,7 @@ export class FinanceComponent implements OnInit {
   constructor(
     private dashboardService: StatisticalService,
     private reportService: GraphreportService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -134,6 +201,10 @@ export class FinanceComponent implements OnInit {
     this.fetchReferralTrends();
     this.fetchData();
     this.loadDashboardStatistics();
+  }
+
+  ngOnDestroy(): void {
+    this.patientWorkflowChart?.destroy();
   }
 
   // =========================
@@ -163,37 +234,107 @@ export class FinanceComponent implements OnInit {
   }
 
   loadDashboardStatistics() {
-  this.dashboardService.getWorkFlowCount().subscribe({
-    next: (response: any) => {
-      const statuses = (response?.data?.medical_history?.statuses ?? []).map((item: any) => ({
-        ...item,
-        display_label: this.getDashboardStatusLabel(item.status, item.label),
-      }));
+    this.dashboardService.getWorkFlowCount().subscribe({
+      next: (response: any) => {
+        const statuses = (response?.data?.medical_history?.statuses ?? []).map((item: any) => ({
+          ...item,
+          display_label: this.getDashboardStatusLabel(item.status, item.label),
+        }));
 
-      this.dashboardData = {
-        ...response.data,
-        medical_history: {
-          ...response.data.medical_history,
-          statuses,
-        },
-      };
-      this.patientWorkflowChartOptions = {
-        ...this.patientWorkflowChartOptions,
-        series: [{
-          name: 'Patients',
-          data: statuses.map((item: any) => Number(item.count) || 0),
-        }],
-        xaxis: {
-          ...this.patientWorkflowChartOptions.xaxis,
-          categories: statuses.map((item: any) => `Stage ${item.stage} · ${item.display_label}`),
-        },
-      };
-    },
-    error: (err) => {
-      console.error(err);
+        this.dashboardData = {
+          ...response.data,
+          medical_history: {
+            ...response.data.medical_history,
+            statuses,
+          },
+        };
+
+        // The canvas is created by the status-data *ngIf, so run one view update
+        // before drawing the Chart.js sample chart.
+        this.changeDetectorRef.detectChanges();
+        this.renderPatientWorkflowChart(statuses);
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
+
+  private renderPatientWorkflowChart(statuses: any[]): void {
+    this.patientWorkflowChart?.destroy();
+
+    const canvas = this.patientWorkflowCanvas?.nativeElement;
+    if (!isPlatformBrowser(this.platformId) || !canvas || statuses.length === 0) {
+      return;
     }
-  });
-}
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    const textColor = rootStyles.getPropertyValue('--rms-text').trim() || '#334155';
+    const mutedColor = rootStyles.getPropertyValue('--rms-text-muted').trim() || '#64748b';
+
+    this.patientWorkflowChart = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: statuses.map((item: any) => item.display_label),
+        datasets: [
+          {
+            data: statuses.map((item: any) => Number(item.count) || 0),
+            backgroundColor: statuses.map(
+              (_item: any, index: number) => PATIENT_WORKFLOW_COLORS[index % PATIENT_WORKFLOW_COLORS.length],
+            ),
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 5,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '57%',
+        radius: '68%',
+        layout: {
+          padding: { top: 20, right: 116, bottom: 42, left: 116 },
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Patient Status Tracking',
+            color: textColor,
+            font: { size: 16, weight: 'bold' },
+            padding: { bottom: 8 },
+          },
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: mutedColor,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 8,
+              boxHeight: 8,
+              padding: 12,
+              font: { size: 10 },
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context: any) => {
+                const value = Number(context.raw) || 0;
+                const total = statuses.reduce(
+                  (sum: number, item: any) => sum + (Number(item.count) || 0),
+                  0,
+                );
+                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                return ` ${context.label}: ${value} (${percentage}%)`;
+              },
+            },
+          },
+        },
+      },
+      plugins: [patientWorkflowCenterTextPlugin, patientWorkflowOutsideLabelsPlugin],
+    });
+  }
 
   private getDashboardStatusLabel(status: string, fallback: string): string {
     const labels: Record<string, string> = {

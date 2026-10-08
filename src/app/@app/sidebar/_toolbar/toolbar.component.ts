@@ -27,6 +27,7 @@ import { Router } from '@angular/router';
 export class ToolbarComponent implements OnInit{
 
   private readonly uiFeedback = inject(FeedbackService);
+  readonly currentYear = new Date().getFullYear();
 
   constructor(private route:Router,){}
 

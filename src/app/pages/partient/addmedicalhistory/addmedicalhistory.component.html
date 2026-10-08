@@ -1,176 +1,354 @@
-<div class="p-6 bg-white rounded-lg shadow-md w-[800px] mx-auto">
-
-<h3 class="text-lg font-semibold mb-6 text-center">
-  Medical History for Referral
-</h3>
-
-<p
-  class="text-sm text-red-700 text-center mb-6 border-2 border-blue-600 rounded-lg px-4 py-3 font-medium"
->
-  Capture the patient’s clinical history to support referral review and
-  decision-making by the medical board.
-</p>
-
-  <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()" class="space-y-4">
-
-    <!-- First Row -->
-    <div class="grid grid-cols-2 gap-4">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Referring Doctor</mat-label>
-        <input
-          matInput
-          formControlName="referring_doctor"
-          placeholder="Enter doctor's name"
-        />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>File Number</mat-label>
-        <input
-          matInput
-          formControlName="file_number"
-          placeholder="Enter file number"
-        />
-      </mat-form-field>
+<div class="medical-history-dialog">
+  <header class="medical-history-dialog__header">
+    <div class="medical-history-dialog__identity">
+      <div class="medical-history-dialog__icon" aria-hidden="true">
+        <mat-icon>medical_information</mat-icon>
+      </div>
+      <div>
+        <p class="medical-history-dialog__eyebrow">Patient medical history</p>
+        <h2>Add medical history</h2>
+        <p class="medical-history-dialog__subtitle">
+          Complete the record in three short steps.
+        </p>
+      </div>
     </div>
 
-    <!-- Second Row -->
-    <div class="grid grid-cols-2 gap-4">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Referring Date</mat-label>
-        <input
-          matInput
-          [matDatepicker]="picker"
-          formControlName="referring_date"
-          placeholder="Select date"
-        />
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Close medical history form"
+      [disabled]="loading"
+      (click)="onCancel()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>History of Presenting Illness</mat-label>
-        <textarea
-          matInput
-          rows="3"
-          formControlName="history_of_presenting_illness"
-        ></textarea>
-      </mat-form-field>
-    </div>
+  <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()" class="medical-history-dialog__form" novalidate>
+    <mat-horizontal-stepper #stepper class="medical-history-stepper" linear>
+      <mat-step [stepControl]="referralDetailsForm">
+        <ng-template matStepLabel>Referral details</ng-template>
 
-    <!-- Reason Row -->
-    <div class="grid grid-cols-2 gap-4">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Reason</mat-label>
-        <mat-select formControlName="reason_id">
-          <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
-            {{ reason.referral_reason_name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+        <section class="medical-history-step" formGroupName="referralDetails">
+          <div class="medical-history-step__heading">
+            <span class="medical-history-step__number">01</span>
+            <div>
+              <p>Step one</p>
+              <h3>Referral details</h3>
+              <span>Enter the basic information for this medical history.</span>
+            </div>
+          </div>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Physical Findings</mat-label>
-        <textarea
-          matInput
-          rows="3"
-          formControlName="physical_findings"
-        ></textarea>
-      </mat-form-field>
-    </div>
+          <div class="medical-history-grid medical-history-grid--two">
+            <app-text-input
+              formControlName="referring_doctor"
+              label="Referring doctor"
+              placeholder="Enter doctor's name"
+              icon="person"
+              [required]="true"
+            >
+              <mat-error *ngIf="referralDetailsForm.get('referring_doctor')?.hasError('required')">
+                Referring doctor is required.
+              </mat-error>
+            </app-text-input>
 
-    <!-- Investigations + Management -->
-    <div class="grid grid-cols-2 gap-4">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Investigations</mat-label>
-        <textarea matInput rows="3" formControlName="investigations"></textarea>
-      </mat-form-field>
+            <app-text-input
+              formControlName="file_number"
+              label="File number"
+              placeholder="Enter file number"
+              icon="folder_open"
+              [required]="true"
+            >
+              <mat-error *ngIf="referralDetailsForm.get('file_number')?.hasError('required')">
+                File number is required.
+              </mat-error>
+            </app-text-input>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Management Done</mat-label>
-        <textarea matInput rows="3" formControlName="management_done"></textarea>
-      </mat-form-field>
-    </div>
+            <app-date-picker
+              formControlName="referring_date"
+              label="Referring date"
+              placeholder="Choose a date"
+              icon="event"
+              outputFormat="iso"
+            />
 
-    <!-- Diagnoses Section -->
-    <div>
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Case Type</mat-label>
-        <mat-select formControlName="case_type">
-          <mat-option [value]="'Emergency'">Emergency</mat-option>
-          <mat-option [value]="'Routine'">Routine</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+            <!-- <mat-form-field appearance="outline" class="medical-history-field--full">
+              <mat-label>Reason for referral</mat-label>
+              <mat-select
+                formControlName="reason_id"
+                (selectionChange)="onReasonChange($event.value)"
+              >
+                <mat-option *ngFor="let reason of reasonOptions" [value]="reason.reason_id">
+                  {{ reason.referral_reason_name }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>assignment</mat-icon>
+              <mat-error *ngIf="referralDetailsForm.get('reason_id')?.hasError('required')">
+                A referral reason is required.
+              </mat-error>
+            </mat-form-field> -->
 
-    <div>
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Select Diagnoses</mat-label>
+            <mat-form-field appearance="outline" class="patient-field">
+              <mat-label>Reason for referral</mat-label>
+              <mat-select formControlName="reason_id" (selectionChange)="onReasonChange($event.value)">
+                <!-- <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
+                  {{ reason.referral_reason_name }}
+                </mat-option> -->
+                <mat-option [value]="customReasonOption">Other / Custom reason</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>assignment</mat-icon>
+              <mat-error *ngIf="referralDetailsForm.get('historyInfo.reason_id')?.hasError('required')">
+                Select a referral reason
+              </mat-error>
+            </mat-form-field>
+          </div>
 
-        <mat-select
-          formControlName="diagnosis_ids"
-          multiple
-          [disabled]="loadingDiagnoses"
-          (openedChange)="onDiagnosesDropdownOpened()"
-        >
-          <mat-option *ngIf="loadingDiagnoses" disabled>
-            Loading diagnoses…
-          </mat-option>
-
-          <!-- Search (disabled option) -->
-          <mat-option *ngIf="!loadingDiagnoses" disabled>
+          <mat-form-field
+            *ngIf="isCustomReasonSelected"
+            appearance="outline"
+            class="medical-history-field--full"
+          >
+            <mat-label>Custom reason for referral</mat-label>
             <input
               matInput
-              placeholder="Search diagnoses..."
-              [(ngModel)]="diagnosisSearch"
-              (ngModelChange)="filterDiagnoses()"
-              class="w-full px-2 py-1 border border-gray-300 rounded"
+              formControlName="custom_reason"
+              maxlength="255"
+              placeholder="Type the new reason for referral"
             />
-          </mat-option>
+            <mat-hint>This reason will be saved for future use.</mat-hint>
+            <mat-error *ngIf="referralDetailsForm.get('custom_reason')?.hasError('required')">
+              Enter a custom reason.
+            </mat-error>
+            <mat-error *ngIf="referralDetailsForm.get('custom_reason')?.hasError('maxlength')">
+              The custom reason must be 255 characters or less.
+            </mat-error>
+          </mat-form-field>
 
-          <!-- Diagnoses -->
-          <mat-option
-            *ngFor="let d of filteredDiagnoses"
-            [value]="d.diagnosis_id"
-          >
-            {{ d.diagnosis_name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+          <div class="medical-history-step__actions">
+            <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
+              Cancel
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              matStepperNext
+              [disabled]="referralDetailsForm.invalid || loading"
+            >
+              Continue
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </section>
+      </mat-step>
 
-    <!-- File Upload -->
-    <div>
-      <label class="block mb-2 text-sm font-medium">Upload History File</label>
-      <input type="file" (change)="onFileSelected($event)" />
-      <p *ngIf="selectedFile" class="text-sm text-gray-500 mt-1">
-        Selected: {{ selectedFile.name }}
-      </p>
-    </div>
+      <mat-step [stepControl]="clinicalDetailsForm">
+        <ng-template matStepLabel>Clinical details</ng-template>
 
-    <!-- Buttons -->
-    <div class="flex justify-end items-center gap-3 pt-4">
-      <!-- Cancel Button -->
-      <button
-        mat-stroked-button
-        type="button"
-        color="warn"
-        (click)="onCancel()"
-        [disabled]="loading"
-      >
-        Cancel
-      </button>
+        <section class="medical-history-step" formGroupName="clinicalDetails">
+          <div class="medical-history-step__heading">
+            <span class="medical-history-step__number">02</span>
+            <div>
+              <p>Step two</p>
+              <h3>Clinical details</h3>
+              <span>Record the illness, findings, investigations, treatment, and diagnoses.</span>
+            </div>
+          </div>
 
-      <!-- Save Button / Spinner -->
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSubmit()"
-        [disabled]="medicalForm.invalid || loading"
-      >
-        {{ loading ? 'Saving…' : 'Save' }}
-      </button>
-    </div>
+          <div class="medical-history-grid medical-history-grid--two">
+            <mat-form-field appearance="outline" class="medical-history-textarea">
+              <mat-label>History of presenting illness</mat-label>
+              <textarea
+                matInput
+                rows="4"
+                formControlName="history_of_presenting_illness"
+                placeholder="Describe the illness and relevant timeline"
+              ></textarea>
+              <mat-error *ngIf="clinicalDetailsForm.get('history_of_presenting_illness')?.hasError('required')">
+                This clinical note is required.
+              </mat-error>
+            </mat-form-field>
 
+            <mat-form-field appearance="outline" class="medical-history-textarea">
+              <mat-label>Physical findings</mat-label>
+              <textarea
+                matInput
+                rows="4"
+                formControlName="physical_findings"
+                placeholder="Record the examination findings"
+              ></textarea>
+              <mat-error *ngIf="clinicalDetailsForm.get('physical_findings')?.hasError('required')">
+                This clinical note is required.
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="medical-history-textarea">
+              <mat-label>Investigations</mat-label>
+              <textarea
+                matInput
+                rows="4"
+                formControlName="investigations"
+                placeholder="List investigations completed or requested"
+              ></textarea>
+              <mat-error *ngIf="clinicalDetailsForm.get('investigations')?.hasError('required')">
+                This clinical note is required.
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="medical-history-textarea">
+              <mat-label>Management done</mat-label>
+              <textarea
+                matInput
+                rows="4"
+                formControlName="management_done"
+                placeholder="Summarise treatment already provided"
+              ></textarea>
+              <mat-error *ngIf="clinicalDetailsForm.get('management_done')?.hasError('required')">
+                This clinical note is required.
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="medical-history-diagnosis">
+            <mat-form-field appearance="outline" class="medical-history-field--full">
+              <mat-label>Diagnoses</mat-label>
+              <mat-chip-grid #chipGrid aria-label="Selected diagnoses">
+                <mat-chip-row
+                  *ngFor="let diagnosis of selectedDiagnoses"
+                  [removable]="true"
+                  (removed)="removeDiagnosis(diagnosis)"
+                >
+                  {{ diagnosis.diagnosis_name }}
+                  <button matChipRemove type="button" aria-label="Remove diagnosis">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-chip-row>
+                <input
+                  #diagInput
+                  #autoTrigger="matAutocompleteTrigger"
+                  placeholder="Search and add a diagnosis"
+                  [formControl]="diagnosisSearchCtrl"
+                  [matAutocomplete]="auto"
+                  [matChipInputFor]="chipGrid"
+                  [disabled]="loadingDiagnoses"
+                  (focus)="onDiagnosesInputFocused()"
+                />
+              </mat-chip-grid>
+              <mat-hint *ngIf="!loadingDiagnoses">
+                Search by diagnosis name and select one or more.
+              </mat-hint>
+              <mat-hint *ngIf="loadingDiagnoses">Loading diagnoses…</mat-hint>
+              <mat-error *ngIf="clinicalDetailsForm.get('diagnosis_ids')?.hasError('required')">
+                Add at least one diagnosis.
+              </mat-error>
+            </mat-form-field>
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addDiagnosis($event.option.value)">
+              <mat-option *ngFor="let diagnosis of filteredDiagnoses" [value]="diagnosis">
+                {{ diagnosis.diagnosis_name }}
+              </mat-option>
+            </mat-autocomplete>
+          </div>
+
+          <div class="medical-history-step__actions">
+            <button mat-button type="button" matStepperPrevious [disabled]="loading">
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              matStepperNext
+              [disabled]="clinicalDetailsForm.invalid || loading"
+            >
+              Continue
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step [stepControl]="attachmentForm">
+        <ng-template matStepLabel>Review and save</ng-template>
+
+        <section class="medical-history-step" formGroupName="attachment">
+          <div class="medical-history-step__heading">
+            <span class="medical-history-step__number">03</span>
+            <div>
+              <p>Step three</p>
+              <h3>Supporting file and review</h3>
+              <span>Attach a file if available, review the record, and save it.</span>
+            </div>
+          </div>
+
+          <label class="medical-history-upload" for="history-file-input">
+            <input
+              id="history-file-input"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              (change)="onFileSelected($event)"
+            />
+            <span class="medical-history-upload__icon" aria-hidden="true">
+              <mat-icon>upload_file</mat-icon>
+            </span>
+            <span class="medical-history-upload__copy">
+              <strong>{{ selectedFile?.name || 'Upload medical history file' }}</strong>
+              <small>PDF, JPG, JPEG, or PNG · optional</small>
+            </span>
+            <span class="medical-history-upload__action">Choose file</span>
+          </label>
+
+          <div class="medical-history-review">
+            <div class="medical-history-review__heading">
+              <div>
+                <p>Ready to save?</p>
+                <h3>Review medical history</h3>
+              </div>
+              <mat-icon>fact_check</mat-icon>
+            </div>
+
+            <div class="medical-history-review__grid">
+              <div>
+                <span>Reason</span>
+                <strong>{{ selectedReasonLabel }}</strong>
+              </div>
+              <div>
+                <span>Case type</span>
+                <strong>Emergency</strong>
+              </div>
+              <div>
+                <span>Diagnoses</span>
+                <strong>{{ clinicalDetailsForm.get('diagnosis_ids')?.value?.length || 0 }} selected</strong>
+              </div>
+              <div>
+                <span>File</span>
+                <strong>{{ selectedFile?.name || 'No file attached' }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="medical-history-step__actions medical-history-step__actions--final">
+            <button mat-button type="button" matStepperPrevious [disabled]="loading">
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+            <div>
+              <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="loading">
+                Cancel
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="submit"
+                [disabled]="medicalForm.invalid || loading"
+              >
+                <mat-icon>{{ loading ? 'hourglass_top' : 'save' }}</mat-icon>
+                {{ loading ? 'Saving…' : 'Save medical history' }}
+              </button>
+            </div>
+          </div>
+        </section>
+      </mat-step>
+    </mat-horizontal-stepper>
   </form>
 </div>

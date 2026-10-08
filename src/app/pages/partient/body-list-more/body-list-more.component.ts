@@ -454,7 +454,8 @@ openConversationModal(patientHistoryId: number) {
   if (!patientHistoryId) return; // safety check
 
   this.dialog.open(ConversationModalComponent, {
-    width: '600px',
+    width: 'min(960px, 94vw)',
+    maxWidth: '94vw',
     data: { patientHistoryId }
   });
 }

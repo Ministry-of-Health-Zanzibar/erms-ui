@@ -70,6 +70,7 @@ export class PartientFormComponent implements OnInit {
   filteredLocations: any[] = [];
 
   reasonList: any[] = [];
+  readonly customReasonOption = 'custom';
   diagnosesList: any[] = [];
   diagnosisSearchCtrl = new FormControl('');
   filteredDiagnoses: any[] = [];
@@ -159,8 +160,9 @@ export class PartientFormComponent implements OnInit {
         file_number: ['', Validators.required],
         referring_date: ['', Validators.required],
         reason_id: ['', Validators.required],
+        custom_reason: [''],
         diagnosis_ids: [[], Validators.required],
-        case_type: ['Routine', Validators.required],
+        case_type: ['Emergency', Validators.required],
         history_of_presenting_illness: ['', Validators.required],
         physical_findings: ['', Validators.required],
         investigations: ['', Validators.required],
@@ -211,7 +213,7 @@ export class PartientFormComponent implements OnInit {
             referring_date: history?.referring_date
               ? new Date(history.referring_date)
               : '',
-            case_type: history?.case_type || 'Routine',
+            case_type: 'Emergency',
             history_of_presenting_illness:
               history?.history_of_presenting_illness || '',
             physical_findings: history?.physical_findings || '',
@@ -473,6 +475,26 @@ export class PartientFormComponent implements OnInit {
       .subscribe((res) => (this.reasonList = res.data || []));
   }
 
+  get isCustomReasonSelected(): boolean {
+    return this.patientForm?.get('historyInfo.reason_id')?.value === this.customReasonOption;
+  }
+
+  onReasonChange(reasonId: any): void {
+    const customReasonControl = this.patientForm.get('historyInfo.custom_reason');
+
+    if (reasonId === this.customReasonOption) {
+      customReasonControl?.setValidators([
+        Validators.required,
+        Validators.maxLength(255),
+      ]);
+    } else {
+      customReasonControl?.clearValidators();
+      customReasonControl?.setValue('', { emitEvent: false });
+    }
+
+    customReasonControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
   loadDiagnoses() {
     this.diagnosisSearchCtrl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
@@ -616,12 +638,19 @@ export class PartientFormComponent implements OnInit {
     Object.keys(historyInfo).forEach((key) => {
       let value = historyInfo[key];
       if (value !== null && value !== '') {
-        if (key === 'referring_date') {
+        if (key === 'case_type') {
+          formData.append(key, 'Emergency');
+        } else if (key === 'referring_date') {
           formData.append(key, this.formatDate(value));
         } else if (key === 'diagnosis_ids') {
           value.forEach((id: any) => formData.append('diagnosis_ids[]', id));
+        } else if (key === 'reason_id' && value === this.customReasonOption) {
+          // The API creates the reason and stores the returned reason_id.
+          return;
+        } else if (key === 'custom_reason' && historyInfo.reason_id !== this.customReasonOption) {
+          return;
         } else {
-          formData.append(key, value);
+          formData.append(key, key === 'custom_reason' ? String(value).trim() : value);
         }
       }
     });

@@ -57,6 +57,7 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
   loading = false;
   backendErrors: any = {};
   reasonList: any[] = [];
+  readonly customReasonOption = 'custom';
   diagnosesList: any[] = [];
   filteredDiagnoses: any[] = [];
   selectedFile: File | null = null;
@@ -102,6 +103,7 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
       ],
       board_comments: ['', Validators.required],
       board_reason_id: ['', Validators.required],
+      custom_reason: [''],
       board_diagnosis_ids: [[], Validators.required],
 
       // A referral is the default decision. The board can switch this off
@@ -157,6 +159,26 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
         next: (res: any) => (this.reasonList = res.data || []),
         error: (err) => console.error(err),
       });
+  }
+
+  get isCustomReasonSelected(): boolean {
+    return this.medicalForm?.get('board_reason_id')?.value === this.customReasonOption;
+  }
+
+  onReasonChange(reasonId: any): void {
+    const customReasonControl = this.medicalForm.get('custom_reason');
+
+    if (reasonId === this.customReasonOption) {
+      customReasonControl?.setValidators([
+        Validators.required,
+        Validators.maxLength(255),
+      ]);
+    } else {
+      customReasonControl?.clearValidators();
+      customReasonControl?.setValue('', { emitEvent: false });
+    }
+
+    customReasonControl?.updateValueAndValidity({ emitEvent: false });
   }
 
   loadDiagnoses() {
@@ -280,7 +302,11 @@ export class AddmedicalformComponent implements OnInit, OnDestroy {
     const formData = new FormData();
 
     formData.append('board_comments', formValue.board_comments.trim());
-    formData.append('board_reason_id', String(formValue.board_reason_id));
+    if (formValue.board_reason_id === this.customReasonOption) {
+      formData.append('custom_reason', String(formValue.custom_reason).trim());
+    } else {
+      formData.append('board_reason_id', String(formValue.board_reason_id));
+    }
     formValue.board_diagnosis_ids.forEach((id: any) => {
       formData.append('board_diagnosis_ids[]', id);
     });

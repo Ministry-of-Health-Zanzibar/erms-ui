@@ -57,23 +57,6 @@ export class SidebarComponent {
       link: '/pages/dashboard',
     },
 
-    // {
-    //   id: 'dashboard',
-    //   type: 'group',
-    //   name: 'Dashboard',
-    //   icon: 'dashboard',
-    //   permission: 'View Dashboard',
-    //   children: [
-    //     {
-    //       type: 'link',
-    //       name: 'Dashboard',
-    //       link: '/pages/dashboard',
-    //       permission: 'View Dashboard',
-
-    //     }
-    //   ]
-    // },
-
     {
       id: 'users',
       type: 'group',
@@ -151,8 +134,7 @@ export class SidebarComponent {
         },
       ],
     },
-
-     {
+    {
       id: 'bodies',
       type: 'Single',
       icon: 'medical_services',
@@ -176,9 +158,7 @@ export class SidebarComponent {
       link: '/pages/patient/patientfromhospital',
       permission: 'View Patient History',
     },
-
-
-     {
+    {
       id: 'referral',
       type: 'Single',
       name: 'Referrals',
@@ -210,14 +190,6 @@ export class SidebarComponent {
       link: '/pages/config/referrals/bill-by-hospital',
       permission: 'View Payment',
     },
-    // {
-    //   id: 'months1',
-    //   type: 'Single',
-    //   name: 'Month Bill',
-    //   icon: 'month',
-    //   link: '/pages/config/referrals/monthbill00998778',
-    //   permission: 'View Monthly Bill',
-    // },
     {
       id: 'reports',
       type: 'group',
@@ -248,7 +220,6 @@ export class SidebarComponent {
         },
       ],
     },
-
 
   ];
   navItemLinks: NavItem[] = [];
@@ -341,30 +312,6 @@ export class SidebarComponent {
       });
   }
 
-  // // Function to filter out menu items based on permissions
-  // filterMenuByPermissions(menu: Array<NavItem>): Array<NavItem> {
-  //   return menu.map(group => ({
-  //     ...group,
-  //     children: group.children ? this.filterChildrenByPermissions(group.children) : []
-  //   })).filter(group => group.children.length > 0);
-  // }
-
-  // // Recursive function to filter children based on permissions
-  // filterChildrenByPermissions(children: Array<NavItem>): Array<NavItem> {
-  //   return children
-  //     .map(item => ({
-  //       ...item,
-  //       children: item.children ? this.filterChildrenByPermissions(item.children) : []
-  //     }))
-  //     .filter(item => {
-  //       if (!item.permission) {
-  //         // If the menu item does not have a permission specified, include it in the filtered menu
-  //         return true;
-  //       }
-  //       return this.hasPermission(item.permission);
-  //     });
-  // }
-
   // Function to update the menu based on user permissions
   updateMenu(): void {
     this.navItems = this.filterMenuByPermissions(this.navItems);
@@ -378,6 +325,5 @@ export class SidebarComponent {
   public get isStaff(): boolean {
     return this.getUserRole() === 'ROLE STAFF';
   }
-
   //====================================== code zangu mwisho hapa ============================
 }

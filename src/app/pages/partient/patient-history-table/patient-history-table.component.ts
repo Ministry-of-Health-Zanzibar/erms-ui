@@ -19,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import {
   EmptyStateComponent,
+  FileViewerComponent,
   LoadingStateComponent,
   PageHeaderComponent,
   SectionCardComponent,
@@ -49,6 +50,7 @@ export class PatientHistoryTableComponent implements OnInit {
 
   public documentUrl = environment.fileUrl;
   public loading = false;
+  public checkingEligibility = false;
 
   dataSource = new MatTableDataSource<any>([]);
   patient: any;
@@ -101,44 +103,124 @@ export class PatientHistoryTableComponent implements OnInit {
     });
   }
 
-  // 🔵 View PDF
-  viewPDF(filePath: string) {
-    if (filePath) {
-      window.open(this.documentUrl + filePath, '_blank');
+  // 🔵 View PDF in the in-app file viewer
+  viewPDF(filePath: string): void {
+    if (!filePath) {
+      return;
     }
+
+    const url = this.buildDocumentUrl(filePath);
+    const fileName = url.split(/[?#]/, 1)[0].split('/').pop() || 'medical-history-file.pdf';
+    const title = 'Medical history file';
+
+    this.dialog.open(FileViewerComponent, {
+      data: {
+        url,
+        shareUrl: url,
+        fileName,
+        title,
+        mimeType: 'application/pdf',
+      },
+      width: 'min(96vw, 1200px)',
+      height: 'min(92vh, 860px)',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'file-viewer-dialog',
+      autoFocus: false,
+      restoreFocus: true,
+      ariaLabel: title,
+    });
   }
 
- openAddMedicalHistory(patient: any) {
-  // console.log('Opening medical history dialog for:', patient);
-
-  const config = new MatDialogConfig();
-  config.disableClose = false;
-  config.role = 'dialog';
-  config.maxWidth = '100vw';
-  config.maxHeight = '98vh';
-  config.panelClass = 'full-screen-modal';
-  config.data = patient;
-
-  const dialogRef = this.dialog.open(AddmedicalhistoryComponent, config);
-
-  dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-    // console.log('Dialog closed:', result);
-
-    if (result?.success) {
-      this.uiFeedback.fire({
-        title: 'Medical History Added',
-        text: 'The patient medical history was saved successfully!',
-        icon: 'success',
-        confirmButtonColor: '#4690eb',
-      });
-
-      // Refresh history
-      setTimeout(() => {
-        this.fetchPatientHistory(this.patientId);
-      }, 500);
+  private buildDocumentUrl(filePath: string): string {
+    if (/^(https?:|blob:|data:)/i.test(filePath)) {
+      return filePath;
     }
-  });
-}
+
+    return this.documentUrl.replace(/\/$/, '') + '/' + filePath.replace(/^\//, '');
+  }
+
+  openAddMedicalHistory(patient: any = this.patient): void {
+    if (!patient?.patient_id) {
+      this.uiFeedback.fire('Error', 'Patient information is still loading.', 'error');
+      return;
+    }
+
+    const matibabuCard = String(patient.matibabu_card || '').trim();
+
+    if (!matibabuCard) {
+      this.uiFeedback.fire(
+        'Eligibility check failed',
+        'This patient does not have a Matibabu card number.',
+        'error',
+      );
+      return;
+    }
+
+    if (this.checkingEligibility) {
+      return;
+    }
+
+    this.checkingEligibility = true;
+
+    this.patientService
+      .searchPatientEligibility({ matibabu_card: matibabuCard })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => (this.checkingEligibility = false)),
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response?.success !== true) {
+            this.uiFeedback.fire(
+              'Patient not eligible',
+              response?.message || 'This patient is not eligible for a new medical history.',
+              'warning',
+            );
+            return;
+          }
+
+          this.openMedicalHistoryDialog({
+            ...patient,
+            ...(response?.data || {}),
+          });
+        },
+        error: (error: any) => {
+          this.uiFeedback.fire(
+            'Eligibility check failed',
+            error?.error?.message || 'Unable to check patient eligibility. Please try again.',
+            'error',
+          );
+        },
+      });
+  }
+
+  private openMedicalHistoryDialog(patient: any): void {
+
+    const config = new MatDialogConfig();
+    config.disableClose = false;
+    config.role = 'dialog';
+    config.width = 'min(960px, calc(100vw - 24px))';
+    config.maxWidth = '100vw';
+    config.maxHeight = 'calc(100vh - 24px)';
+    config.panelClass = 'full-screen-modal';
+    config.data = patient;
+
+    const dialogRef = this.dialog.open(AddmedicalhistoryComponent, config);
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      if (result?.success) {
+        this.uiFeedback.fire({
+          title: 'Medical History Added',
+          text: 'The patient medical history was saved successfully!',
+          icon: 'success',
+          confirmButtonColor: '#4690eb',
+        });
+
+        this.fetchPatientHistory(this.patientId);
+      }
+    });
+  }
 
 
   displayMoreData(data: any) {

@@ -14,10 +14,13 @@
     <button
       mat-flat-button
       color="primary"
+      type="button"
       (click)="openAddMedicalHistory(patient)"
+      [disabled]="loading || checkingEligibility || !patient?.patient_id"
+      [attr.aria-busy]="checkingEligibility"
     >
-      <mat-icon>add</mat-icon>
-      Add Medical History
+      <mat-icon>{{ checkingEligibility ? 'hourglass_top' : 'add' }}</mat-icon>
+      {{ checkingEligibility ? 'Checking eligibility…' : 'Add Medical History' }}
     </button>
   </div>
 

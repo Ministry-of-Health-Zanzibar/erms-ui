@@ -49,150 +49,106 @@
       </div>
     </div>
 
-    <span class="secure-label">
-      <mat-icon aria-hidden="true">lock</mat-icon>
-      <span>Private</span>
-    </span>
+    <div class="patient-context__actions">
+      <span class="secure-label">
+        <mat-icon aria-hidden="true">lock</mat-icon>
+        <span>Private</span>
+      </span>
+
+      @if (canStartConversation() && !isNewConsultation) {
+        <button
+          type="button"
+          class="new-conversation-button"
+          (click)="startNewConversation()"
+        >
+          <mat-icon aria-hidden="true">add_comment</mat-icon>
+          <span>New consultation</span>
+        </button>
+      }
+    </div>
   </section>
 
   <mat-dialog-content class="conversation-content">
-    <div class="conversation-toolbar">
-      <div>
-        <span class="conversation-kicker">Clinical communication</span>
-        <strong class="conversation-title">Conversation</strong>
-        <span class="conversation-subtitle">Visible to the assigned care team</span>
-      </div>
-      <span class="message-count">
-        {{ conversations.length }} {{ conversations.length === 1 ? 'message' : 'messages' }}
-      </span>
+    <div class="conversation-tab-bar">
+      @if (conversationTabs.length > 0) {
+        <div class="conversation-tabs" role="tablist" aria-label="Patient conversations">
+          @for (tab of conversationTabs; track tab.key) {
+            <button
+              type="button"
+              role="tab"
+              class="conversation-tab"
+              [class.conversation-tab--active]="activeConversationKey === tab.key"
+              [attr.aria-selected]="activeConversationKey === tab.key"
+              (click)="openConversation(tab)"
+            >
+              <span class="conversation-tab__icon" aria-hidden="true">
+                <mat-icon>person</mat-icon>
+              </span>
+              <span class="conversation-tab__copy">
+                <strong>{{ tab.recipientName }}</strong>
+                <small>{{ tab.messages.length }} {{ tab.messages.length === 1 ? 'message' : 'messages' }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      }
+
     </div>
 
-    @if (conversations.length === 0) {
+    @if (loadingMessages) {
+      <div class="empty-conversation">
+        <div class="empty-conversation-icon" aria-hidden="true">
+          <mat-icon>forum</mat-icon>
+        </div>
+        <strong>Loading conversation…</strong>
+      </div>
+    } @else if (activeMessages.length === 0) {
       <div class="empty-conversation">
         <div class="empty-conversation-icon" aria-hidden="true">
           <mat-icon>forum</mat-icon>
         </div>
         <strong>No messages yet</strong>
-        <span>Start a secure consultation with the assigned care team.</span>
+        <span>
+          {{ isNewConsultation ? 'Choose a recipient and start a secure consultation.' : 'Start a secure consultation with the assigned care team.' }}
+        </span>
       </div>
-    }
-
-    <div class="message-list">
-      @for (msg of conversations; track msg.conversation_id) {
-        <article class="message-row" [class.message-row--outgoing]="isCurrentUser(msg)">
-          <div class="message-avatar" aria-hidden="true">
-            <mat-icon>person</mat-icon>
-          </div>
-
-          <div class="message-column">
-            <div class="message-meta">
-              <span class="sender-name">{{ getSenderLabel(msg) }}</span>
-              @if (msg.receiver_full_name) {
-                <span class="message-recipient">To: {{ msg.receiver_full_name }}</span>
-              }
-              <span class="message-time">{{ msg.date }}</span>
+    } @else {
+      <div class="message-list">
+        @for (msg of activeMessages; track msg.conversation_id) {
+          <article class="message-row" [class.message-row--outgoing]="isCurrentUser(msg)">
+            <div class="message-avatar" aria-hidden="true">
+              <mat-icon>person</mat-icon>
             </div>
 
-            <div class="message-bubble">
-              <p class="message-text">{{ msg.message }}</p>
+            <div class="message-column">
+              <div class="message-meta" [class.message-meta--outgoing]="isCurrentUser(msg)">
+                <span class="message-time">{{ msg.date }}</span>
+              </div>
 
-              <div class="message-footer">
-                @if (isCurrentUser(msg)) {
-                  <span class="message-receipt">
-                    <mat-icon aria-hidden="true">done_all</mat-icon>
-                    Sent
+              <div class="message-line" [class.message-line--outgoing]="isCurrentUser(msg)">
+                @if (isCurrentUser(msg) && msg.delivered) {
+                  <span
+                    class="message-status"
+                    [class.message-status--read]="msg.read_by_recipient"
+                    [attr.aria-label]="msg.read_by_recipient ? 'Read by recipient' : 'Delivered'"
+                  >
+                    <mat-icon aria-hidden="true">{{ msg.read_by_recipient ? 'done_all' : 'done' }}</mat-icon>
                   </span>
                 }
 
-                <button
-                  mat-button
-                  type="button"
-                  class="reply-button"
-                  (click)="openReplyBox(msg)"
-                >
-                  <mat-icon aria-hidden="true">reply</mat-icon>
-                  <span>Reply</span>
-                </button>
+                <div class="message-bubble">
+                  <p class="message-text">{{ msg.message }}</p>
+                </div>
               </div>
             </div>
-
-            @if (activeReplyId === msg.conversation_id) {
-              <div class="reply-composer">
-                <div class="reply-composer-heading">
-                  <mat-icon aria-hidden="true">reply</mat-icon>
-                  <span>Replying to {{ msg.sender_full_name }}</span>
-                </div>
-
-                <mat-form-field appearance="outline" class="reply-field">
-                  <mat-label>Write a reply</mat-label>
-                  <textarea
-                    matInput
-                    [(ngModel)]="replyMessage"
-                    rows="2"
-                    placeholder="Share an update with the care team"
-                  ></textarea>
-                </mat-form-field>
-
-                <div class="reply-actions">
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    type="button"
-                    (click)="sendReply(msg)"
-                    [disabled]="sendingReply || !replyMessage?.trim()"
-                  >
-                    @if (!sendingReply) {
-                      <span>Send reply</span>
-                    } @else {
-                      <span>Sending…</span>
-                    }
-                  </button>
-                  <button
-                    mat-button
-                    color="warn"
-                    type="button"
-                    (click)="cancelReply()"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            }
-
-            @if (msg.replies?.length) {
-              <div class="reply-thread">
-                <div class="thread-label">
-                  <mat-icon aria-hidden="true">subdirectory_arrow_right</mat-icon>
-                  <span>Thread replies</span>
-                </div>
-
-                @for (reply of msg.replies; track reply.conversation_id) {
-                  <div class="reply-row" [class.reply-row--outgoing]="isCurrentUser(reply)">
-                    <div class="reply-avatar" aria-hidden="true">
-                      <mat-icon>person</mat-icon>
-                    </div>
-                    <div class="reply-content">
-                      <div class="reply-meta">
-                        <span>{{ getSenderLabel(reply) }}</span>
-                        @if (reply.receiver_full_name) {
-                          <span class="message-recipient">To: {{ reply.receiver_full_name }}</span>
-                        }
-                        <span>{{ reply.date }}</span>
-                      </div>
-                      <p>{{ reply.message }}</p>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </article>
-      }
-    </div>
+          </article>
+        }
+      </div>
+    }
   </mat-dialog-content>
 
   <mat-dialog-actions class="consultation-composer">
-    @if (!activeReplyId && canStartConversation()) {
+    @if (isNewConsultation) {
       <div class="recipient-row">
         <div class="recipient-copy">
           <span class="recipient-kicker">New consultation</span>
@@ -209,17 +165,39 @@
           [allowDeselect]="false"
         ></app-filter-select>
       </div>
+    } @else if (activeReplyId !== null) {
+      <div class="reply-context">
+        <div class="reply-context__copy">
+          <mat-icon aria-hidden="true">reply</mat-icon>
+          <span>Replying to {{ replyingTo?.sender_full_name || 'care team member' }}</span>
+        </div>
+        <button
+          mat-button
+          type="button"
+          class="reply-cancel-button"
+          (click)="cancelReply()"
+        >
+          Cancel
+        </button>
+      </div>
+    } @else {
+      <div class="active-composer-hint">
+        <mat-icon aria-hidden="true">reply</mat-icon>
+        <span>
+          {{ activeConversation ? 'Replying in the current conversation.' : 'Choose New consultation to start a conversation.' }}
+        </span>
+      </div>
     }
 
     <div class="compose-row">
       <mat-form-field appearance="outline" class="message-field">
-        <mat-label>Message</mat-label>
+        <mat-label>{{ composerLabel }}</mat-label>
         <textarea
           matInput
-          [(ngModel)]="message"
+          [(ngModel)]="composerMessage"
           rows="2"
-          placeholder="Write a secure consultation message"
-          [disabled]="isHospital() && !activeReplyId"
+          [placeholder]="composerPlaceholder"
+          [disabled]="isComposerDisabled || sendingMessage || sendingReply"
         ></textarea>
       </mat-form-field>
 
@@ -228,27 +206,36 @@
         color="primary"
         type="button"
         class="send-button"
-        (click)="sendMessage()"
-        [disabled]="sendingMessage || !message?.trim() || (isHospital() && !activeReplyId)"
-      aria-label="Send consultation message"
-    >
-      @if (!sendingMessage) {
-        <span>Send</span>
-      }
-      @if (!sendingMessage) {
-        <mat-icon aria-hidden="true">send</mat-icon>
-      }
-      @if (sendingMessage) {
-        <span>Sending…</span>
-      }
-    </button>
+        (click)="sendComposerMessage()"
+        [disabled]="
+          isComposerDisabled ||
+          sendingMessage ||
+          sendingReply ||
+          !composerMessage?.trim() ||
+          (isNewConsultation && !receiver)
+        "
+        aria-label="Send message"
+      >
+        @if (sendingMessage || sendingReply) {
+          <span>Sending…</span>
+        } @else {
+          <ng-container>
+            <span>{{ isNewConsultation ? 'Send' : 'Reply' }}</span>
+            <mat-icon aria-hidden="true">send</mat-icon>
+          </ng-container>
+        }
+      </button>
     </div>
 
-    @if (isHospital() && !activeReplyId) {
-      <span class="compose-hint">
-        <mat-icon aria-hidden="true">info</mat-icon>
-        Reply to an existing message to continue this consultation.
-      </span>
+    @if (isNewConsultation) {
+      <button
+        mat-button
+        type="button"
+        class="cancel-new-button"
+        (click)="cancelNewConversation()"
+      >
+        Cancel new consultation
+      </button>
     }
   </mat-dialog-actions>
 </div>
