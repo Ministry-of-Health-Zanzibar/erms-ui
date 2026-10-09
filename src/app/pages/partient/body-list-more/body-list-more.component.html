@@ -172,6 +172,7 @@
                 (click)="openMedicalHistory(patient)"
                 [disabled]="
                   patient.latest_history?.status === 'confirmed' ||
+                  patient.latest_history?.status === 'boarded_out' ||
                   patient.latest_history?.status === 'rejected'
                 "
                 [matTooltip]="

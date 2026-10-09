@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -49,6 +51,7 @@ interface DiagnosisOption {
   imports: [
     CommonModule,
     FormsModule,
+    MatCheckboxModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -103,6 +106,8 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
   referralTypeId: number | null = null;
   patientHistoryStatus: string | null = null;
   patientSearch = '';
+  includeArchived = false;
+  private generatedRequest: ReportRequest | null = null;
 
   diagnosisSearchText = '';
   selectedDiagnosis: DiagnosisOption | null = null;
@@ -118,6 +123,7 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
   constructor(
     private readonly reporting: ReportingService,
     public readonly permission: PermissionService,
+    private readonly route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
@@ -142,6 +148,18 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
             this.selectedReportType = this.reportDefinitions[0]?.key ?? this.topDiagnosesKey;
           }
           this.applyReportDefaults();
+          const params = this.route.snapshot.queryParamMap;
+          const requestedType = params.get('report_type');
+          if (requestedType && this.reportDefinitions.some(item => item.key === requestedType)) {
+            this.selectedReportType = requestedType;
+            this.applyReportDefaults();
+            this.startDate = params.get('start_date') || this.startDate;
+            this.endDate = params.get('end_date') || this.endDate;
+            this.patientHistoryStatus = params.get('patient_history_status');
+            this.sourceHospitalIds = (params.get('source_hospital_ids') || '').split(',').map(Number).filter(id => id > 0);
+            this.includeArchived = params.get('include_archived') === '1';
+            if (params.get('auto_generate') === '1') this.generate();
+          }
         },
         error: () => {
           this.error = 'The report options could not be loaded. Please try again.';
@@ -226,14 +244,18 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
     this.error = '';
     this.loading = true;
     this.report = null;
+    const request = this.request(page);
     this.reporting
-      .generate(this.request(page))
+      .generate(request)
       .pipe(
         takeUntil(this.destroyed),
         finalize(() => this.loading = false),
       )
       .subscribe({
-        next: response => this.report = response.data,
+        next: response => {
+          this.report = response.data;
+          this.generatedRequest = request;
+        },
         error: response => {
           this.error = response?.error?.message || 'Unable to generate the report. Check your access and try again.';
         },
@@ -258,6 +280,7 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
     this.referralTypeId = null;
     this.patientHistoryStatus = null;
     this.patientSearch = '';
+    this.includeArchived = false;
     this.clearDiagnosis();
     this.report = null;
     this.error = '';
@@ -293,7 +316,7 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
     this.error = '';
     this.exporting = format;
     this.reporting
-      .export(this.request(1), format)
+      .export({ ...(this.generatedRequest || this.request(1)), page: 1 }, format)
       .pipe(
         takeUntil(this.destroyed),
         finalize(() => this.exporting = null),
@@ -396,20 +419,21 @@ export class TopDiagnosesComponent implements OnInit, OnDestroy {
       end_date: this.endDate,
       top: this.isTopDiagnoses && this.resultLimit !== 'all' ? Number(this.resultLimit) : null,
       result_limit: this.resultLimit,
-      group_by: this.groupBy,
-      detail_level: this.detailLevel,
-      gender: this.gender,
-      age_from: this.ageGroup ? null : this.ageFrom,
-      age_to: this.ageGroup ? null : this.ageTo,
-      age_group: this.ageGroup,
-      location_id: this.locationId,
-      diagnosis_id: this.selectedDiagnosis?.diagnosis_id ?? null,
-      hospital_ids: this.hospitalIds,
-      source_hospital_ids: this.sourceHospitalIds,
-      referral_status: this.referralStatus,
-      referral_type_id: this.referralTypeId,
-      patient_history_status: this.isTopDiagnoses ? this.patientHistoryStatus : null,
-      patient_search: this.isReferralReport && this.patientSearch.trim() ? this.patientSearch.trim() : null,
+      group_by: this.visibleFilter('group_by') || this.isTopDiagnoses ? this.groupBy : null,
+      detail_level: this.visibleFilter('detail_level') ? this.detailLevel : 'details',
+      gender: this.visibleFilter('gender') ? this.gender : null,
+      age_from: this.visibleFilter('age') && !this.ageGroup ? this.ageFrom : null,
+      age_to: this.visibleFilter('age') && !this.ageGroup ? this.ageTo : null,
+      age_group: this.visibleFilter('age') ? this.ageGroup : null,
+      location_id: this.visibleFilter('location') ? this.locationId : null,
+      diagnosis_id: this.visibleFilter('diagnosis') ? this.selectedDiagnosis?.diagnosis_id ?? null : null,
+      hospital_ids: this.visibleFilter('referral_hospital') ? this.hospitalIds : [],
+      source_hospital_ids: this.visibleFilter('source_hospital') ? this.sourceHospitalIds : [],
+      referral_status: this.visibleFilter('referral_status') ? this.referralStatus : null,
+      referral_type_id: this.visibleFilter('referral_type') ? this.referralTypeId : null,
+      patient_history_status: this.visibleFilter('patient_history_status') ? this.patientHistoryStatus : null,
+      patient_search: this.visibleFilter('patient_search') && this.patientSearch.trim() ? this.patientSearch.trim() : null,
+      include_archived: this.visibleFilter('include_archived') && this.includeArchived,
       page,
       per_page: 25,
     };

@@ -33,6 +33,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 
+import { createSubmissionKey } from '@shared/utils/submission-key';
+
 @Component({
   selector: 'app-add-follow-up',
   standalone: true,
@@ -74,6 +76,7 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
   selectedAttachement: File | null = null;
   fileSizeError = '';
   submitting = false;
+  private submissionKey: string | null = null;
 
   constructor(
     private followServices: FollowsService,
@@ -252,6 +255,9 @@ onAttachmentSelected(event: any): void {
       });
 
       formData.set('referral_id', String(this.id));
+      // Reuse the same key after a lost response so a retry cannot create another transfer.
+      this.submissionKey ??= createSubmissionKey();
+      if (this.submissionKey) formData.set('submission_key', this.submissionKey);
 
       this.submitting = true;
       this.followServices.addFollowform(formData).pipe(

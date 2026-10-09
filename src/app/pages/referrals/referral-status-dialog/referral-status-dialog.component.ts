@@ -225,6 +225,9 @@ export class ReferralStatusDialogComponent implements OnInit, OnDestroy {
       }
 
       formData.patient_histories_id = Number(patientId);
+      if (this.id) {
+        formData.referral_id = this.id;
+      }
       formData.receiver = formValue.receiver;
       formData.reference_number = formValue.reference_number;
       formData.reference_date = this.formatDate(formValue.reference_date);

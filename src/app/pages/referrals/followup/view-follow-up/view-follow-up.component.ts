@@ -13,6 +13,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute } from '@angular/router';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { PartientService } from '../../../../services/partient/partient.service';
@@ -42,6 +43,7 @@ import {
     MatCheckboxModule,
     ReactiveFormsModule,
     MatIconModule, // ✅ Fixed
+    MatTooltipModule,
     MatDialogModule,
     EmptyStateComponent,
     LoadingStateComponent,
@@ -91,7 +93,10 @@ export class ViewFollowUpComponent implements OnInit {
         if (response?.data) {
           this.follow = response.data;
 
-          this.referralId = this.follow.referrals?.[0]?.referral_id || null;
+          const selectedReferral = this.follow.referrals?.find(
+            (item: any) => String(item.referral_id) === String(this.followListId),
+          ) || this.follow.referrals?.[0];
+          this.referralId = selectedReferral?.referral_id || null;
 
           this.status = this.follow.status;
 
@@ -128,7 +133,9 @@ export class ViewFollowUpComponent implements OnInit {
           url,
           fileName: url.split('/').pop() || 'follow-up-letter',
           title: 'Uploaded follow-up letter',
-          printTrackingUrl: `${environment.baseUrl}letter-documents/follow-ups/${element.letter_id}/print`,
+          // An uploaded transfer report is not the official destination referral letter.
+          printTrackingUrl: element.outcome === 'Transferred' ? undefined
+            : `${environment.baseUrl}letter-documents/follow-ups/${element.letter_id}/print`,
           printTrackingBody: { language: resolveReferralLetterLanguage(this.follow, element?.referral_id) },
         },
       });
@@ -159,17 +166,18 @@ export class ViewFollowUpComponent implements OnInit {
   }
 
   printFollowUp(data: any, letter: any): void {
-    if (!letter?.letter_id) {
+    if (!this.canPrintLetter(letter)) {
       return;
     }
 
-    const language = resolveReferralLetterLanguage(this.follow, letter.referral_id);
+    const language = resolveReferralLetterLanguage(this.follow,
+      letter.outcome === 'Transferred' ? letter.transferred_referral_id : letter.referral_id);
 
-    this.documents.openFollowUpLetter(
-      Number(letter.letter_id),
-      language,
-      data?.patient?.name || this.follow?.patient?.name,
-    ).subscribe({
+    const patientName = data?.patient?.name || this.follow?.patient?.name;
+    const document = letter.outcome === 'Transferred'
+      ? this.documents.openReferralLetter(Number(letter.transfer_letter.referral_id), language, patientName)
+      : this.documents.openFollowUpLetter(Number(letter.letter_id), language, patientName);
+    document.subscribe({
       next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => {
         if (result?.printed) {
           this.getFeedbackById();
@@ -180,6 +188,23 @@ export class ViewFollowUpComponent implements OnInit {
         getApiErrorMessage(error, 'The follow-up letter could not be generated.'),
       ),
     });
+  }
+
+  canPrintLetter(letter: any): boolean {
+    return !!letter?.letter_id && (letter.outcome === 'Follow-up'
+      || (letter.outcome === 'Transferred' && !!letter.transfer_letter?.referral_id));
+  }
+
+  printStatus(letter: any): any {
+    return letter?.outcome === 'Transferred' ? letter.transfer_letter : letter;
+  }
+
+  printTooltip(letter: any): string {
+    if (letter?.outcome === 'Transferred') {
+      return this.canPrintLetter(letter) ? 'Print referral letter for the transferred hospital'
+        : 'This transfer needs a verified referral letter. Please contact an administrator.';
+    }
+    return letter?.outcome === 'Follow-up' ? 'Print Follow-up' : 'No attendance letter is required for this outcome';
   }
 
   extractFileName(url: string): string {

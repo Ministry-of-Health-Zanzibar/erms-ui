@@ -21,6 +21,10 @@
       <app-loading-state *ngIf="loadingOptions" label="Loading report options…" />
 
       <form *ngIf="!loadingOptions" class="grid grid-cols-1 gap-4 lg:grid-cols-12" (ngSubmit)="generate()">
+        <div class="lg:col-span-12" *ngIf="visibleFilter('include_archived')">
+          <mat-checkbox name="includeArchived" [(ngModel)]="includeArchived">Include archived patients and cases</mat-checkbox>
+          <p class="text-sm text-slate-500 dark:text-slate-300">Dates use the case submission date. Each medical history has its own case ID.</p>
+        </div>
         <div class="lg:col-span-4">
           <app-filter-select
             name="reportType"
@@ -36,13 +40,13 @@
           />
         </div>
 
-        <div class="flex items-end lg:col-span-4">
+        <div class="flex items-end lg:col-span-2">
           <p class="mb-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
             {{ selectedDefinition?.description || 'Select a report to view its available filters.' }}
           </p>
         </div>
 
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-3">
           <app-date-picker
             name="startDate"
             [(ngModel)]="startDate"
@@ -51,7 +55,7 @@
             outputFormat="iso"
           />
         </div>
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-3">
           <app-date-picker
             name="endDate"
             [(ngModel)]="endDate"

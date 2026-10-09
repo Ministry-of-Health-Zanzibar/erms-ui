@@ -31,7 +31,8 @@ export class PrintfollowupComponent {
     private readonly feedback: FeedbackService,
   ) {
     this.letterId = Number(data?.letter_id || data?.hospital_letters?.[0]?.letter_id) || null;
-    this.language = resolveReferralLetterLanguage(data, data?.referral_id);
+    this.language = resolveReferralLetterLanguage(data,
+      data?.outcome === 'Transferred' ? data?.transferred_referral_id : data?.referral_id);
   }
 
   preview(): void {
@@ -40,7 +41,11 @@ export class PrintfollowupComponent {
     }
 
     this.loading = true;
-    this.documents.openFollowUpLetter(this.letterId, this.language, this.data?.patient?.name)
+    const transferId = Number(this.data?.transfer_letter?.referral_id || this.data?.transferred_referral_id);
+    const document = this.data?.outcome === 'Transferred' && transferId
+      ? this.documents.openReferralLetter(transferId, this.language, this.data?.patient?.name)
+      : this.documents.openFollowUpLetter(this.letterId, this.language, this.data?.patient?.name);
+    document
       .pipe(finalize(() => this.loading = false))
       .subscribe({
         next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => this.dialogRef?.close(result)),

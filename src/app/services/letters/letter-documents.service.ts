@@ -1,7 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, defer, from, map, switchMap, takeUntil, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.prod';
 import { FileViewerComponent } from '../../@shared/ui/file-viewer/file-viewer.component';
 
@@ -13,6 +13,8 @@ export function resolveReferralLetterLanguage(data: any, referralId?: number | s
     : data?.referrals?.[0];
   const selectedHospitalId = selectedReferral?.hospital_id;
   const hospital = selectedReferral?.hospital
+    || (String(data?.transferred_referral_id ?? '') === String(referralId ?? '')
+      ? data?.transferred_referral?.hospital : null)
     || data?.hospital
     || data?.referral?.hospital
     || (selectedHospitalId
@@ -90,32 +92,65 @@ export class LetterDocumentsService {
     const params = new HttpParams().set('language', language);
     const shareUrl = `${endpoint}?language=${language}`;
 
-    return this.http.get(endpoint, { params, responseType: 'blob' }).pipe(
-      map((blob) => {
-        const objectUrl = URL.createObjectURL(blob);
-        // Keep the official letter at its normal readable review scale.
-        const previewUrl = `${objectUrl}#zoom=100`;
-        const dialogRef = this.dialog.open(FileViewerComponent, {
-          width: 'min(96vw, 1200px)',
-          height: 'min(92vh, 860px)',
-          maxWidth: '100vw',
-          maxHeight: '100vh',
-          panelClass: 'file-viewer-dialog',
-          data: {
-            url: previewUrl,
-            shareUrl,
-            fileName: options.fileName,
-            title: options.title,
-            mimeType: 'application/pdf',
-            printTrackingUrl: options.printTrackingUrl,
-            printTrackingBody: { language },
-          },
-        });
+    return defer(() => {
+      // Open immediately; the same viewer shows progress while the server
+      // prepares the authenticated PDF, rather than leaving the page idle.
+      const dialogRef = this.dialog.open(FileViewerComponent, {
+        width: 'min(96vw, 1200px)',
+        height: 'min(92vh, 860px)',
+        maxWidth: '100vw',
+        maxHeight: '100vh',
+        panelClass: 'file-viewer-dialog',
+        data: {
+          url: '',
+          loading: true,
+          shareUrl,
+          fileName: options.fileName,
+          title: options.title,
+          mimeType: 'application/pdf',
+          printTrackingUrl: options.printTrackingUrl,
+          printTrackingBody: { language },
+        },
+      });
+      let objectUrl: string | undefined;
+      const closed = dialogRef.afterClosed();
+      closed.subscribe(() => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+      });
 
-        dialogRef.afterClosed().subscribe(() => URL.revokeObjectURL(objectUrl));
+      return this.http.get(endpoint, {
+        params,
+        responseType: 'blob',
+        // Do not retain medical PDFs/errors in the application's general GET
+        // cache. The server caches only current, authorized rendered content.
+        headers: { 'X-Skip-Cache': 'true' },
+      }).pipe(
+        takeUntil(closed),
+        catchError((error: unknown) => {
+          dialogRef.close();
+          if (!(error instanceof HttpErrorResponse) || !(error.error instanceof Blob)) {
+            return throwError(() => error);
+          }
+          // PDF requests return JSON failures as blobs; preserve the server's useful explanation.
+          return from(error.error.text()).pipe(switchMap((body) => {
+            let details: unknown;
+            try { details = JSON.parse(body); } catch {
+              details = { message: 'The letter could not be prepared. Please check the referral record or try again.' };
+            }
+            return throwError(() => new HttpErrorResponse({
+              error: details, headers: error.headers, status: error.status,
+              statusText: error.statusText, url: error.url ?? undefined,
+            }));
+          }));
+        }),
+        map((blob) => {
+          objectUrl = URL.createObjectURL(blob);
+          // Keep the official letter at its normal readable review scale.
+          dialogRef.componentInstance.setFile(`${objectUrl}#zoom=100`);
 
-        return dialogRef;
-      }),
-    );
+          return dialogRef;
+        }),
+      );
+    });
   }
 }

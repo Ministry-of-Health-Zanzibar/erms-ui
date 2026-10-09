@@ -1,271 +1,219 @@
-<app-loading-state *ngIf="isLoading" label="Loading referral report…" />
-
-<button *ngIf="!isLoading && referral" mat-raised-button color="primary" (click)="downloadReport()">
-  <mat-icon>download</mat-icon>
-  Download Report
-</button>
-
-<div id="print-area" *ngIf="!isLoading && referral">
-<div class="letter-header">
-  <div class="logo-container">
-  <img src="../../../../assets/img/smz.png" class="logo" alt="Logo" />
-</div>
-
-
-  <h2>SERIKALI YA MAPINDUZI YA ZANZIBAR</h2>
-  <h3>WIZARA YA AFYA</h3>
-
-  <div class="header-line"></div>
-
-  <p class="ref">
-    <b>Individual Referral Report</b><br />
-    Referral No: {{ referral.referral_number }}
-  </p>
-</div>
-
-<div class="two-column">
-
-  <!-- PATIENT -->
-  <div class="column">
-    <h4>Patient Information</h4>
-    <table class="info-table">
-      <tr><td>Name:</td><td>{{ referral.patient.name }}</td></tr>
-      <tr><td>Gender:</td><td>{{ referral.patient.gender }}</td></tr>
-      <tr><td>Date of Birth:</td><td>{{ referral.patient.date_of_birth }}</td></tr>
-      <tr><td>Phone:</td><td>{{ referral.patient.phone }}</td></tr>
-      <tr><td>Location:</td><td>{{ referral.patient.geographical_location?.label }}</td></tr>
-    </table>
-  </div>
-
-  <!-- HOSPITAL -->
-  <div class="column">
-    <h4>Hospital Information</h4>
-    <table class="info-table">
-      <tr><td>Hospital:</td><td>{{ referral.hospital.hospital_name }}</td></tr>
-      <tr><td>Code:</td><td>{{ referral.hospital.hospital_code }}</td></tr>
-      <tr><td>Address:</td><td>{{ referral.hospital.hospital_address }}</td></tr>
-    </table>
-  </div>
-
-</div>
-
-<h4 class="section-title">Medical History</h4>
-
-<div *ngFor="let h of referral.patient.patient_histories" class="paragraph">
-  <p><b>Referring Doctor:</b> {{ h.referring_doctor }}</p>
-  <p><b>Presenting Illness:</b> {{ h.history_of_presenting_illness }}</p>
-  <p><b>Investigations:</b> {{ h.investigations }}</p>
-  <p><b>Management Done:</b> {{ h.management_done }}</p>
-</div>
-
-<h4 class="section-title">Hospital (Doctor) Assessment</h4>
-
-<!-- REFERRAL REASON -->
-<p *ngIf="referral.patient.patient_histories[0]?.reason">
-  <b>Referral Reason:</b><br />
-  {{ referral.patient.patient_histories[0]?.reason?.referral_reason_name }}
-  <br />
-  <span class="muted">
-    {{ referral.patient.patient_histories[0]?.reason?.reason_descriptions }}
-  </span>
-</p>
-
-<!-- DOCTOR DIAGNOSES -->
-<table class="data-table"
-       *ngIf="referral.patient.patient_histories[0]?.diagnoses?.length">
-  <tr>
-    <th>#</th>
-    <th>Diagnosis Code</th>
-    <th>Diagnosis Name</th>
-  </tr>
-
-  <tr *ngFor="let d of referral.patient.patient_histories[0]?.diagnoses; let i = index">
-    <td>{{ i + 1 }}</td>
-    <td>{{ d.diagnosis_code }}</td>
-    <td>{{ d.diagnosis_name }}</td>
-  </tr>
-</table>
-
-<p *ngIf="!referral.patient.patient_histories[0]?.diagnoses?.length"
-   class="muted">
-  No hospital diagnoses recorded.
-</p>
-
-<h4 class="section-title">Medical Board Assessment</h4>
-
-<!-- BOARD DECISION / REASON -->
-<p *ngIf="referral.patient.patient_histories[0]?.board_reason">
-  <b>Board Decision / Reason:</b><br />
-  {{ referral.patient.patient_histories[0]?.board_reason?.referral_reason_name }}
-  <br />
-  <span class="muted">
-    {{ referral.patient.patient_histories[0]?.board_reason?.reason_descriptions }}
-  </span>
-</p>
-
-<!-- BOARD DIAGNOSES -->
-<table class="data-table"
-       *ngIf="referral.patient.patient_histories[0]?.board_diagnoses?.length">
-  <tr>
-    <th>#</th>
-    <th>Diagnosis Code</th>
-    <th>Diagnosis Name</th>
-  </tr>
-
-  <tr *ngFor="let d of referral.patient.patient_histories[0]?.board_diagnoses; let i = index">
-    <td>{{ i + 1 }}</td>
-    <td>{{ d.diagnosis_code }}</td>
-    <td>{{ d.diagnosis_name }}</td>
-  </tr>
-</table>
-
-<p *ngIf="!referral.patient.patient_histories[0]?.board_diagnoses?.length"
-   class="muted">
-  No board diagnoses recorded.
-</p>
-
-<h4 class="section-title">Follow-Up Information</h4>
-
-<table class="data-table" *ngIf="referral?.patient?.followups?.length">
-  <tr>
-    <th>#</th>
-    <th>Follow-Up Date</th>
-    <th>Status</th>
-    <th>Notes</th>
-  </tr>
-
-  <tr *ngFor="let f of referral.patient.followups; let i = index">
-    <td>{{ i + 1 }}</td>
-    <td>{{ f.followup_date | date:'longDate' }}</td>
-    <td>{{ f.followup_status }}</td>
-    <td>{{ f.notes }}</td>
-  </tr>
-</table>
-
-<p *ngIf="!referral?.patient?.followups?.length" class="muted">
-  No follow-up records available.
-</p>
-
-<h4 class="section-title">Billing Summary</h4>
-
-<div *ngFor="let bill of referral.bills">
-  <p>
-    <b>Billing Period:</b>
-    {{ bill.bill_period_start | date }} – {{ bill.bill_period_end | date }}
-  </p>
-
-  <p><b>Total Amount:</b> {{ bill.total_amount | number }} TZS</p>
-  <p><b>Status:</b> {{ bill.bill_status }}</p>
-
-  <table class="data-table" *ngIf="bill.bill_items?.length">
-    <tr>
-      <th>Description</th>
-      <th>Amount (TZS)</th>
-    </tr>
-    <tr *ngFor="let item of bill.bill_items">
-      <td>{{ item.description }}</td>
-      <td>{{ item.amount | number }}</td>
-    </tr>
-  </table>
-</div>
-
-
-
-<h4 class="section-title">Payments Information</h4>
-
-<!-- SUMMARY -->
-<table class="info-table">
-  <tr>
-    <td><b>Total Bill Amount:</b></td>
-    <td>{{ getTotalBillAmount() | number }} TZS</td>
-  </tr>
-  <tr>
-    <td><b>Total Amount Paid:</b></td>
-    <td>{{ getTotalPaidAmount() | number }} TZS</td>
-  </tr>
-  <tr>
-    <td><b>Outstanding Balance:</b></td>
-    <td>{{ getRemainingAmount() | number }} TZS</td>
-  </tr>
-</table>
-
-<br />
-
-<!-- DETAILED PAYMENTS -->
-<div *ngFor="let bill of referral.bills">
-
-  <p>
-    <b>Billing Period:</b>
-    {{ bill.bill_period_start | date }} –
-    {{ bill.bill_period_end | date }}
-  </p>
-
-  <table class="data-table" *ngIf="bill.payments?.length">
-    <tr>
-      <th>Payer</th>
-      <th>Amount (TZS)</th>
-      <th>Payment Method</th>
-      <th>Reference</th>
-      <th>Date</th>
-      <th>Status</th>
-    </tr>
-
-    <tr *ngFor="let p of bill.payments">
-      <td>{{ p.payer }}</td>
-      <td>
-        {{ p.pivot?.allocated_amount || p.amount_paid | number }}
-      </td>
-      <td>{{ p.payment_method }}</td>
-      <td>{{ p.reference_number }}</td>
-      <td>{{ p.payment_date | date:'mediumDate' }}</td>
-      <td>{{ p.pivot?.status }}</td>
-    </tr>
-  </table>
-
-  <p *ngIf="!bill.payments?.length" class="muted">
-    No payments recorded for this billing period.
-  </p>
-
-  <br />
-</div>
-
-
-<div class="signature-section">
-  <p><b>Confirmed By:</b></p>
-  <p>
-    {{ referral.confirmed_by?.first_name }}
-    {{ referral.confirmed_by?.last_name }}
-  </p>
-
-  <p><b>Date:</b> {{ referral.updated_at | date:'longDate' }}</p>
-
-  <br />
-
-  <p>______________________________</p>
-  <p><i>Authorized Signature</i></p>
-</div>
-
-<div class="letter-footer">
-  <div class="footer-left">
-    <p>6 Barabara ya Health Office, S.L.P 236 MNANZIMMOJA</p>
-    <p>POSTIKODI: 70467 Mjini Magharibi Zanzibar</p>
-  </div>
-
-  <div class="footer-right">
-    <p>
-      Tovuti:
-      <a href="http://www.mohz.go.tz" target="_blank">
-        www.mohz.go.tz
+<div class="individual-report-page">
+  <app-page-header
+    title="Individual referral report"
+    description="Review the patient's referral, medical history, and payments."
+    icon="description"
+  >
+    <div uiPageActions class="report-actions">
+      <a mat-stroked-button routerLink="/pages/config/referrals">
+        <mat-icon>arrow_back</mat-icon>
+        Back to referrals
       </a>
-    </p>
-    <p>
-      Barua pepe:
-      <a href="mailto:{{ email || 'N/A' }}">
-        {{ email || 'N/A' }}
-      </a>
-    </p>
+      <button
+        *ngIf="!isLoading && referral"
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="isDownloading"
+        (click)="downloadReport()"
+      >
+        <mat-icon>{{ isDownloading ? 'hourglass_top' : 'download' }}</mat-icon>
+        {{ isDownloading ? 'Preparing PDF…' : 'Download report' }}
+      </button>
+    </div>
+  </app-page-header>
+
+  <div *ngIf="downloadError" class="report-alert" role="alert">
+    <mat-icon aria-hidden="true">error_outline</mat-icon>
+    <span>{{ downloadError }}</span>
   </div>
-</div>
 
+  <app-section-card *ngIf="isLoading || !referral">
+    <app-loading-state *ngIf="isLoading" label="Loading referral report…" />
+    <div *ngIf="!isLoading" class="report-unavailable">
+      <app-empty-state
+        [title]="errorMessage ? 'Report unavailable' : 'No report found'"
+        [message]="errorMessage || 'There is no report available for this referral.'"
+        icon="description"
+      />
+      <button mat-stroked-button type="button" (click)="retryReport()">Try again</button>
+    </div>
+  </app-section-card>
 
+  <article id="print-area" class="report-paper" *ngIf="!isLoading && referral" aria-label="Individual referral report">
+    <header class="letter-header">
+      <img src="assets/img/smz.png" class="logo" alt="Zanzibar Government coat of arms" width="96" height="57" />
+      <h2>SERIKALI YA MAPINDUZI YA ZANZIBAR</h2>
+      <h3>WIZARA YA AFYA</h3>
+      <p class="report-document-title">Individual Referral Report</p>
+      <div class="report-reference">
+        <span>Referral no. <strong>{{ referral.referral_number || 'Not recorded' }}</strong></span>
+        <span>Status: <strong>{{ referral.status === 'BoardedOut' ? 'Boarded Out' : (referral.status || 'Not recorded') }}</strong></span>
+      </div>
+    </header>
+
+    <div class="two-column">
+      <section class="information-card" aria-labelledby="patient-information-title">
+        <h4 id="patient-information-title">Patient information</h4>
+        <dl class="detail-list">
+          <div><dt>Name</dt><dd>{{ referral.patient?.name || 'Not recorded' }}</dd></div>
+          <div><dt>Gender</dt><dd>{{ referral.patient?.gender || 'Not recorded' }}</dd></div>
+          <div><dt>Date of birth</dt><dd>{{ (referral.patient?.date_of_birth | date:'dd MMM yyyy') || 'Not recorded' }}</dd></div>
+          <div><dt>Phone</dt><dd>{{ referral.patient?.phone || 'Not recorded' }}</dd></div>
+          <div><dt>Location</dt><dd>{{ referral.patient?.geographical_location?.label || referral.patient?.geographical_location?.location_name || 'Not recorded' }}</dd></div>
+        </dl>
+      </section>
+
+      <section class="information-card" aria-labelledby="hospital-information-title">
+        <h4 id="hospital-information-title">Hospital information</h4>
+        <dl class="detail-list">
+          <div><dt>Hospital</dt><dd>{{ referral.hospital?.hospital_name || 'Not recorded' }}</dd></div>
+          <div><dt>Code</dt><dd>{{ referral.hospital?.hospital_code || 'Not recorded' }}</dd></div>
+          <div><dt>Address</dt><dd>{{ referral.hospital?.hospital_address || 'Not recorded' }}</dd></div>
+        </dl>
+      </section>
+    </div>
+
+    <section class="report-section" aria-labelledby="medical-history-title">
+      <h4 id="medical-history-title" class="section-title">Medical history</h4>
+      <div *ngFor="let history of referral.patient?.patient_histories; let i = index" class="history-record">
+        <h5 *ngIf="referral.patient.patient_histories.length > 1">Medical record {{ i + 1 }}</h5>
+        <dl class="clinical-details">
+          <div><dt>Referring doctor</dt><dd>{{ history.referring_doctor || 'Not recorded' }}</dd></div>
+          <div><dt>Presenting illness</dt><dd>{{ history.history_of_presenting_illness || 'Not recorded' }}</dd></div>
+          <div><dt>Investigations</dt><dd>{{ history.investigations || 'Not recorded' }}</dd></div>
+          <div><dt>Management done</dt><dd>{{ history.management_done || 'Not recorded' }}</dd></div>
+        </dl>
+      </div>
+      <p *ngIf="!referral.patient?.patient_histories?.length" class="empty-message">No medical history recorded.</p>
+    </section>
+
+    <section class="report-section" aria-labelledby="doctor-assessment-title">
+      <h4 id="doctor-assessment-title" class="section-title">Hospital (doctor) assessment</h4>
+      <div *ngIf="primaryHistory?.reason" class="assessment-reason">
+        <h5>Referral reason</h5>
+        <p>{{ primaryHistory.reason.referral_reason_name }}</p>
+        <p *ngIf="primaryHistory.reason.reason_descriptions" class="muted">{{ primaryHistory.reason.reason_descriptions }}</p>
+      </div>
+      <div *ngIf="primaryHistory?.diagnoses?.length" class="table-scroll" role="region" aria-label="Hospital diagnoses" tabindex="0">
+        <table class="data-table">
+          <thead><tr><th scope="col" class="row-number">No.</th><th scope="col">Diagnosis code</th><th scope="col">Diagnosis name</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let diagnosis of primaryHistory.diagnoses; let i = index">
+              <td>{{ i + 1 }}</td><td>{{ diagnosis.diagnosis_code || '—' }}</td><td>{{ diagnosis.diagnosis_name || 'Not recorded' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="!primaryHistory?.diagnoses?.length" class="empty-message">No hospital diagnoses recorded.</p>
+    </section>
+
+    <section class="report-section" aria-labelledby="board-assessment-title">
+      <h4 id="board-assessment-title" class="section-title">Medical board assessment</h4>
+      <div *ngIf="primaryHistory?.board_reason" class="assessment-reason">
+        <h5>Board decision / reason</h5>
+        <p>{{ primaryHistory.board_reason.referral_reason_name }}</p>
+        <p *ngIf="primaryHistory.board_reason.reason_descriptions" class="muted">{{ primaryHistory.board_reason.reason_descriptions }}</p>
+      </div>
+      <div *ngIf="primaryHistory?.board_diagnoses?.length" class="table-scroll" role="region" aria-label="Medical board diagnoses" tabindex="0">
+        <table class="data-table">
+          <thead><tr><th scope="col" class="row-number">No.</th><th scope="col">Diagnosis code</th><th scope="col">Diagnosis name</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let diagnosis of primaryHistory.board_diagnoses; let i = index">
+              <td>{{ i + 1 }}</td><td>{{ diagnosis.diagnosis_code || '—' }}</td><td>{{ diagnosis.diagnosis_name || 'Not recorded' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="!primaryHistory?.board_diagnoses?.length" class="empty-message">No board diagnoses recorded.</p>
+    </section>
+
+    <section class="report-section" aria-labelledby="followup-title">
+      <h4 id="followup-title" class="section-title">Follow-up information</h4>
+      <div *ngIf="referral.patient?.followups?.length" class="table-scroll" role="region" aria-label="Follow-up records" tabindex="0">
+        <table class="data-table">
+          <thead><tr><th scope="col" class="row-number">No.</th><th scope="col">Follow-up date</th><th scope="col">Status</th><th scope="col">Notes</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let followup of referral.patient.followups; let i = index">
+              <td>{{ i + 1 }}</td><td>{{ (followup.followup_date | date:'dd MMM yyyy') || '—' }}</td><td>{{ followup.followup_status || '—' }}</td><td>{{ followup.notes || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="!referral.patient?.followups?.length" class="empty-message">No follow-up records available.</p>
+    </section>
+
+    <section class="report-section" aria-labelledby="billing-title">
+      <h4 id="billing-title" class="section-title">Billing summary</h4>
+      <div *ngFor="let bill of referral.bills" class="billing-record">
+        <div class="billing-heading">
+          <div>
+            <h5>Billing period</h5>
+            <p>{{ (bill.bill_period_start | date:'dd MMM yyyy') || '—' }} – {{ (bill.bill_period_end | date:'dd MMM yyyy') || '—' }}</p>
+          </div>
+          <div class="billing-amount">
+            <strong>{{ bill.total_amount | number:'1.2-2' }} TZS</strong>
+            <span>{{ bill.bill_status || 'Not recorded' }}</span>
+          </div>
+        </div>
+        <div *ngIf="bill.bill_items?.length" class="table-scroll" role="region" aria-label="Bill items" tabindex="0">
+          <table class="data-table">
+            <thead><tr><th scope="col">Description</th><th scope="col" class="amount-cell">Amount (TZS)</th></tr></thead>
+            <tbody><tr *ngFor="let item of bill.bill_items"><td>{{ item.description || '—' }}</td><td class="amount-cell">{{ item.amount | number:'1.2-2' }}</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <p *ngIf="!referral.bills?.length" class="empty-message">No bills recorded.</p>
+    </section>
+
+    <section class="report-section" aria-labelledby="payments-title">
+      <h4 id="payments-title" class="section-title">Payment information</h4>
+      <dl class="payment-summary">
+        <div><dt>Total bill amount</dt><dd>{{ getTotalBillAmount() | number:'1.2-2' }} <span>TZS</span></dd></div>
+        <div><dt>Total amount paid</dt><dd>{{ getTotalPaidAmount() | number:'1.2-2' }} <span>TZS</span></dd></div>
+        <div><dt>Outstanding balance</dt><dd>{{ getRemainingAmount() | number:'1.2-2' }} <span>TZS</span></dd></div>
+      </dl>
+      <div *ngFor="let bill of referral.bills" class="payment-record">
+        <h5>Billing period: {{ (bill.bill_period_start | date:'dd MMM yyyy') || '—' }} – {{ (bill.bill_period_end | date:'dd MMM yyyy') || '—' }}</h5>
+        <div *ngIf="bill.payments?.length" class="table-scroll" role="region" aria-label="Payments" tabindex="0">
+          <table class="data-table payments-table">
+            <thead><tr><th scope="col">Payer</th><th scope="col" class="amount-cell">Amount (TZS)</th><th scope="col">Method</th><th scope="col">Reference</th><th scope="col">Date</th><th scope="col">Status</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let payment of bill.payments">
+                <td>{{ payment.payer || '—' }}</td>
+                <td class="amount-cell">{{ (payment.pivot?.allocated_amount ?? payment.amount_paid) | number:'1.2-2' }}</td>
+                <td>{{ payment.payment_method || '—' }}</td>
+                <td>{{ payment.reference_number || '—' }}</td>
+                <td>{{ (payment.payment_date | date:'dd MMM yyyy') || '—' }}</td>
+                <td>{{ payment.pivot?.status || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p *ngIf="!bill.payments?.length" class="empty-message">No payments recorded for this billing period.</p>
+      </div>
+    </section>
+
+    <section class="signature-section">
+      <dl class="detail-list">
+        <div>
+          <dt>Confirmed by</dt>
+          <dd>{{ referral.confirmed_by?.first_name || '' }} {{ referral.confirmed_by?.last_name || '' }}<span *ngIf="!referral.confirmed_by">Not recorded</span></dd>
+        </div>
+        <div><dt>Date</dt><dd>{{ (referral.updated_at | date:'dd MMM yyyy') || 'Not recorded' }}</dd></div>
+      </dl>
+      <div class="signature-line"><span>Authorized signature</span></div>
+    </section>
+
+    <footer class="letter-footer">
+      <div>
+        <p>6 Barabara ya Health Office, S.L.P 236 MNANZIMMOJA</p>
+        <p>POSTIKODI: 70467 Mjini Magharibi Zanzibar</p>
+      </div>
+      <div class="footer-contact">
+        <p>Tovuti: <a href="https://www.mohz.go.tz" target="_blank" rel="noopener noreferrer">www.mohz.go.tz</a></p>
+        <p>Barua pepe: <a [href]="'mailto:' + email">{{ email }}</a></p>
+      </div>
+    </footer>
+  </article>
 </div>

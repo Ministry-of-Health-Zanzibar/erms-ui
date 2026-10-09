@@ -1,113 +1,146 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ReferralService } from '../../../services/Referral/referral.service';
-import { BrowserModule } from '@angular/platform-browser';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import html2pdf from 'html2pdf.js';
-import { MatTableModule } from '@angular/material/table';
-import { LoadingStateComponent } from '@shared/ui';
+import {
+  EmptyStateComponent,
+  LoadingStateComponent,
+  PageHeaderComponent,
+  SectionCardComponent,
+} from '@shared/ui';
+import { ReferralService } from '../../../services/Referral/referral.service';
 
 @Component({
   selector: 'app-individualreport',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
+    RouterLink,
+    MatButtonModule,
     MatIcon,
-    MatTableModule,
-    LoadingStateComponent
+    EmptyStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    SectionCardComponent,
   ],
   templateUrl: './individualreport.component.html',
-  styleUrl: './individualreport.component.scss'
+  styleUrl: './individualreport.component.scss',
 })
 export class IndividualreportComponent implements OnInit {
-
   referral: any;
   isLoading = true;
-  email="info@mohz.go.tz";
+  isDownloading = false;
+  errorMessage = '';
+  downloadError = '';
+  email = 'info@mohz.go.tz';
+
+  get primaryHistory(): any {
+    return this.referral?.case_history || this.referral?.patient?.patient_histories?.[0];
+  }
 
   constructor(
     private route: ActivatedRoute,
-    private referralService: ReferralService
+    private referralService: ReferralService,
   ) {}
 
   ngOnInit(): void {
-    const referralId = this.route.snapshot.paramMap.get('id');
-    // console.log("naipata hapa    ....",referralId)
-    this.getReferralDetails(referralId);
+    this.getReferralDetails(this.route.snapshot.paramMap.get('id'));
   }
 
-  getReferralDetails(id: any) {
+  getReferralDetails(id: any): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.referralService.getReportById(id).subscribe({
       next: (res: any) => {
         this.referral = res.data;
         this.isLoading = false;
       },
-      error: () => {
+      error: (error) => {
+        this.referral = null;
+        this.errorMessage = error?.status === 404
+          ? 'This referral report could not be found.'
+          : 'Unable to load the referral report. Please try again.';
         this.isLoading = false;
-      }
+      },
     });
   }
 
- printReport() {
-  window.print();
-}
-
-downloadReport() {
-  const element = document.getElementById('print-area');
-
-  if (!element) {
-    return;
+  retryReport(): void {
+    this.getReferralDetails(this.route.snapshot.paramMap.get('id'));
   }
 
- const options = {
-  margin: 0.5,
-  filename: `Referral_Report_${this.referral?.referral_number}.pdf`,
-  image: {
-    type: 'jpeg',
-    quality: 0.98
-  },
-  html2canvas: {
-    scale: 2,
-    useCORS: true
-  },
-  jsPDF: {
-    unit: 'in',
-    format: 'a4',
-    orientation: 'portrait'
+  async downloadReport(): Promise<void> {
+    const element = document.getElementById('print-area');
+
+    if (!element || this.isDownloading) {
+      return;
+    }
+
+    this.isDownloading = true;
+    this.downloadError = '';
+
+    // Export a separate copy so PDF styles cannot change the on-screen report.
+    const report = element.cloneNode(true) as HTMLElement;
+    report.classList.add('report--export');
+
+    const options = {
+      margin: 12,
+      filename: `Referral_Report_${this.referral?.referral_number}.pdf`,
+      image: {
+        type: 'jpeg',
+        quality: 0.98,
+      },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: 1280,
+      },
+      pagebreak: {
+        mode: ['css', 'legacy'],
+        avoid: ['tr', '.letter-header', '.signature-section', '.letter-footer'],
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+      },
+    } as const;
+
+    try {
+      const { default: html2pdf } = await import('html2pdf.js');
+      await html2pdf().from(report).set(options).save();
+    } catch {
+      this.downloadError = 'Unable to download the report. Please try again.';
+    } finally {
+      this.isDownloading = false;
+    }
   }
-} as const;
 
-html2pdf().from(element).set(options).save();
+  getTotalBillAmount(): number {
+    if (!this.referral?.bills?.length) return 0;
 
-}
+    return this.referral.bills.reduce((sum: number, bill: any) => {
+      return sum + Number(bill.total_amount || 0);
+    }, 0);
+  }
 
-getTotalBillAmount(): number {
-  if (!this.referral?.bills?.length) return 0;
+  getTotalPaidAmount(): number {
+    if (!this.referral?.bills?.length) return 0;
 
-  return this.referral.bills.reduce((sum: number, bill: any) => {
-    return sum + Number(bill.total_amount || 0);
-  }, 0);
-}
+    return this.referral.bills.reduce((sum: number, bill: any) => {
+      const billPaymentsTotal = (bill.payments || []).reduce(
+        (paymentSum: number, payment: any) =>
+          paymentSum + Number(payment.pivot?.allocated_amount ?? payment.amount_paid ?? 0),
+        0,
+      );
+      return sum + billPaymentsTotal;
+    }, 0);
+  }
 
-getTotalPaidAmount(): number {
-  if (!this.referral?.bills?.length) return 0;
-
-  return this.referral.bills.reduce((sum: number, bill: any) => {
-    const billPaymentsTotal = (bill.payments || []).reduce(
-      (pSum: number, p: any) =>
-        pSum + Number(p.pivot?.allocated_amount || p.amount_paid || 0),
-      0
-    );
-    return sum + billPaymentsTotal;
-  }, 0);
-}
-
-getRemainingAmount(): number {
-  return this.getTotalBillAmount() - this.getTotalPaidAmount();
-}
-
-
+  getRemainingAmount(): number {
+    return this.getTotalBillAmount() - this.getTotalPaidAmount();
+  }
 }

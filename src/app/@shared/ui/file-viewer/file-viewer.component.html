@@ -16,6 +16,7 @@
         mat-stroked-button
         type="button"
         class="file-viewer__action"
+        [disabled]="isLoading"
         (click)="shareFile()"
         matTooltip="Share or copy the file link"
       >
@@ -26,7 +27,7 @@
         mat-stroked-button
         type="button"
         class="file-viewer__action"
-        [disabled]="isPrinting"
+        [disabled]="isLoading || isPreviewLoading || isPrinting"
         (click)="printFile()"
         matTooltip="Print this document"
       >
@@ -37,7 +38,7 @@
         mat-stroked-button
         type="button"
         class="file-viewer__action"
-        [disabled]="isDownloading"
+        [disabled]="isLoading || isDownloading"
         (click)="downloadFile()"
         matTooltip="Download this file"
       >
@@ -75,20 +76,26 @@
     <span *ngIf="statusMessage" class="file-viewer__status" role="status">{{ statusMessage }}</span>
   </div>
 
-  <main class="file-viewer__stage">
+  <main class="file-viewer__stage" [attr.aria-busy]="isLoading || isPreviewLoading">
+    <app-loading-state
+      *ngIf="isLoading || isPreviewLoading"
+      [overlay]="true"
+      [label]="isLoading ? 'Preparing your letter…' : 'Opening document…'"
+    />
     <iframe
-      *ngIf="isPdf; else imageOrFallback"
+      *ngIf="!isLoading && isPdf"
       class="file-viewer__pdf"
       [src]="safePreviewUrl"
       [title]="title"
-      loading="lazy"
+      loading="eager"
+      (load)="previewLoaded()"
     ></iframe>
 
-    <ng-template #imageOrFallback>
+    <ng-container *ngIf="!isLoading && !isPdf">
       <div *ngIf="isImage; else unsupportedFile" class="file-viewer__image-stage">
         <img class="file-viewer__image" [src]="fileUrl" [alt]="title" />
       </div>
-    </ng-template>
+    </ng-container>
 
     <ng-template #unsupportedFile>
       <div class="file-viewer__unsupported">

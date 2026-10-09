@@ -102,6 +102,7 @@ export interface ReportRequest {
   referral_type_id?: number | null;
   patient_history_status?: string | null;
   patient_search?: string | null;
+  include_archived?: boolean;
   page?: number;
   per_page?: number;
 }

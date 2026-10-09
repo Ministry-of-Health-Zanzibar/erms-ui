@@ -7,9 +7,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
 
 export interface FileViewerData {
   url: string;
+  loading?: boolean;
   fileName?: string;
   title?: string;
   mimeType?: string;
@@ -27,20 +29,23 @@ export interface FileViewerData {
     MatDialogModule,
     MatIconModule,
     MatTooltipModule,
+    LoadingStateComponent,
   ],
   templateUrl: './file-viewer.component.html',
   styleUrl: './file-viewer.component.scss',
 })
 export class FileViewerComponent {
-  readonly fileUrl: string;
+  fileUrl: string;
   readonly fileName: string;
   readonly title: string;
   readonly mimeType: string;
   readonly shareUrl: string;
   readonly printTrackingUrl?: string;
   readonly printTrackingBody?: Record<string, unknown>;
-  readonly safePreviewUrl: SafeResourceUrl;
+  safePreviewUrl: SafeResourceUrl;
 
+  isLoading = false;
+  isPreviewLoading = false;
   isDownloading = false;
   isPrinting = false;
   printStarted = false;
@@ -62,6 +67,21 @@ export class FileViewerComponent {
     this.printTrackingUrl = data.printTrackingUrl;
     this.printTrackingBody = data.printTrackingBody;
     this.safePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.fileUrl);
+    this.isLoading = !!data.loading;
+    this.isPreviewLoading = this.isPdf;
+  }
+
+  setFile(url: string): void {
+    this.fileUrl = url;
+    this.safePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.isLoading = false;
+    this.isPreviewLoading = this.isPdf;
+  }
+
+  previewLoaded(): void {
+    // Some browsers emit iframe load while Angular is still creating the
+    // element. Update the controls after that render has finished.
+    queueMicrotask(() => this.isPreviewLoading = false);
   }
 
   get isPdf(): boolean {
@@ -124,7 +144,7 @@ export class FileViewerComponent {
   }
 
   downloadFile(): void {
-    if (this.isDownloading || !isPlatformBrowser(this.platformId)) {
+    if (this.isLoading || this.isDownloading || !isPlatformBrowser(this.platformId)) {
       return;
     }
 
@@ -148,7 +168,7 @@ export class FileViewerComponent {
   }
 
   async shareFile(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) {
+    if (this.isLoading || !isPlatformBrowser(this.platformId)) {
       return;
     }
 
@@ -215,7 +235,7 @@ export class FileViewerComponent {
   }
 
   printFile(): void {
-    if (this.isPrinting || !isPlatformBrowser(this.platformId)) {
+    if (this.isLoading || this.isPreviewLoading || this.isPrinting || !isPlatformBrowser(this.platformId)) {
       return;
     }
 

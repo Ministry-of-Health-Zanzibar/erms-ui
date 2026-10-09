@@ -19,7 +19,13 @@ export class StatusBadgeComponent {
   @Input() tone: StatusTone | 'auto' = 'auto';
 
   get label(): string {
-    return this.status?.trim() || 'N/A';
+    const value = this.status?.trim() || '';
+
+    if (value.toLowerCase() === 'boarded_out' || value.toLowerCase() === 'boardedout') {
+      return 'Boarded Out';
+    }
+
+    return value || 'N/A';
   }
 
   get resolvedTone(): StatusTone {
@@ -29,7 +35,7 @@ export class StatusBadgeComponent {
 
     const value = this.label.toLowerCase();
 
-    if (['approved', 'assigned', 'boardedout', 'confirmed', 'completed', 'paid', 'active'].some(status => value.includes(status))) {
+    if (['approved', 'assigned', 'boardedout', 'boarded_out', 'boarded out', 'confirmed', 'completed', 'paid', 'active'].some(status => value.includes(status))) {
       return 'success';
     }
 

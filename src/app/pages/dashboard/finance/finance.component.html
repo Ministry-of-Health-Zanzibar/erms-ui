@@ -1,4 +1,4 @@
-<div class="p-10 space-y-8">
+<div class="p-4 md:p-10 space-y-6">
   <!-- Header -->
   <div class="flex flex-col">
     <h1
@@ -14,138 +14,73 @@
     ></div>
   </div>
 
-  <!-- Dashboard Info Cards -->
- <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-  <!-- Medical Boards -->
-  <div class="metric-card metric-card--green group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
-
-    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
-
-    <div class="flex items-center justify-between relative z-10">
+  <div class="case-metrics">
+    <button *ngFor="let card of caseCards" type="button" class="metric-card case-metric" [ngClass]="card.style"
+      [disabled]="workflowLoading || workflowError || !canViewCaseReports || !dashboardData?.medical_history?.[card.key]" (click)="openCaseReport(card.status)">
       <div>
-        <p class="metric-label text-[11px] uppercase tracking-wider">
-          Medical Boards
-        </p>
-        <h2 class="metric-value text-2xl font-bold mt-1">
-          {{ referral?.data?.total_medical_boards | number }}
-        </h2>
+        <span class="metric-label">{{ card.label }}</span>
+        <strong class="metric-value">{{ workflowLoading || workflowError ? '—' : ((dashboardData?.medical_history?.[card.key] ?? 0) | number) }}</strong>
       </div>
-
-      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
-        <mat-icon>assignment_turned_in</mat-icon>
-      </div>
-    </div>
+      <span class="metric-icon"><mat-icon aria-hidden="true">{{ card.icon }}</mat-icon></span>
+    </button>
   </div>
 
-  <!-- Patients -->
-  <div class="metric-card metric-card--teal group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
-
-    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
-
-    <div class="flex items-center justify-between relative z-10">
-      <div>
-        <p class="metric-label text-[11px] uppercase tracking-wider">
-          Total Patients
-        </p>
-        <h2 class="metric-value text-2xl font-bold mt-1">
-          {{ referral?.data?.total_patients | number }}
-        </h2>
-      </div>
-
-      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
-        <mat-icon>groups</mat-icon>
-      </div>
-    </div>
-  </div>
-
-  <!-- Referrals -->
-  <div class="metric-card metric-card--blue group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
-
-    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
-
-    <div class="flex items-center justify-between relative z-10">
-      <div>
-        <p class="metric-label text-[11px] uppercase tracking-wider">
-          Total Referrals
-        </p>
-        <h2 class="metric-value text-2xl font-bold mt-1">
-          {{ referral?.data?.total_referrals | number }}
-        </h2>
-      </div>
-
-      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
-        <mat-icon>compare_arrows</mat-icon>
-      </div>
-    </div>
-  </div>
-
-  <!-- Hospitals -->
-  <div class="metric-card metric-card--amber group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4">
-
-    <div class="metric-glow absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl"></div>
-
-    <div class="flex items-center justify-between relative z-10">
-      <div>
-        <p class="metric-label text-[11px] uppercase tracking-wider">
-          Hospitals
-        </p>
-        <h2 class="metric-value text-2xl font-bold mt-1">
-          {{ referral?.data?.total_hospitals | number }}
-        </h2>
-      </div>
-
-      <div class="metric-icon w-11 h-11 rounded-xl shadow flex items-center justify-center group-hover:scale-110 transition">
-        <mat-icon>local_hospital</mat-icon>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-  <!-- Patient workflow status tracking -->
-  <section class="tracking-card" aria-labelledby="patient-tracking-title">
+  <!-- Case workflow status tracking -->
+  <section class="tracking-card" aria-labelledby="case-tracking-title">
     <div class="tracking-header">
       <div class="tracking-heading">
         <span class="tracking-icon"><mat-icon>route</mat-icon></span>
         <div>
-          <h2 id="patient-tracking-title">Patient Status Tracking</h2>
-          <p>Patient counts across each medical review stage.</p>
+          <h2 id="case-tracking-title">Case Status Tracking</h2>
+          <p>Case counts across each medical review stage.</p>
         </div>
       </div>
       <div class="tracking-total">
-        <span>Total patients in workflow</span>
-        <strong>{{ (dashboardData?.medical_history?.total ?? 0) | number }}</strong>
+        <div class="tracking-count">
+          <span>Total cases</span>
+          <strong>{{ workflowLoading || workflowError ? '—' : ((dashboardData?.medical_history?.total ?? 0) | number) }}</strong>
+        </div>
+        <span *ngIf="dashboardData?.generated_at">Updated {{ dashboardData.generated_at | date:'dd MMM, HH:mm:ss' }}</span>
+        <button mat-button type="button" (click)="loadDashboardStatistics(true)" [disabled]="workflowLoading"><mat-icon>refresh</mat-icon>Refresh</button>
       </div>
     </div>
 
-    <div class="tracking-content" *ngIf="dashboardData?.medical_history?.statuses?.length; else noWorkflowData">
+    <div *ngIf="workflowLoading" class="tracking-loading" role="status" aria-live="polite">
+      <mat-icon>hourglass_top</mat-icon>
+      <span>Loading case status tracking…</span>
+    </div>
+
+    <div class="tracking-content" *ngIf="!workflowLoading && !workflowError && dashboardData?.medical_history?.statuses?.length">
       <div class="tracking-chart tracking-chart--sample">
         <canvas
-          #patientWorkflowChart
+          #caseWorkflowChart
           role="img"
-          aria-label="Patient counts by workflow stage"
+          aria-label="Case counts by workflow stage"
         ></canvas>
       </div>
 
       <div class="stage-summary">
-        <div class="stage-summary-item" *ngFor="let item of dashboardData.medical_history.statuses">
+        <button type="button" class="stage-summary-item" *ngFor="let item of dashboardData.medical_history.statuses; let i = index"
+          [disabled]="!canViewCaseReports || !item.count" (click)="openCaseReport(item.status)" [title]="item.description"
+          [attr.aria-label]="item.display_label + ': ' + item.count + ' cases. Open case report.'">
           <span class="stage-number">{{ item.stage }}</span>
           <div class="stage-copy">
             <div class="stage-title-row">
               <strong>{{ item.display_label }}</strong>
-              <span>{{ item.progress_percentage }}% progress</span>
+              <span>{{ item.case_percentage | number:'1.0-1' }}% of cases</span>
             </div>
-            <p>{{ item.description }}</p>
           </div>
           <span class="patient-count">{{ item.count | number }}</span>
-        </div>
+        </button>
       </div>
     </div>
 
-    <ng-template #noWorkflowData>
-      <div class="tracking-empty">No patient workflow data available.</div>
-    </ng-template>
+    <div
+      *ngIf="!workflowLoading && (workflowError || !dashboardData?.medical_history?.statuses?.length)"
+      class="tracking-empty"
+    >
+      {{ workflowError ? 'Unable to load case workflow data.' : 'No case workflow data available.' }}
+    </div>
   </section>
 
   <!-- Pie Charts -->
@@ -158,7 +93,7 @@
         [responsive]="pieResponsive"
         [title]="pieTitle"
         [legend]="pieLegend"
-        [colors]="pieColors"> 
+        [colors]="pieColors"
       ></apx-chart>
 
   

@@ -45,6 +45,9 @@
   </header>
 
   <main class="history-content">
+    <div *ngIf="referral.case_link_resolved === false" class="description-block" role="alert">
+      This referral has no verified case link. Ask an administrator to review the link before making a case decision.
+    </div>
     <div class="history-top-grid">
       <section class="record-card status-card referral-status-card" aria-labelledby="referral-status-heading">
         <div class="card-header">
@@ -588,7 +591,7 @@
           type="button"
           class="referral-action-button referral-action-button--decision"
           (click)="updateStatusPopup()"
-          [disabled]="referral.status !== 'Pending'"
+          [disabled]="referral.status !== 'Pending' || referral.case_link_resolved === false"
         >
           <mat-icon aria-hidden="true">rule</mat-icon>
           <span>Decision</span>
@@ -613,6 +616,7 @@
           class="referral-action-button referral-action-button--print"
           (click)="referralsLetterPopup(referral)"
           [disabled]="isReferralPrintDisabled(referral)"
+          matTooltip="Print the referral letter for the original hospital"
         >
           <mat-icon aria-hidden="true">print</mat-icon>
           <span>Print Referral Letter</span>

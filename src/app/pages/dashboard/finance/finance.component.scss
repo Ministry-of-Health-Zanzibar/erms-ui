@@ -2,6 +2,22 @@
   display: block;
 }
 
+.case-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.case-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 0.875rem;
+  text-align: left;
+  strong { display: block; font-size: 1.75rem; }
+  .metric-label { font-size: 0.75rem; }
+  .metric-icon { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; }
+}
+.case-metric:enabled:hover, .stage-summary-item:enabled:hover { border-color: #2563eb; cursor: pointer; }
+.case-metric:focus-visible, .stage-summary-item:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+
 .metric-card {
   --metric-accent: #2563eb;
   --metric-soft: #eff6ff;
@@ -89,7 +105,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--rms-border);
   background: var(--rms-surface-subtle);
 }
@@ -137,13 +153,37 @@
     color: var(--rms-text);
     font-size: 1.5rem;
   }
+
+  .tracking-count { display: flex; justify-content: flex-end; align-items: baseline; gap: 0.5rem; }
 }
 
 .tracking-content {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 0.65fr);
   gap: 1.5rem;
+  align-items: stretch;
   padding: 1.25rem;
+}
+
+.tracking-loading {
+  display: flex;
+  min-height: 24rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  color: var(--rms-text-muted);
+  font-size: 0.875rem;
+
+  mat-icon {
+    animation: tracking-loading-spin 1.2s linear infinite;
+  }
+}
+
+@keyframes tracking-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .tracking-chart {
@@ -153,7 +193,9 @@
 
 .tracking-chart--sample {
   position: relative;
+  align-self: center;
   height: 24rem;
+  min-height: 24rem;
 
   canvas {
     display: block;
@@ -276,8 +318,8 @@
 .stage-number,
 .patient-count {
   display: inline-grid;
-  min-width: 2.25rem;
-  height: 2.25rem;
+  min-width: 1.75rem;
+  height: 1.75rem;
   padding: 0 0.5rem;
   place-items: center;
   border-radius: 999px;
@@ -297,7 +339,7 @@
 .stage-summary {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 0.5rem;
 }
 
 .stage-summary-item {
@@ -305,10 +347,13 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 0.375rem 0.625rem;
   border: 1px solid var(--rms-border);
   border-radius: 0.75rem;
   background: var(--rms-surface-subtle);
+  color: var(--rms-text);
+  text-align: left;
+  width: 100%;
 }
 
 .stage-copy {
@@ -365,11 +410,33 @@
 
   .tracking-total {
     text-align: left;
+    .tracking-count { justify-content: flex-start; }
   }
 }
 
 @media (max-width: 1100px) {
+  .case-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tracking-content {
     grid-template-columns: 1fr;
+  }
+
+  .tracking-chart,
+  .tracking-chart--sample {
+    min-height: 22rem;
+  }
+
+  .tracking-chart--sample {
+    height: 22rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .tracking-chart,
+  .tracking-chart--sample {
+    min-height: 20rem;
+  }
+
+  .tracking-chart--sample {
+    height: 20rem;
   }
 }

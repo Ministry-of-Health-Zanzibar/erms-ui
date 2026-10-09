@@ -1,6 +1,9 @@
 
 import { ChangeDetectorRef, Component, ElementRef, inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
+import { PermissionService } from '../../../services/authentication/permission.service';
+import { Subject, takeUntil } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,9 +13,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { StatisticalService } from '../../../services/report/statistical.service';
 import { GraphreportService } from '../../../services/accountants/graphreport.service';
-import { Chart, registerables } from 'chart.js';
+import { ArcElement, Chart, DoughnutController, Legend, Title, Tooltip } from 'chart.js';
 
-Chart.register(...registerables);
+// This dashboard only uses a doughnut chart, so avoid registering the complete
+// Chart.js library during the initial dashboard load.
+Chart.register(DoughnutController, ArcElement, Legend, Title, Tooltip);
 
 const PATIENT_WORKFLOW_COLORS = [
   '#4a90e2',
@@ -25,8 +30,8 @@ const PATIENT_WORKFLOW_COLORS = [
   '#5b9bd5',
 ];
 
-const patientWorkflowCenterTextPlugin = {
-  id: 'patientWorkflowCenterText',
+const caseWorkflowCenterTextPlugin = {
+  id: 'caseWorkflowCenterText',
   afterDraw(chart: any) {
     const dataset = chart.data.datasets?.[0];
     const values = (dataset?.data ?? []).map((value: unknown) => Number(value) || 0);
@@ -50,13 +55,13 @@ const patientWorkflowCenterTextPlugin = {
     ctx.font = '700 24px Arial, sans-serif';
     ctx.fillText(total.toLocaleString(), centerX, centerY - 7);
     ctx.font = '600 11px Arial, sans-serif';
-    ctx.fillText('Patients', centerX, centerY + 15);
+    ctx.fillText('Cases', centerX, centerY + 15);
     ctx.restore();
   },
 };
 
-const patientWorkflowOutsideLabelsPlugin = {
-  id: 'patientWorkflowOutsideLabels',
+const caseWorkflowOutsideLabelsPlugin = {
+  id: 'caseWorkflowOutsideLabels',
   afterDraw(chart: any) {
     const dataset = chart.data.datasets?.[0];
     const labels = chart.data.labels ?? [];
@@ -73,6 +78,7 @@ const patientWorkflowOutsideLabelsPlugin = {
     const rightItems: any[] = [];
 
     arcs.forEach((arc: any, index: number) => {
+      if ((values[index] ?? 0) === 0 || chart.width < 440) return;
       const angle = (arc.startAngle + arc.endAngle) / 2;
       const cosine = Math.cos(angle);
       const sine = Math.sin(angle);
@@ -99,6 +105,7 @@ const patientWorkflowOutsideLabelsPlugin = {
     const maximumY = chartArea.bottom - 18;
 
     const distributeLabels = (items: any[]) => {
+      if (!items.length) return;
       items.sort((first, second) => first.labelY - second.labelY);
 
       items.forEach((item, index) => {
@@ -176,9 +183,25 @@ import {
 export class FinanceComponent implements OnInit, OnDestroy {
   referral: any = {};
   dashboardData: any = {};
-  @ViewChild('patientWorkflowChart') patientWorkflowCanvas?: ElementRef<HTMLCanvasElement>;
-  private patientWorkflowChart?: Chart;
+  workflowLoading = true;
+  workflowError = false;
+  @ViewChild('caseWorkflowChart') caseWorkflowCanvas?: ElementRef<HTMLCanvasElement>;
+  private caseWorkflowChart?: Chart;
+  private secondaryDashboardLoadTimer?: ReturnType<typeof setTimeout>;
+  private secondaryReportsStarted = false;
+  private readonly destroyed = new Subject<void>();
+  private readonly caseRequestCancelled = new Subject<void>();
   private readonly platformId = inject(PLATFORM_ID);
+  readonly caseCards = [
+    { key: 'total', label: 'Total cases', status: null, icon: 'folder_shared', style: 'metric-card--blue' },
+    { key: 'under_review', label: 'Cases under review', status: 'under_review', icon: 'pending_actions', style: 'metric-card--amber' },
+    { key: 'confirmed', label: 'Confirmed cases', status: 'confirmed', icon: 'task_alt', style: 'metric-card--green' },
+    { key: 'boarded_out', label: 'Boarded-out cases', status: 'boarded_out', icon: 'assignment_turned_in', style: 'metric-card--teal' },
+  ];
+
+  get canViewCaseReports(): boolean {
+    return this.permission.parmissionMatched(['View Report']);
+  }
 
   // =========================
   // OTHER DIAGNOSES POPUP
@@ -192,19 +215,25 @@ export class FinanceComponent implements OnInit, OnDestroy {
     private dashboardService: StatisticalService,
     private reportService: GraphreportService,
     private changeDetectorRef: ChangeDetectorRef,
+    private router: Router,
+    public permission: PermissionService,
   ) {}
 
   ngOnInit(): void {
-    this.getReferralSummary();
-    this.getReferralSummaryByReason();
-    this.fetchReferralByMonth();
-    this.fetchReferralTrends();
-    this.fetchData();
+    // Start the case report first because it drives the first chart shown on
+    // the dashboard. Queue the heavier supporting reports after it has drawn.
     this.loadDashboardStatistics();
   }
 
   ngOnDestroy(): void {
-    this.patientWorkflowChart?.destroy();
+    this.destroyed.next();
+    this.destroyed.complete();
+    this.caseRequestCancelled.complete();
+    this.caseWorkflowChart?.destroy();
+
+    if (this.secondaryDashboardLoadTimer) {
+      clearTimeout(this.secondaryDashboardLoadTimer);
+    }
   }
 
   // =========================
@@ -233,8 +262,14 @@ export class FinanceComponent implements OnInit, OnDestroy {
     this.showOthersModal = false;
   }
 
-  loadDashboardStatistics() {
-    this.dashboardService.getWorkFlowCount().subscribe({
+  loadDashboardStatistics(refresh = false) {
+    this.caseRequestCancelled.next();
+    this.workflowLoading = true;
+    this.workflowError = false;
+
+    this.dashboardService.getCaseStatusTracking({ include_archived: false, refresh }).pipe(
+      takeUntil(this.caseRequestCancelled), takeUntil(this.destroyed),
+    ).subscribe({
       next: (response: any) => {
         const statuses = (response?.data?.medical_history?.statuses ?? []).map((item: any) => ({
           ...item,
@@ -249,21 +284,60 @@ export class FinanceComponent implements OnInit, OnDestroy {
           },
         };
 
+        this.workflowLoading = false;
+
         // The canvas is created by the status-data *ngIf, so run one view update
         // before drawing the Chart.js sample chart.
         this.changeDetectorRef.detectChanges();
-        this.renderPatientWorkflowChart(statuses);
+        this.renderCaseWorkflowChart(statuses);
+        this.queueSecondaryDashboardLoads();
       },
       error: (err) => {
+        this.workflowLoading = false;
+        this.workflowError = true;
         console.error(err);
+        this.queueSecondaryDashboardLoads();
       }
     });
   }
 
-  private renderPatientWorkflowChart(statuses: any[]): void {
-    this.patientWorkflowChart?.destroy();
+  private queueSecondaryDashboardLoads(): void {
+    if (this.secondaryReportsStarted) {
+      return;
+    }
+    this.secondaryReportsStarted = true;
 
-    const canvas = this.patientWorkflowCanvas?.nativeElement;
+    // Give the browser one paint for the case chart before starting the other
+    // dashboard requests. This prevents their network and change-detection
+    // work from making the first chart feel delayed.
+    this.secondaryDashboardLoadTimer = setTimeout(() => {
+      this.secondaryDashboardLoadTimer = undefined;
+      this.getReferralSummary();
+      this.getReferralSummaryByReason();
+      this.fetchReferralByMonth();
+      this.fetchReferralTrends();
+    }, 0);
+  }
+
+  openCaseReport(status: string | null = null): void {
+    if (!this.canViewCaseReports || this.workflowLoading || this.workflowError) return;
+    this.router.navigate(['/pages/patient/top-diagnoses'], { queryParams: {
+      report_type: 'case_workflow', auto_generate: '1',
+      start_date: '1900-01-01',
+      end_date: this.toCaseIsoDate(new Date()),
+      patient_history_status: status,
+      include_archived: '0',
+    } });
+  }
+
+  private toCaseIsoDate(date: Date): string {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  private renderCaseWorkflowChart(statuses: any[]): void {
+    this.caseWorkflowChart?.destroy();
+
+    const canvas = this.caseWorkflowCanvas?.nativeElement;
     if (!isPlatformBrowser(this.platformId) || !canvas || statuses.length === 0) {
       return;
     }
@@ -272,7 +346,7 @@ export class FinanceComponent implements OnInit, OnDestroy {
     const textColor = rootStyles.getPropertyValue('--rms-text').trim() || '#334155';
     const mutedColor = rootStyles.getPropertyValue('--rms-text-muted').trim() || '#64748b';
 
-    this.patientWorkflowChart = new Chart(canvas, {
+    this.caseWorkflowChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
         labels: statuses.map((item: any) => item.display_label),
@@ -290,16 +364,26 @@ export class FinanceComponent implements OnInit, OnDestroy {
       },
       options: {
         responsive: true,
+        animation: false,
         maintainAspectRatio: false,
         cutout: '57%',
-        radius: '68%',
+        radius: '76%',
         layout: {
-          padding: { top: 20, right: 116, bottom: 42, left: 116 },
+          padding: { top: 20, right: canvas.parentElement!.clientWidth < 440 ? 12 : 116, bottom: 30, left: canvas.parentElement!.clientWidth < 440 ? 12 : 116 },
+        },
+        onResize: (chart, size) => {
+          if (chart.options.layout) {
+            const sidePadding = size.width < 440 ? 12 : 116;
+            chart.options.layout.padding = { top: 20, right: sidePadding, bottom: 30, left: sidePadding };
+          }
+        },
+        onClick: (_event, elements) => {
+          if (elements.length) this.openCaseReport(statuses[elements[0].index].status);
         },
         plugins: {
           title: {
             display: true,
-            text: 'Patient Status Tracking',
+            text: 'Case Status Tracking',
             color: textColor,
             font: { size: 16, weight: 'bold' },
             padding: { bottom: 8 },
@@ -332,7 +416,7 @@ export class FinanceComponent implements OnInit, OnDestroy {
           },
         },
       },
-      plugins: [patientWorkflowCenterTextPlugin, patientWorkflowOutsideLabelsPlugin],
+      plugins: [caseWorkflowCenterTextPlugin, caseWorkflowOutsideLabelsPlugin],
     });
   }
 

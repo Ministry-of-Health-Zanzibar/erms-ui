@@ -104,10 +104,10 @@ export class ReferralDetailsComponent {
         // Patient histories
         this.patientHistories = response.data.patient?.patient_histories || [];
 
-        // Take FIRST history (as per your scenario)
-        this.history = this.patientHistories.length
+        // Use the exact case returned by the API; the array is a legacy fallback.
+        this.history = response.data.case_history || (this.patientHistories.length
           ? this.patientHistories[0]
-          : null;
+          : null);
 
         // ✅ Hospital diagnoses (Doctor)
         this.hospitalDiagnoses = this.history?.diagnoses || [];
@@ -130,8 +130,7 @@ export class ReferralDetailsComponent {
 
   updateStatusPopup() {
     // ✅ Try to get from referral (normal case)
-    let historyId =
-      this.referral?.patient?.patient_histories?.[0]?.patient_histories_id;
+    let historyId = this.referral?.history_id || this.history?.patient_histories_id;
   
     // ✅ Fallback (recommendation-only case)
     if (!historyId && this.patientHistories?.length) {
@@ -225,7 +224,19 @@ export class ReferralDetailsComponent {
       'Closed'
     ];
 
-    return blockedStatuses.includes(referral?.status);
+    const original = this.originalReferralForPrint(referral);
+    return !original || blockedStatuses.includes(original.status ?? referral?.status);
+  }
+
+  originalReferralForPrint(data: any): any | null {
+    if (data && Object.prototype.hasOwnProperty.call(data, 'original_referral')) {
+      return data.original_referral?.referral_id ? data.original_referral : null;
+    }
+    const selected = data?.referral_id ? data : data?.referrals?.[0];
+    // Older API responses may still be used for a normal referral, but must
+    // never fall back to printing a transferred hospital as the original.
+    return selected?.referral_id && !selected.parent_referral_id && !data?.parent?.referral_id
+      ? selected : null;
   }
 
   hasFlightInformation(referral: any): boolean {
@@ -268,12 +279,13 @@ export class ReferralDetailsComponent {
   }
 
   referralsLetterPopup(data: any): void {
-    const referralId = data?.referral_id || data?.referrals?.[0]?.referral_id;
+    const original = this.originalReferralForPrint(data);
+    const referralId = original?.referral_id;
 
     if (!referralId) {
       this.uiFeedback.alert(
         'Letter not available',
-        'This record does not have a confirmed referral letter yet.',
+        'The original hospital referral could not be verified. Please ask an administrator to review its referral link.',
         'info',
       );
       return;
@@ -281,7 +293,7 @@ export class ReferralDetailsComponent {
 
     this.documents.openReferralLetter(
       Number(referralId),
-      resolveReferralLetterLanguage(data, referralId),
+      resolveReferralLetterLanguage(original, referralId),
       data?.patient?.name,
     ).subscribe({
       next: (viewerRef) => viewerRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {

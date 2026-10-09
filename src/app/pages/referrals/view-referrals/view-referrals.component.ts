@@ -429,7 +429,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
   displayMoreData(data: any) {
 
     // ✅ Recommendation-only / BoardedOut
-    if (data.is_recommendation_only || data.is_boarded_out) {
+    if (data.record_type === 'history' || (!data.record_type && (data.is_recommendation_only || data.is_boarded_out))) {
   
       this.router.navigate(
         ['/pages/config/referrals/more', data.history_id],

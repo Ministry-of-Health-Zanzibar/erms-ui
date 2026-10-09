@@ -1,151 +1,437 @@
-body {
-  font-family: "Times New Roman", serif;
-  font-size: 14px;
-  color: #000;
+:host {
+  display: block;
+  min-width: 0;
 }
 
-.letter-header {
+.individual-report-page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2.5rem;
+  color: var(--rms-text);
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.report-unavailable {
   text-align: center;
 }
 
-.logo-container {
+.report-alert {
   display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #fca5a5;
+  border-radius: 0.75rem;
+  color: var(--rms-text);
+  background: var(--rms-surface);
 }
 
-.logo {
-  display: block;
-  margin: 0 auto;
-  background: transparent;
-}
+.report-paper {
+  --report-bg: var(--rms-surface);
+  --report-subtle: var(--rms-surface-subtle);
+  --report-border: var(--rms-border);
+  --report-text: var(--rms-text);
+  --report-muted: var(--rms-text-muted);
 
-
-.header-line {
-  border-bottom: 2px solid #000;
-  margin: 10px 0;
-}
-
-.ref {
-  margin-top: 8px;
-}
-
-.two-column {
-  display: flex;
-  gap: 40px;
-  margin-top: 20px;
-}
-
-.column {
-  width: 50%;
-}
-
-.column h4 {
-  text-decoration: underline;
-  margin-bottom: 6px;
-}
-
-.info-table {
+  box-sizing: border-box;
   width: 100%;
-}
+  min-width: 0;
+  max-width: 64rem;
+  margin-inline: auto;
+  padding: 2.5rem;
+  border: 1px solid var(--report-border);
+  border-radius: 1rem;
+  color: var(--report-text);
+  background: var(--report-bg);
+  box-shadow: 0 8px 24px var(--rms-shadow);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 
-.info-table td:first-child {
-  width: 40%;
-  font-weight: bold;
-}
+  p, h2, h3, h4, h5, dl, dd {
+    margin: 0;
+  }
 
-.info-table td {
-  padding: 4px 0;
-}
-
-.section-title {
-  margin-top: 25px;
-  font-weight: bold;
-  text-decoration: underline;
-}
-
-.paragraph p {
-  margin: 4px 0;
-}
-
-.diagnosis-list {
-  margin-left: 20px;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.data-table th,
-.data-table td {
-  border: 1px solid #000;
-  padding: 6px;
-}
-
-.signature-section {
-  margin-top: 40px;
-}
-.muted {
-  font-style: italic;
-  color: #555;
-  margin-top: 4px;
-}
-
-@media print {
-  .letter-footer {
-    position: fixed;
-    bottom: 15mm;
-    left: 20mm;
-    right: 20mm;
+  h5 {
+    font-size: inherit;
+    font-weight: 700;
   }
 }
 
+.letter-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--report-border);
+  text-align: center;
 
-.letter-footer {
+  .logo {
+    display: block;
+    width: 6rem;
+    height: auto;
+    margin: 0 auto 1rem;
+    object-fit: contain;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+  }
+
+  h3 {
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .report-document-title {
+    margin-top: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+}
+
+.report-reference {
   display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-top: 50px;
-  padding-top: 10px;
-  border-top: 1px solid #000;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  margin-top: 0.5rem;
+  color: var(--report-muted);
+
+  strong {
+    color: var(--report-text);
+  }
 }
 
-.footer-left {
-  text-align: left;
+.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
 }
 
-.footer-right {
-  text-align: right;
+.information-card {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--report-border);
+  border-radius: 0.75rem;
+
+  h4 {
+    margin-bottom: 0.875rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid var(--report-border);
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
 }
 
-.letter-footer a {
-  color: #000;
-  text-decoration: none;
+.detail-list > div {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 0.8fr) minmax(0, 1.2fr);
+  gap: 0.75rem;
+  padding-block: 0.25rem;
 }
 
-.letter-footer a:hover {
-  text-decoration: underline;
+.detail-list dt,
+.clinical-details dt {
+  color: var(--report-muted);
+  font-weight: 600;
+}
+
+.report-section {
+  margin-top: 1.75rem;
+}
+
+.section-title {
+  margin-bottom: 1rem !important;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--report-border);
+  font-size: 1rem;
+  font-weight: 700;
+  break-after: avoid;
+}
+
+.clinical-details > div {
+  margin-top: 0.75rem;
+
+  dd {
+    white-space: pre-line;
+  }
+}
+
+.history-record + .history-record {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--report-border);
+}
+
+.assessment-reason {
+  margin-bottom: 1rem;
+
+  p {
+    white-space: pre-line;
+  }
+}
+
+.muted {
+  color: var(--report-muted);
+  font-size: 0.8125rem;
+}
+
+.empty-message {
+  padding: 0.875rem 1rem;
+  border: 1px dashed var(--report-border);
+  border-radius: 0.5rem;
+  color: var(--report-muted);
+  background: var(--report-subtle);
+}
+
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--report-border);
+  border-radius: 0.5rem;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  text-align: left;
+  font-size: 0.8125rem;
+
+  th, td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-bottom: 1px solid var(--report-border);
+  }
+
+  th {
+    background: var(--report-subtle);
+    font-weight: 600;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .row-number {
+    width: 3rem;
+  }
+
+  .amount-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
 }
 
-.data-table th,
-.data-table td {
-  border: 1px solid #000;
-  padding: 6px;
-  vertical-align: top;
+.payments-table {
+  min-width: 38rem;
 }
 
-.muted {
-  font-style: italic;
-  color: #555;
+.billing-record + .billing-record,
+.payment-record {
+  margin-top: 1.25rem;
 }
 
+.billing-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
 
+.billing-amount {
+  text-align: right;
 
+  strong, span {
+    display: block;
+  }
+
+  span {
+    color: var(--report-muted);
+  }
+}
+
+.payment-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--report-border);
+  border-radius: 0.75rem;
+  background: var(--report-subtle);
+
+  dt {
+    color: var(--report-muted);
+    font-size: 0.75rem;
+  }
+
+  dd {
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+.payment-record > h5 {
+  margin-bottom: 0.75rem;
+}
+
+.signature-section {
+  max-width: 24rem;
+  margin-top: 2rem;
+  break-inside: avoid;
+}
+
+.signature-line {
+  width: 15rem;
+  max-width: 100%;
+  margin-top: 2.5rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--report-muted);
+  color: var(--report-muted);
+  font-size: 0.8125rem;
+}
+
+.letter-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--report-border);
+  color: var(--report-muted);
+  font-size: 0.75rem;
+  break-inside: avoid;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.footer-contact {
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .individual-report-page {
+    padding: 1.5rem;
+  }
+
+  .report-paper {
+    padding: 1.5rem;
+  }
+
+  .two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .individual-report-page {
+    padding: 1rem;
+  }
+
+  .report-paper {
+    padding: 1.25rem;
+  }
+
+  .report-actions {
+    gap: 0.5rem;
+  }
+
+  .letter-header h2 {
+    font-size: 1rem;
+  }
+
+  .payment-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table {
+    min-width: 26rem;
+  }
+
+  .payments-table {
+    min-width: 38rem;
+  }
+
+  .footer-contact {
+    text-align: left;
+  }
+}
+
+// Use a light document and A4-friendly spacing even when downloading from dark
+// mode or a small screen. These rules apply only to the detached export copy.
+.report-paper.report--export {
+  --report-bg: #ffffff;
+  --report-subtle: #f8fafc;
+  --report-border: #cbd5e1;
+  --report-text: #0f172a;
+  --report-muted: #475569;
+
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+
+  .two-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .information-card {
+    padding: 0.875rem;
+  }
+
+  .payment-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .data-table {
+    min-width: 0;
+    font-size: 11px;
+
+    th, td {
+      padding: 0.5rem;
+    }
+  }
+
+  .footer-contact {
+    text-align: right;
+  }
+}
