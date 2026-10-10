@@ -6,13 +6,13 @@
         <mat-icon>table_chart</mat-icon>
         Export Excel
       </button> -->
-      <button mat-raised-button color="warn" (click)="exportPDF()">
+      <button mat-raised-button color="warn" (click)="exportPDF()" [disabled]="loading || !dataSource.data.length">
         <mat-icon>picture_as_pdf</mat-icon>
         Export PDF
       </button>
     </div>
   <div class="search-container rounded-xl mt-4">
-    <form [formGroup]="reportForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <form [formGroup]="reportForm" (ngSubmit)="searchReport()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <app-filter-select
         formControlName="referral_reason_name"
@@ -23,15 +23,19 @@
       />
 
       <app-filter-select
-        formControlName="hospital_name"
-        label="Search By Hospital"
+        formControlName="from_hospital_name"
+        label="Source hospital"
         placeholder="All hospitals"
         icon="local_hospital"
         [options]="hospital"
       />
-
-
-
+      <app-filter-select
+        formControlName="to_hospital_name"
+        label="Destination hospital"
+        placeholder="All destination hospitals"
+        icon="local_hospital"
+        [options]="hospital"
+      />
       <app-text-input
         formControlName="patient_name"
         label="Search By Name"
@@ -60,7 +64,8 @@
           mat-flat-button
           color="primary"
           class="w-full h-[40px] px-6 rounded-md text-white bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
-          (click)="searchReport()"
+          type="submit"
+          [disabled]="loading"
         >
           <mat-icon>search</mat-icon>
           Search
@@ -69,6 +74,7 @@
 
     </form>
   </div>
+  <p *ngIf="errorMessage" role="alert" class="text-red-700 mt-3">{{ errorMessage }}</p>
   </app-section-card>
 
   <app-section-card title="Report results" description="Filter the returned referrals or export them as PDF." icon="table_view">
@@ -108,10 +114,8 @@
     </td>
   </ng-container>
 
-  <!-- From Hospital → To Hospital -->
-  <ng-container matColumnDef="hospital">
-    <th mat-header-cell *matHeaderCellDef>Hospital</th>
-
+  <ng-container matColumnDef="source_hospital">
+    <th mat-header-cell *matHeaderCellDef>Source hospital</th>
     <td mat-cell *matCellDef="let element">
 
       <!-- From Hospital -->
@@ -123,11 +127,12 @@
         {{ element.from_hospital_address || 'N/A' }}
       </div>
 
-      <!-- Arrow -->
-      <div class="text-xs font-semibold my-1">
-        ↓ TO
-      </div>
-
+      <small *ngIf="element.record_warning" class="text-amber-700">{{ element.record_warning }}</small>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="destination_hospital">
+    <th mat-header-cell *matHeaderCellDef>Destination hospital</th>
+    <td mat-cell *matCellDef="let element">
       <!-- To Hospital -->
       <div class="font-medium">
         {{ element.to_hospital_name || 'N/A' }}

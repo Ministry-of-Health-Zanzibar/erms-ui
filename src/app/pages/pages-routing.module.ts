@@ -8,6 +8,10 @@ const routes: Routes = [
     loadComponent: () => import('./common/common.component').then(c => c.CommonComponent),
     canActivate: [AuthGuard],
     children: [
+      {
+        path: 'reports/case-journey',
+        loadComponent: () => import('./reports/case-journey/case-journey.component').then(c => c.CaseJourneyComponent),
+      },
 
       {
         path: 'dashboard',

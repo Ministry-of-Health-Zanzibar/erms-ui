@@ -25,6 +25,7 @@ export interface ReportOption {
 export interface ReportFilterOptions {
   hospitals: ReportOption[];
   source_hospitals: ReportOption[];
+  followup_outcomes?: ReportOption[];
   locations: ReportOption[];
   referral_types: ReportOption[];
   genders: ReportOption[];
@@ -102,6 +103,9 @@ export interface ReportRequest {
   referral_type_id?: number | null;
   patient_history_status?: string | null;
   patient_search?: string | null;
+  referral_search?: string | null;
+  outcome?: string | null;
+  case_id?: number | null;
   include_archived?: boolean;
   page?: number;
   per_page?: number;
@@ -118,8 +122,8 @@ export class ReportingService {
     return this.http.get<{ data: ReportDefinition[] }>(`${this.baseUrl}/types`);
   }
 
-  getFilterOptions(): Observable<{ data: ReportFilterOptions }> {
-    return this.http.get<{ data: ReportFilterOptions }>(`${this.baseUrl}/filters`);
+  getFilterOptions(reportType?: string): Observable<{ data: ReportFilterOptions }> {
+    return this.http.get<{ data: ReportFilterOptions }>(`${this.baseUrl}/filters`, reportType ? { params: { report_type: reportType } } : {});
   }
 
   generate(request: ReportRequest): Observable<{ data: GeneratedReport }> {
@@ -153,6 +157,7 @@ export class ReportingService {
       'referral_type_id',
       'page',
       'per_page',
+      'case_id',
     ];
 
     integerFields.forEach(field => {

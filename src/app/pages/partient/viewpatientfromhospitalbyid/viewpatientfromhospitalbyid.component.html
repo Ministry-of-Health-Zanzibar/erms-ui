@@ -94,8 +94,8 @@
           <div class="stage-display">
             <span class="summary-label">Current stage</span>
             <div class="stage-value">
-              <strong>{{ medicalHistory.status_tracking.stage }}</strong>
-              <span>Stage</span>
+              <strong>{{ medicalHistory.status_tracking.is_legacy ? '—' : medicalHistory.status_tracking.stage }}</strong>
+              <span>{{ medicalHistory.status_tracking.is_legacy ? 'Legacy record' : 'Stage' }}</span>
             </div>
           </div>
 
@@ -134,7 +134,7 @@
           </div>
           <span class="case-chip">
             <mat-icon aria-hidden="true">info</mat-icon>
-            {{ (medicalHistory.status || 'Unknown status') | titlecase }}
+            {{ medicalHistory.status_tracking?.label || (medicalHistory.status || 'Unknown status') }}
           </span>
         </div>
 

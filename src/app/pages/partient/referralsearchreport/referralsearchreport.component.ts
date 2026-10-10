@@ -73,13 +73,15 @@ export class ReferralsearchreportComponent implements OnInit, OnDestroy {
 
   loading: boolean = false;
   private readonly onDestroy = new Subject<void>();
+  private readonly cancelSearch = new Subject<void>();
 
   reportForm: FormGroup;
 displayedColumns: string[] = [
   'no',
   'referral_id',
   'patient_name',
-  'hospital',
+  'source_hospital',
+  'destination_hospital',
   'insurance_provider_name',
   'start_date',
   'end_date',
@@ -95,6 +97,7 @@ displayedColumns: string[] = [
 
   errorMessage = '';
   noResults = false;
+  private appliedCriteria: Record<string, any> = {};
 
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -124,6 +127,7 @@ displayedColumns: string[] = [
   ngOnDestroy(): void {
     this.onDestroy.next();
     this.onDestroy.complete();
+    this.cancelSearch.complete();
   }
 
   applyFilter(event: Event): void {
@@ -181,7 +185,8 @@ displayedColumns: string[] = [
 
   configForm(): void {
     this.reportForm = new FormGroup({
-      hospital_name: new FormControl(null),
+      from_hospital_name: new FormControl(null),
+      to_hospital_name: new FormControl(null),
       referral_reason_name: new FormControl(null),
       referral_type_name: new FormControl(null),
       patient_name: new FormControl(null),
@@ -221,6 +226,7 @@ displayedColumns: string[] = [
   }
 
   searchReport(): void {
+    this.cancelSearch.next();
     this.loading = true;
     this.noResults = false;
     this.errorMessage = '';
@@ -229,20 +235,22 @@ displayedColumns: string[] = [
 
     // format dates if they exist
     if (formData.start_date) {
-      formData.start_date = new Date(formData.start_date).toISOString().split('T')[0];
+      formData.start_date = this.reportDate(formData.start_date);
     }
     if (formData.end_date) {
-      formData.end_date = new Date(formData.end_date).toISOString().split('T')[0];
+      formData.end_date = this.reportDate(formData.end_date);
     }
 
-    this.reportService.generateReport(formData).pipe(takeUntil(this.onDestroy)).subscribe({
+    this.reportService.generateReport(formData).pipe(takeUntil(this.cancelSearch), takeUntil(this.onDestroy)).subscribe({
       next: response => {
         this.loading = false;
         this.dataSource.data = response.data;
+        this.appliedCriteria = { ...formData };
         this.noResults = response.data.length === 0;
       },
       error: err => {
         this.loading = false;
+        this.dataSource.data = [];
         if (err.status === 404) {
           this.dataSource.data = [];
           this.noResults = true;
@@ -251,6 +259,12 @@ displayedColumns: string[] = [
         }
       }
     });
+  }
+
+  private reportDate(value: Date | string): string {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
+    const date = new Date(value);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   }
 
   // Export Excel
@@ -346,8 +360,8 @@ async exportPDF() {
   // Report title
   doc.setFontSize(14);
 
-  const patientName = this.reportForm.value.patient_name;
-const hospitalName = this.reportForm.value.hospital_name;
+  const patientName = this.appliedCriteria['patient_name'];
+const hospitalName = this.appliedCriteria['to_hospital_name'];
 
 let reportTitle = 'REFERRAL REPORT';
 
@@ -384,8 +398,8 @@ doc.text(
   );
 
 
-  const startDate = this.reportForm.value.start_date;
-  const endDate = this.reportForm.value.end_date;
+  const startDate = this.appliedCriteria['start_date'];
+  const endDate = this.appliedCriteria['end_date'];
 
 
   if(startDate && endDate){
@@ -405,7 +419,8 @@ doc.text(
     head: [[
       'No',
       'Patient Name',
-      'From Hospital → To Hospital',
+      'Source hospital',
+      'Destination hospital',
       'Insurance',
       'Start Date',
       'End Date',
@@ -421,12 +436,11 @@ doc.text(
         element.patient_name || 'N/A',
   
         [
-          `FROM: ${element.from_hospital_name || 'N/A'}`,
+          element.from_hospital_name || 'Not recorded',
           element.from_hospital_address || '',
-  
-          '↓ TO',
-  
-          `TO: ${element.to_hospital_name || 'N/A'}`,
+        ].join('\n'),
+        [
+          element.to_hospital_name || 'Not recorded',
           element.to_hospital_address || ''
         ].join('\n'),
   
@@ -468,13 +482,14 @@ doc.text(
   
     columnStyles: {
       0: { cellWidth: 10 },
-      1: { cellWidth: 35 },
-      2: { cellWidth: 65 },
-      3: { cellWidth: 25 },
+      1: { cellWidth: 32 },
+      2: { cellWidth: 40 },
+      3: { cellWidth: 40 },
       4: { cellWidth: 22 },
-      5: { cellWidth: 22 },
-      6: { cellWidth: 65 },
-      7: { cellWidth: 30 }
+      5: { cellWidth: 18 },
+      6: { cellWidth: 18 },
+      7: { cellWidth: 58 },
+      8: { cellWidth: 28 }
     }
   });
 

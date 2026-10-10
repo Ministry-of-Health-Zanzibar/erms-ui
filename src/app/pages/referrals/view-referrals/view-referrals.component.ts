@@ -25,6 +25,7 @@ import { ReferralService } from '../../../services/Referral/referral.service';
 import { AddReferralsComponent } from '../add-referrals/add-referrals.component';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
+import { patientHistoryStatusLabel } from '@shared/utils/patient-history-status';
 import { EmrSegmentedModule } from '../../../../../projects/components/src/lib/segmented/segmented.module';
 import { BillComponent } from '../bill/bill.component';
 import { DisplaycommentsComponent } from '../displaycomments/displaycomments.component';
@@ -82,6 +83,7 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
     'board_comments',
     'diagnoses',
     'status',
+    'record_check',
     'letter_status',
     'action',
   ];
@@ -260,6 +262,39 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
     return words.length > wordLimit
       ? words.slice(0, wordLimit).join(' ') + '...'
       : text;
+  }
+
+  displayStatus(record: any): string {
+    // Recommendation-only/standalone histories have no hospital referral yet.
+    // Keep their case workflow label; real referrals use their own status,
+    // including statuses changed by follow-up outcomes (for example Closed).
+    if (record.record_type === 'history' || record.is_recommendation_only) {
+      if (record.case_status_label && record.case_status_label !== 'Case link needs review') {
+        return record.case_status_label === 'Confirmed by DG' ? 'Confirmed' : record.case_status_label;
+      }
+      return patientHistoryStatusLabel(record.case_status ?? record.history?.status ?? record.status);
+    }
+    return record.status || 'N/A';
+  }
+
+  recordWarning(record: any): { label: string; message: string } | null {
+    if (record.case_link_resolved === false || (
+      record.case_status_label === 'Case link needs review' && record.case_link_resolved !== true
+    )) {
+      return {
+        label: 'Case link needs review',
+        message: 'Ask an administrator to verify the linked medical history before making a case decision. The referral status shown is unchanged.',
+      };
+    }
+    // The older API fallback also uses the link warning for a linked case
+    // whose stored status has no recognised tracking label.
+    if (record.case_status_label === 'Case link needs review') {
+      return {
+        label: 'Case status needs review',
+        message: 'The case is linked, but its workflow status has no recognised tracking label. The referral status shown is unchanged.',
+      };
+    }
+    return null;
   }
 
   getDiagnoses(diagnoses: any[]): string {

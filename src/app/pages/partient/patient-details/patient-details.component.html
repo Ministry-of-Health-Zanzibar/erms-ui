@@ -55,8 +55,8 @@
           <div class="stage-display">
             <span class="summary-label">Current stage</span>
             <div class="stage-value">
-              <strong>{{ medicalHistory.status_tracking.stage }}</strong>
-              <span>Stage</span>
+              <strong>{{ medicalHistory.status_tracking.is_legacy ? '—' : medicalHistory.status_tracking.stage }}</strong>
+              <span>{{ medicalHistory.status_tracking.is_legacy ? 'Legacy record' : 'Stage' }}</span>
             </div>
           </div>
 

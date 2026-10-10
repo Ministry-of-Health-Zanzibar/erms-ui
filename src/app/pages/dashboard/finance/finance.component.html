@@ -32,7 +32,7 @@
         <span class="tracking-icon"><mat-icon>route</mat-icon></span>
         <div>
           <h2 id="case-tracking-title">Case Status Tracking</h2>
-          <p>Case counts across each medical review stage.</p>
+          <p>Case counts across the current workflow stages.</p>
         </div>
       </div>
       <div class="tracking-total">
@@ -67,13 +67,19 @@
           <div class="stage-copy">
             <div class="stage-title-row">
               <strong>{{ item.display_label }}</strong>
-              <span>{{ item.case_percentage | number:'1.0-1' }}% of cases</span>
+              <span>{{ item.case_percentage | number:'1.0-1' }}% of tracked cases</span>
             </div>
           </div>
           <span class="patient-count">{{ item.count | number }}</span>
         </button>
       </div>
     </div>
+
+    <aside class="tracking-untracked" *ngIf="!workflowLoading && !workflowError && dashboardData?.medical_history?.untracked_total > 0">
+      <p>{{ dashboardData.medical_history.untracked_total | number }} cases are included in the total but are outside the current workflow stages.</p>
+      <button mat-button type="button" *ngFor="let item of dashboardData.medical_history.untracked_statuses"
+        [disabled]="!canViewCaseReports" (click)="openCaseReport(item.status)">{{ item.label }}: {{ item.count | number }}</button>
+    </aside>
 
     <div
       *ngIf="!workflowLoading && (workflowError || !dashboardData?.medical_history?.statuses?.length)"

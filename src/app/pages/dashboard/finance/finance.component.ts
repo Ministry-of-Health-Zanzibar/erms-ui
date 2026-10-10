@@ -14,6 +14,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { StatisticalService } from '../../../services/report/statistical.service';
 import { GraphreportService } from '../../../services/accountants/graphreport.service';
 import { ArcElement, Chart, DoughnutController, Legend, Title, Tooltip } from 'chart.js';
+import { patientHistoryStatusLabel } from '@shared/utils/patient-history-status';
 
 // This dashboard only uses a doughnut chart, so avoid registering the complete
 // Chart.js library during the initial dashboard load.
@@ -55,7 +56,7 @@ const caseWorkflowCenterTextPlugin = {
     ctx.font = '700 24px Arial, sans-serif';
     ctx.fillText(total.toLocaleString(), centerX, centerY - 7);
     ctx.font = '600 11px Arial, sans-serif';
-    ctx.fillText('Cases', centerX, centerY + 15);
+    ctx.fillText('Tracked cases', centerX, centerY + 15);
     ctx.restore();
   },
 };
@@ -100,7 +101,7 @@ const caseWorkflowOutsideLabelsPlugin = {
       (item.side === 'right' ? rightItems : leftItems).push(item);
     });
 
-    const lineHeight = 16;
+    const lineHeight = 36;
     const minimumY = chartArea.top + 18;
     const maximumY = chartArea.bottom - 18;
 
@@ -150,7 +151,22 @@ const caseWorkflowOutsideLabelsPlugin = {
         .getPropertyValue('--rms-text')
         .trim() || '#334155';
       ctx.textAlign = isRight ? 'left' : 'right';
-      ctx.fillText(item.label, textX, item.labelY);
+      // Keep the full workflow names readable within the sample chart's
+      // existing width instead of growing the dashboard card.
+      const availableWidth = Math.max(40, isRight ? chart.width - textX - 4 : textX - 4);
+      const lines: string[] = [];
+      let line = '';
+      for (const word of item.label.split(' ')) {
+        const next = line ? `${line} ${word}` : word;
+        if (line && ctx.measureText(next).width > availableWidth) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = next;
+        }
+      }
+      if (line) lines.push(line);
+      lines.forEach((text, index) => ctx.fillText(text, textX, item.labelY + (index - (lines.length - 1) / 2) * 12));
     });
 
     ctx.restore();
@@ -271,15 +287,26 @@ export class FinanceComponent implements OnInit, OnDestroy {
       takeUntil(this.caseRequestCancelled), takeUntil(this.destroyed),
     ).subscribe({
       next: (response: any) => {
-        const statuses = (response?.data?.medical_history?.statuses ?? []).map((item: any) => ({
+        const summary = response?.data?.medical_history ?? {};
+        const statusRows = summary.statuses ?? [];
+        const statuses = statusRows.filter((item: any) => item.status !== 'pending').map((item: any) => ({
           ...item,
           display_label: this.getDashboardStatusLabel(item.status, item.label),
         }));
+        // Also handle an older API response during deployment: a legacy
+        // submission remains visible, but never becomes a workflow stage.
+        const untracked = summary.untracked_statuses ?? statusRows.filter((item: any) => item.status === 'pending' && Number(item.count) > 0)
+          .map((item: any) => ({ ...item, label: patientHistoryStatusLabel(item.status) }));
+        const trackedTotal = statuses.reduce((sum: number, item: any) => sum + (Number(item.count) || 0), 0);
+        statuses.forEach((item: any) => item.case_percentage = trackedTotal ? Number(item.count) / trackedTotal * 100 : 0);
 
         this.dashboardData = {
-          ...response.data,
+          ...response?.data,
           medical_history: {
-            ...response.data.medical_history,
+            ...summary,
+            tracked_total: trackedTotal,
+            untracked_total: summary.untracked_total ?? untracked.reduce((sum: number, item: any) => sum + (Number(item.count) || 0), 0),
+            untracked_statuses: untracked,
             statuses,
           },
         };
@@ -421,18 +448,7 @@ export class FinanceComponent implements OnInit, OnDestroy {
   }
 
   private getDashboardStatusLabel(status: string, fallback: string): string {
-    const labels: Record<string, string> = {
-      pending: 'Submitted',
-      reviewed: 'Reviewed',
-      assigned: 'Medical Board',
-      requested: 'Referral Created',
-      approved: 'Approved',
-      confirmed: 'Confirmed',
-      rejected: 'Rejected',
-      boarded_out: 'Boarded Out',
-    };
-
-    return labels[status] ?? fallback;
+    return patientHistoryStatusLabel(status, fallback);
   }
 
   // =========================

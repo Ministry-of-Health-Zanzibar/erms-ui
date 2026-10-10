@@ -1,0 +1,68 @@
+<div class="journey-page" *ngIf="allowed; else forbidden">
+  <app-page-header title="Case Journey and Outcomes" description="Follow each case through hospital referrals, transfers and recorded outcomes. Approval tracking stays separate." icon="timeline" />
+  <app-section-card title="Report filters" description="Dates use recorded activity. A case submitted earlier can appear when a follow-up occurs in this period." icon="filter_alt">
+    <form class="filters" (ngSubmit)="search()">
+      <app-date-picker name="start" label="Activity from" [(ngModel)]="filters.start_date" outputFormat="iso" [max]="today" />
+      <app-date-picker name="end" label="Activity to" [(ngModel)]="filters.end_date" outputFormat="iso" [min]="filters.start_date" [max]="today" />
+      <app-text-input name="patient" label="Patient or Matibabu card" [(ngModel)]="filters.patient_search" icon="person_search" />
+      <app-text-input name="referral" label="Referral number" [(ngModel)]="filters.referral_search" />
+      <app-filter-select name="source" label="Submitting hospital" [(ngModel)]="filters.source_hospital_ids" [multiple]="true" [options]="options?.source_hospitals || []" />
+      <app-filter-select name="destination" label="Destination hospital" [(ngModel)]="filters.hospital_ids" [multiple]="true" [options]="options?.hospitals || []" />
+      <app-filter-select name="approval" label="Approval status" [(ngModel)]="filters.patient_history_status" [options]="options?.patient_history_statuses || []" />
+      <app-filter-select name="outcome" label="Recorded follow-up outcome in period" [(ngModel)]="filters.outcome" [options]="options?.followup_outcomes || []" />
+      <mat-checkbox name="archive" [(ngModel)]="filters.include_archived">Include archived records</mat-checkbox>
+      <button mat-flat-button color="primary" type="submit" [disabled]="loading"><mat-icon>search</mat-icon> Search</button>
+    </form>
+    <app-loading-state *ngIf="loadingOptions" label="Loading filters…" />
+    <p *ngIf="optionsError" role="alert">{{ optionsError }} <button mat-button (click)="loadOptions()">Retry filters</button></p>
+    <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+  </app-section-card>
+  <app-loading-state *ngIf="loading" label="Preparing case report…" />
+  <ng-container *ngIf="report && !loading">
+    <div class="metrics"><div *ngFor="let metric of metrics"><span>{{ metric.label }}</span><strong>{{ report.summary[metric.key] | number }}</strong></div></div>
+    <app-section-card title="Case summaries" [description]="report.period" icon="table_view">
+      <p>Current approval status and latest hospital outcomes are shown separately. Counts above use visits in the selected period.</p>
+      <div class="actions"><button *ngFor="let format of formats" mat-stroked-button [disabled]="exporting || !report.pagination.total" (click)="exportReport(format)">Export {{ format.toUpperCase() }}</button></div>
+      <div class="table-scroll" *ngIf="report.rows.length; else noCases">
+        <table><thead><tr><th *ngFor="let column of report.columns">{{ column.label }}</th><th>Journey</th></tr></thead>
+          <tbody><tr *ngFor="let row of report.rows"><td *ngFor="let column of report.columns">
+            <app-status-badge *ngIf="column.key === 'status_label'; else cell" [status]="text(row['status'])" context="patient-history" />
+            <ng-template #cell>{{ text(row[column.key]) }}</ng-template>
+          </td><td><button mat-button color="primary" (click)="viewJourney(row)" [disabled]="loadingJourney">View journey</button></td></tr></tbody>
+        </table>
+      </div>
+      <mat-paginator [length]="report.pagination.total" [pageIndex]="report.pagination.current_page - 1" [pageSize]="report.pagination.per_page" [pageSizeOptions]="[10, 25, 50, 100]" (page)="changePage($event)" />
+      <ng-template #noCases><app-empty-state title="No matching cases" message="Try a wider activity period or different filters." icon="manage_search" /></ng-template>
+    </app-section-card>
+    <app-section-card title="How to read the report"><ul><li *ngFor="let note of report.notes">{{ note }}</li></ul></app-section-card>
+  </ng-container>
+  <app-loading-state *ngIf="loadingJourney" label="Loading complete case journey…" />
+  <p *ngIf="journeyError" role="alert" class="error">{{ journeyError }}</p>
+  <app-section-card *ngIf="journey && !loadingJourney" title="Complete case journey" description="Earlier and later records are included for context. These do not increase the period visit counts." icon="route">
+    <div class="actions"><button mat-button (click)="closeJourney()">Close journey</button><button *ngFor="let format of formats" mat-stroked-button [disabled]="exporting" (click)="exportReport(format, true)">Export this journey {{ format.toUpperCase() }}</button></div>
+    <p *ngIf="journey.rows[0] as selected"><strong>{{ selected['patient'] }}</strong> · Matibabu card: {{ text(selected['matibabu_card']) }} · {{ selected['status_label'] }}</p>
+    <ng-container *ngFor="let section of journeySections">
+      <h3>{{ section.title }}</h3>
+      <ul *ngIf="section.kind === 'list'"><li *ngFor="let item of section.items">{{ item }}</li></ul>
+      <div class="table-scroll" *ngIf="section.kind === 'table' && section.key !== 'movements'">
+        <table><thead><tr><th *ngFor="let column of section.columns">{{ column.label }}</th></tr></thead>
+          <tbody><tr *ngFor="let row of section.rows"><td *ngFor="let column of section.columns">
+            <app-status-badge *ngIf="column.key === 'outcome'; else hospitalCell" [status]="text(row[column.key])" [tone]="outcomeTone(row[column.key])" />
+            <ng-template #hospitalCell>{{ text(row[column.key]) }}</ng-template>
+          </td></tr></tbody></table>
+      </div>
+      <ol class="timeline" *ngIf="section.key === 'movements'">
+        <li *ngFor="let movement of section.rows" [class.context]="movement['period_context'] !== 'In period'">
+          <div class="event-heading"><strong>{{ movement['activity'] }}</strong><app-status-badge [status]="text(movement['outcome'])" [tone]="outcomeTone(movement['outcome'])" *ngIf="movement['outcome']" /></div>
+          <p>{{ text(movement['occurred_at']) }} · {{ movement['period_context'] }} · {{ movement['record_state'] }}</p>
+          <p *ngIf="movement['destination_hospital']"><strong>Source:</strong> {{ movement['source_hospital'] }} <strong>Destination:</strong> {{ movement['destination_hospital'] }}</p>
+          <p class="notes">{{ movement['notes'] }}</p><small>Recorded by: {{ movement['actor'] }}</small>
+        </li>
+      </ol>
+    </ng-container>
+    <app-empty-state *ngIf="!journey.rows.length" title="Case is no longer available" message="The record may have changed or no longer match your filters." />
+  </app-section-card>
+  <p *ngIf="exportError" role="alert" class="error">{{ exportError }}</p>
+  <app-loading-state *ngIf="exporting" label="Preparing report export…" />
+</div>
+<ng-template #forbidden><app-empty-state title="Access restricted" message="You need report access to view case journeys." icon="lock" /></ng-template>

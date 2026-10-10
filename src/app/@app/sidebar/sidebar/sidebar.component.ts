@@ -218,6 +218,13 @@ export class SidebarComponent {
           permission: 'View Report',
           link: '/pages/patient/searchreport99990000',
         },
+        {
+          type: 'link',
+          name: 'Case Journey and Outcomes',
+          icon: 'timeline',
+          permission: 'View Report',
+          link: '/pages/reports/case-journey',
+        },
       ],
     },
 
