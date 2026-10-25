@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  color: var(--rms-text, #0f172a);
+  background: var(--rms-surface, #ffffff);
+}
+
+.telemedicine-routing-dialog {
+  overflow: hidden;
+  border: 1px solid var(--rms-border, #e2e8f0);
+  border-radius: var(--rms-card-radius);
+  background: var(--rms-surface, #ffffff);
+}
+
+.telemedicine-routing-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+}
+
+.telemedicine-routing-dialog__icon {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--rms-control-radius);
+  background: rgb(255 255 255 / 0.16);
+}
+
+.telemedicine-routing-dialog__icon mat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
+.telemedicine-routing-dialog__eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: rgb(240 253 250 / 0.88);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.telemedicine-routing-dialog h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 780;
+}
+
+.telemedicine-routing-dialog__header p {
+  margin: 0.2rem 0 0;
+  color: rgb(240 253 250 / 0.88);
+  font-size: 0.76rem;
+}
+
+.telemedicine-routing-dialog__body {
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.telemedicine-routing-dialog__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid color-mix(in srgb, #0f766e 18%, var(--rms-border, #e2e8f0));
+  border-radius: var(--rms-control-radius);
+  color: var(--rms-text-muted, #64748b);
+  background: color-mix(in srgb, #0f766e 5%, var(--rms-surface, #ffffff));
+  font-size: 0.73rem;
+  line-height: 1.4;
+}
+
+.telemedicine-routing-dialog__notice mat-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: #0f766e;
+  font-size: 1rem;
+}
+
+.telemedicine-routing-dialog__field {
+  display: block;
+  width: 100%;
+}
+
+.telemedicine-routing-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.telemedicine-routing-dialog__actions button {
+  min-height: var(--rms-button-height);
+  gap: 0.3rem;
+  padding-inline: var(--rms-button-padding-inline);
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
+}
+
+.telemedicine-routing-dialog__actions mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+}
+
+:host-context(html.dark) .telemedicine-routing-dialog__notice {
+  border-color: rgb(94 234 212 / 0.22);
+  background: color-mix(in srgb, #0f766e 14%, var(--rms-surface, #1e293b));
+}
+
+:host-context(html.dark) .telemedicine-routing-dialog__notice mat-icon {
+  color: #99f6e4;
+}
+
+@media (max-width: 520px) {
+  .telemedicine-routing-dialog__header,
+  .telemedicine-routing-dialog__body {
+    padding-inline: 0.9rem;
+  }
+
+  .telemedicine-routing-dialog__actions {
+    flex-direction: column-reverse;
+  }
+
+  .telemedicine-routing-dialog__actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

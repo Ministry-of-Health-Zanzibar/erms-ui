@@ -9,7 +9,7 @@
 .forward-dialog {
   overflow: hidden;
   border: 1px solid var(--rms-border, #e2e8f0);
-  border-radius: 1rem;
+  border-radius: var(--rms-card-radius);
   background: var(--rms-surface, #ffffff);
 }
 
@@ -29,7 +29,7 @@
   height: 2.65rem;
   place-items: center;
   border: 1px solid rgb(255 255 255 / 0.24);
-  border-radius: 0.8rem;
+  border-radius: var(--rms-control-radius);
   background: rgb(255 255 255 / 0.14);
   box-shadow: 0 8px 20px rgb(15 23 42 / 0.16);
 }
@@ -82,7 +82,7 @@
   margin-bottom: 1rem;
   padding: 0.7rem 0.75rem;
   border: 1px solid rgb(37 99 235 / 0.16);
-  border-radius: 0.65rem;
+  border-radius: var(--rms-control-radius);
   color: var(--rms-text-muted, #64748b);
   background: color-mix(in srgb, #2563eb 6%, var(--rms-surface, #ffffff));
   font-size: 0.73rem;

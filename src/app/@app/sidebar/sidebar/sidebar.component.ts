@@ -159,6 +159,14 @@ export class SidebarComponent {
       permission: 'View Patient History',
     },
     {
+      id: 'telemedicine',
+      type: 'Single',
+      name: 'Telemedicine',
+      icon: 'video_call',
+      link: '/pages/telemedicine',
+      permission: 'View Telemedicine',
+    },
+    {
       id: 'referral',
       type: 'Single',
       name: 'Referrals',

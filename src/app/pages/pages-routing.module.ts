@@ -9,6 +9,10 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
+        path: 'telemedicine',
+        loadComponent: () => import('./telemedicine/telemedicine.component').then(c => c.TelemedicineComponent),
+      },
+      {
         path: 'reports/case-journey',
         loadComponent: () => import('./reports/case-journey/case-journey.component').then(c => c.CaseJourneyComponent),
       },

@@ -1,0 +1,332 @@
+:host {
+  display: block;
+}
+
+.telemedicine-page {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  color: var(--rms-text, #0f172a);
+}
+
+.telemedicine-page__header-actions,
+.request-card__actions,
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.telemedicine-form,
+.inline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.telemedicine-form__context {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid var(--rms-border, #cbd5e1);
+  border-radius: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  color: var(--rms-text-muted, #64748b);
+  background: color-mix(in srgb, #2563eb 4%, var(--rms-surface, #ffffff));
+}
+
+.telemedicine-form__context span {
+  color: var(--rms-text, #0f172a);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.telemedicine-form__context p {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.telemedicine-form__context a {
+  justify-self: start;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--rms-border, #cbd5e1);
+  border-radius: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  color: var(--rms-text, #0f172a);
+  background: var(--rms-surface, #ffffff);
+  font: inherit;
+  font-weight: 500;
+  outline: 0;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.field textarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.12);
+}
+
+.field-label,
+.selected-patient small,
+.patient-result small,
+.file-field small {
+  display: block;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.patient-results {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 0.35rem;
+  max-height: 12rem;
+  overflow: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--rms-border, #cbd5e1);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, #2563eb 3%, var(--rms-surface, #ffffff));
+}
+
+.patient-result {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  border: 0;
+  border-radius: 0.35rem;
+  padding: 0.55rem 0.65rem;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.patient-result:hover {
+  background: color-mix(in srgb, #2563eb 8%, var(--rms-surface, #ffffff));
+}
+
+.patient-results__loading {
+  padding: 0.35rem;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.75rem;
+}
+
+.selected-patient {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgb(37 99 235 / 0.24);
+  border-radius: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  background: color-mix(in srgb, #2563eb 7%, var(--rms-surface, #ffffff));
+}
+
+.selected-patient strong {
+  display: block;
+  margin-top: 0.12rem;
+  color: var(--rms-text, #0f172a);
+}
+
+.request-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--rms-border, #e2e8f0);
+}
+
+.request-card__header h2 {
+  margin: 0.15rem 0 0.2rem;
+  font-size: 1rem;
+  font-weight: 760;
+}
+
+.request-card__header p {
+  margin: 0;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.78rem;
+}
+
+.request-card__eyebrow {
+  color: #2563eb;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.request-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.request-card {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid var(--rms-border, #e2e8f0);
+  border-radius: 0.6rem;
+  padding: 1rem;
+  background: var(--rms-surface, #ffffff);
+}
+
+.request-card__details {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.request-card__details div {
+  min-width: 0;
+}
+
+.request-card__details span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.request-card__details strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.request-card__notes {
+  border-left: 3px solid #93c5fd;
+  padding-left: 0.75rem;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.request-card__notes p {
+  margin: 0.25rem 0;
+}
+
+.request-card__files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--rms-text-muted, #64748b);
+  font-size: 0.72rem;
+}
+
+.request-card__files > span {
+  margin-right: 0.25rem;
+  font-weight: 700;
+}
+
+.queue-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.inline-workflow-form {
+  display: grid;
+  gap: 0.8rem;
+  border-top: 1px solid var(--rms-border, #e2e8f0);
+  padding-top: 0.9rem;
+}
+
+.inline-workflow-form h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.telemedicine-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid rgb(185 28 28 / 0.2);
+  border-radius: 0.45rem;
+  padding: 0.7rem 0.8rem;
+  color: #991b1b;
+  background: #fef2f2;
+  font-size: 0.78rem;
+}
+
+.telemedicine-alert span {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .request-card__details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .telemedicine-page {
+    padding: 0.75rem;
+  }
+
+  .telemedicine-form,
+  .inline-grid,
+  .queue-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .field--wide {
+    grid-column: auto;
+  }
+
+  .request-card__header,
+  .patient-result {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .request-card__details {
+    grid-template-columns: 1fr;
+  }
+}
+
+:host-context(html.dark) .field input,
+:host-context(html.dark) .field select,
+:host-context(html.dark) .field textarea,
+:host-context(html.dark) .request-card,
+:host-context(html.dark) .patient-results {
+  background: var(--rms-surface, #111827);
+  color: var(--rms-text, #f8fafc);
+}
+
+:host-context(html.dark) .telemedicine-alert {
+  border-color: rgb(248 113 113 / 0.25);
+  color: #fecaca;
+  background: rgb(127 29 29 / 0.25);
+}

@@ -28,6 +28,33 @@
   background: var(--rms-button-success-background) !important;
 }
 
+.workflow-button--telemedicine {
+  background: var(--rms-button-accent-background) !important;
+}
+
+.telemedicine-workflow-note {
+  display: inline-flex;
+  min-height: var(--rms-button-height);
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 22rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--rms-button-accent-background) 35%, transparent);
+  border-radius: var(--rms-control-radius);
+  background: color-mix(in srgb, var(--rms-button-accent-background) 12%, transparent);
+  color: var(--rms-button-primary-foreground);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.telemedicine-workflow-note .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  font-size: 1rem;
+}
+
 .workflow-button:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 9px 22px rgb(2 6 23 / 0.2);

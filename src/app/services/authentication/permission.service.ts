@@ -38,6 +38,20 @@ export class PermissionService {
       return true;
     }
 
+    // Telemedicine was added after some users may already have a login
+    // response cached in the browser. Keep the sidebar usable for the
+    // established workflow roles until the next login refreshes permissions.
+    if (permissions.includes('View Telemedicine') && this.hasAnyStoredRole([
+      'ROLE DG',
+      'ROLE DIRECTOR GENERAL',
+      'ROLE MKURUGENZI TIBA',
+      'ROLE BILL VERIFICATION OFFICER',
+      'ROLE HOSPITAL USER',
+      'ROLE TELEMEDICINE COORDINATOR',
+    ])) {
+      return true;
+    }
+
     let isMatch = false;
 
     const userPermissions: any = this.authService.getPermissions();
@@ -134,5 +148,25 @@ export class PermissionService {
     }
 
     return true;
+  }
+
+  private hasAnyStoredRole(expected: string[]): boolean {
+    const storedRoleValues = [
+      localStorage.getItem('roles'),
+      localStorage.getItem('all_roles'),
+    ].filter((value): value is string => Boolean(value));
+
+    return storedRoleValues.some((storedRoles) => {
+      try {
+        const parsed = JSON.parse(storedRoles);
+        const roles = Array.isArray(parsed) ? parsed : [parsed];
+        return roles.some((role: any) => {
+          const name = typeof role === 'string' ? role : role?.name;
+          return expected.includes(String(name || '').trim().toUpperCase());
+        });
+      } catch {
+        return expected.includes(storedRoles.trim().toUpperCase());
+      }
+    });
   }
 }

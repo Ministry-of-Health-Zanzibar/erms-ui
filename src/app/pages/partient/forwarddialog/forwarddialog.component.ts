@@ -1,5 +1,6 @@
 
 import { Component, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -13,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-forwarddialog',
   standalone: true,
   imports: [
+     CommonModule,
      MatDialogModule,
   MatButtonModule,
   MatFormFieldModule,
@@ -37,7 +39,7 @@ export class ForwarddialogComponent {
      mkurugenzi_tiba_comments: [
       data?.comment || '',  // ✅ preload existing message
       Validators.required
-     ]
+     ],
     });
   }
 
@@ -64,7 +66,7 @@ export class ForwarddialogComponent {
     }
 
     this.dialogRef.close({
-      mkurugenzi_tiba_comments: comment
+      mkurugenzi_tiba_comments: comment,
     });
   }
 

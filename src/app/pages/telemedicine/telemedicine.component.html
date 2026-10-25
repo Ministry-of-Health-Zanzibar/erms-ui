@@ -1,0 +1,216 @@
+<div class="telemedicine-page" *ngIf="allowed; else restricted">
+  <app-page-header
+    title="Telemedicine workflow"
+    description="Coordinate existing-patient follow-ups and new-patient consultations through the approved ERMS workflow."
+    icon="video_call">
+    <div uiPageActions class="telemedicine-page__header-actions">
+      <button mat-stroked-button type="button" (click)="loadRequests()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Refresh queue
+      </button>
+    </div>
+  </app-page-header>
+
+  <app-section-card
+    *ngIf="canCreateRequest"
+    title="Register telemedicine request"
+    description="Search before registering so the request stays linked to the correct patient record."
+    icon="add_circle">
+    <form class="telemedicine-form" [formGroup]="requestForm" (ngSubmit)="submitRequest()">
+      <div class="telemedicine-form__context field--wide">
+        <span>Patient registration</span>
+        <p>Use the existing Patients module when a patient record or history is not yet available.</p>
+        <a mat-stroked-button routerLink="/pages/patient/partient" type="button">
+          <mat-icon>person_add</mat-icon>
+          Open Patients
+        </a>
+      </div>
+
+      <label class="field">
+        <span>Request type</span>
+        <select formControlName="request_type">
+          <option value="follow_up">Existing patient telemedicine follow-up</option>
+          <option value="new_consultation">New patient telemedicine consultation</option>
+        </select>
+      </label>
+
+      <label class="field field--wide">
+        <span>Search patient</span>
+        <input type="search" placeholder="Name, phone, Matibabu card or ZanID" (input)="onPatientSearch($event)" />
+      </label>
+
+      <div class="patient-results" *ngIf="patients.length || loadingPatients">
+        <span class="patient-results__loading" *ngIf="loadingPatients">Searching patient records…</span>
+        <button class="patient-result" type="button" *ngFor="let patient of patients" (click)="selectPatient(patient)">
+          <span>{{ patient.name }}</span>
+          <small>{{ patient.matibabu_card || patient.zan_id || patient.phone || 'Patient record' }}</small>
+        </button>
+      </div>
+
+      <div class="selected-patient" *ngIf="selectedPatient">
+        <div>
+          <span class="field-label">Selected patient</span>
+          <strong>{{ selectedPatient.name }}</strong>
+          <small>{{ selectedPatient.matibabu_card || selectedPatient.zan_id || selectedPatient.phone || 'Patient record' }}</small>
+          <small *ngIf="selectedPatient.latest_history">Latest history: {{ selectedPatient.latest_history.status || 'Available' }}</small>
+          <small *ngIf="!selectedPatient.latest_history">No patient history is linked yet</small>
+        </div>
+        <button mat-icon-button type="button" aria-label="Clear selected patient" (click)="clearSelectedPatient()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <label class="field">
+        <span>Reason</span>
+        <input type="text" formControlName="reason" placeholder="Reason for telemedicine" />
+      </label>
+
+      <label class="field field--wide">
+        <span>Clinical notes</span>
+        <textarea rows="3" formControlName="clinical_notes" placeholder="Relevant clinical context for coordination"></textarea>
+      </label>
+
+      <label class="field field--wide file-field">
+        <span>Supporting document (optional)</span>
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" (change)="onRequestFile($event)" />
+        <small *ngIf="selectedFile">{{ selectedFile.name }}</small>
+      </label>
+
+      <div class="form-actions field--wide">
+        <button mat-flat-button color="primary" type="submit" [disabled]="loading || !selectedPatient">
+          <mat-icon>send</mat-icon>
+          Register request
+        </button>
+      </div>
+    </form>
+  </app-section-card>
+
+  <app-section-card title="Telemedicine work queue" description="Requests, appointments, reports and recorded decisions remain traceable in one view." icon="assignment_turned_in">
+    <div class="queue-toolbar">
+      <label class="field">
+        <span>Search</span>
+        <input type="search" [value]="filterSearch" (input)="filterSearch = $any($event.target).value; loadRequests()" placeholder="Reference or patient" />
+      </label>
+      <label class="field">
+        <span>Status</span>
+        <select [value]="filterStatus" (change)="filterStatus = $any($event.target).value; loadRequests()">
+          <option value="">All statuses</option>
+          <option value="awaiting_bill_verification">Awaiting coordination</option>
+          <option value="appointment_requested">Appointment proposed</option>
+          <option value="appointment_confirmed">Appointment confirmed</option>
+          <option value="report_available">Report available</option>
+          <option value="referred">Referral started</option>
+          <option value="closed">Completed in ZBR</option>
+        </select>
+      </label>
+    </div>
+
+    <app-loading-state *ngIf="loading" label="Loading telemedicine requests…" />
+    <div *ngIf="errorMessage && !loading" class="telemedicine-alert" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+      <button mat-stroked-button type="button" (click)="loadRequests()">Retry</button>
+    </div>
+
+    <div class="request-list" *ngIf="!loading && !errorMessage && requests.length; else emptyQueue">
+      <article class="request-card" *ngFor="let request of requests">
+        <div class="request-card__header">
+          <div>
+            <span class="request-card__eyebrow">{{ requestTypeLabel(request.request_type) }}</span>
+            <h2>{{ request.reference }}</h2>
+            <p>{{ request.patient?.name || 'Patient record' }} · {{ request.patient?.matibabu_card || request.patient?.zan_id || 'Reference available' }}</p>
+          </div>
+          <app-status-badge [status]="statusLabel(request.status)" />
+        </div>
+
+        <div class="request-card__details">
+          <div><span>Reason</span><strong>{{ request.reason || 'Not recorded' }}</strong></div>
+          <div><span>Appointment</span><strong>{{ appointment(request)?.scheduled_at ? (appointment(request).scheduled_at | date:'dd MMM yyyy, HH:mm') : 'Not scheduled' }}</strong></div>
+          <div><span>Hospital</span><strong>{{ appointment(request)?.hospital?.hospital_name || 'Not selected' }}</strong></div>
+          <div><span>Doctor</span><strong>{{ personName(appointment(request)?.assigned_doctor) }}</strong></div>
+        </div>
+
+        <div class="request-card__notes" *ngIf="request.clinical_notes || request.latest_report?.report_text || request.decision_comments">
+          <p *ngIf="request.clinical_notes"><strong>Clinical notes:</strong> {{ request.clinical_notes }}</p>
+          <p *ngIf="request.latest_report?.report_text"><strong>Latest report:</strong> {{ request.latest_report.report_text }}</p>
+          <p *ngIf="request.decision_comments"><strong>Decision:</strong> {{ request.decision_comments }}</p>
+        </div>
+
+        <div class="request-card__files" *ngIf="request.documents?.length || request.latest_report?.file_url">
+          <span>Documents</span>
+          <button mat-button type="button" *ngFor="let document of request.documents" (click)="openFile(document.file_url, document.original_name)">
+            <mat-icon>description</mat-icon>{{ document.original_name }}
+          </button>
+          <button mat-button type="button" *ngIf="request.latest_report?.file_url" (click)="openFile(request.latest_report.file_url, request.latest_report.original_name || 'consultation-report')">
+            <mat-icon>summarize</mat-icon>{{ request.latest_report.original_name || 'Consultation report' }}
+          </button>
+        </div>
+
+        <div class="request-card__actions">
+          <button mat-stroked-button type="button" *ngIf="canScheduleRequest(request)" (click)="beginSchedule(request)">
+            <mat-icon>event_available</mat-icon>
+            Schedule appointment
+          </button>
+          <button mat-stroked-button type="button" *ngIf="canReviewRequest(request)" (click)="beginReview(request)">
+            <mat-icon>rate_review</mat-icon>
+            Review appointment
+          </button>
+          <button mat-stroked-button type="button" *ngIf="canReportRequest(request)" (click)="beginReport(request)">
+            <mat-icon>upload_file</mat-icon>
+            Record report
+          </button>
+          <button mat-flat-button color="primary" type="button" *ngIf="canDecisionRequest(request)" (click)="beginDecision(request)">
+            <mat-icon>fact_check</mat-icon>
+            Record decision
+          </button>
+        </div>
+
+        <form class="inline-workflow-form" *ngIf="activeScheduleId === request.telemedicine_request_id" [formGroup]="scheduleForm" (ngSubmit)="submitSchedule(request)">
+          <h3>Appointment coordination</h3>
+          <div class="inline-grid">
+            <label class="field"><span>Eligible Zanzibar/internal hospital</span><select formControlName="hospital_id" (change)="onHospitalSelected()"><option value="">Select hospital</option><option *ngFor="let hospital of hospitals" [value]="hospital.hospital_id">{{ hospital.hospital_name }} · {{ hospital.hospital_address || 'Zanzibar/internal' }}</option></select></label>
+            <label class="field"><span>Telemedicine Coordinator</span><select formControlName="telemedicine_coordinator_id"><option value="">Select coordinator</option><option *ngFor="let coordinator of coordinators" [value]="coordinator.id">{{ personName(coordinator) }}</option></select></label>
+            <label class="field"><span>Assigned doctor</span><select formControlName="assigned_doctor_id"><option value="">Select doctor</option><option *ngFor="let doctor of doctors" [value]="doctor.id">{{ personName(doctor) }}</option></select></label>
+            <label class="field"><span>Proposed date and time</span><input type="datetime-local" formControlName="scheduled_at" /></label>
+          </div>
+          <div class="form-actions"><button mat-button type="button" (click)="closeActions()">Cancel</button><button mat-flat-button color="primary" type="submit" [disabled]="loading || scheduleForm.invalid">Save appointment</button></div>
+        </form>
+
+        <form class="inline-workflow-form" *ngIf="activeReviewId === request.telemedicine_request_id" [formGroup]="reviewForm" (ngSubmit)="submitReview(request)">
+          <h3>Doctor appointment review</h3>
+          <div class="inline-grid">
+            <label class="field"><span>Decision</span><select formControlName="decision"><option value="confirm">Confirm appointment</option><option value="reschedule">Request rescheduling</option><option value="additional_information">Request additional information</option></select></label>
+            <label class="field" *ngIf="reviewForm.get('decision')?.value === 'reschedule'"><span>New date and time</span><input type="datetime-local" formControlName="scheduled_at" /></label>
+            <label class="field field--wide"><span>Doctor comments</span><textarea rows="3" formControlName="comments" placeholder="Record the way forward"></textarea></label>
+          </div>
+          <div class="form-actions"><button mat-button type="button" (click)="closeActions()">Cancel</button><button mat-flat-button color="primary" type="submit" [disabled]="loading || reviewForm.invalid">Save review</button></div>
+        </form>
+
+        <form class="inline-workflow-form" *ngIf="activeReportId === request.telemedicine_request_id" [formGroup]="reportForm" (ngSubmit)="submitReport(request)">
+          <h3>Consultation report</h3>
+          <label class="field field--wide"><span>Report notes</span><textarea rows="5" formControlName="report_text" placeholder="Record the telemedicine consultation report"></textarea></label>
+          <label class="field field--wide file-field"><span>Upload report</span><input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" (change)="onReportFile($event)" /><small *ngIf="selectedFile">{{ selectedFile.name }}</small></label>
+          <div class="form-actions"><button mat-button type="button" (click)="closeActions()">Cancel</button><button mat-flat-button color="primary" type="submit" [disabled]="loading">Save report</button></div>
+        </form>
+
+        <form class="inline-workflow-form" *ngIf="activeDecisionId === request.telemedicine_request_id" [formGroup]="decisionForm" (ngSubmit)="submitDecision(request)">
+          <h3>Doctor’s clinical decision</h3>
+          <div class="inline-grid">
+            <label class="field"><span>Next action</span><select formControlName="decision"><option value="completed_in_zbr">Complete consultation in ZBR</option><option value="referral_required">Referral required</option><option value="additional_information">Request additional information</option></select></label>
+            <label class="field" *ngIf="decisionForm.get('decision')?.value === 'referral_required'"><span>Referral reason ID (optional)</span><input type="number" formControlName="reason_id" placeholder="Uses the existing reason when empty" /></label>
+            <label class="field field--wide"><span>Decision comments</span><textarea rows="4" formControlName="comments" placeholder="Record the clinical outcome and next action"></textarea></label>
+          </div>
+          <div class="form-actions"><button mat-button type="button" (click)="closeActions()">Cancel</button><button mat-flat-button color="primary" type="submit" [disabled]="loading || decisionForm.invalid">Save decision</button></div>
+        </form>
+      </article>
+    </div>
+
+    <ng-template #emptyQueue>
+      <app-empty-state title="No telemedicine requests" message="Requests created from DCS approval or the telemedicine registration form will appear here." icon="video_call" />
+    </ng-template>
+  </app-section-card>
+</div>
+
+<ng-template #restricted>
+  <app-empty-state title="Access restricted" message="Your account is not authorized to view telemedicine workflow records." icon="lock" />
+</ng-template>

@@ -42,7 +42,7 @@
       </button>
 
       <button
-        *ngIf="medicalHistory?.status === 'requested'"
+        *ngIf="medicalHistory?.status === 'requested' && !telemedicineBlocksDgForward"
         mat-raised-button
         color="primary"
         type="button"
@@ -53,6 +53,27 @@
         <mat-icon aria-hidden="true">forward</mat-icon>
         <span>{{ loading ? 'Forwarding…' : 'Forward' }}</span>
       </button>
+
+      <button
+        *ngIf="medicalHistory?.status === 'requested' && canRouteTelemedicine"
+        mat-raised-button
+        type="button"
+        class="workflow-button workflow-button--telemedicine"
+        (click)="openTelemedicineRoutingDialog()"
+        [disabled]="loading"
+      >
+        <mat-icon aria-hidden="true">video_call</mat-icon>
+        <span>Request Telemedicine</span>
+      </button>
+
+      <div
+        *ngIf="medicalHistory?.status === 'requested' && telemedicineBlocksDgForward"
+        class="telemedicine-workflow-note"
+        role="status"
+      >
+        <mat-icon aria-hidden="true">pending_actions</mat-icon>
+        <span>Telemedicine report pending. Review it before forwarding to the DG.</span>
+      </div>
 
       <button
         *ngIf="medicalHistory?.status === 'approved'"

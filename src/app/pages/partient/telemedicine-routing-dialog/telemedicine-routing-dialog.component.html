@@ -1,0 +1,53 @@
+<section class="telemedicine-routing-dialog" aria-labelledby="telemedicine-routing-title">
+  <header class="telemedicine-routing-dialog__header">
+    <div class="telemedicine-routing-dialog__icon" aria-hidden="true">
+      <mat-icon>video_call</mat-icon>
+    </div>
+    <div>
+      <span class="telemedicine-routing-dialog__eyebrow">Separate workflow</span>
+      <h2 id="telemedicine-routing-title">Request Telemedicine</h2>
+      <p *ngIf="data?.patientName">{{ data?.patientName }}</p>
+    </div>
+  </header>
+
+  <div class="telemedicine-routing-dialog__body">
+    <div class="telemedicine-routing-dialog__notice" role="note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <span>This creates a separate telemedicine request. The case stays in DCS review, and the Bill Verification Officer will be notified.</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
+        <mat-label>Telemedicine request type</mat-label>
+        <mat-select formControlName="telemedicine_type">
+          <mat-option value="follow_up">Existing patient telemedicine follow-up</mat-option>
+          <mat-option value="new_consultation">New patient telemedicine consultation</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.controls.telemedicine_type.hasError('required')">Select a request type.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
+        <mat-label>Reason for telemedicine</mat-label>
+        <input matInput formControlName="telemedicine_reason" maxlength="4000" />
+        <mat-error *ngIf="form.controls.telemedicine_reason.hasError('required')">A reason is required.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
+        <mat-label>Clinical coordination notes</mat-label>
+        <textarea matInput rows="4" maxlength="10000" formControlName="telemedicine_clinical_notes"></textarea>
+        <mat-error *ngIf="form.controls.telemedicine_clinical_notes.hasError('required')">Clinical notes are required.</mat-error>
+      </mat-form-field>
+
+      <footer class="telemedicine-routing-dialog__actions">
+        <button mat-stroked-button type="button" (click)="close()">
+          <mat-icon aria-hidden="true">close</mat-icon>
+          Cancel
+        </button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
+          <mat-icon aria-hidden="true">send</mat-icon>
+          Create telemedicine request
+        </button>
+      </footer>
+    </form>
+  </div>
+</section>

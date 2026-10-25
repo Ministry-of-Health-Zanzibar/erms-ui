@@ -10,9 +10,11 @@ import { PartientService } from '../../../services/partient/partient.service';
 import { environment } from '../../../../environments/environment.prod';
 import { AddmedicalhistoryComponent } from '../addmedicalhistory/addmedicalhistory.component';
 import { ForwarddialogComponent } from '../forwarddialog/forwarddialog.component';
+import { TelemedicineRoutingDialogComponent } from '../telemedicine-routing-dialog/telemedicine-routing-dialog.component';
 import { ConversationModalComponent } from '../../referrals/conversation-modal/conversation-modal.component';
 import { MkurugenziConversationComponent } from '../../referrals/mkurugenzi-conversation/mkurugenzi-conversation.component';
 import { ConversationService } from '../../../services/conversation.service';
+import { TelemedicineService } from '../../../services/telemedicine/telemedicine.service';
 import { FileViewerComponent } from '@shared/ui';
 import { PermissionService } from '../../../services/authentication/permission.service';
 import { WorkflowUndoDialogComponent } from './workflow-undo-dialog.component';
@@ -39,6 +41,7 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
     private patientService: PartientService,
     private dialog: MatDialog,
     private conversationService: ConversationService,
+    private telemedicineService: TelemedicineService,
     public permission: PermissionService,
 
     private http: HttpClient
@@ -77,6 +80,14 @@ export class ViewpatientfromhospitalbyidComponent implements OnInit {
 
   get canViewWorkflowHistory(): boolean {
     return this.permission.parmissionMatched(['Undo Patient History Workflow']);
+  }
+
+  get canRouteTelemedicine(): boolean {
+    return this.permission.parmissionMatched(['Approve Patient History']);
+  }
+
+  get telemedicineBlocksDgForward(): boolean {
+    return this.medicalHistory?.telemedicine_workflow?.blocks_dg_forward === true;
   }
 
   loadWorkflowEvents(): void {
@@ -266,6 +277,61 @@ openForwardDialog() {
   });
 }
 
+openTelemedicineRoutingDialog(): void {
+  const dialogRef = this.dialog.open(TelemedicineRoutingDialogComponent, {
+    width: '520px',
+    maxWidth: 'calc(100vw - 32px)',
+    disableClose: true,
+    data: {
+      patientName: this.medicalHistory?.patient?.name,
+    },
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result) {
+      this.createTelemedicineRequest(result);
+    }
+  });
+}
+
+private createTelemedicineRequest(data: {
+  telemedicine_type: string;
+  telemedicine_reason: string;
+  telemedicine_clinical_notes: string;
+}): void {
+  const historyId = Number(this.medicalHistory?.patient_histories_id);
+  const patientId = Number(this.medicalHistory?.patient_id || this.medicalHistory?.patient?.patient_id);
+
+  if (!historyId || !patientId) {
+    this.uiFeedback.error('Telemedicine request failed', 'The patient history is missing a valid patient reference.');
+    return;
+  }
+
+  const payload = new FormData();
+  payload.append('request_type', data.telemedicine_type);
+  payload.append('patient_id', String(patientId));
+  payload.append('patient_histories_id', String(historyId));
+  payload.append('reason', data.telemedicine_reason);
+  payload.append('clinical_notes', data.telemedicine_clinical_notes);
+
+  this.loading = true;
+  this.telemedicineService.createRequest(payload).subscribe({
+    next: (response: any) => {
+      this.loading = false;
+      this.uiFeedback.success(
+        'Telemedicine request submitted',
+        response?.message || 'The separate telemedicine workflow has been sent to the Bill Verification Officer.',
+      );
+      this.reloadData();
+    },
+    error: (error: any) => {
+      this.loading = false;
+      const message = error?.error?.message || 'The telemedicine request could not be submitted.';
+      this.uiFeedback.error('Telemedicine request failed', message);
+    },
+  });
+}
+
 
 openViewEditDialog() {
   const patientHistoryId = this.medicalHistory?.patient_histories_id;
@@ -311,7 +377,7 @@ forwardToRequestedStatus(data: any) {
       this.uiFeedback.fire({
         icon: 'success',
         title: 'Success!',
-        text: 'Forwarded successfully!',
+        text: res?.message || 'Forwarded successfully!',
         showConfirmButton: false,
         timer: 2000
       });
