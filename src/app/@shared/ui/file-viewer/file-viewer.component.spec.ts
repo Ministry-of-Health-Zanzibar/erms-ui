@@ -80,4 +80,23 @@ describe('FileViewerComponent letter loading', () => {
     expect(dialog.close).toHaveBeenCalledWith({ printed: false });
     http.expectNone('/test-letter/print');
   });
+
+  it('hides the print action for a view-only file', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [FileViewerComponent],
+      providers: [
+        provideNoopAnimations(), provideHttpClient(), provideHttpClientTesting(),
+        { provide: MAT_DIALOG_DATA, useValue: {
+          url: 'about:blank', fileName: 'follow-up.pdf', mimeType: 'application/pdf',
+          title: 'Uploaded follow-up letter', showPrintAction: false,
+        } },
+        { provide: MatDialogRef, useValue: dialog },
+      ],
+    }).compileComponents();
+    const viewOnlyFixture = TestBed.createComponent(FileViewerComponent);
+    viewOnlyFixture.detectChanges();
+
+    expect(viewOnlyFixture.nativeElement.querySelector('button[mattooltip="Print this document"]')).toBeNull();
+  });
 });

@@ -5,7 +5,7 @@
 .ui-section-card {
   overflow: hidden;
   border: 1px solid var(--rms-border);
-  border-radius: 1rem;
+  border-radius: var(--rms-card-radius);
   background: var(--rms-surface);
   box-shadow: 0 1px 3px var(--rms-shadow), 0 8px 24px var(--rms-shadow);
 }
@@ -25,7 +25,7 @@
   min-width: 0;
   align-items: center;
   gap: 0.65rem;
-  color: rgb(37 99 235);
+  color: var(--rms-button-primary-outline);
 }
 
 h2 {

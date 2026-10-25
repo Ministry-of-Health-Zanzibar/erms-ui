@@ -109,8 +109,8 @@
 
 .feedback-dialog__confirm {
   min-width: 7rem;
-  color: #ffffff !important;
-  background: #2563eb;
+  color: var(--rms-button-primary-foreground) !important;
+  background: var(--rms-button-primary-background);
 }
 
 :host-context(html.dark) .feedback-dialog {

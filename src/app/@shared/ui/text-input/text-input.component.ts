@@ -6,6 +6,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +17,7 @@ export type TextInputValue = string | number | null;
 @Component({
   selector: 'app-text-input',
   standalone: true,
-  imports: [MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [MatFormFieldModule, MatIconModule, MatInputModule, MatIconButton],
   templateUrl: './text-input.component.html',
   styleUrl: './text-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +34,8 @@ export class TextInputComponent implements ControlValueAccessor {
   @Input() placeholder = '';
   @Input() icon = '';
   @Input() type = 'text';
+  @Input() passwordToggle = false;
+  @Input() subscriptSizing: 'fixed' | 'dynamic' = 'fixed';
   @Input() autocomplete = 'off';
   @Input() inputmode = '';
   @Input() required = false;
@@ -46,6 +49,7 @@ export class TextInputComponent implements ControlValueAccessor {
 
   value: TextInputValue = null;
   disabled = false;
+  passwordVisible = false;
 
   private onChange: (value: TextInputValue) => void = () => undefined;
   private onTouched: () => void = () => undefined;
@@ -64,6 +68,12 @@ export class TextInputComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+  }
+
+  togglePasswordVisibility(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.passwordVisible = !this.passwordVisible;
   }
 
   get hasValue(): boolean {

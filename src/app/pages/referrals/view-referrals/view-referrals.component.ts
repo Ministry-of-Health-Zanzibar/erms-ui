@@ -522,7 +522,9 @@ export class ViewReferralsComponent implements OnInit, OnDestroy {
       return;
     }
   
-    const id = data.referrals?.[0]?.referral_id;
+    const followUpReferral = data.referrals?.find((referral: any) => referral.has_followup)
+      || data.referrals?.[0];
+    const id = followUpReferral?.referral_id;
     if (!id) return;
   
     this.router.navigate(['/pages/config/referrals/view-follow-up', id]);

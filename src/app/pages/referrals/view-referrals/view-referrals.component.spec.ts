@@ -88,4 +88,18 @@ describe('ViewReferralsComponent', () => {
     component.displayMoreData(record);
     expect(router.navigate).toHaveBeenCalledWith(['/pages/config/referrals/more', 8], { queryParams: { type: 'referral' } });
   });
+
+  it('opens the referral that has the follow-up when one case contains multiple referrals', () => {
+    const groupedCase = {
+      ...record,
+      referrals: [
+        { referral_id: 7, has_followup: false },
+        { referral_id: 9, has_followup: true },
+      ],
+    };
+
+    component.viewfollowup(groupedCase);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/pages/config/referrals/view-follow-up', 9]);
+  });
 });

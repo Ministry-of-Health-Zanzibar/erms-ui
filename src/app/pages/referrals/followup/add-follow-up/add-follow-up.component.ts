@@ -76,6 +76,9 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
   selectedAttachement: File | null = null;
   fileSizeError = '';
   submitting = false;
+  requestDgApproval = false;
+  private hospitalsLoaded = false;
+  private hospitalsLoading = false;
   private submissionKey: string | null = null;
 
   constructor(
@@ -98,6 +101,8 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
       if (this.data.outcome) {
         this.patientForm.patchValue({ outcome: this.data.outcome });
       }
+
+      this.requestDgApproval = this.data.requestDgApproval === true;
     }
 
     this.patientForm.get('outcome')?.valueChanges
@@ -105,13 +110,22 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
       .subscribe((outcome) => this.setOutcomeState(outcome));
 
     this.setOutcomeState(this.patientForm.get('outcome')?.value);
-
-    this.getHospital();
   }
 
   getHospital() {
-    this.hospitalServices.getAllHospital().pipe(takeUntil(this.onDestroy)).subscribe({
-      next: response => this.hospital = response.data,
+    if (this.hospitalsLoaded || this.hospitalsLoading) {
+      return;
+    }
+
+    this.hospitalsLoading = true;
+    this.hospitalServices.getAllHospital().pipe(
+      takeUntil(this.onDestroy),
+      finalize(() => this.hospitalsLoading = false),
+    ).subscribe({
+      next: response => {
+        this.hospital = response.data || [];
+        this.hospitalsLoaded = true;
+      },
       error: (error: unknown) => this.showError(getApiErrorMessage(error, 'Unable to load hospitals.'))
     });
   }
@@ -183,6 +197,13 @@ export class AddFollowUpComponent implements OnInit, OnDestroy {
 
     nextAppointmentControl.updateValueAndValidity({ emitEvent: false });
     hospitalControl.updateValueAndValidity({ emitEvent: false });
+
+    // Hospital names are needed only for a transfer proposal. Loading them
+    // for every outcome caused ROLE HOSPITAL USER to receive a misleading
+    // Forbidden response when opening Follow-up, Finished, or Death.
+    if (normalizedOutcome === 'transferred') {
+      this.getHospital();
+    }
   }
 
   getSelectedHospitalName(): string {
@@ -266,7 +287,7 @@ onAttachmentSelected(event: any): void {
       ).subscribe({ next: response => {
         if (response.statusCode === 200) {
           this.uiFeedback.fire({
-            title: 'Success',
+            title: this.requestDgApproval ? 'Request sent' : 'Success',
             text: response.message,
             icon: 'success',
             confirmButtonColor: '#4690eb',

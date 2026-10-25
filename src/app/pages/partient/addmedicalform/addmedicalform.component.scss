@@ -381,13 +381,14 @@
 }
 
 .browse-button {
-  padding: 8px 13px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  color: #334155;
-  background: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 700;
+  min-height: var(--rms-button-height);
+  padding-inline: var(--rms-button-padding-inline);
+  border: 1px solid var(--rms-button-border);
+  border-radius: var(--rms-button-radius);
+  color: var(--rms-button-text);
+  background: var(--rms-button-surface);
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
 }
 
 .form-actions {
@@ -399,16 +400,15 @@
 }
 
 .form-actions button {
-  min-height: 36px;
-  border-radius: 10px;
-  font-weight: 700;
+  min-height: var(--rms-button-height);
+  font-weight: var(--rms-button-font-weight);
 }
 
 .form-actions button[mat-flat-button] {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 0 18px;
+  gap: 0.35rem;
+  padding-inline: var(--rms-button-padding-inline);
 }
 
 .form-actions button[mat-flat-button] mat-icon {

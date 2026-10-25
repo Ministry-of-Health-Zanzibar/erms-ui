@@ -103,12 +103,12 @@
 
 .board-refresh-button {
   display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  flex: 0 0 2.25rem;
+  width: var(--rms-button-height);
+  height: var(--rms-button-height);
+  flex: 0 0 var(--rms-button-height);
   place-items: center;
   border: 1px solid var(--rms-border);
-  border-radius: 0.65rem;
+  border-radius: var(--rms-button-radius);
   color: var(--rms-text-muted);
   background: var(--rms-surface);
   cursor: pointer;
@@ -128,9 +128,9 @@
 }
 
 .board-add-button {
-  min-height: 2.25rem;
-  color: #ffffff !important;
-  background: #2563eb !important;
+  min-height: var(--rms-button-height);
+  color: var(--rms-button-primary-foreground) !important;
+  background: var(--rms-button-primary-background) !important;
 }
 
 .board-add-button mat-icon {
@@ -255,18 +255,18 @@
 }
 
 .board-action-button {
-  width: 2.2rem !important;
-  height: 2.2rem !important;
-  color: #ffffff !important;
-  border-radius: 0.65rem !important;
+  width: var(--rms-button-height) !important;
+  height: var(--rms-button-height) !important;
+  color: var(--rms-button-primary-foreground) !important;
+  border-radius: var(--rms-button-radius) !important;
 }
 
 .board-action-button--primary {
-  background: #2563eb !important;
+  background: var(--rms-button-primary-background) !important;
 }
 
 .board-action-button--success {
-  background: #16a34a !important;
+  background: var(--rms-button-success-background) !important;
 }
 
 .board-action-button:disabled {

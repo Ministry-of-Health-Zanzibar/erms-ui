@@ -41,7 +41,7 @@ export class ToolbarComponent implements OnInit{
 
   logoutHead(){
     this.uiFeedback.confirm(
-      'Sign out of ERIS?',
+      'Sign out of ERMS?',
       'You will be returned to the sign-in page.',
       {
         icon: 'warning',
@@ -52,7 +52,7 @@ export class ToolbarComponent implements OnInit{
       if (result.isConfirmed) {
         this.uiFeedback.success(
           'Signed out successfully',
-          'Your ERIS session has been closed.',
+          'Your ERMS session has been closed.',
         ).then(() => {
           localStorage.clear();
           this.route.navigate(['/']);

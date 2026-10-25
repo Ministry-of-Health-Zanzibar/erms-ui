@@ -66,6 +66,30 @@ export class LetterDocumentsService {
     });
   }
 
+  openUploadedFollowUpLetter(
+    letterId: number,
+    fileName: string,
+    language: LetterLanguage,
+    patientName = '',
+    trackPrint = true,
+    showPrintAction = true,
+  ): Observable<MatDialogRef<FileViewerComponent>> {
+    const endpoint = `${environment.baseUrl}hospital-letters/${letterId}/file`;
+    const normalizedFileName = fileName.split(/[\\/]/).pop()?.trim()
+      || `follow-up-letter-${letterId}`;
+
+    return this.openAuthenticatedBlob(endpoint, new HttpParams(), {
+      title: `Uploaded follow-up letter${patientName ? ` · ${patientName}` : ''}`,
+      fileName: normalizedFileName,
+      mimeType: this.mimeTypeForFileName(normalizedFileName),
+      printTrackingUrl: trackPrint
+        ? `${this.baseUrl}/follow-ups/${letterId}/print`
+        : undefined,
+      printTrackingBody: { language },
+      showPrintAction,
+    });
+  }
+
   openBoardedOutLetter(
     patientHistoryId: number,
     language: LetterLanguage,
@@ -90,7 +114,31 @@ export class LetterDocumentsService {
     },
   ): Observable<MatDialogRef<FileViewerComponent>> {
     const params = new HttpParams().set('language', language);
-    const shareUrl = `${endpoint}?language=${language}`;
+    return this.openAuthenticatedBlob(endpoint, params, {
+      title: options.title,
+      fileName: options.fileName,
+      mimeType: 'application/pdf',
+      printTrackingUrl: options.printTrackingUrl,
+      printTrackingBody: { language },
+      shareUrl: `${endpoint}?language=${language}`,
+    });
+  }
+
+  private openAuthenticatedBlob(
+    endpoint: string,
+    params: HttpParams,
+    options: {
+      title: string;
+      fileName: string;
+      mimeType: string;
+      printTrackingUrl?: string;
+      printTrackingBody?: Record<string, unknown>;
+      showPrintAction?: boolean;
+      shareUrl?: string;
+    },
+  ): Observable<MatDialogRef<FileViewerComponent>> {
+    const query = params.toString();
+    const shareUrl = options.shareUrl || (query ? `${endpoint}?${query}` : endpoint);
 
     return defer(() => {
       // Open immediately; the same viewer shows progress while the server
@@ -107,9 +155,10 @@ export class LetterDocumentsService {
           shareUrl,
           fileName: options.fileName,
           title: options.title,
-          mimeType: 'application/pdf',
+          mimeType: options.mimeType,
           printTrackingUrl: options.printTrackingUrl,
-          printTrackingBody: { language },
+          printTrackingBody: options.printTrackingBody,
+          showPrintAction: options.showPrintAction,
         },
       });
       let objectUrl: string | undefined;
@@ -152,5 +201,17 @@ export class LetterDocumentsService {
         }),
       );
     });
+  }
+
+  private mimeTypeForFileName(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+
+    return extension === 'pdf'
+      ? 'application/pdf'
+      : extension === 'doc'
+        ? 'application/msword'
+        : extension === 'docx'
+          ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          : 'application/octet-stream';
   }
 }

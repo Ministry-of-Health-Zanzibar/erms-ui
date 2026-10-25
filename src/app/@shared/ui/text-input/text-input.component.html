@@ -1,6 +1,6 @@
-<mat-form-field class="ui-text-input" appearance="outline" subscriptSizing="dynamic">
+<mat-form-field class="ui-text-input" [subscriptSizing]="subscriptSizing">
   @if (icon) {
-    <mat-icon matPrefix aria-hidden="true">{{ icon }}</mat-icon>
+    <mat-icon matSuffix aria-hidden="true">{{ icon }}</mat-icon>
   }
 
   @if (label) {
@@ -9,7 +9,7 @@
 
   <input
     matInput
-    [type]="type"
+    [type]="passwordToggle ? (passwordVisible ? 'text' : 'password') : type"
     [value]="value ?? ''"
     [placeholder]="placeholder"
     [autocomplete]="autocomplete"
@@ -37,5 +37,20 @@
     </button>
   }
 
+  @if (passwordToggle) {
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'"
+      (click)="togglePasswordVisibility($event)"
+    >
+      <mat-icon aria-hidden="true">
+        {{ passwordVisible ? 'visibility_off' : 'visibility' }}
+      </mat-icon>
+    </button>
+  }
+
+  <ng-content select="[matSuffix]" />
   <ng-content select="mat-error, mat-hint" />
 </mat-form-field>

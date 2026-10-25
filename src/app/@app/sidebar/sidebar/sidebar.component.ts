@@ -154,7 +154,7 @@ export class SidebarComponent {
       id: 'history',
       type: 'Single',
       icon: 'history',
-      name: 'View Patient History',
+      name: 'Patient History',
       link: '/pages/patient/patientfromhospital',
       permission: 'View Patient History',
     },
@@ -285,8 +285,16 @@ export class SidebarComponent {
   filterMenuByPermissions(menu: Array<NavItem>): Array<NavItem> {
     return menu
       .map((group) => {
+        const isHospitalDoctor = this.permission.isHospitalDoctor();
+        const hospitalDoctorFollowUpAccess = group.name === 'Follow-up' && isHospitalDoctor;
+        const hideGeneralReferralsForHospitalDoctor = group.name === 'Referrals' && isHospitalDoctor;
+
+        if (hideGeneralReferralsForHospitalDoctor) {
+          return null;
+        }
+
         // Check if the group itself has a permission and if it's valid
-        if (group.permission && !this.hasPermission(group.permission)) {
+        if (group.permission && !this.hasPermission(group.permission) && !hospitalDoctorFollowUpAccess) {
           // If the group's permission is not met, exclude it entirely
           return null;
         }

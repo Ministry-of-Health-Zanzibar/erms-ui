@@ -1,105 +1,318 @@
-import { Injectable, NgZone } from '@angular/core';
-import { Router } from '@angular/router';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { NavigationEnd, Router } from '@angular/router';
+import {
+  BehaviorSubject,
+  debounceTime,
+  filter,
+  fromEvent,
+  merge,
+  Subscription,
+  take,
+} from 'rxjs';
+import { AuthService } from '../authentication/auth.service';
+import {
+  SessionTimeoutDialogComponent,
+  SessionTimeoutDialogData,
+} from '../../@shared/ui/session-timeout-dialog/session-timeout-dialog.component';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class InactivityService {
+  private readonly idleTimeoutMs = 10 * 60 * 1000;
+  private readonly warningDurationMs = 60 * 1000;
+  private readonly idleDurationSeconds = 10 * 60;
+  private readonly warningDurationSeconds = 60;
+  private readonly activityEvents = [
+    'click',
+    'keydown',
+    'mousemove',
+    'scroll',
+    'touchstart',
+  ] as const;
 
-  // private timeout: any;
-  // private countdownInterval: any;
-  // private readonly logoutDelay = 600000000; // Show dialog after 10s
-  // private readonly countdownSeconds = 59;
+  private readonly sessionCountdownSubject = new BehaviorSubject<number>(this.idleDurationSeconds);
+  private readonly countdownSubject = new BehaviorSubject<number>(this.warningDurationSeconds);
+  private readonly refreshingSubject = new BehaviorSubject<boolean>(false);
 
+  private activitySubscription?: Subscription;
+  private navigationSubscription?: Subscription;
+  private visibilitySubscription?: Subscription;
+  private warningTriggerTimer: ReturnType<typeof setTimeout> | null = null;
+  private warningLogoutTimer: ReturnType<typeof setTimeout> | null = null;
+  private warningCountdownTimer: ReturnType<typeof setInterval> | null = null;
+  private warningDialogRef?: MatDialogRef<SessionTimeoutDialogComponent>;
+  private sessionDeadline = 0;
+  private warningTriggerDeadline = 0;
+  private warningDeadline = 0;
+  private monitoring = false;
+  private warningOpen = false;
+  private logoutInProgress = false;
 
-  // constructor(private router: Router, private ngZone: NgZone) {}
+  constructor(
+    @Inject(DOCUMENT) private readonly document: Document,
+    @Inject(PLATFORM_ID) private readonly platformId: object,
+    private readonly dialog: MatDialog,
+    private readonly ngZone: NgZone,
+    private readonly router: Router,
+    private readonly authService: AuthService,
+  ) {}
 
-  // initListener(): void {
-  //   this.resetTimeout();
-  //   ['mousemove', 'keydown', 'click'].forEach(event =>
-  //     window.addEventListener(event, () => this.resetTimeout())
-  //   );
-  // }
+  /** Start the browser-only inactivity monitor once for the application lifetime. */
+  startWatching(): void {
+    if (!isPlatformBrowser(this.platformId) || this.monitoring) {
+      return;
+    }
 
-  // private resetTimeout(): void {
-  //   clearTimeout(this.timeout);
-  //   clearInterval(this.countdownInterval);
+    this.monitoring = true;
 
-  //   this.timeout = setTimeout(() => {
-  //     this.ngZone.run(() => this.showCountdownPopup());
-  //   }, this.logoutDelay);
-  // }
+    const activity$ = merge(
+      ...this.activityEvents.map((eventName) => fromEvent(this.document, eventName)),
+    );
 
-  // private showCountdownPopup(): void {
-  //   // ✅ Ignore if on login page
-  //   const currentUrl = this.router.url;
-  //   if (currentUrl.includes('/auth/sign-in') || currentUrl.includes('/login')) {
-  //     return;
-  //   }
+    this.activitySubscription = activity$
+      .pipe(debounceTime(250))
+      .subscribe(() => this.handleActivity());
 
-  //   let secondsLeft = this.countdownSeconds;
+    this.visibilitySubscription = fromEvent(this.document, 'visibilitychange')
+      .subscribe(() => this.handleVisibilityChange());
 
-  //   Swal.fire({
-  //     title: '⚠️ Session Timeout',
-  //     html: `You will be logged out in <b>${secondsLeft}</b> seconds due to inactivity.`,
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     cancelButtonText: 'Stay Logged In',
-  //     confirmButtonText: 'Logout Now',
-  //     allowOutsideClick: false,
-  //     allowEscapeKey: false,
-  //     customClass: {
-  //       popup: 'sweet-dialog'
-  //     },
-  //     didOpen: () => {
-  //       const content = Swal.getHtmlContainer()?.querySelector('b');
-  //       const popup = Swal.getPopup();
+    this.navigationSubscription = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.syncWithRoute(event.urlAfterRedirects));
 
-  //       this.countdownInterval = setInterval(() => {
-  //         secondsLeft--;
+    this.syncWithRoute(this.router.url);
+  }
 
-  //         if (content) content.textContent = secondsLeft.toString();
+  /** Stop the monitor when the host application is being torn down. */
+  stopWatching(): void {
+    this.activitySubscription?.unsubscribe();
+    this.navigationSubscription?.unsubscribe();
+    this.visibilitySubscription?.unsubscribe();
+    this.activitySubscription = undefined;
+    this.navigationSubscription = undefined;
+    this.visibilitySubscription = undefined;
+    this.monitoring = false;
+    this.closeWarning();
+  }
 
-  //         if (secondsLeft <= 5 && popup) {
-  //           popup.style.border = '3px solid red';
-  //           popup.style.boxShadow = '0 0 25px red';
+  private handleActivity(): void {
+    if (!this.shouldMonitor() || this.warningOpen) {
+      return;
+    }
 
-  //           if (secondsLeft === 5) {
-  //             //this.audio.play();
-  //           }
-  //         }
+    this.resetTimer();
+  }
 
-  //         if (secondsLeft <= 0) {
-  //           clearInterval(this.countdownInterval);
-  //           Swal.close();
-  //           this.forceLogout();
-  //         }
-  //       }, 1000);
-  //     }
-  //   }).then(result => {
-  //     clearInterval(this.countdownInterval);
-  //     if (result.dismiss === Swal.DismissReason.cancel) {
-  //       this.resetTimeout();
-  //     } else if (result.isConfirmed) {
-  //       this.forceLogout();
-  //     }
-  //   });
-  // }
+  private handleVisibilityChange(): void {
+    if (this.document.visibilityState !== 'visible' || !this.shouldMonitor()) {
+      return;
+    }
 
+    if (this.warningOpen) {
+      this.ngZone.run(() => this.updateCountdown());
+      return;
+    }
 
-  // private forceLogout(): void {
-  //   this.stopListener();
-  //   localStorage.clear();
-  //   this.router.navigateByUrl('/auth/sign-in');
-  // }
+    if (this.sessionDeadline > 0 && Date.now() >= this.sessionDeadline) {
+      this.ngZone.run(() => this.forceLogout());
+      return;
+    }
 
-  // stopListener(): void {
-  //   clearTimeout(this.timeout);
-  //   clearInterval(this.countdownInterval);
-  //   this.timeout = null;
-  //   this.countdownInterval = null;
-  // }
+    // Timers can be throttled while a tab is hidden. Check the deadline when
+    // the user returns so the warning still appears at the correct time.
+    if (this.warningTriggerDeadline > 0 && Date.now() >= this.warningTriggerDeadline) {
+      this.ngZone.run(() => this.openWarning());
+    }
+  }
 
+  private syncWithRoute(url: string): void {
+    if (this.isAuthenticationRoute(url) || !this.isAuthenticated()) {
+      this.closeWarning();
+      return;
+    }
 
+    if (!this.warningOpen) {
+      this.resetTimer();
+    }
+  }
 
+  private resetTimer(): void {
+    this.closeWarning();
+
+    if (!this.shouldMonitor()) {
+      return;
+    }
+
+    this.sessionDeadline = Date.now() + this.idleTimeoutMs;
+    this.warningTriggerDeadline = this.sessionDeadline - this.warningDurationMs;
+    this.sessionCountdownSubject.next(this.idleDurationSeconds);
+    this.warningTriggerTimer = setTimeout(() => {
+      this.warningTriggerTimer = null;
+      this.warningTriggerDeadline = 0;
+      this.ngZone.run(() => this.openWarning());
+    }, this.idleTimeoutMs - this.warningDurationMs);
+  }
+
+  private openWarning(): void {
+    if (!this.shouldMonitor() || this.warningOpen) {
+      return;
+    }
+
+    const remainingMs = this.sessionDeadline - Date.now();
+    if (remainingMs <= 0) {
+      this.forceLogout();
+      return;
+    }
+
+    this.warningOpen = true;
+    this.warningDeadline = Math.min(
+      this.sessionDeadline,
+      Date.now() + this.warningDurationMs,
+    );
+    this.sessionCountdownSubject.next(Math.ceil(remainingMs / 1000));
+    this.countdownSubject.next(Math.ceil((this.warningDeadline - Date.now()) / 1000));
+
+    this.warningLogoutTimer = setTimeout(() => {
+      this.ngZone.run(() => this.forceLogout());
+    }, this.warningDeadline - Date.now());
+
+    this.warningCountdownTimer = setInterval(() => {
+      this.ngZone.run(() => this.updateCountdown());
+    }, 250);
+
+    const data: SessionTimeoutDialogData = {
+      sessionCountdown$: this.sessionCountdownSubject.asObservable(),
+      countdown$: this.countdownSubject.asObservable(),
+      refreshing$: this.refreshingSubject.asObservable(),
+      sessionDurationSeconds: this.idleDurationSeconds,
+      warningDurationSeconds: this.warningDurationSeconds,
+      onRefresh: () => this.refreshSession(),
+      onLogout: () => this.forceLogout(),
+    };
+
+    this.warningDialogRef = this.dialog.open(SessionTimeoutDialogComponent, {
+      width: 'min(430px, calc(100vw - 32px))',
+      maxWidth: 'calc(100vw - 32px)',
+      disableClose: true,
+      panelClass: 'session-timeout-dialog-panel',
+      data,
+    });
+  }
+
+  private updateCountdown(): void {
+    if (!this.warningOpen) {
+      return;
+    }
+
+    const secondsLeft = Math.max(
+      0,
+      Math.ceil((this.warningDeadline - Date.now()) / 1000),
+    );
+    const sessionSecondsLeft = Math.max(
+      0,
+      Math.ceil((this.sessionDeadline - Date.now()) / 1000),
+    );
+
+    this.sessionCountdownSubject.next(sessionSecondsLeft);
+    this.countdownSubject.next(secondsLeft);
+
+    if (secondsLeft === 0) {
+      this.forceLogout();
+    }
+  }
+
+  private refreshSession(): void {
+    if (!this.warningOpen || this.refreshingSubject.value || !this.isAuthenticated()) {
+      return;
+    }
+
+    this.refreshingSubject.next(true);
+
+    this.authService.refreshSession()
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.refreshingSubject.next(false);
+          this.resetTimer();
+        },
+        error: () => {
+          this.refreshingSubject.next(false);
+          this.forceLogout();
+        },
+      });
+  }
+
+  private forceLogout(): void {
+    if (this.logoutInProgress) {
+      return;
+    }
+
+    this.logoutInProgress = true;
+    this.closeWarning();
+    this.getStorage()?.clear();
+
+    this.ngZone.run(() => {
+      this.router.navigateByUrl('/auth/sign-in').finally(() => {
+        this.logoutInProgress = false;
+      });
+    });
+  }
+
+  private closeWarning(): void {
+    this.warningOpen = false;
+    this.clearTimers();
+    this.sessionCountdownSubject.next(this.idleDurationSeconds);
+    this.countdownSubject.next(this.warningDurationSeconds);
+    this.refreshingSubject.next(false);
+
+    const dialogRef = this.warningDialogRef;
+    this.warningDialogRef = undefined;
+    dialogRef?.close();
+  }
+
+  private clearTimers(): void {
+    if (this.warningTriggerTimer !== null) {
+      clearTimeout(this.warningTriggerTimer);
+      this.warningTriggerTimer = null;
+    }
+
+    if (this.warningLogoutTimer !== null) {
+      clearTimeout(this.warningLogoutTimer);
+      this.warningLogoutTimer = null;
+    }
+
+    if (this.warningCountdownTimer !== null) {
+      clearInterval(this.warningCountdownTimer);
+      this.warningCountdownTimer = null;
+    }
+
+    this.sessionDeadline = 0;
+    this.warningTriggerDeadline = 0;
+    this.warningDeadline = 0;
+  }
+
+  private shouldMonitor(): boolean {
+    return this.monitoring && this.isAuthenticated() && !this.isAuthenticationRoute(this.router.url);
+  }
+
+  private isAuthenticated(): boolean {
+    const storage = this.getStorage();
+    return storage?.getItem('isLogin') === 'true' && Boolean(storage.getItem('token'));
+  }
+
+  private getStorage(): Storage | null {
+    try {
+      return this.document.defaultView?.localStorage || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private isAuthenticationRoute(url: string): boolean {
+    const path = url.split(/[?#]/, 1)[0].replace(/\/$/, '');
+    return path === '' || path === '/auth' || path.startsWith('/auth/');
+  }
 }

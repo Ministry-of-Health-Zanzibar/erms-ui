@@ -1,15 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import {
-  MatError,
-  MatFormField,
-  MatLabel,
-  MatSuffix,
-} from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { HDividerComponent } from '@elementar/components';
 import {
   FormBuilder,
   FormControl,
@@ -21,28 +13,18 @@ import { AuthService } from '@core/authentication/auth.service';
 import { GlobalConstants } from '@shared/global-constants';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { CommonModule } from '@angular/common';
-import { MatTooltip } from '@angular/material/tooltip';
 import { InactivityService } from '../../services/accountants/inactivity.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TextInputComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-signin',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     MatButton,
-    MatFormField,
-    MatLabel,
-    MatInput,
     MatIcon,
-    MatIconButton,
-    MatSuffix,
-    HDividerComponent,
     ReactiveFormsModule,
-    MatError,
-    MatTooltip,
-    MatProgressSpinnerModule,
+    TextInputComponent,
   ],
   templateUrl: './signin.component.html',
   styleUrl: './signin.component.scss',
@@ -50,7 +32,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class SigninComponent implements OnInit {
   loginForm: any = FormGroup;
   loading = false;
-  passwordVisible: boolean = false;
   lang: 'en' | 'sw' = 'en';
 
   showSupport=false;
@@ -63,6 +44,7 @@ showChat=false;
     private authService: AuthService,
     private inactivityService: InactivityService,
     private uiFeedback: FeedbackService,
+    private readonly changeDetectorRef: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -82,13 +64,24 @@ showChat=false;
     });
   }
 
-  // Function to toggle password visibility
-  togglePasswordVisibility(): void {
-    this.passwordVisible = !this.passwordVisible;
+  loginSubmit(): void {
+    if (this.loading) {
+      return;
+    }
+
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+    this.changeDetectorRef.detectChanges();
+
+    // Let the browser paint the waiting state before starting the request.
+    setTimeout(() => this.authenticate(), 0);
   }
 
-  loginSubmit() {
-    this.loading = true;
+  private authenticate(): void {
     this.authService.loginAuthenticate(this.loginForm.value).subscribe(
       (response) => {
         this.loading = false;

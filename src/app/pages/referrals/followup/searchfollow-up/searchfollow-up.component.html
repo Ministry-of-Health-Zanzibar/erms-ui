@@ -1,13 +1,31 @@
 <div  class="p-4 md:p-10 space-y-6 md:space-y-8">
   <app-page-header
     title="Referral follow-ups"
-    description="Find referral cases and continue their follow-up workflow."
+    [description]="permission.isHospitalDoctor()
+      ? 'Submit follow-up outcomes for DG review for your assigned hospital and cases you created.'
+      : 'Find referral cases and continue their follow-up workflow.'"
     icon="event_note"
   />
 
+  <div
+    *ngIf="permission.isHospitalDoctor()"
+    class="flex items-start gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
+    role="status"
+  >
+    <mat-icon class="mt-0.5 shrink-0" aria-hidden="true">visibility</mat-icon>
+    <div>
+      <strong class="block text-sm">Hospital User follow-up requests</strong>
+      <p class="mt-1 text-xs leading-5">
+        You can submit Follow-up, Finished, Transferred, or Death outcomes. DG confirmation is required before the follow-up letter can be printed.
+      </p>
+    </div>
+  </div>
+
   <app-section-card
     title="Referral records"
-    description="Search for a patient referral to view or add follow-up information."
+    [description]="permission.isHospitalDoctor()
+      ? 'Search for an authorized case to review or submit a follow-up request.'
+      : 'Search for a patient referral to view or add follow-up information.'"
     icon="assignment"
   >
       <app-table-toolbar>

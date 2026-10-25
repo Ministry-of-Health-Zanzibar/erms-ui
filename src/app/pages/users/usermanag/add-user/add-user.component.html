@@ -7,64 +7,89 @@
 
         <!-- Row 1: First Name, Middle Name -->
         <div class="form-row">
-          <mat-form-field class="form-field">
-            <mat-label>First Name</mat-label>
-            <input matInput placeholder="Ex. ALI" formControlName="first_name" type="text">
+          <app-text-input
+            class="form-field"
+            label="First Name"
+            placeholder="Ex. ALI"
+            formControlName="first_name"
+            [allowClear]="false"
+          >
             <mat-error *ngIf="userForm.controls['first_name'].touched && userForm.controls['first_name'].invalid">
               <span *ngIf="userForm.controls['first_name'].errors?.['required']">This field is mandatory</span>
               <span *ngIf="userForm.controls['first_name'].errors?.['pattern']">Must contain alphabetical characters only</span>
             </mat-error>
-          </mat-form-field>
+          </app-text-input>
 
-          <mat-form-field class="form-field">
-            <mat-label>Middle Name</mat-label>
-            <input matInput placeholder="Ex. JUMA" formControlName="middle_name" type="text">
+          <app-text-input
+            class="form-field"
+            label="Middle Name"
+            placeholder="Ex. JUMA"
+            formControlName="middle_name"
+            [allowClear]="false"
+          >
             <mat-error *ngIf="userForm.controls['middle_name'].touched && userForm.controls['middle_name'].invalid">
               <span *ngIf="userForm.controls['middle_name'].errors?.['required']">This field is mandatory</span>
               <span *ngIf="userForm.controls['middle_name'].errors?.['pattern']">Must contain alphabetical characters only</span>
             </mat-error>
-          </mat-form-field>
+          </app-text-input>
         </div>
 
         <!-- Row 2: Last Name, Address -->
         <div class="form-row">
-          <mat-form-field class="form-field">
-            <mat-label>Last Name</mat-label>
-            <input matInput placeholder="Ex. HAJI" formControlName="last_name" type="text">
+          <app-text-input
+            class="form-field"
+            label="Last Name"
+            placeholder="Ex. HAJI"
+            formControlName="last_name"
+            [allowClear]="false"
+          >
             <mat-error *ngIf="userForm.controls['last_name'].touched && userForm.controls['last_name'].invalid">
               <span *ngIf="userForm.controls['last_name'].errors?.['required']">This field is mandatory</span>
               <span *ngIf="userForm.controls['last_name'].errors?.['pattern']">Must contain alphabetical characters only</span>
             </mat-error>
-          </mat-form-field>
+          </app-text-input>
 
-          <mat-form-field class="form-field">
-            <mat-label>Address</mat-label>
-            <input matInput placeholder="Ex. FUONI" formControlName="address" type="text">
+          <app-text-input
+            class="form-field"
+            label="Address"
+            placeholder="Ex. FUONI"
+            formControlName="address"
+            [allowClear]="false"
+          >
             <mat-error *ngIf="userForm.controls['address'].touched && userForm.controls['address'].invalid">
               <span *ngIf="userForm.controls['address'].errors?.['required']">This field is mandatory</span>
             </mat-error>
-          </mat-form-field>
+          </app-text-input>
         </div>
 
         <!-- Row 3: Email, Phone Number -->
         <div class="form-row">
-          <mat-form-field class="form-field">
-            <mat-label>Email</mat-label>
-            <input matInput placeholder="Ex. abd@gmail.com" formControlName="email" type="text">
+          <app-text-input
+            class="form-field"
+            label="Email"
+            placeholder="Ex. abd@gmail.com"
+            formControlName="email"
+            type="email"
+            [allowClear]="false"
+          >
             <mat-error *ngIf="userForm.controls['email'].touched && userForm.controls['email'].invalid">
               <span *ngIf="userForm.controls['email'].errors?.['required']">This field is mandatory</span>
               <span *ngIf="userForm.controls['email'].errors?.['pattern']">This field is invalid (email is incorrect)</span>
             </mat-error>
-          </mat-form-field>
+          </app-text-input>
 
-          <mat-form-field class="form-field">
-            <mat-label>Phone Number</mat-label>
-            <input matInput placeholder="Ex. +255 777000000" formControlName="phone_no" type="text">
+          <app-text-input
+            class="form-field"
+            label="Phone Number"
+            placeholder="Ex. +255 777000000"
+            formControlName="phone_no"
+            [allowClear]="false"
+          >
             <mat-error *ngIf="userForm.controls['phone_no'].touched && userForm.controls['phone_no'].invalid">
               <span *ngIf="userForm.controls['phone_no'].errors?.['required']">This field is mandatory</span>
               <!-- <span *ngIf="userForm.controls['phone_no'].errors?.['pattern']">Must start +255 and 9 digits</span> -->
             </mat-error>
-          </mat-form-field>
+          </app-text-input>
         </div>
 
         <!-- Row 4: Location, WorkStation -->

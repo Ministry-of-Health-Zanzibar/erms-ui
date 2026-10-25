@@ -163,7 +163,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logoutHead() {
     this.uiFeedback.confirm(
-      'Sign out of ERIS?',
+      'Sign out of ERMS?',
       'You will be returned to the sign-in page.',
       {
         icon: 'warning',

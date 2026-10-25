@@ -18,6 +18,7 @@ import { GlobalConstants } from '@shared/global-constants';
 import { CouncilService } from '../../../../services/system-configuration/council.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { getApiErrorMessage } from '@shared/utils/api-error';
+import { TextInputComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-add-user',
@@ -38,6 +39,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
     MatSelect,
     AsyncPipe,
     MatDatepickerModule,
+    TextInputComponent,
   ],
   templateUrl: './add-user.component.html',
   styleUrl: './add-user.component.scss'

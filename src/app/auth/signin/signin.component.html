@@ -1,146 +1,150 @@
-<div class="flex flex-wrap">
-  <div class="flex w-full flex-col md:w-1/2">
-    <div
-      class="lg:w-[30rem] mx-auto my-auto flex flex-col justify-center pt-8 md:justify-start md:px-6 md:pt-0"
-    >
-      <div class="container flex justify-center items-center">
-        <img src="../../../assets/img/smz.png" class="w-52" alt="smz" />
+<main class="signin-page">
+  <section class="signin-auth-panel" aria-labelledby="signin-title">
+    <div class="signin-auth-content">
+      <header class="signin-brand">
+        <div class="signin-brand__logo">
+          <img src="../../../assets/img/smz.png" alt="Government of Zanzibar emblem" />
+        </div>
+        <div class="signin-brand__copy">
+          <span class="signin-brand__eyebrow">Ministry of Health, Zanzibar</span>
+          <span class="signin-brand__name">ERMS</span>
+        </div>
+      </header>
+
+      <div class="signin-heading">
+        <p class="signin-heading__eyebrow">Secure staff access</p>
+        <h1 id="signin-title">External Referrals Management System</h1>
+        <p>Welcome back. Sign in to continue managing your referrals.</p>
       </div>
-      <h1 class="text-3xl font-bold text-center mt-4">EXTERNAL REFFERAL SYSTEM</h1>
-      <p class="mt-2 text-neutral-500 text-sm text-center">
-        Welcome back, please enter your details.
-      </p>
-      <emr-h-divider class="mt-2"></emr-h-divider>
-      <form class="flex flex-col pt-3 md:pt-8" [formGroup]="loginForm">
-        <mat-form-field appearance="fill">
-          <mat-label>Email</mat-label>
-          <input
-            type="email"
+
+      <div class="signin-divider" aria-hidden="true"></div>
+
+      <form class="signin-form" [formGroup]="loginForm" (ngSubmit)="loginSubmit()" novalidate>
+        <div class="signin-field">
+          <app-text-input
             formControlName="email"
-            matInput
+            label="Email"
+            type="email"
             placeholder="Ex. example@mohz.go.tz"
+            autocomplete="email"
+            icon="email"
+            subscriptSizing="dynamic"
+            [required]="true"
+            [allowClear]="false"
           />
-          <button type="button" mat-icon-button matSuffix>
-            <mat-icon>email</mat-icon>
-          </button>
-          <mat-error
+          <div
             *ngIf="
               loginForm.controls.email.touched &&
               loginForm.controls.email.invalid
             "
+            class="signin-field__error"
           >
-            <span *ngIf="loginForm.controls.email.errors.required"
+            <span *ngIf="loginForm.controls.email.errors?.required"
               >This field is mandatory</span
             >
-            <span *ngIf="loginForm.controls.email.errors.pattern"
+            <span *ngIf="loginForm.controls.email.errors?.pattern"
               >Invalid email format</span
             >
-          </mat-error>
-        </mat-form-field>
+          </div>
+        </div>
 
-        <mat-form-field class="mt-2 w-full" appearance="fill">
-          <mat-label>Password</mat-label>
-          <input
-            [type]="passwordVisible ? 'text' : 'password'"
-            matInput
+        <div class="signin-field">
+          <app-text-input
             formControlName="password"
+            label="Password"
+            type="password"
+            [passwordToggle]="true"
+            autocomplete="current-password"
+            subscriptSizing="dynamic"
+            [required]="true"
+            [allowClear]="false"
           />
-          <button
-            type="button"
-            mat-icon-button
-            matSuffix
-            (click)="togglePasswordVisibility()"
-            matTooltip="View Password"
-          >
-            <mat-icon>{{
-              passwordVisible ? "visibility_off" : "visibility"
-            }}</mat-icon>
-          </button>
-          <mat-error
+          <div
             *ngIf="
               loginForm.controls.password.touched &&
               loginForm.controls.password.invalid
             "
+            class="signin-field__error"
           >
-            <span *ngIf="loginForm.controls.password.errors.required"
+            <span *ngIf="loginForm.controls.password.errors?.required"
               >This field is mandatory</span
             >
-          </mat-error>
-        </mat-form-field>
+          </div>
+        </div>
         <button
           mat-flat-button
           color="primary"
-          (click)="loginSubmit()"
-          [disabled]="!(loginForm.valid && loginForm.dirty)"
+          [disabled]="loading || !(loginForm.valid && loginForm.dirty)"
           type="submit"
-          class="h-12 mt-3"
+          class="signin-submit"
         >
-          Log in
+          <span class="signin-submit__content">
+            <span *ngIf="loading" class="signin-submit__spinner" aria-hidden="true"></span>
+            <mat-icon *ngIf="!loading">login</mat-icon>
+            <span class="signin-submit__label">{{ loading ? 'Signing in…' : 'Log in' }}</span>
+          </span>
         </button>
       </form>
-      <!-- SUPPORT SECTION -->
-<div class="mt-6 flex flex-col items-center gap-3">
-
-  <!-- WhatsApp Group -->
-  <a
-    href="https://chat.whatsapp.com/GNaBusguyha8y9rUrO4XmB"
-    target="_blank"
-    class="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-  >
-    <mat-icon>groups</mat-icon>
-    {{ lang === 'en' ? 'Join WhatsApp Group' : 'Jiunge na Group la WhatsApp' }}
-  </a>
-
-  <!-- User Manual -->
-  <div class="text-left">
-    <a
-      href="assets/documents/User manual ERIS.pdf"
-      target="_blank"
-      class="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400"
-    >
-      <mat-icon class="text-base">description</mat-icon>
-      {{ lang === 'en' ? 'View User Manual' : 'Angalia Mwongozo wa Mtumiaji' }}
-    </a>
-  </div>
-
-</div>
-
-      <div class="mt-3">
-        <div class="flex justify-between">
-          <!-- <a
-            routerLink="/auth/signin-member"
-            class="text-xs font-semibold hover:underline text-center"
-          >
-            Back to home page
-          </a> -->
-          <!-- <a
-            routerLink="/auth/forgot-password"
-            class="text-xs font-semibold hover:underline"
-          >
-            Forgot Password?
-          </a> -->
+      <aside class="signin-support" aria-label="Support resources">
+        <div class="signin-support__heading">
+          <span class="signin-support__title">Need help?</span>
+          <span class="signin-support__caption">Support resources</span>
         </div>
-      </div>
 
-      <!-- <emr-h-divider class="mt-8">© 2024 ICT (Ministry of Health)</emr-h-divider> -->
+        <div class="signin-support__links">
+          <a
+            class="signin-support__link signin-support__link--whatsapp"
+            href="https://chat.whatsapp.com/GNaBusguyha8y9rUrO4XmB"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="signin-support__link-icon" aria-hidden="true">
+              <mat-icon>groups</mat-icon>
+            </span>
+            <span class="signin-support__link-copy">
+              <strong>{{ lang === 'en' ? 'Join WhatsApp Group' : 'Jiunge na Group la WhatsApp' }}</strong>
+              <small>Connect with the ERMS support group</small>
+            </span>
+            <mat-icon class="signin-support__link-arrow" aria-hidden="true">open_in_new</mat-icon>
+          </a>
+
+          <a
+            class="signin-support__link"
+            href="assets/documents/User manual ERMS.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="signin-support__link-icon" aria-hidden="true">
+              <mat-icon>description</mat-icon>
+            </span>
+            <span class="signin-support__link-copy">
+              <strong>{{ lang === 'en' ? 'View User Manual' : 'Angalia Mwongozo wa Mtumiaji' }}</strong>
+              <small>Learn how to use the system</small>
+            </span>
+            <mat-icon class="signin-support__link-arrow" aria-hidden="true">open_in_new</mat-icon>
+          </a>
+        </div>
+      </aside>
+
+      <footer class="signin-footer">All rights reserved · ICT Department · Ministry of Health, Zanzibar</footer>
     </div>
-  </div>
-  <div class="pointer-events-none relative hidden h-screen md:block md:w-1/2">
+  </section>
+
+  <div class="signin-hero" aria-hidden="true">
     <img
-      class="absolute inset-0 h-full w-full object-cover"
+      class="signin-hero__image"
       src="../../../assets/img/domore.jpg"
-      alt="Background Image"
+      alt=""
     />
-    <div
-      class="absolute bottom-0 z-10 bg-gradient-to-t from-black via-transparent to-transparent px-16 py-12 text-white"
-    >
-      <!-- <p class="mb-8 text-3xl leading-10">
-        Coding the Future: Transforming Ideas into Reality. Precision in every line, innovation in every function. Your vision, our code—building tomorrow, today!
-      </p> -->
-      <p style="color: white; font-size: 38px">All rights reserved,</p>
-      <p class="mb-7 text-sm opacity-70" style="color: white; font-size: 28px">
-        ICT Department
-      </p>
+    <div class="signin-hero__overlay"></div>
+    <div class="signin-hero__content">
+      <span class="signin-hero__eyebrow">Digital health coordination</span>
+      <h2>Connected care, coordinated.</h2>
+      <p>Secure access for the teams coordinating referrals across Zanzibar.</p>
+      <div class="signin-hero__credit">
+        <span>External Referrals Management System</span>
+        <span>ICT Department</span>
+      </div>
     </div>
   </div>
-</div>
+</main>

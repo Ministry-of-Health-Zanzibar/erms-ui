@@ -1,0 +1,305 @@
+:host {
+  display: block;
+  color: var(--rms-text);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-page {
+  box-sizing: border-box;
+  padding: 1.5rem clamp(1rem, 2.5vw, 2.5rem) 2.5rem;
+}
+
+.profile-page__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--rms-button-success-background) 28%, var(--rms-border));
+  border-radius: var(--rms-control-radius);
+  color: var(--rms-button-success-outline);
+  background: color-mix(in srgb, var(--rms-button-success-background) 7%, var(--rms-surface));
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.profile-page__status .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.75fr);
+  align-items: start;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.profile-side-column {
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.profile-field {
+  min-width: 0;
+}
+
+.profile-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rms-border);
+}
+
+.profile-form-actions button:last-child {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 9rem;
+}
+
+.profile-form-actions .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.profile-form-actions mat-progress-spinner {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+}
+
+.profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rms-border);
+}
+
+.profile-avatar {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  flex: 0 0 3rem;
+  border-radius: 50%;
+  color: var(--rms-button-primary-foreground);
+  background: var(--rms-button-primary-background);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.profile-identity > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.profile-identity strong {
+  overflow: hidden;
+  color: var(--rms-text);
+  font-size: 0.88rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-identity span:not(.profile-avatar) {
+  overflow: hidden;
+  color: var(--rms-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-summary-group {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.profile-summary-label {
+  color: var(--rms-text-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.profile-chip {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--rms-button-primary-outline) 24%, var(--rms-border));
+  border-radius: var(--rms-control-radius);
+  color: var(--rms-button-primary-outline);
+  background: color-mix(in srgb, var(--rms-button-primary-background) 7%, var(--rms-surface));
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.profile-hospital-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.profile-hospital {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.65rem;
+  border: 1px solid var(--rms-border);
+  border-radius: var(--rms-control-radius);
+  background: var(--rms-surface-subtle);
+}
+
+.profile-hospital > .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--rms-button-accent-outline);
+  font-size: 1rem;
+}
+
+.profile-hospital > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.profile-hospital strong {
+  color: var(--rms-text);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.profile-hospital small,
+.profile-summary-empty {
+  color: var(--rms-text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.profile-access-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.7rem;
+  border: 1px solid var(--rms-border);
+  border-radius: var(--rms-control-radius);
+  color: var(--rms-text-muted);
+  background: var(--rms-surface-subtle);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.profile-access-note .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  color: var(--rms-text-muted);
+  font-size: 1rem;
+}
+
+.profile-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 12rem;
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid var(--rms-border);
+  border-radius: var(--rms-card-radius);
+  color: var(--rms-text-muted);
+  background: var(--rms-surface);
+  font-size: 0.8rem;
+}
+
+.profile-state--error {
+  justify-content: flex-start;
+  color: var(--rms-button-danger-outline);
+}
+
+.profile-state--error > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.profile-state--error strong {
+  color: var(--rms-text);
+  font-size: 0.82rem;
+}
+
+.profile-state--error span {
+  color: var(--rms-text-muted);
+  font-size: 0.74rem;
+}
+
+.profile-state > .mat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
+:host ::ng-deep .profile-page .mat-mdc-form-field {
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-page {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .profile-form-actions button {
+    width: 100%;
+  }
+
+  .profile-state--error {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .profile-state--error button {
+    width: 100%;
+  }
+}

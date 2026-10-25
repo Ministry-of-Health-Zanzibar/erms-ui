@@ -3,11 +3,68 @@
 
 :root {
   color-scheme: light;
-  --rms-button-radius: 0.375rem;
+  --rms-control-radius: 0.25rem;
+  --rms-card-radius: 0.375rem;
+  --rms-button-radius: var(--rms-control-radius);
+  --rms-button-height: 2.25rem;
+  --rms-button-padding-inline: 0.75rem;
+  --rms-button-font-size: 0.75rem;
+  --rms-button-font-weight: 700;
+  --rms-button-surface: var(--rms-surface);
+  --rms-button-text: var(--rms-text);
+  --rms-button-border: var(--rms-border-strong);
+  --rms-button-hover-surface: var(--rms-surface-muted);
+  --rms-button-primary-background: #2563eb;
+  --rms-button-primary-hover: #1d4ed8;
+  --rms-button-primary-foreground: #ffffff;
+  --rms-button-primary-outline: #2563eb;
+  --rms-button-accent-background: #0f766e;
+  --rms-button-accent-hover: #0d9488;
+  --rms-button-accent-foreground: #ffffff;
+  --rms-button-accent-outline: #0f766e;
+  --rms-button-danger-background: #dc2626;
+  --rms-button-danger-hover: #b91c1c;
+  --rms-button-danger-foreground: #ffffff;
+  --rms-button-danger-outline: #dc2626;
+  --rms-button-success-background: #16a34a;
+  --rms-button-success-hover: #15803d;
+  --rms-button-success-foreground: #ffffff;
+  --rms-button-success-outline: #15803d;
+  --rms-button-info-background: #0891b2;
+  --rms-button-info-hover: #0e7490;
+  --rms-button-info-foreground: #ffffff;
+  --rms-button-print-background: #4f46e5;
+  --rms-button-print-hover: #4338ca;
+  --rms-button-print-foreground: #ffffff;
+  --rms-button-secondary-background: var(--rms-surface);
+  --rms-button-secondary-hover: var(--rms-surface-muted);
+  --rms-button-secondary-foreground: var(--rms-text);
+  --rms-button-secondary-border: var(--rms-border-strong);
+  --rms-button-inverse-background: #ffffff;
+  --rms-button-inverse-hover: #eff6ff;
+  --rms-button-inverse-foreground: #0f3d6e;
+  --mdc-text-button-container-height: var(--rms-button-height);
+  --mdc-filled-button-container-height: var(--rms-button-height);
+  --mdc-protected-button-container-height: var(--rms-button-height);
+  --mdc-outlined-button-container-height: var(--rms-button-height);
+  --mdc-text-button-label-text-size: var(--rms-button-font-size);
+  --mdc-filled-button-label-text-size: var(--rms-button-font-size);
+  --mdc-protected-button-label-text-size: var(--rms-button-font-size);
+  --mdc-outlined-button-label-text-size: var(--rms-button-font-size);
+  --mdc-text-button-label-text-weight: var(--rms-button-font-weight);
+  --mdc-filled-button-label-text-weight: var(--rms-button-font-weight);
+  --mdc-protected-button-label-text-weight: var(--rms-button-font-weight);
+  --mdc-outlined-button-label-text-weight: var(--rms-button-font-weight);
   --mdc-text-button-container-shape: var(--rms-button-radius);
   --mdc-filled-button-container-shape: var(--rms-button-radius);
   --mdc-protected-button-container-shape: var(--rms-button-radius);
   --mdc-outlined-button-container-shape: var(--rms-button-radius);
+  --mdc-elevated-card-container-shape: var(--rms-card-radius);
+  --mdc-outlined-card-container-shape: var(--rms-card-radius);
+  --mdc-filled-card-container-shape: var(--rms-card-radius);
+  --mdc-filled-text-field-container-shape: var(--rms-control-radius);
+  --mdc-outlined-text-field-container-shape: var(--rms-control-radius);
+  --mat-autocomplete-container-shape: var(--rms-control-radius);
   --rms-surface: #ffffff;
   --rms-surface-subtle: #f8fafc;
   --rms-surface-muted: #f1f5f9;
@@ -18,9 +75,183 @@
   --rms-overlay: rgb(248 250 252 / 0.78);
   --rms-shadow: rgb(15 23 42 / 0.12);
   --rms-focus-ring: rgb(37 99 235 / 0.24);
+  --rms-primary-action-background: var(--rms-button-primary-background);
+  --rms-primary-action-hover: var(--rms-button-primary-hover);
+  --rms-primary-action-foreground: var(--rms-button-primary-foreground);
+  --rms-primary-action-outline: var(--rms-button-primary-outline);
+  --rms-page-max-width: 1600px;
+  --emr-popover-border-radius: var(--rms-card-radius);
+  --emr-color-picker-border-radius: var(--rms-control-radius);
+  --emr-segmented-button-border-radius: var(--rms-button-radius);
+  --emr-expand-button-border-radius: var(--rms-button-radius);
 }
 
-/* Keep standard actions compact; icon-only buttons remain circular. */
+/* Keep routed pages readable on very wide screens while remaining fluid below the limit. */
+.app-page-shell {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--rms-page-max-width);
+  min-width: 0;
+  min-height: 100%;
+  margin-inline: auto;
+}
+
+/* RouterOutlet inserts the active page as a sibling after the outlet element. */
+.app-page-shell > router-outlet + * {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+/*
+ * The first-level elements rendered by routed pages are page roots. Keep their
+ * local `container`, `max-w-*`, and fixed-width utilities from narrowing a
+ * page below the shared Reports/Case Journey width. Dialog content is outside
+ * this shell and keeps its own size.
+ */
+.app-page-shell > router-outlet + * > * {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100% !important;
+  min-width: 0;
+}
+
+/* Shared width utility for routed page content that previously had local max-width limits. */
+.app-page-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--rms-page-max-width);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/* Use shared semantic button tokens in both color modes. */
+:where(
+  .mat-mdc-unelevated-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-raised-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled)
+) {
+  --mdc-filled-button-container-color: var(--rms-button-primary-background) !important;
+  --mdc-filled-button-label-text-color: var(--rms-button-primary-foreground) !important;
+  --mdc-protected-button-container-color: var(--rms-button-primary-background) !important;
+  --mdc-protected-button-label-text-color: var(--rms-button-primary-foreground) !important;
+  color: var(--rms-button-primary-foreground) !important;
+  background-color: var(--rms-button-primary-background) !important;
+}
+
+:where(
+  .mat-mdc-unelevated-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-raised-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled)
+):hover:not(:disabled):not(.mat-mdc-button-disabled) {
+  --mdc-filled-button-container-color: var(--rms-button-primary-hover) !important;
+  --mdc-protected-button-container-color: var(--rms-button-primary-hover) !important;
+  background-color: var(--rms-button-primary-hover) !important;
+}
+
+:where(.mat-mdc-outlined-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled)) {
+  --mdc-outlined-button-outline-color: var(--rms-button-primary-outline) !important;
+  --mdc-outlined-button-label-text-color: var(--rms-button-primary-outline) !important;
+  color: var(--rms-button-primary-outline) !important;
+}
+
+:where(
+  .mat-mdc-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-icon-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled)
+) {
+  --mdc-text-button-label-text-color: var(--rms-button-primary-outline) !important;
+  --mdc-icon-button-icon-color: var(--rms-button-primary-outline) !important;
+  color: var(--rms-button-primary-outline) !important;
+}
+
+:where(
+  .mat-mdc-unelevated-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-raised-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled)
+) {
+  --mdc-filled-button-container-color: var(--rms-button-accent-background) !important;
+  --mdc-filled-button-label-text-color: var(--rms-button-accent-foreground) !important;
+  --mdc-protected-button-container-color: var(--rms-button-accent-background) !important;
+  --mdc-protected-button-label-text-color: var(--rms-button-accent-foreground) !important;
+  color: var(--rms-button-accent-foreground) !important;
+  background-color: var(--rms-button-accent-background) !important;
+}
+
+:where(
+  .mat-mdc-unelevated-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-raised-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled)
+):hover:not(:disabled):not(.mat-mdc-button-disabled) {
+  --mdc-filled-button-container-color: var(--rms-button-accent-hover) !important;
+  --mdc-protected-button-container-color: var(--rms-button-accent-hover) !important;
+  background-color: var(--rms-button-accent-hover) !important;
+}
+
+:where(.mat-mdc-outlined-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled)) {
+  --mdc-outlined-button-outline-color: var(--rms-button-accent-outline) !important;
+  --mdc-outlined-button-label-text-color: var(--rms-button-accent-outline) !important;
+  color: var(--rms-button-accent-outline) !important;
+}
+
+:where(
+  .mat-mdc-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-icon-button.mat-accent:not(:disabled):not(.mat-mdc-button-disabled)
+) {
+  --mdc-text-button-label-text-color: var(--rms-button-accent-outline) !important;
+  --mdc-icon-button-icon-color: var(--rms-button-accent-outline) !important;
+  color: var(--rms-button-accent-outline) !important;
+}
+
+:where(
+  .mat-mdc-unelevated-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-raised-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled)
+) {
+  --mdc-filled-button-container-color: var(--rms-button-danger-background) !important;
+  --mdc-filled-button-label-text-color: var(--rms-button-danger-foreground) !important;
+  --mdc-protected-button-container-color: var(--rms-button-danger-background) !important;
+  --mdc-protected-button-label-text-color: var(--rms-button-danger-foreground) !important;
+  color: var(--rms-button-danger-foreground) !important;
+  background-color: var(--rms-button-danger-background) !important;
+}
+
+:where(
+  .mat-mdc-unelevated-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-raised-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled)
+):hover:not(:disabled):not(.mat-mdc-button-disabled) {
+  --mdc-filled-button-container-color: var(--rms-button-danger-hover) !important;
+  --mdc-protected-button-container-color: var(--rms-button-danger-hover) !important;
+  background-color: var(--rms-button-danger-hover) !important;
+}
+
+:where(.mat-mdc-outlined-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled)) {
+  --mdc-outlined-button-outline-color: var(--rms-button-danger-outline) !important;
+  --mdc-outlined-button-label-text-color: var(--rms-button-danger-outline) !important;
+  color: var(--rms-button-danger-outline) !important;
+}
+
+:where(
+  .mat-mdc-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-icon-button.mat-warn:not(:disabled):not(.mat-mdc-button-disabled)
+) {
+  --mdc-text-button-label-text-color: var(--rms-button-danger-outline) !important;
+  --mdc-icon-button-icon-color: var(--rms-button-danger-outline) !important;
+  color: var(--rms-button-danger-outline) !important;
+}
+
+/* Every standard button inherits the shared UI rhythm. Icon-only controls keep
+ * their own compact geometry, but still use the shared theme tokens. */
+:where(
+  button:not(.mat-mdc-icon-button):not(.mat-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab):not(.mat-mdc-menu-item):not(.mat-menu-item),
+  a.mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab),
+  .mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab):not(.mat-mdc-menu-item)
+) {
+  box-sizing: border-box;
+  min-height: var(--rms-button-height);
+  padding-inline: var(--rms-button-padding-inline);
+  border-radius: var(--rms-button-radius) !important;
+  font-family: inherit;
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
+  line-height: 1.2;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
 .mat-mdc-button,
 .mat-mdc-unelevated-button,
 .mat-mdc-raised-button,
@@ -32,6 +263,59 @@
   .mdc-button__ripple {
     border-radius: inherit !important;
   }
+}
+
+:where(
+  button:not(.mat-mdc-icon-button):not(.mat-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab):not(.mat-mdc-menu-item):not(.mat-menu-item),
+  a.mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab)
+):focus-visible {
+  outline: 2px solid var(--rms-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Keep cards and controls compact across Material, Tailwind, and legacy screens. */
+:where(
+  button:not(.mat-mdc-icon-button):not(.mat-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab):not(.mat-mdc-menu-item):not(.mat-menu-item),
+  .mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select,
+  .mat-mdc-text-field-wrapper,
+  .mat-form-field
+) {
+  border-radius: var(--rms-control-radius) !important;
+}
+
+:where(
+  mat-card,
+  .mat-mdc-card,
+  .ui-section-card,
+  [class~="card"],
+  [class^="card-"],
+  [class*=" card-"],
+  [class$="-card"],
+  [class*="-card "]
+) {
+  border-radius: var(--rms-card-radius) !important;
+}
+
+/* Keep dialog, menu, picker, and popover surfaces as compact as regular cards. */
+:where(
+  .cdk-overlay-container .mat-mdc-dialog-surface,
+  .cdk-overlay-container .mat-dialog-container,
+  .cdk-overlay-container [role="dialog"],
+  .cdk-overlay-container [role="alertdialog"],
+  .cdk-overlay-container .mat-mdc-menu-panel,
+  .cdk-overlay-container .mat-menu-panel,
+  .cdk-overlay-container .mat-mdc-select-panel,
+  .cdk-overlay-container .mat-select-panel,
+  .cdk-overlay-container .mat-mdc-autocomplete-panel,
+  .cdk-overlay-container .mat-autocomplete-panel,
+  .cdk-overlay-container .mat-mdc-datepicker-content,
+  .cdk-overlay-container .mat-datepicker-content,
+  .cdk-overlay-container .emr-popover
+) {
+  border-radius: var(--rms-card-radius) !important;
 }
 
 html.dark {
@@ -46,6 +330,14 @@ html.dark {
   --rms-overlay: rgb(2 6 23 / 0.82);
   --rms-shadow: rgb(0 0 0 / 0.35);
   --rms-focus-ring: rgb(96 165 250 / 0.32);
+  --rms-button-primary-outline: #93c5fd;
+  --rms-button-accent-outline: #5eead4;
+  --rms-button-danger-outline: #fca5a5;
+  --rms-button-success-outline: #86efac;
+  --rms-button-secondary-background: var(--rms-surface);
+  --rms-button-secondary-hover: var(--rms-surface-muted);
+  --rms-button-secondary-foreground: var(--rms-text);
+  --rms-button-secondary-border: var(--rms-border-strong);
 }
 
 /* Consistent borderless search fields across list, report, and picker screens. */
@@ -319,7 +611,7 @@ html.dark #print-section {
 .patient-form-dialog .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: 1.25rem !important;
+  border-radius: var(--rms-card-radius) !important;
   background: transparent !important;
 }
 
@@ -333,21 +625,29 @@ html.dark #print-section {
 .add-multiple-patients-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: 1rem !important;
+  border-radius: var(--rms-card-radius) !important;
 }
 
 .referral-status-dialog-panel .mat-mdc-dialog-surface,
 .referral-status-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: 1rem !important;
+  border-radius: var(--rms-card-radius) !important;
 }
 
 .feedback-dialog-panel .mat-mdc-dialog-surface,
 .feedback-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: 1rem !important;
+  border-radius: var(--rms-card-radius) !important;
+  background: transparent !important;
+}
+
+.session-timeout-dialog-panel .mat-mdc-dialog-surface,
+.session-timeout-dialog-panel .mat-dialog-container {
+  overflow: hidden !important;
+  padding: 0 !important;
+  border-radius: var(--rms-card-radius) !important;
   background: transparent !important;
 }
 
@@ -391,7 +691,7 @@ html.dark #print-section {
   .mat-mdc-dialog-surface {
     overflow: hidden !important;
     padding: 0 !important;
-    border-radius: 1.25rem !important;
+    border-radius: var(--rms-card-radius) !important;
     background: transparent !important;
   }
 }

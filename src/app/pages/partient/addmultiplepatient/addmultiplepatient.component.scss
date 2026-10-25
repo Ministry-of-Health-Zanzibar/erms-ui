@@ -314,11 +314,11 @@
 }
 
 .add-patients-dialog__button {
-  min-height: 2.45rem;
+  min-height: var(--rms-button-height);
   gap: 0.35rem;
-  padding-inline: 0.9rem;
-  font-size: 0.76rem;
-  font-weight: 800;
+  padding-inline: var(--rms-button-padding-inline);
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
 }
 
 .add-patients-dialog__button .mat-icon {
@@ -328,12 +328,12 @@
 }
 
 .add-patients-dialog__button--primary {
-  color: #ffffff !important;
-  background: #0f766e !important;
+  color: var(--rms-button-accent-foreground) !important;
+  background: var(--rms-button-accent-background) !important;
 }
 
 .add-patients-dialog__button--primary:hover:not(:disabled) {
-  background: #0d9488 !important;
+  background: var(--rms-button-accent-hover) !important;
 }
 
 .add-patients-dialog__button:disabled {

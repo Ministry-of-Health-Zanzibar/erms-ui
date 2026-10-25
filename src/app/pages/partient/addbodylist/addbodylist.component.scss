@@ -88,27 +88,27 @@ mat-dialog-actions {
 }
 
 button.mat-flat-button {
-  background-color: #00796b;
-  color: #ffffff;
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-weight: bold;
+  background-color: var(--rms-button-accent-background);
+  color: var(--rms-button-accent-foreground);
+  padding-inline: var(--rms-button-padding-inline);
+  border-radius: var(--rms-button-radius);
+  font-weight: var(--rms-button-font-weight);
   transition: background-color 0.3s ease;
 }
 
 button.mat-flat-button:hover {
-  background-color: #004d40; /* Darker on hover */
+  background-color: var(--rms-button-accent-hover);
 }
 
 button[mat-dialog-close] {
-  color: #333;
-  border: 1px solid #ddd;
+  color: var(--rms-button-secondary-foreground);
+  border: 1px solid var(--rms-button-secondary-border);
   margin-right: 12px;
-  padding: 10px 24px;
+  padding-inline: var(--rms-button-padding-inline);
 }
 
 button[mat-dialog-close]:hover {
-  background-color: #f0f0f0;
+  background-color: var(--rms-button-secondary-hover);
 }
 
 /* Responsive form on smaller screens */

@@ -14,3 +14,4 @@ export * from './section-card/section-card.component';
 export * from './status-badge/status-badge.component';
 export * from './table-toolbar/table-toolbar.component';
 export * from './text-input/text-input.component';
+export * from './session-timeout-dialog/session-timeout-dialog.component';

@@ -1,57 +1,470 @@
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px);}
-  to { opacity: 1; transform: translateY(0);}
+:host {
+  display: block;
+  min-height: 100dvh;
+  --signin-font-family: 'Poppins', 'Segoe UI', sans-serif;
+  color: var(--rms-text);
+  font-family: var(--signin-font-family);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-@keyframes slide {
-  from { opacity: 0; transform: translateX(-20px);}
-  to { opacity: 1; transform: translateX(0);}
+.signin-page {
+  display: grid;
+  grid-template-columns: minmax(24rem, 0.92fr) minmax(0, 1.08fr);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: var(--signin-font-family);
+  --mat-form-field-container-text-font: var(--signin-font-family);
+  --mat-form-field-subscript-text-font: var(--signin-font-family);
+  --mdc-filled-text-field-label-text-font: var(--signin-font-family);
+  --mdc-outlined-text-field-label-text-font: var(--signin-font-family);
+  --mdc-filled-button-label-text-font: var(--signin-font-family);
+  --mdc-outlined-button-label-text-font: var(--signin-font-family);
+  --mdc-text-button-label-text-font: var(--signin-font-family);
+  background: var(--rms-surface-subtle);
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.8s ease forwards;
+.signin-auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  background: var(--rms-surface);
 }
 
-.animate-slide {
-  animation: slide 0.6s ease forwards;
+.signin-auth-content {
+  box-sizing: border-box;
+  width: min(100%, 31rem);
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 5vw, 4rem);
 }
 
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-
-
-.support-btn{
-  width:50px;
-  height:50px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  color:white;
-  box-shadow:0 6px 20px rgba(0,0,0,.2);
+.signin-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: clamp(2.5rem, 6vh, 4.25rem);
 }
 
-.whatsapp{background:#25D366;}
-.call{background:#3b82f6;}
-.email{background:#ef4444;}
-.info{background:#6b7280;}
-
-.pulse{
-  animation:pulse 1.5s infinite;
+.signin-brand__logo {
+  display: grid;
+  width: 4.4rem;
+  height: 3.15rem;
+  place-items: center;
+  flex: 0 0 4.4rem;
+  padding: 0.25rem;
+  border: 1px solid var(--rms-border);
+  border-radius: var(--rms-card-radius);
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.08);
 }
 
-@keyframes pulse{
-  0%{box-shadow:0 0 0 0 rgba(59,130,246,.6)}
-  70%{box-shadow:0 0 0 12px rgba(59,130,246,0)}
-  100%{box-shadow:0 0 0 0 rgba(59,130,246,0)}
+.signin-brand__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.chat-btn{
-  width:50px;height:50px;border-radius:50%;background:#6366f1;color:white;
+.signin-brand__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
 }
 
-.chat-box{
-  width:200px;background:white;padding:10px;border-radius:12px;
-  box-shadow:0 10px 20px rgba(0,0,0,.1);margin-top:10px;
+.signin-brand__eyebrow,
+.signin-heading__eyebrow,
+.signin-hero__eyebrow {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.signin-brand__eyebrow {
+  color: var(--rms-text-muted);
+}
+
+.signin-brand__name {
+  color: var(--rms-button-primary-outline);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1;
+}
+
+.signin-heading__eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--rms-button-primary-outline);
+}
+
+.signin-heading h1 {
+  max-width: 26rem;
+  margin: 0;
+  color: var(--rms-text);
+  font-size: clamp(1.8rem, 3.5vw, 2.55rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.signin-heading > p:last-child {
+  max-width: 25rem;
+  margin: 0.8rem 0 0;
+  color: var(--rms-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.signin-divider {
+  width: 100%;
+  height: 1px;
+  margin: 1.75rem 0 1.5rem;
+  background: var(--rms-border);
+}
+
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.signin-field {
+  display: block;
+  width: 100%;
+}
+
+.signin-field__error {
+  margin: -0.2rem 0 0;
+  padding-inline: 0.2rem;
+  color: var(--rms-button-danger-outline);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.signin-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  min-height: var(--rms-button-height);
+  margin-top: 0.3rem;
+  gap: 0;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgb(37 99 235 / 0.2);
+}
+
+.signin-submit__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.signin-submit .mat-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.signin-submit__spinner {
+  display: inline-flex;
+  width: 1.1rem;
+  height: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 1.1rem;
+  order: -1;
+  border: 2px solid rgb(255 255 255 / 0.42);
+  border-top-color: var(--rms-button-primary-foreground);
+  border-radius: 50%;
+  animation: signin-spinner-rotate 700ms linear infinite;
+}
+
+.signin-submit__label {
+  display: inline-flex;
+  align-items: center;
+}
+
+@keyframes signin-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:host ::ng-deep .signin-page .mat-mdc-form-field,
+:host ::ng-deep .signin-page .mat-mdc-input-element,
+:host ::ng-deep .signin-page .mdc-floating-label,
+:host ::ng-deep .signin-page .mat-mdc-form-field-subscript-wrapper {
+  font-family: var(--signin-font-family);
+}
+
+.signin-support {
+  margin-top: 2.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rms-border);
+}
+
+.signin-support__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.signin-support__title {
+  color: var(--rms-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.signin-support__caption {
+  color: var(--rms-text-muted);
+  font-size: 0.7rem;
+}
+
+.signin-support__links {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.signin-support__link {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.7rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--rms-border);
+  border-radius: var(--rms-card-radius);
+  color: var(--rms-text);
+  background: var(--rms-surface-subtle);
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.signin-support__link:hover {
+  border-color: var(--rms-button-primary-outline);
+  background: var(--rms-surface-muted);
+  transform: translateY(-1px);
+}
+
+.signin-support__link:focus-visible {
+  outline: 3px solid var(--rms-focus-ring);
+  outline-offset: 2px;
+}
+
+.signin-support__link-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  flex: 0 0 2rem;
+  border-radius: var(--rms-control-radius);
+  color: var(--rms-button-primary-foreground);
+  background: var(--rms-button-primary-background);
+}
+
+.signin-support__link--whatsapp .signin-support__link-icon {
+  color: var(--rms-button-accent-foreground);
+  background: var(--rms-button-accent-background);
+}
+
+.signin-support__link-icon .mat-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  font-size: 1.05rem;
+}
+
+.signin-support__link-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.signin-support__link-copy strong {
+  overflow: hidden;
+  color: var(--rms-text);
+  font-size: 0.73rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signin-support__link-copy small {
+  overflow: hidden;
+  color: var(--rms-text-muted);
+  font-size: 0.67rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signin-support__link-arrow {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  color: var(--rms-text-muted);
+  font-size: 1rem;
+}
+
+.signin-footer {
+  margin-top: 1.75rem;
+  color: var(--rms-text-muted);
+  font-size: 0.66rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.signin-hero {
+  position: relative;
+  min-width: 0;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #0f2438;
+}
+
+.signin-hero__image,
+.signin-hero__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.signin-hero__image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.signin-hero__overlay {
+  background:
+    linear-gradient(180deg, rgb(15 36 56 / 0.08) 0%, rgb(15 36 56 / 0.28) 38%, rgb(2 12 24 / 0.9) 100%),
+    linear-gradient(90deg, rgb(2 12 24 / 0.18), transparent 55%);
+}
+
+.signin-hero__content {
+  position: absolute;
+  right: clamp(2rem, 6vw, 6rem);
+  bottom: clamp(2rem, 7vh, 5.5rem);
+  left: clamp(2rem, 6vw, 6rem);
+  color: #ffffff;
+}
+
+.signin-hero__eyebrow {
+  display: inline-flex;
+  margin-bottom: 0.9rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: var(--rms-control-radius);
+  color: rgb(239 246 255 / 0.9);
+  background: rgb(15 61 110 / 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.signin-hero__content h2 {
+  max-width: 31rem;
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.signin-hero__content > p {
+  max-width: 28rem;
+  margin: 1rem 0 0;
+  color: rgb(239 246 255 / 0.82);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.signin-hero__credit {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+  color: rgb(239 246 255 / 0.7);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signin-hero__credit span + span {
+  padding-left: 0.75rem;
+  border-left: 1px solid rgb(255 255 255 / 0.32);
+}
+
+:host-context(html.dark) .signin-brand__logo {
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.28);
+}
+
+:host-context(html.dark) .signin-submit {
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.28);
+}
+
+@media (max-width: 900px) {
+  .signin-page {
+    grid-template-columns: 1fr;
+  }
+
+  .signin-auth-panel {
+    min-height: 100dvh;
+  }
+
+  .signin-hero {
+    display: none;
+  }
+
+  .signin-auth-content {
+    width: min(100%, 32rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .signin-auth-content {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .signin-brand {
+    margin-bottom: 2.5rem;
+  }
+
+  .signin-heading h1 {
+    font-size: 1.85rem;
+  }
+
+  .signin-support__heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 760px) {
+  .signin-auth-content {
+    padding-block: 1.5rem;
+  }
+
+  .signin-brand {
+    margin-bottom: 2rem;
+  }
+
+  .signin-support {
+    margin-top: 1.5rem;
+  }
+
+  .signin-footer {
+    margin-top: 1rem;
+  }
 }

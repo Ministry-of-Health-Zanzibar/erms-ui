@@ -300,11 +300,11 @@
 
 .flight-dialog__button {
   display: inline-flex;
-  min-height: 2.45rem;
+  min-height: var(--rms-button-height);
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.55rem 0.85rem;
+  padding: 0 var(--rms-button-padding-inline);
   border: 1px solid transparent;
   border-radius: var(--rms-button-radius);
   font: inherit;
@@ -320,23 +320,23 @@
 }
 
 .flight-dialog__button--secondary {
-  border-color: var(--rms-border-strong);
-  color: var(--rms-text);
-  background: var(--rms-surface);
+  border-color: var(--rms-button-secondary-border);
+  color: var(--rms-button-secondary-foreground);
+  background: var(--rms-button-secondary-background);
 }
 
 .flight-dialog__button--secondary:hover:not(:disabled) {
-  background: var(--rms-surface-muted);
+  background: var(--rms-button-secondary-hover);
 }
 
 .flight-dialog__button--primary {
-  color: #fff;
-  background: #0f766e;
+  color: var(--rms-button-accent-foreground);
+  background: var(--rms-button-accent-background);
   box-shadow: 0 0.35rem 0.75rem rgb(15 118 110 / 0.2);
 }
 
 .flight-dialog__button--primary:hover:not(:disabled) {
-  background: #115e59;
+  background: var(--rms-button-accent-hover);
 }
 
 .flight-dialog__button .mat-icon {

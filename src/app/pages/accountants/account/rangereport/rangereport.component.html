@@ -38,7 +38,7 @@
         <button
           mat-flat-button
           color="primary"
-          class="h-[50px] px-6 rounded-md text-white bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+          class="h-[50px] px-6 rounded-md flex items-center gap-2"
           (click)="fetchReports()"
         >
           <mat-icon>search</mat-icon>
@@ -115,14 +115,14 @@
           <a
             [href]="'http://127.0.0.1:8000/storage/' + element.document_file"
             target="_blank"
-            class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm transition"
+            mat-flat-button
+            color="warn"
+            class="inline-flex items-center gap-2"
           >
-          <button class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.828a2 2 0 00-.586-1.414l-3.828-3.828A2 2 0 0010.172 2H6zm4 1.414L14.586 8H11a1 1 0 01-1-1V3.414zM7 11a1 1 0 011 1v1a1 1 0 102 0v-1a1 1 0 112 0v1a3 3 0 11-6 0v-1a1 1 0 011-1z" />
             </svg>
             Export PDF
-          </button>
 
           </a>
         </ng-container></td>

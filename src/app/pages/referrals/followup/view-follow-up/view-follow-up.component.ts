@@ -22,7 +22,7 @@ import { LetterDocumentsService, resolveReferralLetterLanguage } from '../../../
 import { FeedbackService } from '@shared/services/feedback.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { AddFollowUpComponent } from '../add-follow-up/add-follow-up.component';
-import { environment } from '../../../../../environments/environment.prod';
+import { ConversationModalComponent } from '../../conversation-modal/conversation-modal.component';
 import {
   EmptyStateComponent,
   FileViewerComponent,
@@ -55,9 +55,9 @@ import {
 })
 export class ViewFollowUpComponent implements OnInit {
   private readonly uiFeedback = inject(FeedbackService);
-  public documentUrl = environment.fileUrl;
   public displayRoleForm!: FormGroup;
   loading: boolean = false;
+  errorMessage = '';
   followListId: string | null = null;
   public follow: any = null;
   public hospitalLetters: any[] = [];
@@ -67,6 +67,8 @@ export class ViewFollowUpComponent implements OnInit {
   feedback: any = null;
   userRole: string | null = null;
   patientListInfo: any = null;
+  dgReviewComments: Record<number, string> = {};
+  reviewingLetterId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -85,6 +87,7 @@ export class ViewFollowUpComponent implements OnInit {
 
   getFeedbackById() {
     this.loading = true;
+    this.errorMessage = '';
 
     this.followService.getFollowListById(this.followListId).subscribe(
       (response: any) => {
@@ -112,34 +115,48 @@ export class ViewFollowUpComponent implements OnInit {
       },
       (error) => {
         this.loading = false;
+        this.follow = null;
+        this.hospitalLetters = [];
+        this.referralId = null;
+        this.errorMessage = getApiErrorMessage(
+          error,
+          'This follow-up record is not available for your hospital-user account.',
+        );
         console.error('Error fetching follow details:', error);
       }
     );
   }
 
   viewPDF(element: any) {
-    if (element?.letter_file) {
-      const url = element.letter_file.startsWith('http')
-        ? element.letter_file
-        : this.documentUrl + element.letter_file;
+    const isHospitalUser = this.permission.isHospitalDoctor();
+    const storedFile = element?.uploaded_file_name || element?.letter_file;
 
-      this.dialog.open(FileViewerComponent, {
-        width: 'min(96vw, 1200px)',
-        height: 'min(92vh, 860px)',
-        maxWidth: '100vw',
-        maxHeight: '100vh',
-        panelClass: 'file-viewer-dialog',
-        data: {
-          url,
-          fileName: url.split('/').pop() || 'follow-up-letter',
-          title: 'Uploaded follow-up letter',
-          // An uploaded transfer report is not the official destination referral letter.
-          printTrackingUrl: element.outcome === 'Transferred' ? undefined
-            : `${environment.baseUrl}letter-documents/follow-ups/${element.letter_id}/print`,
-          printTrackingBody: { language: resolveReferralLetterLanguage(this.follow, element?.referral_id) },
-        },
-      });
+    if (!element?.letter_id || (!element?.has_uploaded_file && !storedFile)) {
+      return;
     }
+
+    const language = resolveReferralLetterLanguage(this.follow, element?.referral_id);
+    const patientName = this.follow?.patient?.name || 'Patient';
+    const fileName = String(storedFile).split(/[\\/]/).pop() || 'follow-up-letter';
+
+    this.documents.openUploadedFollowUpLetter(
+      Number(element.letter_id),
+      fileName,
+      language,
+      patientName,
+      !isHospitalUser && element.outcome !== 'Transferred',
+      !isHospitalUser,
+    ).subscribe({
+      next: (viewerRef) => viewerRef.afterClosed().subscribe((result) => {
+        if (result?.printed) {
+          this.getFeedbackById();
+        }
+      }),
+      error: (error: unknown) => this.uiFeedback.error(
+        'Unable to open letter',
+        getApiErrorMessage(error, 'The uploaded follow-up letter could not be opened.'),
+      ),
+    });
   }
 
   addFollowWithOutcome(referral_id: any, outcome: string) {
@@ -154,7 +171,11 @@ export class ViewFollowUpComponent implements OnInit {
     config.maxHeight = 'calc(100vh - 32px)';
     config.width = 'min(920px, calc(100vw - 32px))';
     config.panelClass = ['full-screen-modal', 'follow-up-dialog-panel'];
-    config.data = { referral_id, outcome };
+    config.data = {
+      referral_id,
+      outcome,
+      requestDgApproval: this.permission.isHospitalDoctor(),
+    };
 
     const dialogRef = this.dialog.open(AddFollowUpComponent, config);
 
@@ -191,7 +212,15 @@ export class ViewFollowUpComponent implements OnInit {
   }
 
   canPrintLetter(letter: any): boolean {
-    return !!letter?.letter_id && (letter.outcome === 'Follow-up'
+    if (letter?.dg_approval_status === 'pending' || letter?.dg_approval_status === 'rejected') {
+      return false;
+    }
+
+    const approvedForHospitalUser = !this.permission.isHospitalDoctor()
+      || letter?.dg_approval_status === 'confirmed';
+
+    return approvedForHospitalUser
+      && !!letter?.letter_id && (letter.outcome === 'Follow-up'
       || (letter.outcome === 'Transferred' && !!letter.transfer_letter?.referral_id));
   }
 
@@ -200,11 +229,125 @@ export class ViewFollowUpComponent implements OnInit {
   }
 
   printTooltip(letter: any): string {
+    if (letter?.dg_approval_status === 'pending') {
+      return 'Waiting for DG confirmation before printing';
+    }
+
+    if (letter?.dg_approval_status === 'rejected') {
+      return 'This request was returned by the DG. Review the conversation before submitting again.';
+    }
+
+    if (this.permission.isHospitalDoctor() && letter?.dg_approval_status !== 'confirmed') {
+      return 'Waiting for DG confirmation before printing';
+    }
+
     if (letter?.outcome === 'Transferred') {
       return this.canPrintLetter(letter) ? 'Print referral letter for the transferred hospital'
         : 'This transfer needs a verified referral letter. Please contact an administrator.';
     }
     return letter?.outcome === 'Follow-up' ? 'Print Follow-up' : 'No attendance letter is required for this outcome';
+  }
+
+  get isDirectorGeneral(): boolean {
+    const storedRoles = [
+      localStorage.getItem('roles'),
+      localStorage.getItem('all_roles'),
+    ].filter((value): value is string => Boolean(value));
+
+    return storedRoles.some((stored) => {
+      try {
+        const parsed = JSON.parse(stored);
+        const roles = Array.isArray(parsed) ? parsed : [parsed];
+        return roles.some((role: any) => {
+          const name = typeof role === 'string' ? role : role?.name;
+          return ['ROLE DG', 'ROLE DIRECTOR GENERAL'].includes(String(name || '').trim().toUpperCase());
+        });
+      } catch {
+        return ['ROLE DG', 'ROLE DIRECTOR GENERAL'].includes(stored.trim().toUpperCase());
+      }
+    });
+  }
+
+  get canCreateFollowUpActions(): boolean {
+    return this.permission.isHospitalDoctor()
+      || this.permission.parmissionMatched(['Create FollowUp']);
+  }
+
+  get canSubmitFollowUpRequest(): boolean {
+    const statuses = String(this.follow?.status || '')
+      .split(',')
+      .map((status) => status.trim().toLowerCase())
+      .filter(Boolean);
+
+    // Pending referrals are valid starting points for a hospital-user
+    // proposal. Closed/boarded-out cases remain protected from a new outcome.
+    return !statuses.some((status) => ['closed', 'boardedout'].includes(status));
+  }
+
+  get pendingApprovalLetters(): any[] {
+    return (this.hospitalLetters || []).filter(
+      (letter: any) => letter?.dg_approval_status === 'pending',
+    );
+  }
+
+  get patientHistoryId(): number | null {
+    const referral = this.follow?.referrals?.find((item: any) => item?.patient_histories_id)
+      || this.follow?.referrals?.[0];
+    return Number(referral?.patient_histories_id || this.follow?.patient?.patient_histories?.[0]?.patient_histories_id) || null;
+  }
+
+  openDoctorConversation(): void {
+    if (!this.patientHistoryId) {
+      this.uiFeedback.alert(
+        'Conversation unavailable',
+        'This referral is not linked to a patient history conversation.',
+        'info',
+      );
+      return;
+    }
+
+    this.dialog.open(ConversationModalComponent, {
+      width: 'min(960px, 94vw)',
+      maxWidth: '94vw',
+      data: { patientHistoryId: this.patientHistoryId },
+    });
+  }
+
+  confirmFollowUp(letter: any): void {
+    if (!this.isDirectorGeneral || letter?.dg_approval_status !== 'pending' || this.reviewingLetterId) {
+      return;
+    }
+
+    this.uiFeedback.confirm(
+      'Confirm follow-up request?',
+      'The hospital user will be notified and the existing follow-up workflow will be applied.',
+      { confirmButtonText: 'Confirm and notify' },
+    ).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.reviewingLetterId = Number(letter.letter_id);
+      this.followService.reviewFollowUpApproval(this.reviewingLetterId, {
+        decision: 'confirmed',
+        comments: this.dgReviewComments[this.reviewingLetterId]?.trim() || undefined,
+      }).subscribe({
+        next: (response: any) => {
+          this.reviewingLetterId = null;
+          delete this.dgReviewComments[Number(letter.letter_id)];
+          this.uiFeedback.success('Follow-up confirmed', response?.message || 'The doctor has been notified.');
+          this.getFeedbackById();
+        },
+        error: (error: unknown) => {
+          this.reviewingLetterId = null;
+          this.uiFeedback.error('Unable to confirm follow-up', getApiErrorMessage(error, 'The DG decision could not be saved.'));
+        },
+      });
+    });
+  }
+
+  setDgReviewComment(letterId: number, event: Event): void {
+    this.dgReviewComments[letterId] = String((event.target as HTMLTextAreaElement)?.value || '');
   }
 
   extractFileName(url: string): string {

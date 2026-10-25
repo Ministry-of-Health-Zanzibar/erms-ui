@@ -104,6 +104,41 @@ describe('LetterDocumentsService', () => {
     });
   }
 
+  it('opens uploaded follow-up files through the authenticated API', () => {
+    service.openUploadedFollowUpLetter(
+      12,
+      'uploads/hospitalLetters/follow-up.pdf',
+      'sw',
+      'Test Patient',
+    ).subscribe();
+
+    const request = http.expectOne(`${environment.baseUrl}hospital-letters/12/file`);
+    const data = dialog.open.calls.mostRecent().args[1]?.data as FileViewerData;
+    expect(data.title).toBe('Uploaded follow-up letter · Test Patient');
+    expect(data.fileName).toBe('follow-up.pdf');
+    expect(data.printTrackingUrl).toBe(`${environment.baseUrl}letter-documents/follow-ups/12/print`);
+
+    request.flush(new Blob(['%PDF-1.4'], { type: 'application/pdf' }));
+    expect(viewer.setFile).toHaveBeenCalledOnceWith('blob:test-letter#zoom=100');
+  });
+
+  it('can hide printing when an uploaded file is view-only', () => {
+    service.openUploadedFollowUpLetter(
+      12,
+      'follow-up.pdf',
+      'sw',
+      'Test Patient',
+      false,
+      false,
+    ).subscribe();
+
+    const data = dialog.open.calls.mostRecent().args[1]?.data as FileViewerData;
+    expect(data.printTrackingUrl).toBeUndefined();
+    expect(data.showPrintAction).toBeFalse();
+    http.expectOne(`${environment.baseUrl}hospital-letters/12/file`)
+      .flush(new Blob(['%PDF-1.4'], { type: 'application/pdf' }));
+  });
+
   it('resolves the language of the transferred hospital', () => {
     expect(resolveReferralLetterLanguage({
       transferred_referral_id: 8,

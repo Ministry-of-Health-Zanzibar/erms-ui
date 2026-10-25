@@ -1,0 +1,92 @@
+<div
+  class="session-timeout-dialog"
+  role="alertdialog"
+  aria-labelledby="session-timeout-title"
+  aria-describedby="session-timeout-message">
+  <div class="session-timeout-dialog__header">
+    <div class="session-timeout-dialog__icon" aria-hidden="true">
+      <mat-icon>schedule</mat-icon>
+    </div>
+    <div>
+      <p class="session-timeout-dialog__eyebrow">Session security</p>
+      <h2 mat-dialog-title id="session-timeout-title">Your session is about to expire</h2>
+    </div>
+  </div>
+
+  <mat-dialog-content>
+    <p id="session-timeout-message" class="session-timeout-dialog__message">
+      You have been inactive. For your security, you will be signed out unless you continue.
+    </p>
+
+    <div class="session-timeout-dialog__timer" aria-live="polite">
+      <svg viewBox="0 0 160 160" role="img" aria-label="Session expiration countdown">
+        <circle
+          class="session-timeout-dialog__track session-timeout-dialog__track--session"
+          cx="80"
+          cy="80"
+          r="70"></circle>
+        <circle
+          class="session-timeout-dialog__progress session-timeout-dialog__progress--session"
+          cx="80"
+          cy="80"
+          r="70"
+          [attr.stroke-dasharray]="sessionCircumference"
+          [attr.stroke-dashoffset]="strokeOffset(
+            data.sessionCountdown$ | async,
+            data.sessionDurationSeconds,
+            sessionCircumference
+          )"></circle>
+        <circle
+          class="session-timeout-dialog__track session-timeout-dialog__track--warning"
+          cx="80"
+          cy="80"
+          r="52"></circle>
+        <circle
+          class="session-timeout-dialog__progress session-timeout-dialog__progress--warning"
+          cx="80"
+          cy="80"
+          r="52"
+          [attr.stroke-dasharray]="warningCircumference"
+          [attr.stroke-dashoffset]="strokeOffset(
+            data.countdown$ | async,
+            data.warningDurationSeconds,
+            warningCircumference
+          )"></circle>
+      </svg>
+      <div class="session-timeout-dialog__timer-label">
+        <strong>{{ data.countdown$ | async }}</strong>
+        <span>seconds</span>
+      </div>
+    </div>
+
+    <div class="session-timeout-dialog__legend" aria-label="Countdown stages">
+      <span>
+        <i class="session-timeout-dialog__legend-dot session-timeout-dialog__legend-dot--session"></i>
+        10-minute inactivity window
+      </span>
+      <span>
+        <i class="session-timeout-dialog__legend-dot session-timeout-dialog__legend-dot--warning"></i>
+        Final minute
+      </span>
+    </div>
+
+    <p class="session-timeout-dialog__prompt">Would you like to stay signed in?</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="session-timeout-dialog__actions">
+    <button mat-stroked-button type="button" class="session-timeout-dialog__logout" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Log out
+    </button>
+    <button
+      mat-flat-button
+      type="button"
+      color="primary"
+      class="session-timeout-dialog__refresh"
+      [disabled]="(data.refreshing$ | async) === true"
+      (click)="refresh()">
+      <mat-icon>{{ (data.refreshing$ | async) === true ? 'sync' : 'refresh' }}</mat-icon>
+      {{ (data.refreshing$ | async) === true ? 'Renewing…' : 'Renew session' }}
+    </button>
+  </mat-dialog-actions>
+</div>

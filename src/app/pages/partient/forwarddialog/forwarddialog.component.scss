@@ -116,11 +116,11 @@
 }
 
 .forward-dialog__actions button {
-  min-height: 2.55rem;
+  min-height: var(--rms-button-height);
   gap: 0.35rem;
-  padding-inline: 0.9rem;
-  font-size: 0.77rem;
-  font-weight: 700;
+  padding-inline: var(--rms-button-padding-inline);
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
 }
 
 .forward-dialog__actions .mat-icon {

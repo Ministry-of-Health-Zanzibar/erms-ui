@@ -7,7 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { filter } from 'rxjs';
 import { AnalyticsService } from '@elementar/components';
 import { SeoService } from '@elementar/components';
-import { InactivityTrackerService } from '@elementar/components';
+import { InactivityService } from './services/accountants/inactivity.service';
 
 
 @Component({
@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
   private _themeManager = inject(ThemeManagerService);
   private _screenLoader = inject(ScreenLoaderService);
   private _analyticsService = inject(AnalyticsService);
-  private _inactivityTracker = inject(InactivityTrackerService);
+  private _inactivityService = inject(InactivityService);
   private _seoService = inject(SeoService);
   private _envService = inject(EnvironmentService);
   private _platformId = inject(PLATFORM_ID);
@@ -56,12 +56,7 @@ export class AppComponent implements OnInit {
       ;
 
       this._analyticsService.trackPageViews();
-      this._inactivityTracker.setupInactivityTimer()
-        .subscribe(() => {
-          // console.log('Inactive mode has been activated!');
-          // this._inactivityTracker.reset();
-        })
-      ;
+      this._inactivityService.startWatching();
     });
   }
 

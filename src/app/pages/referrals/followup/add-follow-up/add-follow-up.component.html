@@ -6,9 +6,13 @@
       </span>
       <div>
         <p class="follow-up-dialog__eyebrow">Patient referral workflow</p>
-        <h2 id="follow-up-dialog-title">Add follow-up record</h2>
+        <h2 id="follow-up-dialog-title">
+          {{ requestDgApproval ? 'Request follow-up approval' : 'Add follow-up record' }}
+        </h2>
         <p class="follow-up-dialog__subtitle">
-          Record the patient’s treatment progress, outcome, and supporting documentation.
+          {{ requestDgApproval
+            ? 'Submit the outcome and supporting document to the Director General for review before printing.'
+            : 'Record the patient’s treatment progress, outcome, and supporting documentation.' }}
         </p>
       </div>
     </div>
@@ -36,8 +40,9 @@
     <div class="follow-up-dialog__notice" role="note">
       <mat-icon aria-hidden="true">info</mat-icon>
       <p>
-        Complete the follow-up summary and outcome. The next appointment date is
-        available for Follow-up and Transferred outcomes, and is required for Transferred.
+        {{ requestDgApproval
+          ? 'This request will be sent to the Director General. The referral and printing workflow will remain pending until it is confirmed.'
+          : 'Complete the follow-up summary and outcome. The next appointment date is available for Follow-up and Transferred outcomes, and is required for Transferred.' }}
       </p>
     </div>
 
@@ -259,7 +264,7 @@
   <mat-dialog-actions class="follow-up-dialog__footer" align="end">
     <span class="follow-up-dialog__footer-note">
       <mat-icon aria-hidden="true">lock</mat-icon>
-      Saved securely against this referral
+      {{ requestDgApproval ? 'Awaiting DG review after submission' : 'Saved securely against this referral' }}
     </span>
     <div class="follow-up-dialog__actions">
       <button
@@ -280,7 +285,7 @@
         [disabled]="patientForm.invalid || submitting"
       >
         <mat-icon aria-hidden="true">save</mat-icon>
-        {{ submitting ? 'Saving…' : 'Save follow-up' }}
+        {{ submitting ? 'Saving…' : (requestDgApproval ? 'Send to DG for review' : 'Save follow-up') }}
       </button>
     </div>
   </mat-dialog-actions>

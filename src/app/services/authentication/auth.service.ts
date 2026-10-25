@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.prod';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -15,6 +15,13 @@ export class AuthService {
   loginAuthenticate(data: any): Observable<any> {
     const href = `${this.baseUrl}login`;
     return this.http.post<any>(href, data);
+  }
+
+  /** Validate the current authenticated session before extending the idle window. */
+  refreshSession(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}checkPassword`, {
+      headers: new HttpHeaders({ 'X-Skip-Cache': 'true' }),
+    });
   }
 
   public setPermissions(permissions: []) {

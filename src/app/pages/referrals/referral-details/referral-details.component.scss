@@ -391,15 +391,15 @@
 
 .referral-action-button {
   display: inline-flex !important;
-  min-height: 2.55rem;
+  min-height: var(--rms-button-height);
   align-items: center;
   gap: 0.35rem;
-  padding: 0 0.95rem !important;
-  border-radius: 0.65rem !important;
-  color: #ffffff !important;
+  padding: 0 var(--rms-button-padding-inline) !important;
+  border-radius: var(--rms-button-radius) !important;
+  color: var(--rms-button-primary-foreground) !important;
   box-shadow: 0 5px 14px rgb(2 6 23 / 0.13);
-  font-size: 0.73rem;
-  font-weight: 750;
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
 }
 
 .referral-action-button .mat-icon {
@@ -414,19 +414,22 @@
 }
 
 .referral-action-button--decision {
-  background: #2563eb !important;
+  background: var(--rms-button-primary-background) !important;
 }
 
 .referral-action-button--flight {
-  background: #0891b2 !important;
+  color: var(--rms-button-info-foreground) !important;
+  background: var(--rms-button-info-background) !important;
 }
 
 .referral-action-button--print {
-  background: #4f46e5 !important;
+  color: var(--rms-button-print-foreground) !important;
+  background: var(--rms-button-print-background) !important;
 }
 
 .referral-action-button--success {
-  background: #16a34a !important;
+  color: var(--rms-button-success-foreground) !important;
+  background: var(--rms-button-success-background) !important;
 }
 
 .referral-action-button:disabled {

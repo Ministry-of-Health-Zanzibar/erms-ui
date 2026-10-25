@@ -18,6 +18,7 @@ export interface FileViewerData {
   shareUrl?: string;
   printTrackingUrl?: string;
   printTrackingBody?: Record<string, unknown>;
+  showPrintAction?: boolean;
 }
 
 @Component({
@@ -42,6 +43,7 @@ export class FileViewerComponent {
   readonly shareUrl: string;
   readonly printTrackingUrl?: string;
   readonly printTrackingBody?: Record<string, unknown>;
+  readonly showPrintAction: boolean;
   safePreviewUrl: SafeResourceUrl;
 
   isLoading = false;
@@ -66,6 +68,7 @@ export class FileViewerComponent {
     this.shareUrl = data.shareUrl || data.url;
     this.printTrackingUrl = data.printTrackingUrl;
     this.printTrackingBody = data.printTrackingBody;
+    this.showPrintAction = data.showPrintAction !== false;
     this.safePreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.fileUrl);
     this.isLoading = !!data.loading;
     this.isPreviewLoading = this.isPdf;
@@ -187,20 +190,20 @@ export class FileViewerComponent {
           if (navigatorWithFileShare.canShare({ files: [shareFile] })) {
             await navigator.share({
               title: this.title,
-              text: 'Shared from ERIS: ' + this.fileName,
+              text: 'Shared from ERMS: ' + this.fileName,
               files: [shareFile],
             });
           } else {
             await navigator.share({
               title: this.title,
-              text: 'Shared from ERIS: ' + this.fileName,
+              text: 'Shared from ERMS: ' + this.fileName,
               url: this.shareUrl,
             });
           }
         } else {
           await navigator.share({
             title: this.title,
-            text: 'Shared from ERIS: ' + this.fileName,
+            text: 'Shared from ERMS: ' + this.fileName,
             url: this.shareUrl,
           });
         }
@@ -235,7 +238,11 @@ export class FileViewerComponent {
   }
 
   printFile(): void {
-    if (this.isLoading || this.isPreviewLoading || this.isPrinting || !isPlatformBrowser(this.platformId)) {
+    if (!this.showPrintAction
+      || this.isLoading
+      || this.isPreviewLoading
+      || this.isPrinting
+      || !isPlatformBrowser(this.platformId)) {
       return;
     }
 

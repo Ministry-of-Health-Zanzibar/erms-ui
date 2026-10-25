@@ -1,234 +1,206 @@
-<div class="px-10 py-14">
-  <div class="max-w-[1000px] mx-auto">
-    <section class="border dark:border-inverse rounded-2xl">
-      <div class="bg-neutral-100 dark:bg-neutral-700 h-48 rounded-t-2xl relative">
-        <div class="absolute start-10 size-44 border-4 border-background overflow-hidden
-                -bottom-2 translate-y-1/2 bg-tertiary-200 dark:bg-tertiary-400 rounded-full">
-          <img src="https://xsgames.co/randomusers/avatar.php?g=male" alt="" class="bg-cover">
+<div class="profile-page app-page-content">
+  <app-page-header
+    title="My profile"
+    description="Update the personal information associated with your ERMS account."
+    icon="manage_accounts"
+  >
+    <span *ngIf="!loading && !loadError" uiPageActions class="profile-page__status">
+      <mat-icon aria-hidden="true">verified_user</mat-icon>
+      Self-service profile
+    </span>
+  </app-page-header>
+
+  <div *ngIf="loading" class="profile-state" role="status" aria-live="polite">
+    <mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner>
+    <span>Loading your profile…</span>
+  </div>
+
+  <div *ngIf="!loading && loadError" class="profile-state profile-state--error" role="alert">
+    <mat-icon aria-hidden="true">error_outline</mat-icon>
+    <div>
+      <strong>Profile unavailable</strong>
+      <span>We could not load your personal information.</span>
+    </div>
+    <button mat-stroked-button type="button" (click)="loadProfile()">Try again</button>
+  </div>
+
+  <div *ngIf="!loading && !loadError" class="profile-layout">
+    <app-section-card
+      class="profile-form-card"
+      title="Personal information"
+      description="Keep your contact and identity details up to date."
+      icon="person"
+    >
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <div class="profile-form-grid">
+          <app-text-input
+            class="profile-field"
+            label="First name"
+            formControlName="first_name"
+            autocomplete="given-name"
+            [required]="true"
+            [allowClear]="false"
+          >
+            <mat-error *ngIf="profileForm.controls.first_name.touched && profileForm.controls.first_name.invalid">
+              First name is required
+            </mat-error>
+          </app-text-input>
+
+          <app-text-input
+            class="profile-field"
+            label="Middle name"
+            formControlName="middle_name"
+            autocomplete="additional-name"
+            [required]="true"
+            [allowClear]="false"
+          >
+            <mat-error *ngIf="profileForm.controls.middle_name.touched && profileForm.controls.middle_name.invalid">
+              Middle name is required
+            </mat-error>
+          </app-text-input>
+
+          <app-text-input
+            class="profile-field"
+            label="Last name"
+            formControlName="last_name"
+            autocomplete="family-name"
+            [required]="true"
+            [allowClear]="false"
+          >
+            <mat-error *ngIf="profileForm.controls.last_name.touched && profileForm.controls.last_name.invalid">
+              Last name is required
+            </mat-error>
+          </app-text-input>
+
+          <app-text-input
+            class="profile-field"
+            label="Email address"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            icon="email"
+            [required]="true"
+            [allowClear]="false"
+          >
+            <mat-error *ngIf="profileForm.controls.email.touched && profileForm.controls.email.hasError('required')">
+              Email address is required
+            </mat-error>
+            <mat-error *ngIf="profileForm.controls.email.touched && profileForm.controls.email.hasError('email')">
+              Enter a valid email address
+            </mat-error>
+          </app-text-input>
+
+          <app-text-input
+            class="profile-field"
+            label="Phone number"
+            type="tel"
+            formControlName="phone_no"
+            autocomplete="tel"
+            icon="phone"
+            [required]="true"
+            [allowClear]="false"
+          >
+            <mat-error *ngIf="profileForm.controls.phone_no.touched && profileForm.controls.phone_no.invalid">
+              Phone number is required
+            </mat-error>
+          </app-text-input>
+
+          <app-text-input
+            class="profile-field"
+            label="Address"
+            formControlName="address"
+            autocomplete="street-address"
+            [required]="true"
+            [allowClear]="false"
+          >
+            <mat-error *ngIf="profileForm.controls.address.touched && profileForm.controls.address.invalid">
+              Address is required
+            </mat-error>
+          </app-text-input>
+
+          <mat-form-field appearance="outline" class="profile-field">
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender" required>
+              <mat-option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="profileForm.controls.gender.touched && profileForm.controls.gender.invalid">
+              Gender is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="profile-field">
+            <mat-label>Date of birth</mat-label>
+            <input
+              matInput
+              formControlName="date_of_birth"
+              [matDatepicker]="dateOfBirthPicker"
+              [max]="maxDate"
+              autocomplete="bday"
+              placeholder="Choose a date"
+              required
+            />
+            <mat-datepicker-toggle matSuffix [for]="dateOfBirthPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dateOfBirthPicker></mat-datepicker>
+            <mat-error *ngIf="profileForm.controls.date_of_birth.touched && profileForm.controls.date_of_birth.invalid">
+              Date of birth is required
+            </mat-error>
+          </mat-form-field>
         </div>
-      </div>
-      <div class="pb-12 ps-12 pe-12 pt-7">
-        <div class="flex h-full justify-between gap-10">
+
+        <div class="profile-form-actions">
+          <button mat-button type="button" (click)="resetChanges()" [disabled]="saving || !profileForm.dirty">
+            Discard changes
+          </button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving || profileForm.invalid || !profileForm.dirty">
+            <mat-progress-spinner *ngIf="saving" mode="indeterminate" diameter="18"></mat-progress-spinner>
+            <mat-icon *ngIf="!saving" aria-hidden="true">save</mat-icon>
+            {{ saving ? 'Saving…' : 'Save changes' }}
+          </button>
+        </div>
+      </form>
+    </app-section-card>
+
+    <div class="profile-side-column">
+      <app-section-card
+        title="Account access"
+        description="Your role and hospital access are managed by authorized administrators."
+        icon="admin_panel_settings"
+      >
+        <div class="profile-identity">
+          <span class="profile-avatar" aria-hidden="true">{{ initials }}</span>
           <div>
-            <div class="ms-48 flex gap-4">
-              <div class="bg-neutral-200 dark:bg-neutral-700 rounded-full size-max">
-                <button mat-icon-button matTooltip="Send a message">
-                  <mat-icon class="font-icon-filled">mail</mat-icon>
-                </button>
-              </div>
-              @if (!followed) {
-                <button mat-flat-button (click)="follow()">Follow</button>
-              } @else {
-                <button mat-stroked-button (click)="unfollow()">Unfollow</button>
-              }
-            </div>
-            <div class="mt-14">
-              <div class="flex items-center gap-4">
-                <div class="text-2xl font-bold">Pavel Salauyou</div>
-                <div class="flex items-center">
-                  <mat-icon class="font-icon text-neutral-600 dark:text-neutral-500
-                               !text-lg !w-6 !h-7 flex items-center justify-center">location_on</mat-icon>
-                  <div class="text-xs text-neutral-650 dark:text-neutral-500">London, United Kingdom</div>
-                </div>
-              </div>
-              <div class="text-sm text-neutral-500 mt-1.5">Senior Angular developer, expert in Typescript</div>
-            </div>
-          </div>
-          <div class="max-w-96">
-            <div>
-              <div class="text-sm text-neutral-500 dark:text-neutral-400">Languages</div>
-              <div class="flex gap-2 mt-1.5 flex-wrap">
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>English:</span>
-                  <span class="text-neutral-600 dark:text-neutral-700">Native</span>
-                </div>
-                <div class="w-max rounded-lg text-xs bg-neutral-200 px-2 h-6 flex
-                            items-center gap-1 dark:bg-primary-200 dark:text-primary-800">
-                  <span>German:</span>
-                  <span class="text-neutral-600 dark:text-neutral-700">Fluent</span>
-                </div>
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>Spanish:</span>
-                  <span class="text-neutral-600 dark:text-neutral-700">Basic</span>
-                </div>
-              </div>
-            </div>
-            <div class="mt-7">
-              <div class="text-sm text-neutral-500 dark:text-neutral-400">Skills (13)</div>
-              <div class="flex gap-2 mt-1.5 flex-wrap">
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>Typescript:</span>
-                  <span class="text-neutral-600 dark:text-neutral-700">Good</span>
-                </div>
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>Angular:</span>
-                  <span class="text-neutral-600">Good</span>
-                </div>
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>CSS:</span>
-                  <span class="text-neutral-600 dark:text-neutral-700">Medium</span>
-                </div>
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>Rest API:</span>
-                  <span class="text-neutral-600">Good</span>
-                </div>
-                <div class="w-max rounded-lg text-xs bg-neutral-200 dark:bg-primary-200
-                            dark:text-primary-800 px-2 h-6 flex items-center gap-1">
-                  <span>NestJS:</span>
-                  <span class="text-neutral-600 dark:text-neutral-700">Medium</span>
-                </div>
-                <div class="w-max text-xs px-2 h-6 flex items-center text-primary hover:text-tertiary cursor-pointer">+8 more</div>
-              </div>
-            </div>
+            <strong>{{ displayName }}</strong>
+            <span>{{ profile.email }}</span>
           </div>
         </div>
-      </div>
-    </section>
-    <div class="mt-12 grid grid-cols-12 gap-20">
-      <section class="col-span-8">
-        <div class="font-bold">About me</div>
-        <div class="text-md mt-5 leading-relaxed">
-          <ul>
-            <li>• 12+ years of software development experience</li>
-            <li>• Web-applications development (PHP 8+, Symfony 5, Angular 16+, Nest.js)</li>
-            <li>• Experience with databases (Mysql, MongoDB, Redis)</li>
-            <li>• Rich front-end development (Tailwindcss, HTML5, Angular, CSS 3, esbuild, Webpack, Rollup)</li>
-            <li>• Experience with many tools and methodologies (Git, JIRA)</li>
-            <li>• Amazon Web Services, Digitalocean Services</li>
-          </ul>
-        </div>
-        <div class="mt-14">
-          <div class="font-bold">Experience</div>
-          <div class="text-md mt-5">
-            <table class="w-full">
-              <tbody>
-              <tr>
-                <td class="w-1 whitespace-nowrap text-tiny align-top">
-                  <div class="text-neutral-650 dark:text-neutral-600">2020 &ndash; Present</div>
-                  <div class="text-neutral-500 mt-2">Elementar Labs</div>
-                </td>
-                <td class="ps-10 align-top">
-                  <div class="font-semibold text-sm">Senior Angular Developer</div>
-                  <div class="text-sm text-neutral-500 mt-2 pb-7">
-                    I develop efficient Angular web applications,
-                    focusing on user interface design and API integration to
-                    enhance performance and meet business goals.
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="w-1 whitespace-nowrap text-tiny align-top">
-                  <div class="text-neutral-650 dark:text-neutral-600">2017 &ndash; 2020</div>
-                  <div class="text-neutral-500 mt-2">Elementar Labs</div>
-                </td>
-                <td class="ps-10 align-top">
-                  <div class="font-semibold text-sm">Senior Angular Developer</div>
-                  <div class="text-sm text-neutral-500 mt-2 pb-7">
-                    I develop efficient Angular web applications,
-                    focusing on user interface design and API integration to
-                    enhance performance and meet business goals.
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="w-1 whitespace-nowrap text-tiny align-top">
-                  <div class="text-neutral-650 dark:text-neutral-600">2015 &ndash; 2017</div>
-                  <div class="text-neutral-500 mt-2">Elementar Labs</div>
-                </td>
-                <td class="ps-10 align-top">
-                  <div class="font-semibold text-sm">Senior Angular Developer</div>
-                  <div class="text-sm text-neutral-500 mt-2 pb-7">
-                    I develop efficient Angular web applications,
-                    focusing on user interface design and API integration to
-                    enhance performance and meet business goals.
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td class="w-1 whitespace-nowrap text-tiny align-top">
-                  <div class="text-neutral-650 dark:text-neutral-600">2010 &ndash; 2015</div>
-                  <div class="text-neutral-500 mt-2">Elementar Labs</div>
-                </td>
-                <td class="ps-10 align-top">
-                  <div class="font-semibold text-sm">Senior Angular Developer</div>
-                  <div class="text-sm text-neutral-500 mt-2">
-                    I develop efficient Angular web applications,
-                    focusing on user interface design and API integration to
-                    enhance performance and meet business goals.
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
+
+        <div class="profile-summary-group">
+          <span class="profile-summary-label">Roles</span>
+          <div *ngIf="roles.length" class="profile-chip-list">
+            <span *ngFor="let role of roles" class="profile-chip">{{ role }}</span>
           </div>
+          <span *ngIf="!roles.length" class="profile-summary-empty">No role information available.</span>
         </div>
-      </section>
-      <section class="col-span-4">
-        <div>
-          <div class="font-bold">Contact Details</div>
-          <div class="space-y-5 mt-5">
-            <div>
-              <div class="text-tiny text-neutral-500">Email address</div>
-              <div class="text-md mt-0.5">pavel.salauyou&#64;example.com</div>
-            </div>
-            <div>
-              <div class="text-tiny text-neutral-500">Mobile Phone</div>
-              <div class="text-md mt-0.5">+1 (234) 456-789</div>
-            </div>
-            <div>
-              <div class="text-tiny text-neutral-500">Social media</div>
-              <div class="flex items-center gap-3 mt-1">
-                <a href="https://x.com" target="_blank" class="hover:text-primary">
-                  <emr-icon name="ph:x-logo"></emr-icon>
-                </a>
-                <a href="https://facebook.com" target="_blank" class="hover:text-primary">
-                  <emr-icon name="ph:facebook-logo"></emr-icon>
-                </a>
-                <a href="https://instagram.com" target="_blank" class="hover:text-primary">
-                  <emr-icon name="ph:instagram-logo"></emr-icon>
-                </a>
-              </div>
+
+        <div class="profile-summary-group">
+          <span class="profile-summary-label">Hospital access</span>
+          <div *ngIf="hospitals.length" class="profile-hospital-list">
+            <div *ngFor="let hospital of hospitals" class="profile-hospital">
+              <mat-icon aria-hidden="true">local_hospital</mat-icon>
+              <span>
+                <strong>{{ hospital.hospital_name }}</strong>
+                <small>{{ hospital.hospital_role || 'Assigned hospital' }}</small>
+              </span>
             </div>
           </div>
+          <span *ngIf="!hospitals.length" class="profile-summary-empty">No hospital assignment recorded.</span>
         </div>
-        <div class="mt-12">
-          <div class="font-bold">People also viewed</div>
-          <div class="mt-5 space-y-5">
-            @for (person of peopleAlsoViewed; track person) {
-              <div class="flex items-center gap-3">
-                <emr-avatar [src]="person.avatarUrl" class="size-10"></emr-avatar>
-                <div>
-                  <div class="text-tiny font-semibold">{{ person.name }}</div>
-                  <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ person.occupation }}</div>
-                </div>
-              </div>
-            }
-          </div>
-          <div class="mt-5">
-            <a href="" mat-stroked-button class="w-full block">View More</a>
-          </div>
+
+        <div class="profile-access-note">
+          <mat-icon aria-hidden="true">lock</mat-icon>
+          <span>Permissions, roles, and hospital assignments cannot be changed from this page.</span>
         </div>
-        <div class="mt-12">
-          <div class="font-bold">People you may know</div>
-          <div class="mt-5 space-y-5">
-            @for (person of peopleAlsoViewed; track person) {
-              <div class="flex items-center gap-3">
-                <emr-avatar [src]="person.avatarUrl" class="size-10"></emr-avatar>
-                <div>
-                  <div class="text-tiny font-semibold">{{ person.name }}</div>
-                  <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ person.occupation }}</div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
+      </app-section-card>
     </div>
   </div>
 </div>

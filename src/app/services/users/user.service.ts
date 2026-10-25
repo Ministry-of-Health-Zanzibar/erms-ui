@@ -39,6 +39,14 @@ export class UserService {
     return this.http.get<any>(`${this.href}/${id}`);
   }
 
+  public getMyProfile(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}profile`);
+  }
+
+  public updateMyProfile(profile: any): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}profile`, profile);
+  }
+
   public updateUser(user: any,id: any): Observable<any> {
     return this.http.put(`${this.href}/${id}`, user);
   }

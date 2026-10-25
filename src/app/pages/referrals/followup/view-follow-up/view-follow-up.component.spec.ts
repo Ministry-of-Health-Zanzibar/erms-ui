@@ -14,6 +14,7 @@ describe('ViewFollowUpComponent', () => {
   let component: ViewFollowUpComponent;
   let fixture: ComponentFixture<ViewFollowUpComponent>;
   let documents: jasmine.SpyObj<LetterDocumentsService>;
+  let permissions: { parmissionMatched: jasmine.Spy; isHospitalDoctor: jasmine.Spy };
   const transfer = {
     letter_id: 10, referral_id: 1, outcome: 'Transferred', transferred_referral_id: 2,
     is_printed: true, transfer_letter: { referral_id: 2, is_printed: false, print_count: 0 },
@@ -28,15 +29,24 @@ describe('ViewFollowUpComponent', () => {
   };
 
   beforeEach(async () => {
-    documents = jasmine.createSpyObj('LetterDocumentsService', ['openReferralLetter', 'openFollowUpLetter']);
+    documents = jasmine.createSpyObj('LetterDocumentsService', [
+      'openReferralLetter',
+      'openFollowUpLetter',
+      'openUploadedFollowUpLetter',
+    ]);
     documents.openReferralLetter.and.returnValue(of({ afterClosed: () => EMPTY } as any));
     documents.openFollowUpLetter.and.returnValue(of({ afterClosed: () => EMPTY } as any));
+    documents.openUploadedFollowUpLetter.and.returnValue(of({ afterClosed: () => EMPTY } as any));
+    permissions = {
+      parmissionMatched: jasmine.createSpy('parmissionMatched').and.returnValue(true),
+      isHospitalDoctor: jasmine.createSpy('isHospitalDoctor').and.returnValue(false),
+    };
     await TestBed.configureTestingModule({
       imports: [ViewFollowUpComponent],
       providers: [
         provideNoopAnimations(),
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '1' }) } } },
-        { provide: PermissionService, useValue: { parmissionMatched: () => true } },
+        { provide: PermissionService, useValue: permissions },
         { provide: FollowsService, useValue: { getFollowListById: () => of({ data }) } },
         { provide: MatDialog, useValue: { open: jasmine.createSpy('open') } },
         { provide: LetterDocumentsService, useValue: documents },
@@ -91,5 +101,43 @@ describe('ViewFollowUpComponent', () => {
     component.followListId = '2';
     component.getFeedbackById();
     expect(component.referralId).toBe(2);
+  });
+
+  it('allows hospital users to submit requests and print only after DG confirmation', () => {
+    permissions.isHospitalDoctor.and.returnValue(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('button').length).toBeGreaterThan(0);
+    expect(component.canPrintLetter({ ...normal, dg_approval_status: 'pending' })).toBeFalse();
+
+    const approved = { ...normal, dg_approval_status: 'confirmed' };
+    expect(component.canPrintLetter(approved)).toBeTrue();
+
+    component.viewPDF({
+      ...normal,
+      has_uploaded_file: true,
+      uploaded_file_name: 'follow-up.pdf',
+    });
+    component.printFollowUp(data, approved);
+
+    expect(documents.openUploadedFollowUpLetter).toHaveBeenCalledOnceWith(
+      11,
+      'follow-up.pdf',
+      'sw',
+      'Test Patient',
+      false,
+      false,
+    );
+    expect(documents.openFollowUpLetter).toHaveBeenCalledOnceWith(11, 'sw', 'Test Patient');
+    expect(documents.openReferralLetter).not.toHaveBeenCalled();
+  });
+
+  it('allows a hospital user to propose an outcome for a pending case but not a closed case', () => {
+    permissions.isHospitalDoctor.and.returnValue(true);
+    component.follow.status = 'Pending';
+    expect(component.canSubmitFollowUpRequest).toBeTrue();
+
+    component.follow.status = 'Closed';
+    expect(component.canSubmitFollowUpRequest).toBeFalse();
   });
 });

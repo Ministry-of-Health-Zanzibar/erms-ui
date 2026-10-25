@@ -262,7 +262,7 @@
   gap: 0.5rem;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--rms-border);
-  border-radius: 0.75rem;
+  border-radius: var(--rms-button-radius);
   color: var(--rms-text-muted);
   background: var(--rms-surface);
   text-align: left;
@@ -270,15 +270,15 @@
 }
 
 .conversation-tab:hover {
-  border-color: rgb(37 99 235 / 0.45);
-  background: color-mix(in srgb, #2563eb 5%, var(--rms-surface));
+  border-color: color-mix(in srgb, var(--rms-button-primary-outline) 45%, var(--rms-border));
+  background: color-mix(in srgb, var(--rms-button-primary-outline) 5%, var(--rms-surface));
 }
 
 .conversation-tab--active {
-  border-color: #2563eb;
+  border-color: var(--rms-button-primary-outline);
   color: var(--rms-text);
-  background: color-mix(in srgb, #2563eb 9%, var(--rms-surface));
-  box-shadow: 0 4px 12px rgb(37 99 235 / 0.12);
+  background: color-mix(in srgb, var(--rms-button-primary-outline) 9%, var(--rms-surface));
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--rms-button-primary-outline) 12%, transparent);
 }
 
 .conversation-tab__icon {
@@ -287,10 +287,10 @@
   height: 1.85rem;
   flex: 0 0 auto;
   place-items: center;
-  color: #2563eb;
-  border: 1px solid rgb(37 99 235 / 0.18);
+  color: var(--rms-button-primary-outline);
+  border: 1px solid color-mix(in srgb, var(--rms-button-primary-outline) 18%, var(--rms-border));
   border-radius: 50%;
-  background: color-mix(in srgb, #2563eb 9%, var(--rms-surface));
+  background: color-mix(in srgb, var(--rms-button-primary-outline) 9%, var(--rms-surface));
 }
 
 .conversation-tab__icon .mat-icon {
@@ -326,22 +326,22 @@
 
 .new-conversation-button {
   display: inline-flex;
-  min-height: 2rem;
+  min-height: var(--rms-button-height);
   align-items: center;
   gap: 0.28rem;
-  padding: 0.35rem 0.65rem;
-  color: #2563eb;
-  border: 1px solid rgb(37 99 235 / 0.22);
-  border-radius: 0.55rem;
-  background: color-mix(in srgb, #2563eb 7%, var(--rms-surface));
-  font-size: 0.68rem;
-  font-weight: 750;
+  padding-inline: var(--rms-button-padding-inline);
+  color: var(--rms-button-primary-outline);
+  border: 1px solid color-mix(in srgb, var(--rms-button-primary-outline) 22%, var(--rms-border));
+  border-radius: var(--rms-button-radius);
+  background: color-mix(in srgb, var(--rms-button-primary-outline) 7%, var(--rms-surface));
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
   white-space: nowrap;
 }
 
 .new-conversation-button:hover {
-  border-color: #2563eb;
-  background: color-mix(in srgb, #2563eb 13%, var(--rms-surface));
+  border-color: var(--rms-button-primary-outline);
+  background: color-mix(in srgb, var(--rms-button-primary-outline) 13%, var(--rms-surface));
 }
 
 .new-conversation-button .mat-icon {
@@ -516,9 +516,9 @@
 
 .reply-cancel-button,
 .cancel-new-button {
-  min-height: 1.9rem !important;
+  min-height: var(--rms-button-height) !important;
   color: var(--rms-text-muted) !important;
-  font-size: 0.68rem !important;
+  font-size: var(--rms-button-font-size) !important;
 }
 
 .active-composer-hint {
@@ -570,8 +570,8 @@
 }
 
 .reply-actions button {
-  min-height: 2rem;
-  font-size: 0.7rem;
+  min-height: var(--rms-button-height);
+  font-size: var(--rms-button-font-size);
 }
 
 .reply-thread {

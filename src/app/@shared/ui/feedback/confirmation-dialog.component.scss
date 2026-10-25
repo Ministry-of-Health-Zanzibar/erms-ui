@@ -7,7 +7,7 @@
   width: min(100%, 430px);
   overflow: hidden;
   border: 1px solid var(--rms-border);
-  border-radius: 1rem;
+  border-radius: var(--rms-card-radius);
   background: var(--rms-surface);
   box-shadow: 0 24px 60px rgb(15 23 42 / 0.2);
 }
@@ -24,7 +24,7 @@
   width: 3rem;
   height: 3rem;
   place-items: center;
-  border-radius: 0.9rem;
+  border-radius: var(--rms-control-radius);
   background: #dbeafe;
   color: #2563eb;
 }
@@ -100,7 +100,7 @@
 }
 
 .feedback-dialog__actions button {
-  min-height: 2.45rem;
+  min-height: var(--rms-button-height);
 }
 
 .feedback-dialog__cancel {
@@ -110,8 +110,8 @@
 
 .feedback-dialog__confirm {
   min-width: 7rem;
-  color: #ffffff !important;
-  background: #2563eb;
+  color: var(--rms-button-primary-foreground) !important;
+  background: var(--rms-button-primary-background);
 }
 
 .feedback-dialog__confirm .mat-icon {

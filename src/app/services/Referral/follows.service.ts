@@ -29,6 +29,13 @@ constructor(private http: HttpClient) {}
     return this.http.post(this.href, follow);
   }
 
+  public reviewFollowUpApproval(letterId: number, payload: { decision: 'confirmed' | 'rejected'; comments?: string }): Observable<any> {
+    return this.http.post(
+      `${this.href}/${letterId}/follow-up-approval`,
+      payload,
+    );
+  }
+
     public deletePatientList(id:any): Observable<any>{
     return this.http.delete(`${this.href}/${id}`);
   }

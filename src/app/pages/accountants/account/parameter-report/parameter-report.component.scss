@@ -22,24 +22,23 @@
 /* Adjust the search-button to align left and include an icon */
 .search-button {
   align-self: flex-start;  /* Align button to the left */
-  height: 44px;
-  font-size: 16px;
-  font-weight: bold;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #291fb3, #1b29ed);
-  color: white;
-  border: none;
-  border-radius: 5px;
+  min-height: var(--rms-button-height);
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
+  background: var(--rms-button-primary-background);
+  color: var(--rms-button-primary-foreground);
+  border: 0;
+  border-radius: var(--rms-button-radius);
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-  padding: 0 15px;
+  padding-inline: var(--rms-button-padding-inline);
   display: flex;
   align-items: center;
   gap: 5px; /* Spacing between the icon and text */
 }
 
 .search-button:hover {
-  background: linear-gradient(135deg, #45a049, #2e7d32);
+  background: var(--rms-button-primary-hover);
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }

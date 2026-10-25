@@ -280,10 +280,10 @@
 }
 
 .follow-up-dialog__button {
-  min-height: 2.45rem;
+  min-height: var(--rms-button-height);
   border-radius: var(--rms-button-radius);
-  font-size: 0.76rem;
-  font-weight: 800;
+  font-size: var(--rms-button-font-size);
+  font-weight: var(--rms-button-font-weight);
 }
 
 .follow-up-dialog__button--secondary {

@@ -100,4 +100,39 @@ export class PermissionService {
       superAdminRoles.has(role.trim().toUpperCase())
     );
   }
+
+  /**
+   * ROLE HOSPITAL USER can submit follow-up outcome proposals, but the
+   * hospital assignment title is not used to decide this behavior.
+   */
+  public isHospitalDoctor(): boolean {
+    if (this.isSuperAdmin()) {
+      return false;
+    }
+
+    const systemRoles = [
+      localStorage.getItem('roles'),
+      localStorage.getItem('all_roles'),
+    ].filter((value): value is string => Boolean(value));
+
+    const hasHospitalUserRole = systemRoles.some((storedRoles) => {
+      try {
+        const parsed = JSON.parse(storedRoles);
+        const roles = Array.isArray(parsed) ? parsed : [parsed];
+
+        return roles.some((role: any) => {
+          const name = typeof role === 'string' ? role : role?.name;
+          return String(name || '').trim().toUpperCase() === 'ROLE HOSPITAL USER';
+        });
+      } catch {
+        return storedRoles.trim().toUpperCase() === 'ROLE HOSPITAL USER';
+      }
+    });
+
+    if (!hasHospitalUserRole) {
+      return false;
+    }
+
+    return true;
+  }
 }

@@ -118,13 +118,20 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
   this.loading = true;
   this.errorMessage = '';
 
-  this.referralService
-    .getAllRefferal({
+  const referralOptions: any = {
       page: this.currentPage,
       per_page: this.pageSize,
       search: this.searchTerm,
-      has_followup: true,
-    })
+    };
+
+  // Hospital users must be able to submit the first follow-up request for an
+  // authorized case. Other roles keep the existing follow-up-only queue.
+  if (!this.permission.isHospitalDoctor()) {
+    referralOptions.has_followup = true;
+  }
+
+  this.referralService
+    .getAllRefferal(referralOptions)
     .pipe(takeUntil(this.onDestroy))
     .subscribe(
       (response: any) => {
@@ -204,7 +211,9 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
         return;
       }
     
-      const id = data.referrals?.[0]?.referral_id;
+      const followUpReferral = data.referrals?.find((referral: any) => referral.has_followup)
+        || data.referrals?.[0];
+      const id = followUpReferral?.referral_id;
       if (!id) return;
     
       this.router.navigate(['/pages/config/referrals/view-follow-up', id]);
@@ -223,6 +232,17 @@ export class SearchfollowUpComponent implements OnInit, OnDestroy {
     }
 
      canViewFollowup(element: any): boolean {
+    // A hospital user must be able to open an authorized pending referral in
+    // order to submit the first follow-up proposal. The previous Pending guard
+    // made the four outcome actions unreachable.
+    if (this.permission.isHospitalDoctor()) {
+      if (element.status === 'BoardedOut') {
+        return element.hospitals?.some((h: any) => h?.hospital_id) ?? false;
+      }
+
+      return true;
+    }
+
     if (element.status === 'Pending') {
       return false;
     }

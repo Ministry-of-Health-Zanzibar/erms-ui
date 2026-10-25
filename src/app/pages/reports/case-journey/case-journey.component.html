@@ -1,4 +1,4 @@
-<div class="journey-page" *ngIf="allowed; else forbidden">
+<div class="app-page-content journey-page" *ngIf="allowed; else forbidden">
   <app-page-header title="Case Journey and Outcomes" description="Follow each case through hospital referrals, transfers and recorded outcomes. Approval tracking stays separate." icon="timeline" />
   <app-section-card title="Report filters" description="Dates use recorded activity. A case submitted earlier can appear when a follow-up occurs in this period." icon="filter_alt">
     <form class="filters" (ngSubmit)="search()">
