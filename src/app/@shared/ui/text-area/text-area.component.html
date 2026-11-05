@@ -1,0 +1,27 @@
+<mat-form-field class="ui-text-area" appearance="outline" [subscriptSizing]="subscriptSizing">
+  @if (icon) {
+    <mat-icon matSuffix aria-hidden="true">{{ icon }}</mat-icon>
+  }
+
+  @if (label) {
+    <mat-label>{{ label }}</mat-label>
+  }
+
+  <textarea
+    matInput
+    [rows]="rows"
+    [value]="value ?? ''"
+    [placeholder]="placeholder"
+    [autocomplete]="autocomplete"
+    [attr.minlength]="minlength"
+    [attr.maxlength]="maxlength"
+    [required]="required"
+    [readonly]="readonly"
+    [disabled]="disabled"
+    [style.resize]="resize"
+    (input)="updateValue($any($event.target).value)"
+    (blur)="markAsTouched()"
+  ></textarea>
+
+  <ng-content select="mat-error, mat-hint" />
+</mat-form-field>

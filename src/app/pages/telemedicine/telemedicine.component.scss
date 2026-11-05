@@ -67,12 +67,14 @@
 .field select,
 .field textarea {
   width: 100%;
+  min-height: var(--rms-field-height);
   border: 1px solid var(--rms-border, #cbd5e1);
-  border-radius: 0.45rem;
-  padding: 0.65rem 0.75rem;
+  border-radius: var(--rms-field-radius);
+  padding: var(--rms-field-padding-block) 0.75rem;
   color: var(--rms-text, #0f172a);
   background: var(--rms-surface, #ffffff);
-  font: inherit;
+  font-family: var(--rms-ui-font-family);
+  font-size: 0.8125rem;
   font-weight: 500;
   outline: 0;
   transition: border-color 160ms ease, box-shadow 160ms ease;
@@ -86,8 +88,8 @@
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.12);
+  border-color: var(--rms-primary-action-outline);
+  box-shadow: 0 0 0 3px var(--rms-focus-ring);
 }
 
 .field-label,

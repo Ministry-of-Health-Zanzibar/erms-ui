@@ -5,11 +5,16 @@
   color-scheme: light;
   --rms-control-radius: 0.25rem;
   --rms-card-radius: 0.375rem;
+  --rms-modal-radius: 0.25rem;
+  --rms-ui-font-family: 'Poppins', 'Segoe UI', sans-serif;
   --rms-button-radius: var(--rms-control-radius);
   --rms-button-height: 2.25rem;
   --rms-button-padding-inline: 0.75rem;
   --rms-button-font-size: 0.75rem;
   --rms-button-font-weight: 700;
+  --rms-field-height: 2.5rem;
+  --rms-field-padding-block: 0.375rem;
+  --rms-field-radius: var(--rms-control-radius);
   --rms-button-surface: var(--rms-surface);
   --rms-button-text: var(--rms-text);
   --rms-button-border: var(--rms-border-strong);
@@ -79,6 +84,12 @@
   --rms-primary-action-hover: var(--rms-button-primary-hover);
   --rms-primary-action-foreground: var(--rms-button-primary-foreground);
   --rms-primary-action-outline: var(--rms-button-primary-outline);
+  --rms-body-font-size: 0.875rem;
+  --rms-shell-sidebar-width: 15rem;
+  --rms-shell-sidebar-mobile-width: 17rem;
+  --rms-shell-header-height: 4rem;
+  --rms-page-padding: clamp(1rem, 1.7vw, 2rem);
+  --rms-page-gap: clamp(1rem, 1.55vw, 1.5rem);
   --rms-page-max-width: 1600px;
   --emr-popover-border-radius: var(--rms-card-radius);
   --emr-color-picker-border-radius: var(--rms-control-radius);
@@ -123,6 +134,41 @@
   max-width: var(--rms-page-max-width);
   min-width: 0;
   margin-inline: auto;
+}
+
+/* The application uses a browser-relative root size. Keep rem dimensions
+ * predictable without overriding user/browser accessibility preferences. */
+html {
+  font-size: 100%;
+}
+
+/* Shared page density. A number of legacy routed pages still carry the
+ * original p-10/space-y-8 utilities. Scope the correction to the direct page
+ * root so nested cards, dialogs, and clinical content keep their own spacing. */
+.app-page-shell > router-outlet + * > :where([class~="p-10"], [class~="md:p-10"]) {
+  padding: var(--rms-page-padding) !important;
+}
+
+.app-page-shell > router-outlet + * > :where([class~="space-y-8"], [class~="md:space-y-8"]) > :not([hidden]) ~ :not([hidden]) {
+  margin-top: var(--rms-page-gap) !important;
+}
+
+/* The routed content is allowed to shrink beside the navigation and must not
+ * create a second horizontal page scroll. Table wrappers retain their own
+ * horizontal scrolling behavior. */
+.app-shell,
+.app-shell > .flex.grow,
+.app-shell > .flex.grow > emr-layout {
+  min-width: 0;
+}
+
+.app-shell > .flex.grow > emr-layout-sidebar {
+  flex: 0 0 var(--rms-shell-sidebar-width);
+  min-width: 0;
+}
+
+.app-shell > .flex.grow > emr-layout {
+  width: 100%;
 }
 
 /* Use shared semantic button tokens in both color modes. */
@@ -273,17 +319,46 @@
   outline-offset: 2px;
 }
 
-/* Keep cards and controls compact across Material, Tailwind, and legacy screens. */
-:where(
-  button:not(.mat-mdc-icon-button):not(.mat-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab):not(.mat-mdc-menu-item):not(.mat-menu-item),
-  .mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab),
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-  textarea,
-  select,
-  .mat-mdc-text-field-wrapper,
-  .mat-form-field
-) {
-  border-radius: var(--rms-control-radius) !important;
+/* Existing pages still use direct Material fields. Keep them on the same
+ * shared geometry as app-text-input and the login form without adding a
+ * second border or changing their form/validation behavior. */
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+  font-family: var(--rms-ui-font-family);
+  --mat-form-field-container-height: var(--rms-field-height);
+  --mat-form-field-container-vertical-padding: var(--rms-field-padding-block);
+  --mat-form-field-container-text-font: var(--rms-ui-font-family);
+  --mat-form-field-subscript-text-font: var(--rms-ui-font-family);
+  --mdc-outlined-text-field-label-text-font: var(--rms-ui-font-family);
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-form-field-infix {
+  min-height: var(--rms-field-height);
+  padding-top: var(--rms-field-padding-block);
+  padding-bottom: var(--rms-field-padding-block);
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-input-element,
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-floating-label,
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-select {
+  font-family: var(--rms-ui-font-family);
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+  border-radius: var(--rms-field-radius);
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-icon-button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  --mdc-icon-button-state-layer-size: 2rem;
+  --mdc-icon-button-icon-size: 1rem;
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-icon-button .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
 }
 
 :where(
@@ -315,7 +390,7 @@
   .cdk-overlay-container .mat-datepicker-content,
   .cdk-overlay-container .emr-popover
 ) {
-  border-radius: var(--rms-card-radius) !important;
+  border-radius: var(--rms-modal-radius) !important;
 }
 
 html.dark {
@@ -340,8 +415,9 @@ html.dark {
   --rms-button-secondary-border: var(--rms-border-strong);
 }
 
-/* Consistent borderless search fields across list, report, and picker screens. */
-input[placeholder*="search" i] {
+/* Standalone search boxes own their surface. Material inputs already have a
+ * field wrapper; styling the child would paint a second box inside it. */
+input[placeholder*="search" i]:not(.mat-mdc-input-element) {
   border: 0 !important;
   border-bottom: 0 !important;
   border-color: transparent !important;
@@ -353,12 +429,12 @@ input[placeholder*="search" i] {
   transition: background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-input[placeholder*="search" i]:focus {
+input[placeholder*="search" i]:not(.mat-mdc-input-element):focus {
   background-color: var(--rms-surface) !important;
   box-shadow: 0 0 0 2px var(--rms-focus-ring);
 }
 
-input[placeholder*="search" i]::placeholder {
+input[placeholder*="search" i]:not(.mat-mdc-input-element)::placeholder {
   color: var(--rms-text-muted);
   opacity: 1;
 }
@@ -366,6 +442,32 @@ input[placeholder*="search" i]::placeholder {
 body {
   background: var(--rms-surface-subtle);
   color: var(--rms-text);
+  font-size: var(--rms-body-font-size);
+  overflow-x: hidden;
+}
+
+@media (max-width: 1023px) {
+  /* On tablet and smaller screens the navigation is an overlay instead of a
+   * permanent 240px column. The existing header toggle controls visibility. */
+  .app-shell > .flex.grow > emr-layout-sidebar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 30;
+    width: var(--rms-shell-sidebar-mobile-width);
+    flex-basis: var(--rms-shell-sidebar-mobile-width);
+  }
+
+  .app-shell > .flex.grow > emr-layout-sidebar.is-hidden {
+    display: none;
+  }
+
+  .app-shell > .flex.grow > emr-layout-sidebar:not(.is-hidden)::after {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    content: '';
+    background: rgb(15 23 42 / 0.28);
+  }
 }
 
 /* Shared treatment for patient, history, and medical-board detail views. */
@@ -611,7 +713,7 @@ html.dark #print-section {
 .patient-form-dialog .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: var(--rms-card-radius) !important;
+  border-radius: var(--rms-modal-radius) !important;
   background: transparent !important;
 }
 
@@ -625,21 +727,21 @@ html.dark #print-section {
 .add-multiple-patients-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: var(--rms-card-radius) !important;
+  border-radius: var(--rms-modal-radius) !important;
 }
 
 .referral-status-dialog-panel .mat-mdc-dialog-surface,
 .referral-status-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: var(--rms-card-radius) !important;
+  border-radius: var(--rms-modal-radius) !important;
 }
 
 .feedback-dialog-panel .mat-mdc-dialog-surface,
 .feedback-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: var(--rms-card-radius) !important;
+  border-radius: var(--rms-modal-radius) !important;
   background: transparent !important;
 }
 
@@ -647,7 +749,7 @@ html.dark #print-section {
 .session-timeout-dialog-panel .mat-dialog-container {
   overflow: hidden !important;
   padding: 0 !important;
-  border-radius: var(--rms-card-radius) !important;
+  border-radius: var(--rms-modal-radius) !important;
   background: transparent !important;
 }
 
@@ -691,7 +793,7 @@ html.dark #print-section {
   .mat-mdc-dialog-surface {
     overflow: hidden !important;
     padding: 0 !important;
-    border-radius: var(--rms-card-radius) !important;
+    border-radius: var(--rms-modal-radius) !important;
     background: transparent !important;
   }
 }
@@ -700,6 +802,122 @@ html.dark #print-section {
   .mat-mdc-dialog-surface {
     border-radius: 0 !important;
   }
+}
+
+/* Shared compact modal geometry and form rhythm. Keep these rules global so
+ * component-scoped popup styles cannot make one modal rounder or tighter than
+ * another. */
+:where(
+  .add-patients-dialog,
+  .consultation-dialog,
+  .diagnoses-dialog,
+  .feedback-dialog,
+  .flight-dialog,
+  .follow-up-dialog,
+  .follow-up-letter-picker,
+  .forward-dialog,
+  .letter-branding-dialog,
+  .medical-board-form,
+  .medical-history-dialog,
+  .patient-dialog,
+  .referral-letter-picker,
+  .session-timeout-dialog,
+  .status-dialog,
+  .telemedicine-routing-dialog,
+  .undo-dialog,
+  .cdk-overlay-container .form-container
+) {
+  border-radius: var(--rms-modal-radius) !important;
+}
+
+/* Custom popups that are not rendered inside the CDK overlay container. */
+:where(.flight-dialog__backdrop .flight-dialog) {
+  border-radius: var(--rms-modal-radius) !important;
+}
+
+/* Only application-owned popup surfaces belong here. Material's segmented
+ * outline must keep square internal joins and rounded outer corners. */
+:where(
+  .cdk-overlay-container .mat-mdc-dialog-surface,
+  .flight-dialog__backdrop
+) :where(
+  .add-patients-dialog__error,
+  .add-patients-dialog__header-icon,
+  .add-patients-dialog__notice,
+  .add-patients-dialog__section,
+  .add-patients-dialog__selection-summary,
+  .add-patients-dialog__step,
+  .boarded-out-letter__icon,
+  .boarded-out-letter__language,
+  .boarded-out-letter__notice,
+  .feedback-dialog__icon,
+  .flight-dialog__button,
+  .flight-dialog__close,
+  .flight-dialog__field,
+  .flight-dialog__icon,
+  .flight-dialog__notice,
+  .flight-dialog__section,
+  .flight-dialog__step,
+  .follow-up-dialog__button,
+  .follow-up-dialog__close,
+  .follow-up-dialog__icon,
+  .follow-up-dialog__notice,
+  .follow-up-dialog__section,
+  .follow-up-dialog__step,
+  .follow-up-letter-picker__choices,
+  .follow-up-letter-picker__icon,
+  .follow-up-letter-picker__notice,
+  .forward-dialog__icon,
+  .forward-dialog__notice,
+  .letter-branding-dialog__asset,
+  .letter-branding-dialog__file-button,
+  .letter-branding-dialog__icon,
+  .letter-branding-dialog__notice,
+  .letter-branding-dialog__preview,
+  .medical-history-dialog__icon,
+  .medical-history-review__grid,
+  .medical-history-step__number,
+  .medical-history-upload__icon,
+  .patient-dialog__header-icon,
+  .patient-dialog__intro,
+  .patient-review__item,
+  .patient-step__number,
+  .patient-upload__action,
+  .patient-upload__icon,
+  .referral-letter-picker__choices,
+  .referral-letter-picker__icon,
+  .referral-letter-picker__notice,
+  .session-timeout-dialog__icon,
+  .status-dialog__header-icon,
+  .status-dialog__notice,
+  .status-dialog__recommendations,
+  .status-dialog__recommendations-empty,
+  .status-dialog__record,
+  .status-dialog__section,
+  .status-dialog__step,
+  .telemedicine-routing-dialog__icon,
+  .telemedicine-routing-dialog__notice,
+  .undo-dialog__icon,
+  .undo-dialog__notice
+) {
+  border-radius: var(--rms-control-radius) !important;
+}
+
+:where(.cdk-overlay-container .consultation-dialog, .consultation-dialog) .consultation-icon {
+  border-radius: var(--rms-control-radius) !important;
+}
+
+:where(.consultation-dialog) :where(
+  .patient-context,
+  .patient-summary,
+  .context-details,
+  .reply-context,
+  .reply-composer,
+  .consultation-composer,
+  .recipient-select,
+  .message-field
+) {
+  border-radius: var(--rms-control-radius) !important;
 }
 
 .snackbar-success {

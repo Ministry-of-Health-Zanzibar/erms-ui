@@ -156,12 +156,11 @@ export class PatiantComponent {
     const config = new MatDialogConfig();
     config.disableClose = false;
     config.role = 'dialog';
-    config.width = '80vw'; // full viewport width
+    config.width = '960px';
     config.height = '80vh'; // full viewport height
-    config.maxWidth = '80vw'; // override default 80%
+    config.maxWidth = 'calc(100vw - 2rem)';
 
     config.maxHeight = '98vh';
-    // config.width = '950px';
     config.panelClass = ['full-screen-modal', 'patient-form-dialog'];
 
     const dialogRef = this.dialog.open(PartientFormComponent, config);
@@ -174,9 +173,9 @@ export class PatiantComponent {
     const config = new MatDialogConfig();
     config.disableClose = false;
     config.role = 'dialog';
-    config.width = '80vw'; // full viewport width
+    config.width = '960px';
     config.height = '80vh'; // full viewport height
-    config.maxWidth = '80vw'; // override default 80%
+    config.maxWidth = 'calc(100vw - 2rem)';
 
     config.panelClass = ['full-screen-modal', 'patient-form-dialog'];
 

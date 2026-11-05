@@ -1,3 +1,4 @@
+export * from './button/button.component';
 export * from './date-picker/date-picker.component';
 export * from './empty-state/empty-state.component';
 export * from './feedback/confirmation-dialog.component';
@@ -14,4 +15,5 @@ export * from './section-card/section-card.component';
 export * from './status-badge/status-badge.component';
 export * from './table-toolbar/table-toolbar.component';
 export * from './text-input/text-input.component';
+export * from './text-area/text-area.component';
 export * from './session-timeout-dialog/session-timeout-dialog.component';

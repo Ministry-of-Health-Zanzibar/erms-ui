@@ -1,0 +1,26 @@
+<button
+  class="ui-button"
+  [attr.data-variant]="variant"
+  [class.ui-button--full-width]="fullWidth"
+  [disabled]="disabled || loading"
+  [type]="type"
+  [attr.aria-label]="ariaLabel || label || null"
+  [attr.aria-busy]="loading ? 'true' : null"
+  (click)="pressed.emit($event)"
+>
+  @if (loading) {
+    <span class="ui-button__spinner" aria-hidden="true"></span>
+  } @else if (icon && iconPosition === 'start') {
+    <mat-icon class="ui-button__icon" aria-hidden="true">{{ icon }}</mat-icon>
+  }
+
+  @if (label) {
+    <span class="ui-button__label">{{ label }}</span>
+  }
+
+  <ng-content />
+
+  @if (!loading && icon && iconPosition === 'end') {
+    <mat-icon class="ui-button__icon" aria-hidden="true">{{ icon }}</mat-icon>
+  }
+</button>

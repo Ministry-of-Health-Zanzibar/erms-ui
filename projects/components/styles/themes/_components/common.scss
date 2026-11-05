@@ -21,6 +21,24 @@ body {
   max-width: none !important;
 }
 
+/*
+ * MDC applies the outlined-field width to all four sides of the notch. In
+ * LTR fields the notch's right edge is not part of the outer field border;
+ * leaving it visible creates the internal vertical/diamond artifact beside
+ * the floating label. Match Angular Material's own specificity so this only
+ * changes the outline seam, not inputs, icons, or validation states.
+ */
+.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
+  .mdc-notched-outline__notch {
+  border-right: none;
+}
+
+[dir='rtl']
+  .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
+  .mdc-notched-outline__notch {
+  border-left: none;
+}
+
 .emr-button-loading {
   .mat-button-wrapper {
     visibility: hidden;
@@ -31,10 +49,6 @@ body {
     top: calc(50% - 10px);
     left: calc(50% - 10px);
   }
-}
-
-.mdc-notched-outline__notch {
-  border-right: none;
 }
 
 h1,

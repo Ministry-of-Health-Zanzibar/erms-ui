@@ -18,11 +18,13 @@ import { ActivatedRoute } from '@angular/router';
 import { PermissionService } from '../../../../services/authentication/permission.service';
 import { PartientService } from '../../../../services/partient/partient.service';
 import { FollowsService } from '../../../../services/Referral/follows.service';
+import { ReferralService } from '../../../../services/Referral/referral.service';
 import { LetterDocumentsService, resolveReferralLetterLanguage } from '../../../../services/letters/letter-documents.service';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { AddFollowUpComponent } from '../add-follow-up/add-follow-up.component';
 import { ConversationModalComponent } from '../../conversation-modal/conversation-modal.component';
+import { FlightInformationDialogComponent } from '../../flight-information-dialog/flight-information-dialog.component';
 import {
   EmptyStateComponent,
   FileViewerComponent,
@@ -49,6 +51,7 @@ import {
     LoadingStateComponent,
     PageHeaderComponent,
     SectionCardComponent,
+    FlightInformationDialogComponent,
   ],
   templateUrl: './view-follow-up.component.html',
   styleUrl: './view-follow-up.component.scss',
@@ -69,13 +72,17 @@ export class ViewFollowUpComponent implements OnInit {
   patientListInfo: any = null;
   dgReviewComments: Record<number, string> = {};
   reviewingLetterId: number | null = null;
+  showFlightInformation = false;
+  selectedFlight: any | null = null;
+  selectedFlightReferralId: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
     public permission: PermissionService,
   private followService: FollowsService,
     private dialog: MatDialog,
-    private readonly documents: LetterDocumentsService
+    private readonly documents: LetterDocumentsService,
+    private readonly referralsService: ReferralService,
   ) {}
 
   ngOnInit() {
@@ -219,9 +226,78 @@ export class ViewFollowUpComponent implements OnInit {
     const approvedForHospitalUser = !this.permission.isHospitalDoctor()
       || letter?.dg_approval_status === 'confirmed';
 
+    if (this.permission.isHospitalDoctor()
+      && this.isAbroadTransferredFollowUp(letter)
+      && !this.latestTransferFlight(letter)) {
+      return false;
+    }
+
     return approvedForHospitalUser
       && !!letter?.letter_id && (letter.outcome === 'Follow-up'
       || (letter.outcome === 'Transferred' && !!letter.transfer_letter?.referral_id));
+  }
+
+  isAbroadTransferredFollowUp(letter: any): boolean {
+    if (letter?.outcome !== 'Transferred') {
+      return false;
+    }
+
+    const code = letter?.transfer_letter?.hospital?.referral_type?.referral_type_code
+      ?? letter?.transfer_letter?.hospital?.referralType?.referral_type_code;
+    return String(code ?? '').trim().toUpperCase() === 'REFTYPE2';
+  }
+
+  latestTransferFlight(letter: any): any | null {
+    const flights = letter?.transfer_letter?.referral_flights
+      ?? letter?.transfer_letter?.referralFlights;
+    return Array.isArray(flights) ? flights[flights.length - 1] || null : flights || null;
+  }
+
+  canManageFlightInformation(letter: any): boolean {
+    return this.permission.isHospitalDoctor()
+      && letter?.dg_approval_status === 'confirmed'
+      && this.isAbroadTransferredFollowUp(letter)
+      && !!letter?.transfer_letter?.referral_id;
+  }
+
+  openFlightInformation(letter: any): void {
+    if (!this.canManageFlightInformation(letter)) {
+      return;
+    }
+
+    this.selectedFlight = this.latestTransferFlight(letter);
+    this.selectedFlightReferralId = Number(letter.transfer_letter.referral_id);
+    this.showFlightInformation = true;
+  }
+
+  closeFlightInformation(): void {
+    this.showFlightInformation = false;
+    this.selectedFlight = null;
+    this.selectedFlightReferralId = null;
+  }
+
+  saveFlightInformation(data: any): void {
+    const flightId = Number(data?.referral_flight_id) || null;
+    const payload = { ...data, referral_id: this.selectedFlightReferralId };
+    delete payload.referral_flight_id;
+    const request$ = flightId
+      ? this.referralsService.updateReferralFlight(flightId, payload)
+      : this.referralsService.addReferralFlight(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.closeFlightInformation();
+        this.getFeedbackById();
+        this.uiFeedback.success(
+          flightId ? 'Flight details updated' : 'Flight details saved',
+          'The flight information was saved successfully.',
+        );
+      },
+      error: (error: unknown) => this.uiFeedback.error(
+        'Unable to save flight information',
+        getApiErrorMessage(error, 'The flight information could not be saved.'),
+      ),
+    });
   }
 
   printStatus(letter: any): any {
@@ -243,7 +319,9 @@ export class ViewFollowUpComponent implements OnInit {
 
     if (letter?.outcome === 'Transferred') {
       return this.canPrintLetter(letter) ? 'Print referral letter for the transferred hospital'
-        : 'This transfer needs a verified referral letter. Please contact an administrator.';
+        : (this.isAbroadTransferredFollowUp(letter) && !this.latestTransferFlight(letter)
+          ? 'Enter flight information before printing the referral letter'
+          : 'This transfer needs a verified referral letter. Please contact an administrator.');
     }
     return letter?.outcome === 'Follow-up' ? 'Print Follow-up' : 'No attendance letter is required for this outcome';
   }

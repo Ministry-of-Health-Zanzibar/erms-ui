@@ -79,6 +79,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input()
   sidebarHidden = false;
 
+  private sidebarMediaQuery?: MediaQueryList;
+  private readonly sidebarMediaQueryListener = (event: MediaQueryListEvent): void => {
+    this.sidebarHidden = event.matches;
+
+    if (event.matches) {
+      this._layoutApi.hideSidebar('root');
+    } else {
+      this._layoutApi.showSidebar('root');
+    }
+  };
+
   fullName: string | null = null;
   emails: string | null = null;
   role: string | null = null;
@@ -103,6 +114,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.fullName = localStorage.getItem('full_name');
     this.emails = localStorage.getItem('email');
     this.role = localStorage.getItem('roles');
+
+    if (typeof window !== 'undefined') {
+      this.sidebarMediaQuery = window.matchMedia('(max-width: 1023px)');
+      this.sidebarHidden = this.sidebarMediaQuery.matches;
+
+      if (this.sidebarHidden) {
+        this._layoutApi.hideSidebar('root');
+      }
+
+      this.sidebarMediaQuery.addEventListener('change', this.sidebarMediaQueryListener);
+    }
 
     const hospital = localStorage.getItem('hospital_info');
     this.hospitalInfo = hospital ? JSON.parse(hospital) : [];
@@ -182,5 +204,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
     }
+
+    this.sidebarMediaQuery?.removeEventListener('change', this.sidebarMediaQueryListener);
   }
 }

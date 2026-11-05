@@ -1,0 +1,41 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ui-text-area {
+  width: 100%;
+  font-family: var(--rms-ui-font-family);
+  --mat-form-field-container-text-font: var(--rms-ui-font-family);
+  --mat-form-field-subscript-text-font: var(--rms-ui-font-family);
+  --mdc-outlined-text-field-label-text-font: var(--rms-ui-font-family);
+}
+
+:host ::ng-deep .ui-text-area .mat-mdc-form-field,
+:host ::ng-deep .ui-text-area .mat-mdc-input-element,
+:host ::ng-deep .ui-text-area .mat-mdc-floating-label {
+  font-family: var(--rms-ui-font-family);
+}
+
+:host ::ng-deep .ui-text-area .mat-mdc-text-field-wrapper {
+  border-radius: var(--rms-field-radius);
+  background: var(--rms-surface);
+}
+
+:host ::ng-deep .ui-text-area .mat-mdc-form-field-infix {
+  min-height: 0;
+  padding: 0.65rem 0.75rem 0.55rem;
+}
+
+:host ::ng-deep .ui-text-area textarea.mat-mdc-input-element {
+  min-height: 3.75rem;
+  margin: 0;
+  font: inherit;
+  line-height: 1.45;
+}
+
+:host ::ng-deep .ui-text-area textarea.mat-mdc-input-element::placeholder {
+  color: var(--rms-text-muted);
+  opacity: 1;
+}
+

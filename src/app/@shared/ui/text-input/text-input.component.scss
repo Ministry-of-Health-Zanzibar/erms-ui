@@ -5,6 +5,38 @@
 
 .ui-text-input {
   width: 100%;
+  font-family: var(--rms-ui-font-family);
+  --mat-form-field-container-text-font: var(--rms-ui-font-family);
+  --mat-form-field-subscript-text-font: var(--rms-ui-font-family);
+  --mdc-outlined-text-field-label-text-font: var(--rms-ui-font-family);
+  --mat-form-field-container-height: var(--rms-field-height);
+  --mat-form-field-container-vertical-padding: var(--rms-field-padding-block);
+}
+
+:host ::ng-deep .ui-text-input .mat-mdc-form-field,
+:host ::ng-deep .ui-text-input .mat-mdc-input-element,
+:host ::ng-deep .ui-text-input .mat-mdc-floating-label {
+  font-family: var(--rms-ui-font-family);
+}
+
+:host ::ng-deep .ui-text-input .mat-mdc-form-field-infix {
+  min-height: var(--rms-field-height);
+  padding-top: var(--rms-field-padding-block);
+  padding-bottom: var(--rms-field-padding-block);
+}
+
+:host ::ng-deep .ui-text-input .mat-mdc-icon-button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  --mdc-icon-button-state-layer-size: 2rem;
+  --mdc-icon-button-icon-size: 1rem;
+}
+
+:host ::ng-deep .ui-text-input .mat-mdc-icon-button .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
 }
 
 :host ::ng-deep .ui-text-input__clear {

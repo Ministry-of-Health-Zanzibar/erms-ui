@@ -791,17 +791,8 @@
 
 :host ::ng-deep .reply-field .mat-mdc-text-field-wrapper,
 :host ::ng-deep .message-field .mat-mdc-text-field-wrapper {
-  border-radius: 0.8rem;
+  border-radius: var(--rms-field-radius);
   background: var(--rms-surface);
-}
-
-:host ::ng-deep .reply-field .mdc-notched-outline__leading,
-:host ::ng-deep .reply-field .mdc-notched-outline__notch,
-:host ::ng-deep .reply-field .mdc-notched-outline__trailing,
-:host ::ng-deep .message-field .mdc-notched-outline__leading,
-:host ::ng-deep .message-field .mdc-notched-outline__notch,
-:host ::ng-deep .message-field .mdc-notched-outline__trailing {
-  border-color: var(--rms-border-strong) !important;
 }
 
 :host ::ng-deep .reply-field .mat-mdc-form-field-infix,

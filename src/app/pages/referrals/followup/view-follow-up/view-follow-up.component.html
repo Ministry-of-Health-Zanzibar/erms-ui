@@ -198,6 +198,10 @@
               <mat-icon class="text-gray-600 align-middle">print</mat-icon>
               Print
             </th>
+            <th class="border border-gray-300 p-2 text-center" *ngIf="permission.isHospitalDoctor()">
+              <mat-icon class="text-gray-600 align-middle">flight</mat-icon>
+              Flight
+            </th>
           </tr>
         </thead>
 
@@ -265,6 +269,20 @@
           </button>
         </span>
       </td>
+          <td class="border border-gray-300 p-2 text-center" *ngIf="permission.isHospitalDoctor()">
+            <button
+              *ngIf="canManageFlightInformation(letter)"
+              mat-icon-button
+              type="button"
+              [attr.aria-label]="latestTransferFlight(letter) ? 'Edit flight information' : 'Enter flight information'"
+              [matTooltip]="latestTransferFlight(letter) ? 'Edit flight information' : 'Enter flight information'"
+              (click)="openFlightInformation(letter)">
+              <mat-icon>flight</mat-icon>
+            </button>
+            <span
+              *ngIf="isAbroadTransferredFollowUp(letter) && letter.dg_approval_status === 'confirmed' && !latestTransferFlight(letter)"
+              class="text-xs text-amber-700">Required</span>
+          </td>
           </tr>
         </tbody>
       </table>
@@ -293,3 +311,11 @@
   label="Loading follow-up records…"
   [overlay]="true"
 />
+
+<app-flight-information-dialog
+  [visible]="showFlightInformation"
+  [referralId]="selectedFlightReferralId"
+  [flight]="selectedFlight"
+  (closed)="closeFlightInformation()"
+  (saved)="saveFlightInformation($event)">
+</app-flight-information-dialog>

@@ -1,7 +1,7 @@
 :host {
   display: block;
   min-height: 100dvh;
-  --signin-font-family: 'Poppins', 'Segoe UI', sans-serif;
+  --signin-font-family: var(--rms-ui-font-family);
   color: var(--rms-text);
   font-family: var(--signin-font-family);
   -webkit-font-smoothing: antialiased;
