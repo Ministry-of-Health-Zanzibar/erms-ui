@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
@@ -19,6 +21,8 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-referral-status-dialog',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

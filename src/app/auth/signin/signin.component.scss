@@ -619,7 +619,7 @@
 }
 
 .signin-submit {
-  background: linear-gradient(135deg, #0f766e, #2563eb) !important;
+  background: var(--rms-button-primary-gradient) !important;
   box-shadow: 0 12px 24px rgb(15 118 110 / 0.24);
 }
 

@@ -8,15 +8,15 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="sourceForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Source Name</mat-label>
-          <mat-select formControlName="source_id">
+          <mat-select appSearchableSelect formControlName="source_id">
             <mat-option *ngFor="let s of source" [value]="s.source_id">
               {{ s.source_name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Source Type Name: </mat-label>
           <input matInput placeholder="Ex. source" formControlName="source_type_name" type="text">
           <mat-error class="error-message" *ngIf="sourceForm.controls['source_type_name'].touched && sourceForm.controls['source_type_name'].invalid">

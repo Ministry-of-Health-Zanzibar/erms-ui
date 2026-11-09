@@ -12,7 +12,7 @@
 
 
         <!-- Amount -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Amount</mat-label>
           <input
             type="number"
@@ -31,7 +31,7 @@
         </mat-form-field>
 
         <!-- Notes -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Notes</mat-label>
           <textarea
             formControlName="notes"
@@ -47,9 +47,9 @@
         </mat-form-field>
 
         <!-- Sent To -->
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appFormField appearance="outline" class="w-full">
             <mat-label>Sent To</mat-label>
-            <mat-select formControlName="sent_to" required>
+            <mat-select appSearchableSelect formControlName="sent_to" required>
               <mat-option value="Accountant">Accountant</mat-option>
               <mat-option value="Insurance">Insurance</mat-option>
             </mat-select>

@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -51,6 +52,7 @@ interface Bill {
   selector: 'app-bill-file-by-id',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

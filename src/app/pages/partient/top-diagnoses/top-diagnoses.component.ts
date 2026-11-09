@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
@@ -49,6 +50,7 @@ interface DiagnosisOption {
   selector: 'app-top-diagnoses',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     FormsModule,
     MatCheckboxModule,

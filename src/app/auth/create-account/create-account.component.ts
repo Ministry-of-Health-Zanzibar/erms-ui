@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
@@ -12,6 +13,7 @@ import { phoneValidator } from '@elementar/components';
   selector: 'app-create-account',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormsModule,
     MatButton,
     MatFormField,

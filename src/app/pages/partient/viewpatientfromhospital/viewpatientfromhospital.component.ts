@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
@@ -32,6 +35,9 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   selector: 'app-viewpatientfromhospital',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
@@ -15,6 +16,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-password-reset',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     MatButton,
     MatIconButton,

@@ -111,7 +111,11 @@
 .feedback-dialog__confirm {
   min-width: 7rem;
   color: var(--rms-button-primary-foreground) !important;
-  background: var(--rms-button-primary-background);
+  background: var(--rms-button-primary-gradient);
+}
+
+.feedback-dialog__confirm[style*='background-color'] {
+  background-image: none;
 }
 
 .feedback-dialog__confirm .mat-icon {

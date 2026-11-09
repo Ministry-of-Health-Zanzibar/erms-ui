@@ -44,29 +44,22 @@
           optionValueKey="patient_id"
           [multiple]="true"
           [searchable]="true"
+          [remoteSearch]="true"
           [allowDeselect]="true"
           (searchChange)="onPatientSearch($event)"
         >
           <mat-hint *ngIf="!loadingPatients">
             Search by name, phone, or card number. Select multiple patients using the checkboxes.
+            <span *ngIf="!selectedPatientCount">Select at least one patient for this board session.</span>
           </mat-hint>
           <mat-hint *ngIf="loadingPatients" class="add-patients-dialog__loading-hint">
             <span class="add-patients-dialog__spinner" aria-hidden="true"></span>
             Searching available patients…
           </mat-hint>
-          <mat-hint *ngIf="!selectedPatientCount">
-            Select at least one patient for this board session.
-          </mat-hint>
+          <mat-error *ngIf="patientForm.controls['patient_ids'].touched && patientForm.controls['patient_ids'].invalid">
+            Select at least one patient.
+          </mat-error>
         </app-filter-select>
-
-        <div
-          *ngIf="patientForm.controls['patient_ids'].touched && patientForm.controls['patient_ids'].invalid"
-          class="add-patients-dialog__field-error"
-          role="alert"
-        >
-          <mat-icon aria-hidden="true">error_outline</mat-icon>
-          <span>Select at least one patient.</span>
-        </div>
 
         <div *ngIf="loadError" class="add-patients-dialog__error" role="alert">
           <mat-icon aria-hidden="true">error_outline</mat-icon>

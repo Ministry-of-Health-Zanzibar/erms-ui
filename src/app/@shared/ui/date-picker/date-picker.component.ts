@@ -1,3 +1,6 @@
+import { FieldFeedbackComponent } from '../form-field/field-feedback.component';
+import { FieldControlBridge } from '../form-field/field-control-bridge';
+import { FormFieldDirective } from '../form-field/form-field.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,6 +23,8 @@ export type DatePickerValue = Date | string | null;
   selector: 'app-date-picker',
   standalone: true,
   imports: [
+    FieldFeedbackComponent,
+    FormFieldDirective,
     FormsModule,
     MatButtonModule,
     MatDatepickerModule,
@@ -39,7 +44,7 @@ export type DatePickerValue = Date | string | null;
     },
   ],
 })
-export class DatePickerComponent implements ControlValueAccessor {
+export class DatePickerComponent extends FieldControlBridge implements ControlValueAccessor {
   @Input() label = '';
   @Input() placeholder = 'Choose a date';
   @Input() icon = 'event';
@@ -67,6 +72,7 @@ export class DatePickerComponent implements ControlValueAccessor {
 
   writeValue(value: DatePickerValue | undefined): void {
     this.value = value ?? null;
+    this.fieldChangeDetector.markForCheck();
   }
 
   registerOnChange(onChange: (value: DatePickerValue) => void): void {
@@ -79,6 +85,7 @@ export class DatePickerComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.fieldChangeDetector.markForCheck();
   }
 
   updateValue(value: DatePickerValue): void {

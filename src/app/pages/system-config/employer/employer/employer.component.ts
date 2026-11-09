@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +26,9 @@ import { EmptyStateComponent, PageHeaderComponent, SectionCardComponent, TableTo
   selector: 'app-employer',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

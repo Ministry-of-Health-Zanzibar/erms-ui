@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -135,6 +136,7 @@ interface Patient {
   selector: 'app-body-list-more',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

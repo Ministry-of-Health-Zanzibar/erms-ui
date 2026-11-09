@@ -20,6 +20,7 @@
   --rms-button-border: var(--rms-border-strong);
   --rms-button-hover-surface: var(--rms-surface-muted);
   --rms-button-primary-background: #2563eb;
+  --rms-button-primary-gradient: linear-gradient(135deg, #0f766e, #2563eb);
   --rms-button-primary-hover: #1d4ed8;
   --rms-button-primary-foreground: #ffffff;
   --rms-button-primary-outline: #2563eb;
@@ -174,7 +175,9 @@ html {
 /* Use shared semantic button tokens in both color modes. */
 :where(
   .mat-mdc-unelevated-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled),
-  .mat-mdc-raised-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled)
+  .mat-mdc-raised-button.mat-primary:not(:disabled):not(.mat-mdc-button-disabled),
+  .mat-mdc-unelevated-button.mat-unthemed:not(:disabled):not(.mat-mdc-button-disabled):not(.text-danger):not(.feedback-dialog__confirm),
+  .mat-mdc-raised-button.mat-unthemed:not(:disabled):not(.mat-mdc-button-disabled):not(.workflow-button--telemedicine):not(.referral-action-button--flight)
 ) {
   --mdc-filled-button-container-color: var(--rms-button-primary-background) !important;
   --mdc-filled-button-label-text-color: var(--rms-button-primary-foreground) !important;
@@ -182,6 +185,7 @@ html {
   --mdc-protected-button-label-text-color: var(--rms-button-primary-foreground) !important;
   color: var(--rms-button-primary-foreground) !important;
   background-color: var(--rms-button-primary-background) !important;
+  background-image: var(--rms-button-primary-gradient) !important;
 }
 
 :where(
@@ -936,4 +940,6 @@ html.dark #print-section {
 }
 
 @import './app/@shared/ui/form-header/form-layout';
+@import './app/@shared/ui/filter-select/searchable-select';
+@import './app/@shared/ui/form-field/form-field';
 

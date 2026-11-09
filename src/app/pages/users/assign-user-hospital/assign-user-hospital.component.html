@@ -10,9 +10,9 @@
   <form [formGroup]="assignForm">
     <!-- Hospital Dropdown -->
     <div class="overflow-x-auto mb-4">
-      <mat-form-field appearance="outline" class="w-full">
+      <mat-form-field appFormField appearance="outline" class="w-full">
         <mat-label>Hospital</mat-label>
-        <mat-select formControlName="hospital_id">
+        <mat-select appSearchableSelect formControlName="hospital_id">
           <mat-option *ngFor="let hospital of hospitals" [value]="hospital.hospital_id">
             {{ hospital.hospital_name }}
           </mat-option>
@@ -25,9 +25,9 @@
 
     <!-- Role Dropdown -->
     <div class="overflow-x-auto mb-4">
-      <mat-form-field appearance="outline" class="w-full">
+      <mat-form-field appFormField appearance="outline" class="w-full">
         <mat-label>Select Role</mat-label>
-        <mat-select formControlName="role">
+        <mat-select appSearchableSelect formControlName="role">
           <mat-option *ngFor="let role of roles" [value]="role">
             {{ role }}
           </mat-option>

@@ -1,3 +1,6 @@
+import { FormFieldDirective } from '@shared/ui';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { FormHeaderComponent } from '@shared/ui';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,6 +16,9 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-flight-information-dialog',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    MatFormFieldModule,
+    MatInputModule,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

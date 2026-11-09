@@ -120,9 +120,9 @@
             </mat-error>
           </app-text-input>
 
-          <mat-form-field appearance="outline" class="profile-field">
+          <mat-form-field appFormField appearance="outline" class="profile-field">
             <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender" required>
+            <mat-select appSearchableSelect formControlName="gender" required>
               <mat-option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</mat-option>
             </mat-select>
             <mat-error *ngIf="profileForm.controls.gender.touched && profileForm.controls.gender.invalid">
@@ -130,7 +130,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="profile-field">
+          <mat-form-field appFormField appearance="outline" class="profile-field">
             <mat-label>Date of birth</mat-label>
             <input
               matInput

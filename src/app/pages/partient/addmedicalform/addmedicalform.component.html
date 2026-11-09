@@ -1,4 +1,4 @@
-<div class="medical-board-form" [class.is-edit-mode]="mode === 'edit'">
+<div class="ui-form-dialog medical-board-form" [class.is-edit-mode]="mode === 'edit'">
   <app-form-header
     eyebrow="Medical Board assessment"
     [title]="mode === 'edit' ? 'Edit Medical Board information' : 'Add Medical Board information'"
@@ -10,178 +10,183 @@
     [closeDisabled]="loading"
   />
 
-  <div class="patient-summary" aria-label="Patient summary">
-    <div class="patient-avatar" aria-hidden="true">
-      <mat-icon>person</mat-icon>
-    </div>
-    <div class="patient-summary-main">
-      <span class="summary-label">Patient</span>
-      <strong>{{ patientName }}</strong>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Matibabu card</span>
-      <strong>{{ patientCard }}</strong>
-    </div>
-    <div class="summary-item summary-status" *ngIf="mode === 'edit'">
-      <span class="summary-label">Record state</span>
-      <span class="record-state">
-        <span class="state-dot"></span>
-        {{ hasExistingReferral ? 'Referral in progress' : 'Recommendation only' }}
-      </span>
-    </div>
-  </div>
-
-  <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()" class="form-content">
-    <section class="form-section" aria-labelledby="assessment-heading">
-      <div class="section-heading">
-        <span class="step-number">01</span>
-        <div>
-          <h3 id="assessment-heading">Clinical assessment</h3>
+  <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()" class="ui-form-dialog__form">
+    <div class="ui-form-dialog__body medical-board-form__body">
+      <div class="patient-summary" aria-label="Patient summary">
+        <div class="patient-avatar" aria-hidden="true">
+          <mat-icon>person</mat-icon>
         </div>
-      </div>
-
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
-        <mat-label>Board decision reason</mat-label>
-        <mat-select formControlName="board_reason_id" (selectionChange)="onReasonChange($event.value)">
-          <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
-            {{ reason.referral_reason_name }}
-          </mat-option>
-          <mat-option [value]="customReasonOption">Other / Custom reason</mat-option>
-        </mat-select>
-        <mat-error *ngIf="medicalForm.get('board_reason_id')?.hasError('required')">
-          A decision reason is required.
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field *ngIf="isCustomReasonSelected" appearance="outline" subscriptSizing="dynamic" class="full-width">
-        <mat-label>Custom board reason</mat-label>
-        <input
-          matInput
-          formControlName="custom_reason"
-          maxlength="255"
-        />
-        <mat-error *ngIf="medicalForm.get('custom_reason')?.hasError('required')">
-          Enter a custom board reason
-        </mat-error>
-        <mat-error *ngIf="medicalForm.get('custom_reason')?.hasError('maxlength')">
-          The custom reason must be 255 characters or less
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width comments-field">
-        <mat-label>Board comments and clinical recommendation</mat-label>
-        <textarea
-          matInput
-          rows="5"
-          formControlName="board_comments"
-        ></textarea>
-        <mat-error *ngIf="medicalForm.get('board_comments')?.hasError('required')">
-          Board comments are required.
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width diagnosis-field">
-        <mat-label>Board diagnoses</mat-label>
-        <mat-chip-grid #chipGrid aria-label="Selected board diagnoses">
-          <mat-chip-row
-            *ngFor="let diag of selectedDiagnoses"
-            [removable]="true"
-            (removed)="removeDiagnosis(diag)"
-          >
-            {{ diag.diagnosis_name }}
-            <button matChipRemove type="button" [attr.aria-label]="'Remove ' + diag.diagnosis_name">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-chip-row>
-          <input
-            #diagInput
-            #autoTrigger="matAutocompleteTrigger"
-            aria-label="Search and add a diagnosis"
-            [formControl]="diagnosisSearchCtrl"
-            [matAutocomplete]="auto"
-            [matChipInputFor]="chipGrid"
-          />
-        </mat-chip-grid>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addDiagnosis($event.option.value)">
-          <mat-option *ngFor="let diag of filteredDiagnoses" [value]="diag">
-            {{ diag.diagnosis_name }}
-          </mat-option>
-        </mat-autocomplete>
-        <mat-error *ngIf="medicalForm.get('board_diagnosis_ids')?.hasError('required')">
-          Add at least one board diagnosis.
-        </mat-error>
-      </mat-form-field>
-    </section>
-
-    <section
-      class="decision-panel"
-      [class.decision-panel--referral]="medicalForm.get('create_referral_record')?.value"
-      [class.decision-panel--recommendation]="!medicalForm.get('create_referral_record')?.value"
-      aria-labelledby="referral-decision-heading"
-    >
-      <div class="decision-icon" aria-hidden="true">
-        <mat-icon>{{ medicalForm.get('create_referral_record')?.value ? 'north_east' : 'notes' }}</mat-icon>
-      </div>
-      <div class="decision-copy">
-        <h3 id="referral-decision-heading">
-          {{ medicalForm.get('create_referral_record')?.value ? 'Create a referral record' : 'Save as recommendation only' }}
-        </h3>
-        <p class="decision-explanation" *ngIf="medicalForm.get('create_referral_record')?.value">
-          The case will enter the existing referral workflow for the next approval stage.
-        </p>
-        <p class="decision-explanation" *ngIf="!medicalForm.get('create_referral_record')?.value && !hasExistingReferral">
-          The assessment will be saved only; no referral record will be created.
-        </p>
-        <p class="decision-explanation decision-explanation--warning" *ngIf="!medicalForm.get('create_referral_record')?.value && hasExistingReferral">
-          The assessment will be saved without a referral, and the existing referral and linked records will be permanently removed after confirmation.
-        </p>
-        <div class="existing-note" *ngIf="hasExistingReferral && medicalForm.get('create_referral_record')?.value">
-          <mat-icon>info</mat-icon>
-          <span>
-            Existing referral{{ existingReferralStatus ? ' (' + existingReferralStatus + ')' : '' }} will be updated with this assessment.
+        <div class="patient-summary-main">
+          <span class="summary-label">Patient</span>
+          <strong>{{ patientName }}</strong>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Matibabu card</span>
+          <strong>{{ patientCard }}</strong>
+        </div>
+        <div class="summary-item summary-status" *ngIf="mode === 'edit'">
+          <span class="summary-label">Record state</span>
+          <span class="record-state">
+            <span class="state-dot"></span>
+            {{ hasExistingReferral ? 'Referral in progress' : 'Recommendation only' }}
           </span>
         </div>
       </div>
-      <mat-checkbox
-        formControlName="create_referral_record"
-        class="decision-checkbox"
-      >
-        Create referral record
-      </mat-checkbox>
-    </section>
 
-    <section class="form-section attachment-section" aria-labelledby="attachment-heading">
-      <div class="section-heading">
-        <span class="step-number">03</span>
-        <div>
-          <h3 id="attachment-heading">Supporting document <span class="optional-label">Optional</span></h3>
-        </div>
+      <div class="form-content">
+        <section class="form-section" aria-labelledby="assessment-heading">
+          <div class="section-heading">
+            <span class="step-number">01</span>
+            <div>
+              <h3 id="assessment-heading">Clinical assessment</h3>
+            </div>
+          </div>
+
+          <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="full-width">
+            <mat-label>Board decision reason</mat-label>
+            <mat-select appSearchableSelect formControlName="board_reason_id" (selectionChange)="onReasonChange($event.value)">
+              <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
+                {{ reason.referral_reason_name }}
+              </mat-option>
+              <mat-option [value]="customReasonOption">Other / Custom reason</mat-option>
+            </mat-select>
+            <mat-error *ngIf="medicalForm.get('board_reason_id')?.hasError('required')">
+              A decision reason is required.
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appFormField *ngIf="isCustomReasonSelected" appearance="outline" subscriptSizing="dynamic" class="full-width">
+            <mat-label>Custom board reason</mat-label>
+            <input
+              matInput
+              formControlName="custom_reason"
+              maxlength="255"
+            />
+            <mat-error *ngIf="medicalForm.get('custom_reason')?.hasError('required')">
+              Enter a custom board reason
+            </mat-error>
+            <mat-error *ngIf="medicalForm.get('custom_reason')?.hasError('maxlength')">
+              The custom reason must be 255 characters or less
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="full-width comments-field">
+            <mat-label>Board comments and clinical recommendation</mat-label>
+            <textarea
+              matInput
+              rows="5"
+              formControlName="board_comments"
+            ></textarea>
+            <mat-error *ngIf="medicalForm.get('board_comments')?.hasError('required')">
+              Board comments are required.
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="full-width diagnosis-field" [fieldControl]="medicalForm.get('board_diagnosis_ids')">
+            <mat-label>Board diagnoses</mat-label>
+            <mat-chip-grid #chipGrid aria-label="Selected board diagnoses">
+              <mat-chip-row
+                *ngFor="let diag of selectedDiagnoses"
+                [removable]="true"
+                (removed)="removeDiagnosis(diag)"
+              >
+                {{ diag.diagnosis_name }}
+                <button matChipRemove type="button" [attr.aria-label]="'Remove ' + diag.diagnosis_name">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-chip-row>
+              <input
+                #diagInput
+                #autoTrigger="matAutocompleteTrigger"
+                aria-label="Search and add a diagnosis"
+                [formControl]="diagnosisSearchCtrl"
+                [matAutocomplete]="auto"
+                [matChipInputFor]="chipGrid"
+              />
+            </mat-chip-grid>
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addDiagnosis($event.option.value)">
+              <mat-option *ngFor="let diag of filteredDiagnoses" [value]="diag">
+                {{ diag.diagnosis_name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="medicalForm.get('board_diagnosis_ids')?.hasError('required')">
+              Add at least one board diagnosis.
+            </mat-error>
+          </mat-form-field>
+        </section>
+
+        <section
+          class="decision-panel"
+          [class.decision-panel--referral]="medicalForm.get('create_referral_record')?.value"
+          [class.decision-panel--recommendation]="!medicalForm.get('create_referral_record')?.value"
+          aria-labelledby="referral-decision-heading"
+        >
+          <div class="decision-icon" aria-hidden="true">
+            <mat-icon>{{ medicalForm.get('create_referral_record')?.value ? 'north_east' : 'notes' }}</mat-icon>
+          </div>
+          <div class="decision-copy">
+            <h3 id="referral-decision-heading">
+              {{ medicalForm.get('create_referral_record')?.value ? 'Create a referral record' : 'Save as recommendation only' }}
+            </h3>
+            <p class="decision-explanation" *ngIf="medicalForm.get('create_referral_record')?.value">
+              The case will enter the existing referral workflow for the next approval stage.
+            </p>
+            <p class="decision-explanation" *ngIf="!medicalForm.get('create_referral_record')?.value && !hasExistingReferral">
+              The assessment will be saved only; no referral record will be created.
+            </p>
+            <p class="decision-explanation decision-explanation--warning" *ngIf="!medicalForm.get('create_referral_record')?.value && hasExistingReferral">
+              The assessment will be saved without a referral, and the existing referral and linked records will be permanently removed after confirmation.
+            </p>
+            <div class="existing-note" *ngIf="hasExistingReferral && medicalForm.get('create_referral_record')?.value">
+              <mat-icon>info</mat-icon>
+              <span>
+                Existing referral{{ existingReferralStatus ? ' (' + existingReferralStatus + ')' : '' }} will be updated with this assessment.
+              </span>
+            </div>
+          </div>
+          <mat-checkbox
+            formControlName="create_referral_record"
+            class="decision-checkbox"
+          >
+            Create referral record
+          </mat-checkbox>
+        </section>
+
+        <section class="form-section attachment-section" aria-labelledby="attachment-heading">
+          <div class="section-heading">
+            <span class="step-number">03</span>
+            <div>
+              <h3 id="attachment-heading">Supporting document <span class="optional-label">Optional</span></h3>
+            </div>
+          </div>
+
+          <div class="file-upload">
+            <span class="upload-icon" aria-hidden="true"><mat-icon>upload_file</mat-icon></span>
+            <span class="upload-copy">
+              <strong>{{ selectedFile ? selectedFile.name : (existingFileName ? 'Replace existing file' : 'No file selected') }}</strong>
+              <small *ngIf="existingFileName && !selectedFile" class="existing-file">
+                Existing file: {{ existingFileName }}
+              </small>
+            </span>
+            <button mat-stroked-button type="button" (click)="medicalBoardFile.click()">
+              <mat-icon>attach_file</mat-icon>
+              Select file
+            </button>
+            <input
+              #medicalBoardFile
+              id="medical-board-file"
+              type="file"
+              (change)="onFileSelected($event)"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            />
+          </div>
+        </section>
+
       </div>
+    </div>
 
-      <div class="file-upload">
-        <span class="upload-icon" aria-hidden="true"><mat-icon>upload_file</mat-icon></span>
-        <span class="upload-copy">
-          <strong>{{ selectedFile ? selectedFile.name : (existingFileName ? 'Replace existing file' : 'No file selected') }}</strong>
-          <small *ngIf="existingFileName && !selectedFile" class="existing-file">
-            Existing file: {{ existingFileName }}
-          </small>
-        </span>
-        <button mat-stroked-button type="button" (click)="medicalBoardFile.click()">
-          <mat-icon>attach_file</mat-icon>
-          Select file
-        </button>
-        <input
-          #medicalBoardFile
-          id="medical-board-file"
-          type="file"
-          (change)="onFileSelected($event)"
-          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-        />
-      </div>
-    </section>
-
-    <footer class="form-actions">
-      <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="loading">
+    <mat-dialog-actions align="end" class="ui-form-dialog__actions">
+      <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
         Cancel
       </button>
       <button
@@ -193,6 +198,6 @@
         <mat-icon *ngIf="!loading">{{ mode === 'edit' ? 'save' : 'check' }}</mat-icon>
         <span>{{ loading ? 'Saving…' : (mode === 'edit' ? 'Save changes' : 'Save assessment') }}</span>
       </button>
-    </footer>
+    </mat-dialog-actions>
   </form>
 </div>

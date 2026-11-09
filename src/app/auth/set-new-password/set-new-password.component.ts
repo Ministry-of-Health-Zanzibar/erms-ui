@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, OnDestroy } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
@@ -19,6 +20,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-set-new-password',
   standalone: true,
   imports: [
+    FormFieldDirective,
     MatIcon,
     RouterLink,
     EmrPinInputModule,

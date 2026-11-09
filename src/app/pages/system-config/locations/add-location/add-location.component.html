@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="locationForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Location Name</mat-label>
           <input matInput placeholder="Ex. Amani" formControlName="location_name" type="text">
           <mat-error class="error-message" *ngIf="locationForm.controls['location_name'].touched && locationForm.controls['location_name'].invalid">
@@ -16,7 +16,7 @@
             <span *ngIf="locationForm.controls['location_name'].errors?.['pattern']">This field is invalid (must be contain alpharbetical only)</span>
           </mat-error>
         </mat-form-field>
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Label</mat-label>
           <input matInput placeholder="Ex. Administration" formControlName="label" type="text">
         </mat-form-field>

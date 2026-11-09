@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
@@ -40,6 +42,8 @@ import { createSubmissionKey } from '@shared/utils/submission-key';
   selector: 'app-add-follow-up',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

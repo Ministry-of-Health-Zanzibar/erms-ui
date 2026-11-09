@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, Inject, OnInit } from '@angular/core';
@@ -22,6 +23,7 @@ import {
   selector: 'app-mkurugenzi-conversation',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

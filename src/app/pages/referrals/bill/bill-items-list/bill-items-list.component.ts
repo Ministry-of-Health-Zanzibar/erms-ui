@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -24,6 +25,7 @@ export interface BillItem {
   selector: 'app-bill-items-list',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

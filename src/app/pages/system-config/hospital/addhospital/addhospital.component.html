@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="hospitalForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Hospital Name: </mat-label>
           <input
             matInput
@@ -39,7 +39,7 @@
           </mat-error>
         </mat-form-field> -->
 
-        <mat-form-field class="w-full mt-4">
+        <mat-form-field appFormField class="w-full mt-4">
           <mat-label>Hospital Address:</mat-label>
           <input
             matInput
@@ -65,7 +65,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field class="w-full mt-4">
+        <mat-form-field appFormField class="w-full mt-4">
           <mat-label>Hospital Email:</mat-label>
           <input
             matInput
@@ -91,7 +91,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field class="w-full mt-4">
+        <mat-form-field appFormField class="w-full mt-4">
           <mat-label>Hospital Phone:</mat-label>
           <input
             matInput
@@ -131,9 +131,9 @@
           </mat-form-field>
         </div> -->
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Referral Type</mat-label>
-          <mat-select formControlName="referral_type_id">
+          <mat-select appSearchableSelect formControlName="referral_type_id">
             <mat-option
               *ngFor="let type of referralTypes"
               [value]="type.referral_type_id"

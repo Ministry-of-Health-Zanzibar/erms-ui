@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, Inject, OnInit } from '@angular/core';
@@ -17,7 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogActions, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PartientService } from '../../../services/partient/partient.service';
@@ -36,7 +38,10 @@ import { ViewChild } from '@angular/core';
   selector: 'app-partient-form',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
+    MatDialogActions,
     CommonModule,
     ReactiveFormsModule,
     MatStepperModule,

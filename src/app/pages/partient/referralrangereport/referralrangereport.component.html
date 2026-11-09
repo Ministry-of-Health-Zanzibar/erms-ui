@@ -40,7 +40,10 @@
       <div class="size-9 rounded-full border bg-surface flex items-center justify-center" (click)="renew()" matTooltip="Refresh">
         <mat-icon class="font-icon visibilityData">refresh</mat-icon>
       </div>
-      <input #input type="text" matInput placeholder="Search..." (keyup)="applyFilter($event)" class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950"/>
+      <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-96">
+        <mat-label>Search</mat-label>
+        <input #input type="text" matInput placeholder="Search..." (keyup)="applyFilter($event)"/>
+      </mat-form-field>
     </div>
   </app-table-toolbar>
 

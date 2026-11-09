@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
@@ -15,6 +18,9 @@ import { RolePermissionService } from '../../../../services/users/role-permissio
   selector: 'app-role-permission-display',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

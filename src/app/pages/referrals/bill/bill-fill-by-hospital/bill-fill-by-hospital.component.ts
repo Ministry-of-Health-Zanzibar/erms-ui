@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -21,6 +24,9 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   selector: 'app-bill-fill-by-hospital',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

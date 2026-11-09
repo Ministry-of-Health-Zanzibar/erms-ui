@@ -130,7 +130,7 @@
 .board-add-button {
   min-height: var(--rms-button-height);
   color: var(--rms-button-primary-foreground) !important;
-  background: var(--rms-button-primary-background) !important;
+  background: var(--rms-button-primary-gradient) !important;
 }
 
 .board-add-button mat-icon {
@@ -142,8 +142,6 @@
   width: min(100%, 26rem);
   align-items: center;
   gap: 0.55rem;
-  padding: 0 0.25rem 0.45rem;
-  border-bottom: 1px solid var(--rms-border);
 }
 
 .board-search:focus-within {
@@ -262,7 +260,7 @@
 }
 
 .board-action-button--primary {
-  background: var(--rms-button-primary-background) !important;
+  background: var(--rms-button-primary-gradient) !important;
 }
 
 .board-action-button--success {

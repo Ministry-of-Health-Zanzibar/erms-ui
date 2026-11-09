@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
 import { Subject, takeUntil } from 'rxjs';
@@ -32,6 +35,9 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   selector: 'app-patiant',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,
@@ -157,11 +163,11 @@ export class PatiantComponent {
     config.disableClose = false;
     config.role = 'dialog';
     config.width = '960px';
-    config.height = '80vh'; // full viewport height
+    config.height = 'auto';
     config.maxWidth = 'calc(100vw - 2rem)';
 
-    config.maxHeight = '98vh';
-    config.panelClass = ['full-screen-modal', 'patient-form-dialog'];
+    config.maxHeight = 'calc(100dvh - 2rem)';
+    config.panelClass = 'patient-form-dialog';
 
     const dialogRef = this.dialog.open(PartientFormComponent, config);
     dialogRef.afterClosed().subscribe(() => {
@@ -174,10 +180,11 @@ export class PatiantComponent {
     config.disableClose = false;
     config.role = 'dialog';
     config.width = '960px';
-    config.height = '80vh'; // full viewport height
+    config.height = 'auto';
     config.maxWidth = 'calc(100vw - 2rem)';
 
-    config.panelClass = ['full-screen-modal', 'patient-form-dialog'];
+    config.maxHeight = 'calc(100dvh - 2rem)';
+    config.panelClass = 'patient-form-dialog';
 
     config.data = { patient: patientData };
 

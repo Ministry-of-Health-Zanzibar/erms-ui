@@ -74,9 +74,9 @@
               </mat-error>
             </mat-form-field> -->
 
-            <mat-form-field appearance="outline" class="patient-field">
+            <mat-form-field appFormField appearance="outline" class="patient-field">
               <mat-label>Reason for referral</mat-label>
-              <mat-select formControlName="reason_id" (selectionChange)="onReasonChange($event.value)">
+              <mat-select appSearchableSelect formControlName="reason_id" (selectionChange)="onReasonChange($event.value)">
                 <!-- <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
                   {{ reason.referral_reason_name }}
                 </mat-option> -->
@@ -89,7 +89,7 @@
             </mat-form-field>
           </div>
 
-          <mat-form-field
+          <mat-form-field appFormField
             *ngIf="isCustomReasonSelected"
             appearance="outline"
             class="medical-history-field--full"
@@ -142,7 +142,7 @@
           </div>
 
           <div class="medical-history-grid medical-history-grid--two">
-            <mat-form-field appearance="outline" class="medical-history-textarea">
+            <mat-form-field appFormField appearance="outline" class="medical-history-textarea">
               <mat-label>History of presenting illness</mat-label>
               <textarea
                 matInput
@@ -155,7 +155,7 @@
               </mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="medical-history-textarea">
+            <mat-form-field appFormField appearance="outline" class="medical-history-textarea">
               <mat-label>Physical findings</mat-label>
               <textarea
                 matInput
@@ -168,7 +168,7 @@
               </mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="medical-history-textarea">
+            <mat-form-field appFormField appearance="outline" class="medical-history-textarea">
               <mat-label>Investigations</mat-label>
               <textarea
                 matInput
@@ -181,7 +181,7 @@
               </mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="medical-history-textarea">
+            <mat-form-field appFormField appearance="outline" class="medical-history-textarea">
               <mat-label>Management done</mat-label>
               <textarea
                 matInput
@@ -196,7 +196,7 @@
           </div>
 
           <div class="medical-history-diagnosis">
-            <mat-form-field appearance="outline" class="medical-history-field--full">
+            <mat-form-field appFormField appearance="outline" class="medical-history-field--full" [fieldControl]="clinicalDetailsForm.get('diagnosis_ids')">
               <mat-label>Diagnoses</mat-label>
               <mat-chip-grid #chipGrid aria-label="Selected diagnoses">
                 <mat-chip-row

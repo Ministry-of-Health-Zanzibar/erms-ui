@@ -5,7 +5,7 @@
 </div>
 
 <div class="mat-elevation-z8" *ngIf="!loading; else loadingTemplate">
-  <mat-form-field appearance="outline" class="w-full mb-4">
+  <mat-form-field appFormField appearance="outline" class="w-full mb-4">
     <mat-label>Filter</mat-label>
     <input matInput (input)="applyFilter($event)" placeholder="Search bill items">
   </mat-form-field>

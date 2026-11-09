@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, Inject, OnDestroy, OnInit } from '@angular/core';
@@ -18,6 +20,8 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-assign-user-hospital',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

@@ -277,12 +277,12 @@
 }
 
 .add-patients-dialog__button--primary {
-  color: var(--rms-button-accent-foreground) !important;
-  background: var(--rms-button-accent-background) !important;
+  color: var(--rms-button-primary-foreground) !important;
+  background: var(--rms-button-primary-gradient) !important;
 }
 
 .add-patients-dialog__button--primary:hover:not(:disabled) {
-  background: var(--rms-button-accent-hover) !important;
+  background: var(--rms-button-primary-gradient) !important;
 }
 
 .add-patients-dialog__button:disabled {

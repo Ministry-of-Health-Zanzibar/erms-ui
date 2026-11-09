@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { inject, Component, EventEmitter, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +21,9 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-role-permission-edit',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

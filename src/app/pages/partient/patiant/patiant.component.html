@@ -13,14 +13,16 @@
           >
             <mat-icon class="font-icon">refresh</mat-icon>
           </div>
-          <input
-            type="text"
-            placeholder="Search..."
-            class="border-b h-10 w-96 text-sm bg-transparent outline-0 focus-within:border-neutral-950"
-            [value]="searchTerm"
-            (input)="applyFilter($event)"
-            #input
-          />
+          <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-96">
+            <mat-label>Search</mat-label>
+            <input matInput
+              type="text"
+              placeholder="Search..."
+              [value]="searchTerm"
+              (input)="applyFilter($event)"
+              #input
+            />
+          </mat-form-field>
         </div>
 
         <div uiToolbarActions>

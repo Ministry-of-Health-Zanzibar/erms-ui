@@ -96,7 +96,7 @@
           >
             <mat-error *ngIf="userForm.controls['phone_no'].touched && userForm.controls['phone_no'].invalid">
               <span *ngIf="userForm.controls['phone_no'].errors?.['required']">This field is mandatory</span>
-              <!-- <span *ngIf="userForm.controls['phone_no'].errors?.['pattern']">Must start +255 and 9 digits</span> -->
+              <span *ngIf="userForm.controls['phone_no'].errors?.['pattern']">Enter 10 digits starting with 0.</span>
             </mat-error>
           </app-text-input>
         </div>
@@ -125,18 +125,18 @@
    <!-- </div> -->
         <!-- Row 5: Role, Gender -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Role</mat-label>
-            <mat-select formControlName="role_id">
+            <mat-select appSearchableSelect formControlName="role_id">
               <mat-option *ngFor="let role of roles" [value]="role.id">
                 {{ role.name }}
               </mat-option>
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender">
+            <mat-select appSearchableSelect formControlName="gender">
               <mat-option value="Male">Male</mat-option>
               <mat-option value="Female">Female</mat-option>
             </mat-select>
@@ -145,7 +145,7 @@
 
         <!-- Row 6: Date of Birth -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Date of Birth</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="date_of_birth" placeholder="Choose a date">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>

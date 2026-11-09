@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="referralTypeForm">
-          <mat-form-field class="w-full mt-6">
+          <mat-form-field appFormField class="w-full mt-6">
             <mat-label>Referral Type name: </mat-label>
             <input matInput placeholder="Ex. MAINLAND" formControlName="referral_type_name" type="text">
             <mat-error class="error-message" *ngIf="referralTypeForm.controls['referral_type_name'].touched && referralTypeForm.controls['referral_type_name'].invalid">

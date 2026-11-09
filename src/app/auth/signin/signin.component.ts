@@ -1,3 +1,4 @@
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
@@ -20,6 +21,7 @@ import { TextInputComponent } from '@shared/ui';
   selector: 'app-signin',
   standalone: true,
   imports: [
+    MatFormFieldModule,
     CommonModule,
     MatButton,
     MatIcon,

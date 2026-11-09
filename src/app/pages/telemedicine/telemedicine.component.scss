@@ -50,7 +50,7 @@
   justify-self: start;
 }
 
-.field {
+.field:not(.ui-form-field) {
   display: grid;
   min-width: 0;
   gap: 0.35rem;
@@ -63,9 +63,10 @@
   grid-column: 1 / -1;
 }
 
-.field input,
-.field select,
-.field textarea {
+.field:not(.ui-form-field) input,
+.field:not(.ui-form-field) select,
+.field:not(.ui-form-field) mat-select,
+.field:not(.ui-form-field) textarea {
   width: 100%;
   min-height: var(--rms-field-height);
   border: 1px solid var(--rms-border, #cbd5e1);
@@ -80,14 +81,15 @@
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.field textarea {
+.field:not(.ui-form-field) textarea {
   resize: vertical;
   line-height: 1.45;
 }
 
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
+.field:not(.ui-form-field) input:focus,
+.field:not(.ui-form-field) select:focus,
+.field:not(.ui-form-field) mat-select:focus,
+.field:not(.ui-form-field) textarea:focus {
   border-color: var(--rms-primary-action-outline);
   box-shadow: 0 0 0 3px var(--rms-focus-ring);
 }
@@ -318,9 +320,9 @@
   }
 }
 
-:host-context(html.dark) .field input,
-:host-context(html.dark) .field select,
-:host-context(html.dark) .field textarea,
+:host-context(html.dark) .field:not(.ui-form-field) input,
+:host-context(html.dark) .field:not(.ui-form-field) select,
+:host-context(html.dark) .field:not(.ui-form-field) textarea,
 :host-context(html.dark) .request-card,
 :host-context(html.dark) .patient-results {
   background: var(--rms-surface, #111827);

@@ -14,7 +14,7 @@
         class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6"
       >
         <!-- Name -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Full Name</mat-label>
           <input
             matInput
@@ -27,7 +27,7 @@
         </mat-form-field>
 
         <!-- Phone -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Phone</mat-label>
           <input
             matInput
@@ -45,9 +45,9 @@
         </mat-form-field>
 
         <!-- Gender -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Gender</mat-label>
-          <mat-select formControlName="gender">
+          <mat-select appSearchableSelect formControlName="gender">
             <mat-option value="male">Male</mat-option>
             <mat-option value="female">Female</mat-option>
           </mat-select>
@@ -62,7 +62,7 @@
         </mat-radio-group>
 
         <div *ngIf="patientForm.get('dob_type')?.value === 'known'">
-          <mat-form-field appearance="outline">
+          <mat-form-field appFormField appearance="outline">
             <mat-label>Date of Birth</mat-label>
             <input
               matInput
@@ -78,7 +78,7 @@
         </div>
 
         <div *ngIf="patientForm.get('dob_type')?.value === 'unknown'">
-          <mat-form-field appearance="outline">
+          <mat-form-field appFormField appearance="outline">
             <mat-label>Estimated Age</mat-label>
             <input
               matInput
@@ -90,13 +90,13 @@
         </div>
 
         <!-- Job -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Job</mat-label>
           <input matInput formControlName="job" placeholder="Enter job" />
         </mat-form-field>
 
         <!-- Position -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Position</mat-label>
           <input
             matInput
@@ -106,7 +106,7 @@
         </mat-form-field>
 
         <!-- Location -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Location</mat-label>
           <input
             matInput
@@ -134,7 +134,7 @@
         </mat-form-field>
 
         <!-- Matibabu Card -->
-        <mat-form-field class="w-full">
+        <mat-form-field appFormField class="w-full">
           <mat-label>Matibabu Card</mat-label>
           <input
             matInput
@@ -151,7 +151,7 @@
 
         <!-- zanID  -->
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>ZanID</mat-label>
           <input
             matInput
@@ -187,7 +187,7 @@
         <!-- Patient File Upload -->
           <!-- File Upload -->
       <div class="form-row">
-  <mat-form-field class="form-field w-full">
+  <mat-form-field appFormField class="form-field w-full">
     <mat-label>Upload Medical Board File</mat-label>
 
     <input

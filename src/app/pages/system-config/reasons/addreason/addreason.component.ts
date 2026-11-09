@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
@@ -18,6 +19,7 @@ import { ReasonsService } from '../../../../services/system-configuration/reason
   selector: 'app-addreason',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

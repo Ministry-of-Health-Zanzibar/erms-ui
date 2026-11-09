@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
@@ -17,6 +18,7 @@ import { ReferalTypeService } from '../../../../services/system-configuration/re
   selector: 'app-add-referral-type',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

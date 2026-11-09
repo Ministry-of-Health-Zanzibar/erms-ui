@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="employerForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Employer Name</mat-label>
           <input matInput placeholder="Ex. Ministry of Health Zanzibar" formControlName="employer_name" type="text">
           <mat-error class="error-message" *ngIf="employerForm.controls['employer_name'].touched && employerForm.controls['employer_name'].invalid">
@@ -16,7 +16,7 @@
             <span *ngIf="employerForm.controls['employer_name'].errors?.['pattern']">This field is invalid (must be contain alpharbetical only)</span>
           </mat-error>
         </mat-form-field>
-        <mat-form-field class="w-full">
+        <mat-form-field appFormField class="w-full">
           <mat-label>Email</mat-label>
           <input matInput placeholder="Ex. abd@gmail.com" formControlName="employer_email" type="text">
           <mat-error class="error-message" *ngIf="employerForm.controls['employer_email'].touched && employerForm.controls['employer_email'].invalid">
@@ -24,7 +24,7 @@
             <span *ngIf="employerForm.controls['employer_email'].errors?.['pattern']">This field is invalid (email is incorrect)</span>
           </mat-error>
         </mat-form-field>
-        <mat-form-field class="w-full">
+        <mat-form-field appFormField class="w-full">
           <mat-label>Phone Number</mat-label>
           <input matInput placeholder="Ex. 0777000000" formControlName="employer_phone" type="text">
           <mat-error class="error-message" *ngIf="employerForm.controls['employer_phone'].touched && employerForm.controls['employer_phone'].invalid">
@@ -32,7 +32,7 @@
             <span *ngIf="employerForm.controls['employer_phone'].errors?.['pattern']">This field is invalid (phone number must have 10 digit)</span>
           </mat-error>
         </mat-form-field>
-        <mat-form-field class="w-full">
+        <mat-form-field appFormField class="w-full">
           <mat-label>Employer Type</mat-label>
           <input type="text" matInput placeholder="public" formControlName="employer_type_id" [matAutocomplete]="auto">
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">

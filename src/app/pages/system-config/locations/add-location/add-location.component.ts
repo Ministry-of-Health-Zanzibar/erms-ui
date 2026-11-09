@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
@@ -18,6 +19,7 @@ import { FeedbackService } from '@shared/services/feedback.service';
   selector: 'app-add-location',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

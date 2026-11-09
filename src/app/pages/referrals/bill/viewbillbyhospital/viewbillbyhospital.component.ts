@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { Component, DestroyRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -36,6 +37,7 @@ import {
   selector: 'app-viewbillbyhospital',
   standalone: true,
   imports: [
+    FormFieldDirective,
      CommonModule,
     MatTableModule,
     MatPaginatorModule,

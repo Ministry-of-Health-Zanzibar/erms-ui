@@ -14,9 +14,9 @@
 
   <form [formGroup]="billForm" (ngSubmit)="onSubmit()" class="ui-form-dialog__body space-y-4">
     <!-- Referral -->
-    <mat-form-field appearance="outline" class="w-full">
+    <mat-form-field appFormField appearance="outline" class="w-full">
       <mat-label>Select Referral</mat-label>
-      <mat-select formControlName="referral_id">
+      <mat-select appSearchableSelect formControlName="referral_id">
         <mat-option
           *ngFor="let referral of referrals"
           [value]="referral.referral_id"
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Total Amount -->
-    <mat-form-field appearance="outline" class="w-full">
+    <mat-form-field appFormField appearance="outline" class="w-full">
       <mat-label>Total Amount</mat-label>
       <input
         matInput
@@ -55,7 +55,7 @@
     </mat-form-field>
 
     <!-- Bill Period Start -->
-    <mat-form-field appearance="outline" class="w-full">
+    <mat-form-field appFormField appearance="outline" class="w-full">
       <mat-label>Bill Period Start</mat-label>
       <input
         matInput
@@ -78,7 +78,7 @@
     </mat-form-field>
 
     <!-- Bill Period End -->
-    <mat-form-field appearance="outline" class="w-full">
+    <mat-form-field appFormField appearance="outline" class="w-full">
       <mat-label>Bill Period End</mat-label>
       <input
         matInput

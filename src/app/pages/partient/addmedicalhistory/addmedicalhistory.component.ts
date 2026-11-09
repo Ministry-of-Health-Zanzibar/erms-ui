@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject,
@@ -44,6 +46,8 @@ import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUnt
   selector: 'app-addmedicalhistory',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

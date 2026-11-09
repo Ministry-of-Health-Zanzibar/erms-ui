@@ -1,3 +1,6 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
 import { AdddocumentsComponent } from '../adddocuments/adddocuments.component';
 import { CommonModule } from '@angular/common';
 import { inject, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
@@ -23,6 +26,9 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
   selector: 'app-documents',
   standalone: true,
   imports: [
+    MatInputModule,
+    MatFormFieldModule,
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

@@ -126,14 +126,16 @@
   >
     <app-table-toolbar>
       <div uiToolbarPrimary class="hospital-search">
-        <mat-icon class="hospital-search__icon" aria-hidden="true">search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search hospitals..."
-          class="hospital-search__input"
-          (keyup)="applyFilter($event)"
-          #input
-        />
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full">
+          <mat-label>Search hospitals</mat-label>
+          <input matInput
+            type="text"
+            placeholder="Search hospitals..."
+            (keyup)="applyFilter($event)"
+            #input
+          />
+          <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+        </mat-form-field>
       </div>
     </app-table-toolbar>
 

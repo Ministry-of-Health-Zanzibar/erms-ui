@@ -34,7 +34,7 @@
             [options]="reportDefinitions"
             optionLabelKey="name"
             optionValueKey="key"
-            [searchable]="false"
+            [searchable]="true"
             [allowDeselect]="false"
             (selectionChange)="reportTypeChanged($event)"
           />
@@ -73,7 +73,7 @@
             icon="format_list_numbered"
             [(ngModel)]="resultLimit"
             [options]="filterOptions.result_limits"
-            [searchable]="false"
+            [searchable]="true"
             (selectionChange)="resultLimitChanged($event)"
           />
         </div>
@@ -85,7 +85,7 @@
             icon="view_column"
             [(ngModel)]="groupBy"
             [options]="selectedDefinition?.group_by || []"
-            [searchable]="false"
+            [searchable]="true"
             (selectionChange)="groupByChanged($event)"
           />
         </div>
@@ -97,7 +97,7 @@
             icon="layers"
             [(ngModel)]="detailLevel"
             [options]="selectedDefinition?.detail_levels || []"
-            [searchable]="false"
+            [searchable]="true"
             (selectionChange)="detailLevelChanged($event)"
           />
         </div>
@@ -109,7 +109,7 @@
             icon="wc"
             [(ngModel)]="gender"
             [options]="filterOptions.genders"
-            [searchable]="false"
+            [searchable]="true"
           />
         </div>
 
@@ -121,14 +121,14 @@
               icon="groups"
               [(ngModel)]="ageGroup"
               [options]="filterOptions.age_groups"
-              [searchable]="false"
+              [searchable]="true"
               (selectionChange)="ageGroupChanged($event)"
             />
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic">
               <mat-label>Age from</mat-label>
               <input matInput type="number" min="0" max="150" name="ageFrom" [(ngModel)]="ageFrom" [disabled]="!!ageGroup" />
             </mat-form-field>
-            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic">
               <mat-label>Age to</mat-label>
               <input matInput type="number" min="0" max="150" name="ageTo" [(ngModel)]="ageTo" [disabled]="!!ageGroup" />
             </mat-form-field>
@@ -146,7 +146,7 @@
         </div>
 
         <div class="lg:col-span-8" *ngIf="visibleFilter('diagnosis')">
-          <mat-form-field class="w-full" appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field appFormField class="w-full" appearance="outline" subscriptSizing="dynamic">
             <mat-label>Diagnosis</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input
@@ -230,7 +230,7 @@
         </div>
 
         <div class="lg:col-span-4" *ngIf="visibleFilter('patient_search')">
-          <mat-form-field class="w-full" appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field appFormField class="w-full" appearance="outline" subscriptSizing="dynamic">
             <mat-label>Patient search</mat-label>
             <mat-icon matPrefix>person_search</mat-icon>
             <input matInput name="patientSearch" [(ngModel)]="patientSearch" placeholder="Name, phone, card or Zan ID" />

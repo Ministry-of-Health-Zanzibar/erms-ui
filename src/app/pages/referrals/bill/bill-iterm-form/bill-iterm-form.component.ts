@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
@@ -11,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-bill-iterm-form',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

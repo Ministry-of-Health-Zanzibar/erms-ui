@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="employerTypeForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Employer Type Name</mat-label>
           <input matInput placeholder="Ex. private" formControlName="employer_type_name" type="text">
           <mat-error class="error-message" *ngIf="employerTypeForm.controls['employer_type_name'].touched && employerTypeForm.controls['employer_type_name'].invalid">

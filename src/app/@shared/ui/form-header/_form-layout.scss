@@ -36,6 +36,20 @@
   background: var(--rms-surface);
   font-family: var(--rms-ui-font-family);
 
+  // Keep native form submission while only the body scrolls between header and actions.
+  .ui-form-dialog__form {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+
+    > .ui-form-dialog__body {
+      flex: 1 1 auto;
+    }
+  }
+
   .ui-form-dialog__body {
     min-height: 0;
     overflow: auto;
@@ -79,6 +93,13 @@
     button {
       margin: 0;
     }
+  }
+
+  .ui-form-dialog__progress {
+    margin-right: auto;
+    color: var(--rms-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
   }
 }
 

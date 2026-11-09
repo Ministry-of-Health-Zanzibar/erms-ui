@@ -9,9 +9,9 @@
   <div class="ui-form-dialog__body">
       <form [formGroup]="clientForm">
       <div class="row">
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Balance Amaount</mat-label>
-          <mat-select formControlName="bill_file_id">
+          <mat-select appSearchableSelect formControlName="bill_file_id">
             <mat-option *ngIf="billFile" [value]="billFile.bill_file_id">
               {{ billFile.hospital?.hospital_name }} 
               {{ billFile?.balance | currency : " TZS" }}
@@ -19,7 +19,7 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Amount Paid</mat-label>
           <input
             matInput
@@ -44,7 +44,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Payer</mat-label>
           <input matInput formControlName="payer" placeholder="e.g. John Doe" />
           <mat-error
@@ -58,9 +58,9 @@
         </mat-form-field>
 
         <!-- Payment Method -->
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Payment Method</mat-label>
-          <mat-select formControlName="payment_method" required>
+          <mat-select appSearchableSelect formControlName="payment_method" required>
             <mat-option value="Bank Transfer / Wire Transfer"
               >Bank Transfer / Wire Transfer</mat-option
             >
@@ -76,7 +76,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Reference Number</mat-label>
           <input
             matInput
@@ -85,7 +85,7 @@
           />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Voucher Number</mat-label>
           <input
             matInput
@@ -94,7 +94,7 @@
           />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="w-full">
+        <mat-form-field appFormField appearance="outline" class="w-full">
           <mat-label>Payment Date</mat-label>
           <input
             matInput

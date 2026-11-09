@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="sourceForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Source Name: </mat-label>
           <input matInput placeholder="Ex. source" formControlName="source_name" type="text">
           <mat-error class="error-message" *ngIf="sourceForm.controls['source_name'].touched && sourceForm.controls['source_name'].invalid">

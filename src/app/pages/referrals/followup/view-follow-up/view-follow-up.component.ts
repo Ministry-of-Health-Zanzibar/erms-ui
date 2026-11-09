@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -37,6 +38,7 @@ import {
   selector: 'app-view-follow-up',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

@@ -25,7 +25,7 @@
   min-height: var(--rms-button-height);
   font-size: var(--rms-button-font-size);
   font-weight: var(--rms-button-font-weight);
-  background: var(--rms-button-primary-background);
+  background: var(--rms-button-primary-gradient);
   color: var(--rms-button-primary-foreground);
   border: 0;
   border-radius: var(--rms-button-radius);
@@ -39,6 +39,6 @@
 }
 
 .search-button:hover {
-  background: var(--rms-button-primary-hover);
+  background: var(--rms-button-primary-gradient);
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }

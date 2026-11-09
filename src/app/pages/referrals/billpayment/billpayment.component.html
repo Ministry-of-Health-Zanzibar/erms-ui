@@ -109,13 +109,15 @@
         >
           <mat-icon>refresh</mat-icon>
         </div>
-        <input
-          type="text"
-          placeholder="Search..."
-          class="border-b h-10 w-96 text-sm bg-transparent outline-0 focus-within:border-neutral-950"
-          matInput
-          (keyup)="applyFilter($event)"
-        />
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-96">
+          <mat-label>Search</mat-label>
+          <input
+            type="text"
+            placeholder="Search..."
+            matInput
+            (keyup)="applyFilter($event)"
+          />
+        </mat-form-field>
       </div>
     </app-table-toolbar>
 

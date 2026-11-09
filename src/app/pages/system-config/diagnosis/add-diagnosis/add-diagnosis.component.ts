@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, OnDestroy, OnInit } from '@angular/core';
@@ -16,6 +17,7 @@ import { FeedbackService } from '@shared/services/feedback.service';
   selector: 'app-add-diagnosis',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

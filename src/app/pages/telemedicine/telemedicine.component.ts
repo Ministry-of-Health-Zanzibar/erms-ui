@@ -1,3 +1,8 @@
+import { FormFieldDirective } from '@shared/ui';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { SearchableSelectDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +20,11 @@ import { TelemedicineService } from '../../services/telemedicine/telemedicine.se
   selector: 'app-telemedicine',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    SearchableSelectDirective,
     CommonModule,
     ReactiveFormsModule,
     MatButtonModule,

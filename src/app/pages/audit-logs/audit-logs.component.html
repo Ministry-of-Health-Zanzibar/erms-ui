@@ -15,67 +15,87 @@
         <button mat-icon-button type="button" (click)="refresh()" aria-label="Refresh audit logs" matTooltip="Refresh">
           <mat-icon>refresh</mat-icon>
         </button>
-        <input
-          matInput
-          class="border-b h-10 w-full md:w-72 text-sm bg-transparent outline-0"
-          placeholder="Search activity..."
-          [value]="searchTerm"
-          (input)="search($event)"
-        />
-        <input
-          matInput
-          class="border-b h-10 w-full md:w-44 text-sm bg-transparent outline-0"
-          placeholder="Action"
-          [(ngModel)]="action"
-          (keyup.enter)="applyFilters()"
-        />
-        <input
-          matInput
-          class="border-b h-10 w-full md:w-44 text-sm bg-transparent outline-0"
-          placeholder="Module"
-          [(ngModel)]="module"
-          (keyup.enter)="applyFilters()"
-        />
-        <select
-          class="border-b h-10 w-full md:w-52 text-sm bg-transparent outline-0"
-          [(ngModel)]="userId"
-          (change)="applyFilters()"
-          aria-label="Filter by actor"
-        >
-          <option value="">All actors</option>
-          <option *ngFor="let actor of actors" [value]="actor.id">
-            {{ actor.full_name || (actor.first_name + ' ' + actor.last_name) || actor.email }}
-          </option>
-        </select>
-        <input
-          matInput
-          type="number"
-          min="1"
-          class="border-b h-10 w-full md:w-36 text-sm bg-transparent outline-0"
-          placeholder="Record ID"
-          [(ngModel)]="entityId"
-          (keyup.enter)="applyFilters()"
-        />
-        <input
-          matInput
-          type="number"
-          min="1"
-          class="border-b h-10 w-full md:w-44 text-sm bg-transparent outline-0"
-          placeholder="History ID"
-          [(ngModel)]="patientHistoryId"
-          (keyup.enter)="applyFilters()"
-        />
-        <input
-          matInput
-          type="number"
-          min="1"
-          class="border-b h-10 w-full md:w-36 text-sm bg-transparent outline-0"
-          placeholder="Patient ID"
-          [(ngModel)]="patientId"
-          (keyup.enter)="applyFilters()"
-        />
-        <input matInput type="date" class="border-b h-10 text-sm bg-transparent outline-0" [(ngModel)]="dateFrom" />
-        <input matInput type="date" class="border-b h-10 text-sm bg-transparent outline-0" [(ngModel)]="dateTo" />
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-72">
+          <mat-label>Search activity</mat-label>
+          <input
+            matInput
+            placeholder="Search activity..."
+            [value]="searchTerm"
+            (input)="search($event)"
+          />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-44">
+          <mat-label>Action</mat-label>
+          <input
+            matInput
+            placeholder="Action"
+            [(ngModel)]="action"
+            (keyup.enter)="applyFilters()"
+          />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-44">
+          <mat-label>Module</mat-label>
+          <input
+            matInput
+            placeholder="Module"
+            [(ngModel)]="module"
+            (keyup.enter)="applyFilters()"
+          />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-52">
+          <mat-label>Filter by actor</mat-label>
+          <mat-select appSearchableSelect
+            [(ngModel)]="userId"
+            (selectionChange)="applyFilters()"
+            aria-label="Filter by actor"
+          >
+            <mat-option value="">All actors</mat-option>
+            <mat-option *ngFor="let actor of actors" [value]="'' + (actor.id)">
+              {{ actor.full_name || (actor.first_name + ' ' + actor.last_name) || actor.email }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-36">
+          <mat-label>Record ID</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            placeholder="Record ID"
+            [(ngModel)]="entityId"
+            (keyup.enter)="applyFilters()"
+          />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-44">
+          <mat-label>History ID</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            placeholder="History ID"
+            [(ngModel)]="patientHistoryId"
+            (keyup.enter)="applyFilters()"
+          />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-36">
+          <mat-label>Patient ID</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            placeholder="Patient ID"
+            [(ngModel)]="patientId"
+            (keyup.enter)="applyFilters()"
+          />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full">
+          <mat-label>From date</mat-label>
+          <input matInput type="date" [(ngModel)]="dateFrom" />
+        </mat-form-field>
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full">
+          <mat-label>To date</mat-label>
+          <input matInput type="date" [(ngModel)]="dateTo" />
+        </mat-form-field>
         <button mat-stroked-button type="button" (click)="applyFilters()">Filter</button>
         <button mat-button type="button" (click)="clearFilters()">Clear</button>
       </div>

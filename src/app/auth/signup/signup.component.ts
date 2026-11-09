@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -10,6 +11,7 @@ import { HDividerComponent } from '@elementar/components';
   selector: 'app-signup',
   standalone: true,
   imports: [
+    FormFieldDirective,
     MatButton,
     MatFormField,
     MatInput,

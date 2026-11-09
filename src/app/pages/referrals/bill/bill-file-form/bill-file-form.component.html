@@ -13,23 +13,10 @@
         enctype="multipart/form-data"
       >
       <!-- Create Mode -->
-<mat-form-field class="form-field w-full">
+<mat-form-field appFormField class="form-field w-full">
   <mat-label>Select Hospital</mat-label>
 
-  <mat-select formControlName="hospital_id">
-
-    <mat-option>
-      <input
-        matInput
-        [(ngModel)]="hospitalSearch"
-        [ngModelOptions]="{standalone: true}"
-        placeholder="Search hospital..."
-        (ngModelChange)="onHospitalSearchChange()"
-        (click)="$event.stopPropagation()"
-        (keydown)="$event.stopPropagation()"
-      />
-    </mat-option>
-
+  <mat-select appSearchableSelect formControlName="hospital_id">
     <mat-option
       *ngFor="let hospital of filteredHospitals"
       [value]="hospital.hospital_id"
@@ -56,7 +43,7 @@
 
 <!-- Update Mode -->
 <div class="form-row" *ngIf="billData">
-  <mat-form-field class="form-field w-full">
+  <mat-form-field appFormField class="form-field w-full">
     <mat-label>Hospital</mat-label>
 
     <input
@@ -74,7 +61,7 @@
 
         <!-- Bill Amount -->
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
+          <mat-form-field appFormField class="form-field w-full">
             <mat-label>Bill Amount</mat-label>
             <input
               matInput
@@ -95,7 +82,7 @@
 
         <!-- File Upload -->
         <div class="form-row">
-         <mat-form-field class="form-field w-full">
+         <mat-form-field appFormField class="form-field w-full">
   <mat-label>Upload File</mat-label>
 
   <input
@@ -139,7 +126,7 @@
 
        <!-- Bill Start Date -->
 <div class="form-row">
-  <mat-form-field class="form-field w-full">
+  <mat-form-field appFormField class="form-field w-full">
     <mat-label>Bill Start Date</mat-label>
     <input
       matInput
@@ -159,7 +146,7 @@
 
 <!-- Bill End Date -->
 <div class="form-row">
-  <mat-form-field class="form-field w-full">
+  <mat-form-field appFormField class="form-field w-full">
     <mat-label>Bill End Date</mat-label>
     <input
       matInput

@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="diagnosisForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Diagnoses Name</mat-label>
           <input matInput placeholder="Ex. Diagnoses Name" formControlName="diagnosis_name" type="text">
           <mat-error class="error-message" *ngIf="diagnosisForm.controls['diagnosis_name'].touched && diagnosisForm.controls['diagnosis_name'].invalid">
@@ -16,7 +16,7 @@
             <span *ngIf="diagnosisForm.controls['diagnosis_name'].errors?.['pattern']">This field is invalid (must be contain alpharbetical only)</span>
           </mat-error>
         </mat-form-field>
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>Diagnoses Code</mat-label>
           <input matInput placeholder="Ex. Diagnoses Code" formControlName="diagnosis_code" type="text">
           <mat-error class="error-message" *ngIf="diagnosisForm.controls['diagnosis_code'].touched && diagnosisForm.controls['diagnosis_code'].invalid">

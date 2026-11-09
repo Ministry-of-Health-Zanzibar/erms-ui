@@ -15,8 +15,11 @@
             <mat-icon class="font-icon visibilityData">refresh</mat-icon>
           </div>
           <emr-v-divider></emr-v-divider>
-          <input type="text" placeholder="Search..."
-                 class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (keyup)="applyFilter($event)" #input>
+          <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-96">
+            <mat-label>Search</mat-label>
+            <input type="text" placeholder="Search..."
+                   matInput (keyup)="applyFilter($event)" #input>
+          </mat-form-field>
         </div>
       </app-table-toolbar>
 

@@ -9,15 +9,15 @@
         Let's get started with your 30 days free trial
       </p>
       <form class="flex flex-col pt-3 md:pt-8" [formGroup]="form">
-        <mat-form-field>
+        <mat-form-field appFormField>
           <mat-label>Name</mat-label>
           <input type="name" matInput formControlName="name">
         </mat-form-field>
-        <mat-form-field>
+        <mat-form-field appFormField>
           <mat-label>Email</mat-label>
           <input type="email" matInput formControlName="email">
         </mat-form-field>
-        <mat-form-field>
+        <mat-form-field appFormField>
           <mat-label>Password</mat-label>
           <input type="password" matInput formControlName="password">
         </mat-form-field>

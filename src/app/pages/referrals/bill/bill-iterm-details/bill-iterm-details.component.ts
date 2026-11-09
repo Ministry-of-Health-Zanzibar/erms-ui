@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,6 +35,7 @@ interface BillItem {
   selector: 'app-bill-iterm-details',
   standalone: true,
   imports: [
+    FormFieldDirective,
     CommonModule,
     MatTableModule,
     MatPaginatorModule,

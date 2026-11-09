@@ -14,9 +14,9 @@
       >
         <!-- Board Type -->
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
+          <mat-form-field appFormField class="form-field w-full">
             <mat-label>Board Type</mat-label>
-            <mat-select formControlName="board_type">
+            <mat-select appSearchableSelect formControlName="board_type">
               <mat-option value="Emergency">Emergency</mat-option>
               <mat-option value="Routine">Routine</mat-option>
             </mat-select>
@@ -58,7 +58,7 @@
         </div> -->
 
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
+          <mat-form-field appFormField class="form-field w-full">
             <mat-label>Board Date</mat-label>
             <input
               matInput
@@ -107,7 +107,7 @@
         </div>
         <!-- Number of Patients -->
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
+          <mat-form-field appFormField class="form-field w-full">
             <mat-label>Number of Patients</mat-label>
             <input
               matInput
@@ -128,7 +128,7 @@
 
         <!-- File Upload -->
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
+          <mat-form-field appFormField class="form-field w-full">
             <mat-label>Upload Medical Board File</mat-label>
             <input
               matInput
@@ -164,9 +164,9 @@
         </div>
         <!-- User Selection -->
         <div class="form-row">
-          <mat-form-field class="form-field w-full">
+          <mat-form-field appFormField class="form-field w-full">
             <mat-label>Select Medical Board Members</mat-label>
-            <mat-select
+            <mat-select appSearchableSelect
               multiple
               (selectionChange)="onUserSelected($event)"
               (openedChange)="onUserDropdownOpened()"
@@ -175,19 +175,8 @@
                 Loading users…
               </mat-option>
 
-              <!-- 🔍 Search box appears only if users exist -->
               <ng-container *ngIf="!isLoadingUsers && userList.length > 0">
-                <mat-option>
-                  <input
-                    matInput
-                    placeholder="Search user..."
-                    [(ngModel)]="userSearch"
-                    (ngModelChange)="filterUser()"
-                    class="w-full px-2 py-1 text-sm border rounded-md"
-                  />
-                </mat-option>
-
-                <!-- 👤 Show filtered users -->
+                <!-- The shared dropdown search preserves checked board members. -->
                 <mat-option *ngFor="let u of filteredUser" [value]="u.user_id">
                   {{ u.full_name }}
                 </mat-option>

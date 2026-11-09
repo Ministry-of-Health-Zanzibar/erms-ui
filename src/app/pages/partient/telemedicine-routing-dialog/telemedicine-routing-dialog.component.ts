@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
@@ -13,6 +15,8 @@ import { MatSelectModule } from '@angular/material/select';
   selector: 'app-telemedicine-routing-dialog',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

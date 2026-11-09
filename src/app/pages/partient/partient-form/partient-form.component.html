@@ -1,4 +1,4 @@
-<div class="patient-dialog">
+<div class="ui-form-dialog patient-dialog">
   <app-form-header
     eyebrow="Patient registration"
     [title]="isEditMode ? 'Update patient record' : 'Register a new patient'"
@@ -14,21 +14,21 @@
       </span>
   </app-form-header>
 
-  <div class="patient-dialog__body">
-    <div class="patient-dialog__intro">
-      <div class="patient-dialog__intro-copy">
-        <mat-icon>info</mat-icon>
-        <p>
-          Complete each step carefully. Required fields are marked in the form and the final step provides a quick review before saving.
-        </p>
+  <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="ui-form-dialog__form" novalidate>
+    <div class="ui-form-dialog__body patient-dialog__body">
+      <div class="patient-dialog__intro">
+        <div class="patient-dialog__intro-copy">
+          <mat-icon>info</mat-icon>
+          <p>
+            Complete each step carefully. Required fields are marked in the form and the final step provides a quick review before saving.
+          </p>
+        </div>
+        <div class="patient-dialog__secure-note">
+          <mat-icon>lock</mat-icon>
+          Protected health record
+        </div>
       </div>
-      <div class="patient-dialog__secure-note">
-        <mat-icon>lock</mat-icon>
-        Protected health record
-      </div>
-    </div>
 
-    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" novalidate>
       <mat-horizontal-stepper #stepper class="patient-stepper" linear>
         <mat-step [stepControl]="patientForm.get('basicInfo')">
           <ng-template matStepLabel>
@@ -46,7 +46,7 @@
             </div>
 
             <div formGroupName="basicInfo" class="patient-step__grid patient-step__grid--identity">
-              <mat-form-field appearance="outline" class="patient-field patient-field--wide">
+              <mat-form-field appFormField appearance="outline" class="patient-field patient-field--wide">
                 <mat-label>Matibabu card / Bima number</mat-label>
                 <input
                   matInput
@@ -56,16 +56,13 @@
                   autocomplete="off"
                   (keypress)="allowOnlyNumbers($event)" />
                 <mat-icon matPrefix>badge</mat-icon>
-                <mat-hint>Use the 12-digit card number when available.</mat-hint>
-                <mat-error *ngIf="patientForm.get('basicInfo.matibabu_card')?.hasError('required')">
-                  Matibabu card number is required
-                </mat-error>
-                <mat-error *ngIf="patientForm.get('basicInfo.matibabu_card')?.hasError('pattern')">
-                  Enter exactly 12 digits
+                <mat-error *ngIf="patientForm.get('basicInfo.matibabu_card')?.invalid">
+                  <span *ngIf="patientForm.get('basicInfo.matibabu_card')?.hasError('required')">Matibabu card number is required. </span>
+                  Use the 12-digit card number when available.
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field patient-field--wide">
+              <mat-form-field appFormField appearance="outline" class="patient-field patient-field--wide">
                 <mat-label>Full name</mat-label>
                 <input matInput formControlName="name" autocomplete="name" />
                 <mat-icon matPrefix>person</mat-icon>
@@ -74,7 +71,7 @@
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field">
+              <mat-form-field appFormField appearance="outline" class="patient-field">
                 <mat-label>Date of birth</mat-label>
                 <input matInput [matDatepicker]="dobPicker" formControlName="date_of_birth" autocomplete="bday" />
                 <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
@@ -84,9 +81,9 @@
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field">
+              <mat-form-field appFormField appearance="outline" class="patient-field">
                 <mat-label>Gender</mat-label>
-                <mat-select formControlName="gender">
+                <mat-select appSearchableSelect formControlName="gender">
                   <mat-option value="Male">Male</mat-option>
                   <mat-option value="Female">Female</mat-option>
                 </mat-select>
@@ -96,7 +93,7 @@
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field">
+              <mat-form-field appFormField appearance="outline" class="patient-field">
                 <mat-label>Phone number</mat-label>
                 <input
                   matInput
@@ -114,28 +111,27 @@
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field">
-                <mat-label>Zan ID / ZSSF number</mat-label>
+              <mat-form-field appFormField appearance="outline" class="patient-field">
+                <mat-label>ZANID/ZSSFID</mat-label>
                 <input
                   matInput
                   formControlName="zan_id"
                   maxlength="9"
                   inputmode="numeric"
-                  pattern="[0-9]*"
+                  pattern="[0-9]{8,9}"
                   (keypress)="allowOnlyNumbers($event)" />
                 <mat-icon matPrefix>fingerprint</mat-icon>
-                <mat-hint>8 digits for ZSSF or 9 digits for Zan ID.</mat-hint>
-                <mat-error *ngIf="patientForm.get('basicInfo.zan_id')?.hasError('required')">
-                  Zan ID or ZSSF number is required
+                <mat-error *ngIf="patientForm.get('basicInfo.zan_id')?.invalid">
+                  This ID is Mandatory
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field patient-field--wide">
+              <mat-form-field appFormField appearance="outline" class="patient-field patient-field--wide" [fieldControl]="patientForm.get('basicInfo.location_id')">
                 <mat-label>Location</mat-label>
                 <input
                   matInput
                   placeholder="Search and select a location"
-                  [formControl]="locationFilterCtrl"
+                  [formControl]="locationFilterCtrl" (blur)="patientForm.get('basicInfo.location_id')?.markAsTouched()"
                   [matAutocomplete]="autoLocation"
                   autocomplete="address-level2" />
                 <mat-icon matPrefix>location_on</mat-icon>
@@ -152,28 +148,19 @@
                 </mat-error>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field">
+              <mat-form-field appFormField appearance="outline" class="patient-field">
                 <mat-label>Occupation</mat-label>
                 <input matInput formControlName="job" autocomplete="organization-title" />
                 <mat-icon matPrefix>work_outline</mat-icon>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="patient-field">
+              <mat-form-field appFormField appearance="outline" class="patient-field">
                 <mat-label>Position</mat-label>
                 <input matInput formControlName="position" />
                 <mat-icon matPrefix>business_center</mat-icon>
               </mat-form-field>
             </div>
 
-            <div class="patient-step__actions">
-              <button mat-button type="button" class="patient-step__secondary" (click)="onCancel()">
-                Cancel
-              </button>
-              <button mat-flat-button color="primary" type="button" matStepperNext [disabled]="isEligible || loading">
-                Continue to medical history
-                <mat-icon>arrow_forward</mat-icon>
-              </button>
-            </div>
           </section>
         </mat-step>
 
@@ -198,7 +185,7 @@
 
             <div formGroupName="historyInfo">
               <div class="patient-step__grid patient-step__grid--three">
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>File number</mat-label>
                   <input matInput formControlName="file_number" />
                   <mat-icon matPrefix>folder_open</mat-icon>
@@ -207,7 +194,7 @@
                   </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Referring date</mat-label>
                   <input matInput [matDatepicker]="refDate" formControlName="referring_date" />
                   <mat-datepicker-toggle matIconSuffix [for]="refDate"></mat-datepicker-toggle>
@@ -217,9 +204,9 @@
                   </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Reason for referral</mat-label>
-                  <mat-select formControlName="reason_id" (selectionChange)="onReasonChange($event.value)">
+                  <mat-select appSearchableSelect formControlName="reason_id" (selectionChange)="onReasonChange($event.value)">
                     <!-- <mat-option *ngFor="let reason of reasonList" [value]="reason.reason_id">
                       {{ reason.referral_reason_name }}
                     </mat-option> -->
@@ -232,7 +219,7 @@
                 </mat-form-field>
               </div>
 
-              <mat-form-field
+              <mat-form-field appFormField
                 *ngIf="isCustomReasonSelected"
                 appearance="outline"
                 class="patient-field patient-field--full"
@@ -254,7 +241,7 @@
               </mat-form-field>
 
               <div class="patient-field patient-field--diagnosis">
-                <mat-form-field appearance="outline" class="patient-field__control">
+                <mat-form-field appFormField appearance="outline" class="patient-field__control" [fieldControl]="patientForm.get('historyInfo.diagnosis_ids')">
                   <mat-label>Diagnoses</mat-label>
                   <mat-chip-grid #chipGrid aria-label="Selected diagnoses">
                     <mat-chip-row
@@ -288,7 +275,7 @@
               </div>
 
               <div class="patient-step__clinical-grid">
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>History of presenting illness</mat-label>
                   <textarea matInput rows="4" formControlName="history_of_presenting_illness" placeholder="Describe the presenting illness and relevant timeline"></textarea>
                   <mat-error *ngIf="patientForm.get('historyInfo.history_of_presenting_illness')?.hasError('required')">
@@ -296,7 +283,7 @@
                   </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Physical findings</mat-label>
                   <textarea matInput rows="4" formControlName="physical_findings" placeholder="Record relevant examination findings"></textarea>
                   <mat-error *ngIf="patientForm.get('historyInfo.physical_findings')?.hasError('required')">
@@ -304,7 +291,7 @@
                   </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Investigations</mat-label>
                   <textarea matInput rows="4" formControlName="investigations" placeholder="List investigations completed or requested"></textarea>
                   <mat-error *ngIf="patientForm.get('historyInfo.investigations')?.hasError('required')">
@@ -312,7 +299,7 @@
                   </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Management already provided</mat-label>
                   <textarea matInput rows="4" formControlName="management_done" placeholder="Summarize treatment or management already provided"></textarea>
                   <mat-error *ngIf="patientForm.get('historyInfo.management_done')?.hasError('required')">
@@ -348,16 +335,6 @@
               </p>
             </div>
 
-            <div class="patient-step__actions">
-              <button mat-button type="button" class="patient-step__secondary" matStepperPrevious>
-                <mat-icon>arrow_back</mat-icon>
-                Back
-              </button>
-              <button mat-flat-button color="primary" type="button" matStepperNext [disabled]="loading">
-                Continue to coverage
-                <mat-icon>arrow_forward</mat-icon>
-              </button>
-            </div>
           </section>
         </mat-step>
 
@@ -389,22 +366,22 @@
               </div>
 
               <div *ngIf="patientForm.get('insuranceInfo.has_insurance')?.value" class="patient-step__grid patient-step__grid--three patient-insurance-fields">
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Insurance provider</mat-label>
-                  <mat-select formControlName="insurance_provider_name">
+                  <mat-select appSearchableSelect formControlName="insurance_provider_name">
                     <mat-option value="Zhsf">ZHSF</mat-option>
                     <mat-option value="Hhif">NHIF</mat-option>
                   </mat-select>
                   <mat-icon matPrefix>health_and_safety</mat-icon>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Insurance card number</mat-label>
                   <input matInput formControlName="card_number" />
                   <mat-icon matPrefix>credit_card</mat-icon>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="patient-field">
+                <mat-form-field appFormField appearance="outline" class="patient-field">
                   <mat-label>Valid until</mat-label>
                   <input matInput [matDatepicker]="insDate" formControlName="valid_until" />
                   <mat-datepicker-toggle matIconSuffix [for]="insDate"></mat-datepicker-toggle>
@@ -445,24 +422,28 @@
               </p>
             </div>
 
-            <div class="patient-step__actions">
-              <button mat-button type="button" class="patient-step__secondary" matStepperPrevious>
-                <mat-icon>arrow_back</mat-icon>
-                Back
-              </button>
-              <div class="patient-step__final-actions">
-                <button mat-button type="button" class="patient-step__secondary" (click)="onCancel()">
-                  Cancel
-                </button>
-                <button mat-flat-button color="primary" type="submit" [disabled]="loading || patientForm.invalid">
-                  <mat-icon>{{ loading ? 'hourglass_top' : 'save' }}</mat-icon>
-                  {{ loading ? 'Saving patient…' : (isEditMode ? 'Update patient' : 'Save patient') }}
-                </button>
-              </div>
-            </div>
           </section>
         </mat-step>
       </mat-horizontal-stepper>
-    </form>
-  </div>
+    </div>
+
+    <mat-dialog-actions align="end" class="ui-form-dialog__actions">
+      <span class="ui-form-dialog__progress" aria-live="polite">Step {{ stepper.selectedIndex + 1 }} of 3</span>
+      <button mat-button type="button" (click)="onCancel()">Cancel</button>
+      <button mat-button type="button" *ngIf="stepper.selectedIndex > 0" (click)="stepper.previous()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </button>
+      <button mat-flat-button color="primary" type="button" *ngIf="stepper.selectedIndex < 2"
+        (click)="stepper.next()" [disabled]="loading || (stepper.selectedIndex === 0 && isEligible)">
+        {{ stepper.selectedIndex === 0 ? 'Continue to medical history' : 'Continue to coverage' }}
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <button mat-flat-button color="primary" type="submit" *ngIf="stepper.selectedIndex === 2"
+        [disabled]="loading || patientForm.invalid">
+        <mat-icon>{{ loading ? 'hourglass_top' : 'save' }}</mat-icon>
+        {{ loading ? 'Saving patient…' : (isEditMode ? 'Update patient' : 'Save patient') }}
+      </button>
+    </mat-dialog-actions>
+  </form>
 </div>

@@ -43,71 +43,61 @@
         </div>
 
         <div class="flight-dialog__grid">
-          <label class="flight-dialog__field">
-            <span>Airline <b aria-hidden="true">*</b></span>
-            <input
-              id="airline"
-              type="text"
-              formControlName="airline"
-              autocomplete="organization"
-              placeholder="e.g. Precision Air"
-              [attr.aria-invalid]="f['airline'].touched && f['airline'].invalid"
-              [attr.aria-describedby]="f['airline'].touched && f['airline'].invalid ? 'airline-error' : null"
-            />
-            <small *ngIf="f['airline'].touched && f['airline'].invalid" id="airline-error" class="flight-dialog__error">Airline is required.</small>
-          </label>
+          <mat-form-field appFormField class="flight-dialog__field">
+            <mat-label>Airline</mat-label>
+            <input matInput required
+                id="airline"
+                type="text"
+                formControlName="airline"
+                autocomplete="organization"
+                placeholder="e.g. Precision Air"
+              />
+              <mat-error *ngIf="f['airline'].touched && f['airline'].invalid" id="airline-error" class="flight-dialog__error">Airline is required.</mat-error>
+          </mat-form-field>
 
-          <label class="flight-dialog__field">
-            <span>Flight number <b aria-hidden="true">*</b></span>
-            <input
-              id="flight-number"
-              type="text"
-              formControlName="flight_number"
-              autocomplete="off"
-              placeholder="e.g. PW421"
-              [attr.aria-invalid]="f['flight_number'].touched && f['flight_number'].invalid"
-              [attr.aria-describedby]="f['flight_number'].touched && f['flight_number'].invalid ? 'flight-number-error' : null"
-            />
-            <small *ngIf="f['flight_number'].touched && f['flight_number'].invalid" id="flight-number-error" class="flight-dialog__error">Flight number is required.</small>
-          </label>
+          <mat-form-field appFormField class="flight-dialog__field">
+            <mat-label>Flight number</mat-label>
+            <input matInput required
+                id="flight-number"
+                type="text"
+                formControlName="flight_number"
+                autocomplete="off"
+                placeholder="e.g. PW421"
+              />
+              <mat-error *ngIf="f['flight_number'].touched && f['flight_number'].invalid" id="flight-number-error" class="flight-dialog__error">Flight number is required.</mat-error>
+          </mat-form-field>
 
-          <label class="flight-dialog__field flight-dialog__field--full">
-            <span>Arrival airport <b aria-hidden="true">*</b></span>
-            <input
-              id="arrival-airport"
-              type="text"
-              formControlName="arrival_airport"
-              autocomplete="address-level2"
-              placeholder="e.g. Abeid Amani Karume International Airport"
-              [attr.aria-invalid]="f['arrival_airport'].touched && f['arrival_airport'].invalid"
-              [attr.aria-describedby]="f['arrival_airport'].touched && f['arrival_airport'].invalid ? 'arrival-airport-error' : null"
-            />
-            <small *ngIf="f['arrival_airport'].touched && f['arrival_airport'].invalid" id="arrival-airport-error" class="flight-dialog__error">Arrival airport is required.</small>
-          </label>
+          <mat-form-field appFormField class="flight-dialog__field flight-dialog__field--full">
+            <mat-label>Arrival airport</mat-label>
+            <input matInput required
+                id="arrival-airport"
+                type="text"
+                formControlName="arrival_airport"
+                autocomplete="address-level2"
+                placeholder="e.g. Abeid Amani Karume International Airport"
+              />
+              <mat-error *ngIf="f['arrival_airport'].touched && f['arrival_airport'].invalid" id="arrival-airport-error" class="flight-dialog__error">Arrival airport is required.</mat-error>
+          </mat-form-field>
 
-          <label class="flight-dialog__field">
-            <span>Arrival date <b aria-hidden="true">*</b></span>
-            <input
-              id="arrival-date"
-              type="date"
-              formControlName="arrival_date"
-              [attr.aria-invalid]="f['arrival_date'].touched && f['arrival_date'].invalid"
-              [attr.aria-describedby]="f['arrival_date'].touched && f['arrival_date'].invalid ? 'arrival-date-error' : null"
-            />
-            <small *ngIf="f['arrival_date'].touched && f['arrival_date'].invalid" id="arrival-date-error" class="flight-dialog__error">Arrival date is required.</small>
-          </label>
+          <mat-form-field appFormField class="flight-dialog__field">
+            <mat-label>Arrival date</mat-label>
+            <input matInput required
+                id="arrival-date"
+                type="date"
+                formControlName="arrival_date"
+              />
+              <mat-error *ngIf="f['arrival_date'].touched && f['arrival_date'].invalid" id="arrival-date-error" class="flight-dialog__error">Arrival date is required.</mat-error>
+          </mat-form-field>
 
-          <label class="flight-dialog__field">
-            <span>Arrival time <b aria-hidden="true">*</b></span>
-            <input
-              id="arrival-time"
-              type="time"
-              formControlName="arrival_time"
-              [attr.aria-invalid]="f['arrival_time'].touched && f['arrival_time'].invalid"
-              [attr.aria-describedby]="f['arrival_time'].touched && f['arrival_time'].invalid ? 'arrival-time-error' : null"
-            />
-            <small *ngIf="f['arrival_time'].touched && f['arrival_time'].invalid" id="arrival-time-error" class="flight-dialog__error">Arrival time is required.</small>
-          </label>
+          <mat-form-field appFormField class="flight-dialog__field">
+            <mat-label>Arrival time</mat-label>
+            <input matInput required
+                id="arrival-time"
+                type="time"
+                formControlName="arrival_time"
+              />
+              <mat-error *ngIf="f['arrival_time'].touched && f['arrival_time'].invalid" id="arrival-time-error" class="flight-dialog__error">Arrival time is required.</mat-error>
+          </mat-form-field>
         </div>
       </section>
 

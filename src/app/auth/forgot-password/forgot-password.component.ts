@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { Component, inject, OnDestroy } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -15,6 +16,7 @@ import { NgIf } from '@angular/common';
   selector: 'app-forgot-password',
   standalone: true,
   imports: [
+    FormFieldDirective,
     MatButton,
     MatFormField,
     MatInput,

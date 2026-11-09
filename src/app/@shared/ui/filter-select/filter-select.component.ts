@@ -1,20 +1,21 @@
+import { FieldFeedbackComponent } from '../form-field/field-feedback.component';
+import { FieldControlBridge } from '../form-field/field-control-bridge';
+import { FormFieldDirective } from '../form-field/form-field.directive';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   EventEmitter,
   forwardRef,
   Input,
   Output,
-  ViewChild,
 } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { SearchableSelectDirective } from './searchable-select.directive';
 
 export type FilterSelectValue = unknown;
 
@@ -27,13 +28,14 @@ export interface FilterSelectOption {
   selector: 'app-filter-select',
   standalone: true,
   imports: [
+    FieldFeedbackComponent,
+    FormFieldDirective,
     CommonModule,
-    FormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatSelectModule,
+    SearchableSelectDirective,
   ],
   templateUrl: './filter-select.component.html',
   styleUrl: './filter-select.component.scss',
@@ -46,7 +48,7 @@ export interface FilterSelectOption {
     },
   ],
 })
-export class FilterSelectComponent implements ControlValueAccessor {
+export class FilterSelectComponent extends FieldControlBridge implements ControlValueAccessor {
   @Input() label = 'Select option';
   @Input() placeholder = 'All options';
   @Input() icon = 'filter_alt';
@@ -56,24 +58,23 @@ export class FilterSelectComponent implements ControlValueAccessor {
   @Input() emptyValue: FilterSelectValue = null;
   @Input() multiple = false;
   @Input() searchable = true;
+  @Input() remoteSearch = false;
   @Input() allowDeselect = true;
 
   @Output() selectionChange = new EventEmitter<FilterSelectValue>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() openedChange = new EventEmitter<boolean>();
 
-  @ViewChild('searchInput') private searchInput?: ElementRef<HTMLInputElement>;
-
   value: FilterSelectValue = null;
   disabled = false;
   searchTerm = '';
-  readonly searchOptionValue = Symbol('filter-select-search');
 
   private onChange: (value: FilterSelectValue) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
   writeValue(value: FilterSelectValue): void {
     this.value = value;
+    this.fieldChangeDetector.markForCheck();
   }
 
   registerOnChange(onChange: (value: FilterSelectValue) => void): void {
@@ -86,13 +87,10 @@ export class FilterSelectComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.fieldChangeDetector.markForCheck();
   }
 
   updateValue(value: FilterSelectValue): void {
-    if (value === this.searchOptionValue) {
-      return;
-    }
-
     this.value = value;
     this.onChange(value);
     this.onTouched();
@@ -103,22 +101,14 @@ export class FilterSelectComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-  updateSearch(event: Event): void {
-    this.searchTerm = (event.target as HTMLInputElement).value;
+  updateSearch(term: string): void {
+    this.searchTerm = term;
     this.searchChange.emit(this.searchTerm);
   }
 
   get filteredOptions(): readonly FilterSelectOption[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    const options = this.normalizedOptions;
-
-    if (!term) {
-      return options;
-    }
-
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(term),
-    );
+    // Retain option instances while filtering so selected values are never lost.
+    return this.normalizedOptions;
   }
 
   private get normalizedOptions(): FilterSelectOption[] {
@@ -153,13 +143,7 @@ export class FilterSelectComponent implements ControlValueAccessor {
   handleOpenedChange(opened: boolean): void {
     this.openedChange.emit(opened);
 
-    if (opened) {
-      this.searchTerm = '';
-      setTimeout(() => this.searchInput?.nativeElement.focus());
-      return;
-    }
-
     this.searchTerm = '';
-    this.markAsTouched();
+    if (!opened) this.markAsTouched();
   }
 }

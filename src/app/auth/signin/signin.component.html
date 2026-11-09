@@ -34,21 +34,12 @@
             subscriptSizing="dynamic"
             [required]="true"
             [allowClear]="false"
-          />
-          <div
-            *ngIf="
-              loginForm.controls.email.touched &&
-              loginForm.controls.email.invalid
-            "
-            class="signin-field__error"
           >
-            <span *ngIf="loginForm.controls.email.errors?.required"
-              >This field is mandatory</span
-            >
-            <span *ngIf="loginForm.controls.email.errors?.pattern"
-              >Invalid email format</span
-            >
-          </div>
+            <mat-error *ngIf="loginForm.controls.email.touched && loginForm.controls.email.invalid">
+              <span *ngIf="loginForm.controls.email.errors?.required">This field is mandatory</span>
+              <span *ngIf="loginForm.controls.email.errors?.pattern">Invalid email format</span>
+            </mat-error>
+          </app-text-input>
         </div>
 
         <div class="signin-field">
@@ -61,18 +52,11 @@
             subscriptSizing="dynamic"
             [required]="true"
             [allowClear]="false"
-          />
-          <div
-            *ngIf="
-              loginForm.controls.password.touched &&
-              loginForm.controls.password.invalid
-            "
-            class="signin-field__error"
           >
-            <span *ngIf="loginForm.controls.password.errors?.required"
-              >This field is mandatory</span
-            >
-          </div>
+            <mat-error *ngIf="loginForm.controls.password.touched && loginForm.controls.password.invalid">
+              <span *ngIf="loginForm.controls.password.errors?.required">This field is mandatory</span>
+            </mat-error>
+          </app-text-input>
         </div>
 
         <p class="signin-form__hint">

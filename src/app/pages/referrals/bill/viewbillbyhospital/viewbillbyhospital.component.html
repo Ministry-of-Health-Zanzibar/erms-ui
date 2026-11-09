@@ -110,17 +110,16 @@
 <!-- Bill Files Header -->
 <app-table-toolbar>
   <div uiToolbarPrimary class="relative">
-    <mat-icon class="absolute left-3 top-2.5 text-neutral-400">
-      search
-    </mat-icon>
-
-    <input
-      type="text"
-      placeholder="Search bill files..."
-      class="pl-10 border rounded-lg h-10 w-80 text-sm bg-transparent outline-none"
-      matInput
-      (keyup)="applyFilter($event)"
-    />
+    <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-80">
+      <mat-label>Search bill files</mat-label>
+      <input
+        type="text"
+        placeholder="Search bill files..."
+        matInput
+        (keyup)="applyFilter($event)"
+      />
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+    </mat-form-field>
   </div>
 </app-table-toolbar>
 

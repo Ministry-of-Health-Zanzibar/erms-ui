@@ -1,4 +1,12 @@
-<mat-form-field class="ui-date-picker" appearance="outline" subscriptSizing="dynamic">
+<mat-form-field
+  appFormField
+  [fieldErrorId]="feedback.errorId"
+  [fieldHintId]="fieldHints?.length ? feedback.hintId : ''"
+  [fieldControl]="fieldControl"
+  class="ui-date-picker"
+  appearance="outline"
+  subscriptSizing="dynamic"
+>
   @if (icon) {
     <mat-icon matPrefix aria-hidden="true">{{ icon }}</mat-icon>
   }
@@ -17,6 +25,7 @@
     [matDatepickerFilter]="dateFilter"
     [placeholder]="placeholder"
     [disabled]="disabled"
+    [required]="isFieldRequired"
     (ngModelChange)="updateValue($event)"
     (blur)="markAsTouched()"
   />
@@ -36,6 +45,10 @@
 
   <mat-datepicker-toggle matSuffix [for]="picker" />
   <mat-datepicker #picker />
-
-  <ng-content select="mat-error, mat-hint" />
 </mat-form-field>
+
+<app-field-feedback #feedback [control]="fieldControl" [label]="label"
+  [hasCustomErrors]="!!fieldErrors?.length" [hasHints]="!!fieldHints?.length">
+  <span uiFieldErrors><ng-content select="mat-error" /></span>
+  <span uiFieldHints><ng-content select="mat-hint" /></span>
+</app-field-feedback>

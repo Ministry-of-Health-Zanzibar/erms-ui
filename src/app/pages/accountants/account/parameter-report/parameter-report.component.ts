@@ -1,3 +1,5 @@
+import { MatInputModule } from '@angular/material/input';
+import { FormFieldDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -42,6 +44,8 @@ import { EmptyStateComponent, FilterSelectComponent, FilterSelectOption, Loading
   selector: 'app-parameter-report',
   standalone: true,
   imports: [
+    MatInputModule,
+    FormFieldDirective,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

@@ -14,22 +14,22 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
+      <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
         <mat-label>Telemedicine request type</mat-label>
-        <mat-select formControlName="telemedicine_type">
+        <mat-select appSearchableSelect formControlName="telemedicine_type">
           <mat-option value="follow_up">Existing patient telemedicine follow-up</mat-option>
           <mat-option value="new_consultation">New patient telemedicine consultation</mat-option>
         </mat-select>
         <mat-error *ngIf="form.controls.telemedicine_type.hasError('required')">Select a request type.</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
+      <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
         <mat-label>Reason for telemedicine</mat-label>
         <input matInput formControlName="telemedicine_reason" maxlength="4000" />
         <mat-error *ngIf="form.controls.telemedicine_reason.hasError('required')">A reason is required.</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
+      <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="telemedicine-routing-dialog__field">
         <mat-label>Clinical coordination notes</mat-label>
         <textarea matInput rows="4" maxlength="10000" formControlName="telemedicine_clinical_notes"></textarea>
         <mat-error *ngIf="form.controls.telemedicine_clinical_notes.hasError('required')">Clinical notes are required.</mat-error>

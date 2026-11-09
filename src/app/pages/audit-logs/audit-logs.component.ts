@@ -1,3 +1,7 @@
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormFieldDirective } from '@shared/ui';
+import { MatSelectModule } from '@angular/material/select';
+import { SearchableSelectDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +27,10 @@ import { PermissionService } from '../../services/authentication/permission.serv
   selector: 'app-audit-logs',
   standalone: true,
   imports: [
+    MatFormFieldModule,
+    FormFieldDirective,
+    MatSelectModule,
+    SearchableSelectDirective,
     CommonModule,
     FormsModule,
     MatButtonModule,

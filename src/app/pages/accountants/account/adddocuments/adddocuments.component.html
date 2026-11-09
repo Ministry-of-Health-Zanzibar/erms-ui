@@ -11,7 +11,7 @@
 
         <!-- Row 1: First Name, Middle Name -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Vendor Name</mat-label>
             <input matInput placeholder="Ex. Ali Juma Ali" formControlName="payee_name" type="text">
             <mat-error *ngIf="userForm.controls['payee_name'].touched && userForm.controls['payee_name'].invalid">
@@ -20,7 +20,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Amount</mat-label>
             <input matInput placeholder="Ex. 2000,000,.00" formControlName="amount" type="number">
             <mat-error *ngIf="userForm.controls['amount'].touched && userForm.controls['amount'].invalid">
@@ -32,7 +32,7 @@
 
         <!-- Row 2: Last Name, Address -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Tin Number or ZanID</mat-label>
             <input matInput placeholder="Ex. 6200000938883" formControlName="tin_number" type="text">
             <mat-error *ngIf="userForm.controls['tin_number'].touched && userForm.controls['tin_number'].invalid">
@@ -41,9 +41,9 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Document Name</mat-label>
-            <mat-select formControlName="document_type_id">
+            <mat-select appSearchableSelect formControlName="document_type_id">
               <mat-option *ngFor="let s of documents" [value]="s.document_type_id">
                 {{ s.document_type_name }}
               </mat-option>
@@ -55,9 +55,9 @@
         <div class="form-row">
           <!-- Source Name Selector -->
            <!-- Source Name Selector -->
-       <mat-form-field class="w-full mt-6">
+       <mat-form-field appFormField class="w-full mt-6">
          <mat-label>Source Name</mat-label>
-        <mat-select formControlName="source_name" (selectionChange)="onSourceChange($event.value)">
+        <mat-select appSearchableSelect formControlName="source_name" (selectionChange)="onSourceChange($event.value)">
          <mat-option *ngFor="let s of sources" [value]="s.source_name">
              {{ s.source_name }}
         </mat-option>
@@ -65,9 +65,9 @@
      </mat-form-field>
 
 <!-- Source Type Selector (auto-updated) -->
-    <mat-form-field class="w-full mt-6" *ngIf="sourceTypes.length > 0">
+    <mat-form-field appFormField class="w-full mt-6" *ngIf="sourceTypes.length > 0">
       <mat-label>Source Type</mat-label>
-      <mat-select formControlName="source_type_id">
+      <mat-select appSearchableSelect formControlName="source_type_id">
      <mat-option *ngFor="let type of sourceTypes" [value]="type.source_type_id">
       {{ type.source_type_name }}
       </mat-option>
@@ -88,9 +88,9 @@
 
         </div>
         <div class="form-row">
-          <mat-form-field class="w-full mt-6">
+          <mat-form-field appFormField class="w-full mt-6">
             <mat-label>Category Name</mat-label>
-            <mat-select formControlName="category_id">
+            <mat-select appSearchableSelect formControlName="category_id">
               <mat-option *ngFor="let c of category" [value]="c.category_id">
                 {{ c.category_name }}
               </mat-option>
@@ -104,7 +104,7 @@
 
         <!-- Row 6: Date of Birth -->
         <div class="form-row">
-           <mat-form-field class="w-full mt-6">
+           <mat-form-field appFormField class="w-full mt-6">
             <mat-label>Date of Birth</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="year" placeholder="Choose a date">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
@@ -122,7 +122,7 @@
             </mat-error>
           </mat-form-field> -->
 
-          <mat-form-field class="w-full mt-6">
+          <mat-form-field appFormField class="w-full mt-6">
             <mat-label>Upload File</mat-label>
             <input matInput type="text" formControlName="document_file" (click)="fileInput.click()" placeholder="No file chosen" readonly>
             <input type="file" accept=".pdf,.doc,.docx,.jpg,.png" (change)="onAttachementSelected($event)" hidden #fileInput />

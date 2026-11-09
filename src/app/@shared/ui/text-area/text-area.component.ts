@@ -1,3 +1,6 @@
+import { FieldFeedbackComponent } from '../form-field/field-feedback.component';
+import { FieldControlBridge } from '../form-field/field-control-bridge';
+import { FormFieldDirective } from '../form-field/form-field.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,7 +20,13 @@ export type TextAreaResize = 'none' | 'vertical' | 'horizontal' | 'both';
 @Component({
   selector: 'app-text-area',
   standalone: true,
-  imports: [MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [
+    FieldFeedbackComponent,
+    FormFieldDirective,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+  ],
   templateUrl: './text-area.component.html',
   styleUrl: './text-area.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,7 +38,7 @@ export type TextAreaResize = 'none' | 'vertical' | 'horizontal' | 'both';
     },
   ],
 })
-export class TextAreaComponent implements ControlValueAccessor {
+export class TextAreaComponent extends FieldControlBridge implements ControlValueAccessor {
   @Input() label = '';
   @Input() placeholder = '';
   @Input() icon = '';
@@ -52,6 +61,7 @@ export class TextAreaComponent implements ControlValueAccessor {
 
   writeValue(value: TextAreaValue | undefined): void {
     this.value = value ?? null;
+    this.fieldChangeDetector.markForCheck();
   }
 
   registerOnChange(onChange: (value: TextAreaValue) => void): void {
@@ -64,6 +74,7 @@ export class TextAreaComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.fieldChangeDetector.markForCheck();
   }
 
   updateValue(value: string): void {

@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="categoryForm">
-        <mat-form-field class="w-full mt-6">
+        <mat-form-field appFormField class="w-full mt-6">
           <mat-label>category Name: </mat-label>
           <input matInput placeholder="Ex. category" formControlName="category_name" type="text">
           <mat-error class="error-message" *ngIf="categoryForm.controls['category_name'].touched && categoryForm.controls['category_name'].invalid">

@@ -1,0 +1,36 @@
+.ui-form-field {
+  min-width: 0;
+  font-family: var(--rms-ui-font-family);
+}
+
+.ui-form-field__error,
+.ui-form-field .mat-mdc-form-field-error {
+  color: var(--rms-button-danger-outline);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.ui-form-field__error {
+  padding: 0.25rem 1rem 0;
+}
+
+.ui-form-field__error .mat-mdc-form-field-error {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.ui-form-field__hint {
+  padding: 0.25rem 1rem 0;
+  color: var(--rms-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.ui-form-field__error[hidden],
+.ui-form-field__hint[hidden],
+.ui-form-field--fallback-error .mat-mdc-form-field-hint-wrapper,
+.ui-form-field--external-error .mat-mdc-form-field-hint-wrapper {
+  display: none;
+}

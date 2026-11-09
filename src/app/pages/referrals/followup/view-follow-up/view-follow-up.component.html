@@ -99,16 +99,15 @@
         <span><strong>Submitted:</strong> {{ pending.dg_approval_requested_at | date:'dd MMM yyyy, HH:mm' }}</span>
       </div>
       <p class="mt-2 text-sm"><strong>Summary:</strong> {{ pending.content_summary || 'No summary recorded.' }}</p>
-      <label class="mt-3 block text-xs font-semibold uppercase tracking-wide" [attr.for]="'dg-comments-' + pending.letter_id">
-        DG review note (optional)
-      </label>
-      <textarea
-        class="mt-1 min-h-16 w-full rounded-md border border-amber-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600 dark:border-amber-800"
-        [id]="'dg-comments-' + pending.letter_id"
-        [value]="dgReviewComments[pending.letter_id] || ''"
-        (input)="setDgReviewComment(pending.letter_id, $event)"
-        placeholder="Add guidance for the doctor if needed"
-      ></textarea>
+      <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full mt-3">
+        <mat-label>DG review note (optional)</mat-label>
+        <textarea matInput
+          [id]="'dg-comments-' + pending.letter_id"
+          [value]="dgReviewComments[pending.letter_id] || ''"
+          (input)="setDgReviewComment(pending.letter_id, $event)"
+          placeholder="Add guidance for the doctor if needed"
+        ></textarea>
+      </mat-form-field>
       <div class="mt-3 flex justify-end">
         <button
           mat-flat-button

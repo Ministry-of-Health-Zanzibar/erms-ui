@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { PartientService } from '../../../services/partient/partient.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -21,6 +23,8 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-insurance',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

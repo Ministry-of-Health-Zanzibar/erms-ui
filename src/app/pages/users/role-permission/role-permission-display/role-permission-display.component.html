@@ -26,7 +26,10 @@
   </div>
 
   <mat-dialog-actions align="end" class="ui-form-dialog__actions">
-  <input type="text" placeholder="Search permisssion..." class="border-b h-10 w-full text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (input)="applyFilter($event)">
+  <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full">
+    <mat-label>Search permisssion</mat-label>
+    <input type="text" placeholder="Search permisssion..." matInput (input)="applyFilter($event)">
+  </mat-form-field>
 </mat-dialog-actions>
 </div>
 

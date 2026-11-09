@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
@@ -28,6 +30,8 @@ import { HospitalService } from '../../../../services/system-configuration/hospi
   selector: 'app-bill-file-form',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

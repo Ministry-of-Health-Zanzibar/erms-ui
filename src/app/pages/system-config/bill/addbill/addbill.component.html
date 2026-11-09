@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="billForm">
-          <mat-form-field class="w-full mt-6">
+          <mat-form-field appFormField class="w-full mt-6">
             <mat-label>referral_id : </mat-label>
             <input matInput placeholder="Ex. LUMUMBA HOSPITAL" formControlName="referral_id" type="text">
             <mat-error class="error-message" *ngIf="billForm.controls['referral_id'].touched && billForm.controls['referral_id'].invalid">
@@ -16,7 +16,7 @@
             </mat-error>
           </mat-form-field>
   
-          <mat-form-field class="w-full mt-4">
+          <mat-form-field appFormField class="w-full mt-4">
             <mat-label>amount :</mat-label>
             <input matInput placeholder="Ex. HOSP 0099" formControlName="amount" type="text">
             <mat-error class="error-message" *ngIf="billForm.controls['amount'].touched && billForm.controls['amount'].invalid">
@@ -25,7 +25,7 @@
             </mat-error>
           </mat-form-field>
   
-          <mat-form-field class="w-full mt-4">
+          <mat-form-field appFormField class="w-full mt-4">
             <mat-label> notes:</mat-label>
             <input matInput placeholder="Ex. KAWE " formControlName="notes" type="text">
             <mat-error class="error-message" *ngIf="billForm.controls['notes'].touched && billForm.controls['notes'].invalid">
@@ -34,7 +34,7 @@
             </mat-error>
           </mat-form-field>
   
-          <mat-form-field class="w-full mt-4">
+          <mat-form-field appFormField class="w-full mt-4">
             <mat-label>bill_file :</mat-label>
             <input matInput placeholder="Ex. hosp@info.go.tz" formControlName="hospital_email" type="text">
             <mat-error class="error-message" *ngIf="billForm.controls['hospital_email'].touched && billForm.controls['hospital_email'].invalid">
@@ -43,7 +43,7 @@
             </mat-error>
           </mat-form-field>
   
-          <mat-form-field class="w-full mt-4">
+          <mat-form-field appFormField class="w-full mt-4">
             <mat-label>Hospital Phone:</mat-label>
             <input matInput placeholder="Ex. +255 777-783455" formControlName="bill_file" type="text">
             <mat-error class="error-message" *ngIf="billForm.controls['bill_file'].touched && billForm.controls['bill_file'].invalid">

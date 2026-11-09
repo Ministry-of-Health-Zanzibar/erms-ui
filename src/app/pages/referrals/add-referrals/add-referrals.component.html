@@ -10,18 +10,12 @@
       <form [formGroup]="referralsForm" class="horizontal-form">
         <!-- Patient Name -->
         <div class="form-row">
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appFormField appearance="outline" class="w-full">
             <mat-label>Patient Name</mat-label>
-            <mat-select formControlName="patient_id">
-              <mat-option disabled class="patient-search-option">
-                <input
-                  matInput
-                  placeholder="Search patients..."
-                  [formControl]="patientSearchCtrl"
-                  (click)="$event.stopPropagation()"
-                  (keydown)="$event.stopPropagation()"
-                />
-              </mat-option>
+            <mat-select appSearchableSelect formControlName="patient_id"
+              [selectSearchRemote]="true" selectSearchPlaceholder="Search patients…"
+              (selectSearchChange)="patientSearchCtrl.setValue($event)">
+              <mat-option *ngIf="!patients.length" disabled>Search for an available patient</mat-option>
               <mat-option *ngFor="let patient of patients" [value]="patient.patient_id">
                 {{ patient.name }}
               </mat-option>
@@ -31,9 +25,9 @@
 
         <!-- Reason -->
         <div class="form-row">
-          <mat-form-field appearance="outline" class="w-full">
+          <mat-form-field appFormField appearance="outline" class="w-full">
             <mat-label>Reason</mat-label>
-            <mat-select formControlName="reason_id">
+            <mat-select appSearchableSelect formControlName="reason_id">
               <mat-option *ngFor="let r of reason" [value]="r.reason_id">
                 {{ r.referral_reason_name }}
               </mat-option>

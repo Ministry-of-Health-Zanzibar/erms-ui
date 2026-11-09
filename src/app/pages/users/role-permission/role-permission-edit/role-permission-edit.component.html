@@ -9,7 +9,7 @@
   <div class="ui-form-dialog__body">
 
     <form [formGroup]="editRoleForm">
-      <mat-form-field class="w-full mt-6">
+      <mat-form-field appFormField class="w-full mt-6">
         <mat-label>Edit Role Name</mat-label>
         <input matInput placeholder="Ex. Administration" formControlName="name" type="text">
         <mat-error class="error-message" *ngIf="editRoleForm.controls.name.touched && editRoleForm.controls.name.invalid">
@@ -25,7 +25,10 @@
           </div>
         </div>
         <div class="text-sm">
-          <input type="text" placeholder="Search..." class="border-b h-10 w-96 text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (input)="applyFilter($event)">
+          <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-96">
+            <mat-label>Search</mat-label>
+            <input type="text" placeholder="Search..." matInput (input)="applyFilter($event)">
+          </mat-form-field>
         </div>
       </div>
     </form>

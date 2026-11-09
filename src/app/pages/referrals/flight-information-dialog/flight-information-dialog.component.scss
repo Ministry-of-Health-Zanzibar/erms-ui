@@ -219,7 +219,7 @@
   gap: 0.9rem;
 }
 
-.flight-dialog__field {
+.flight-dialog__field:not(.ui-form-field) {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -233,11 +233,11 @@
   grid-column: 1 / -1;
 }
 
-.flight-dialog__field b {
+.flight-dialog__field:not(.ui-form-field) b {
   color: #dc2626;
 }
 
-.flight-dialog__field input {
+.flight-dialog__field:not(.ui-form-field) input {
   width: 100%;
   min-height: 2.7rem;
   padding: 0.65rem 0.75rem;
@@ -252,18 +252,18 @@
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
-.flight-dialog__field input::placeholder {
+.flight-dialog__field:not(.ui-form-field) input::placeholder {
   color: var(--rms-text-muted);
   opacity: 0.9;
 }
 
-.flight-dialog__field input:focus {
+.flight-dialog__field:not(.ui-form-field) input:focus {
   border-color: #0d9488;
   background: var(--rms-surface);
   box-shadow: 0 0 0 3px rgb(13 148 136 / 0.16);
 }
 
-.flight-dialog__field input[aria-invalid='true'] {
+.flight-dialog__field:not(.ui-form-field) input[aria-invalid='true'] {
   border-color: #dc2626;
 }
 
@@ -330,13 +330,13 @@
 }
 
 .flight-dialog__button--primary {
-  color: var(--rms-button-accent-foreground);
-  background: var(--rms-button-accent-background);
+  color: var(--rms-button-primary-foreground);
+  background: var(--rms-button-primary-gradient);
   box-shadow: 0 0.35rem 0.75rem rgb(15 118 110 / 0.2);
 }
 
 .flight-dialog__button--primary:hover:not(:disabled) {
-  background: var(--rms-button-accent-hover);
+  background: var(--rms-button-primary-gradient);
 }
 
 .flight-dialog__button .mat-icon {

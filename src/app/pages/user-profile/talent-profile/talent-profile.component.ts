@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -19,6 +21,8 @@ import { PageHeaderComponent, SectionCardComponent, TextInputComponent } from '@
   selector: 'app-user-profile',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     CommonModule,
     ReactiveFormsModule,
     MatButtonModule,

@@ -8,7 +8,7 @@
 
   <div class="ui-form-dialog__body">
       <form [formGroup]="reasonForm">
-          <mat-form-field class="w-full mt-6">
+          <mat-form-field appFormField class="w-full mt-6">
             <mat-label>Referral Reason : </mat-label>
             <input matInput placeholder="Ex. MARADHI SUGU" formControlName="referral_reason_name" type="text">
             <mat-error class="error-message" *ngIf="reasonForm.controls['referral_reason_name'].touched && reasonForm.controls['referral_reason_name'].invalid">
@@ -16,7 +16,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field class="w-full mt-4">
+          <mat-form-field appFormField class="w-full mt-4">
             <mat-label>Reason Descriptions :</mat-label>
             <input matInput placeholder="Ex.YAMESHINDIKANA" formControlName="reason_descriptions" type="text">
             <mat-error class="error-message" *ngIf="reasonForm.controls['reason_descriptions'].touched && reasonForm.controls['reason_descriptions'].invalid">

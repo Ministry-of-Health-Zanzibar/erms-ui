@@ -1,3 +1,4 @@
+import { FormFieldDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
@@ -12,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-workflow-undo-dialog',
   standalone: true,
   imports: [
+    FormFieldDirective,
     FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,

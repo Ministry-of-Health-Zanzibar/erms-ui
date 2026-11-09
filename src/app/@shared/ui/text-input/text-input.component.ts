@@ -1,3 +1,6 @@
+import { FieldFeedbackComponent } from '../form-field/field-feedback.component';
+import { FieldControlBridge } from '../form-field/field-control-bridge';
+import { FormFieldDirective } from '../form-field/form-field.directive';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,7 +20,14 @@ export type TextInputValue = string | number | null;
 @Component({
   selector: 'app-text-input',
   standalone: true,
-  imports: [MatFormFieldModule, MatIconModule, MatInputModule, MatIconButton],
+  imports: [
+    FieldFeedbackComponent,
+    FormFieldDirective,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatIconButton,
+  ],
   templateUrl: './text-input.component.html',
   styleUrl: './text-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,13 +39,13 @@ export type TextInputValue = string | number | null;
     },
   ],
 })
-export class TextInputComponent implements ControlValueAccessor {
+export class TextInputComponent extends FieldControlBridge implements ControlValueAccessor {
   @Input() label = '';
   @Input() placeholder = '';
   @Input() icon = '';
   @Input() type = 'text';
   @Input() passwordToggle = false;
-  @Input() subscriptSizing: 'fixed' | 'dynamic' = 'fixed';
+  @Input() subscriptSizing: 'fixed' | 'dynamic' = 'dynamic';
   @Input() autocomplete = 'off';
   @Input() inputmode = '';
   @Input() required = false;
@@ -56,6 +66,7 @@ export class TextInputComponent implements ControlValueAccessor {
 
   writeValue(value: TextInputValue | undefined): void {
     this.value = value ?? null;
+    this.fieldChangeDetector.markForCheck();
   }
 
   registerOnChange(onChange: (value: TextInputValue) => void): void {
@@ -68,6 +79,7 @@ export class TextInputComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.fieldChangeDetector.markForCheck();
   }
 
   togglePasswordVisibility(event: MouseEvent): void {

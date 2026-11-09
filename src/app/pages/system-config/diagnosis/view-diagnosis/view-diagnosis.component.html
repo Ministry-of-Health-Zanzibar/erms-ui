@@ -18,14 +18,16 @@
           <mat-icon>refresh</mat-icon>
         </button>
 
-        <input
-          type="text"
-          placeholder="🔍 Search diagnosis..."
-          class="border-b h-10 w-80 text-sm bg-transparent dark:border-b-gray-500 outline-none focus:border-blue-500 px-2 transition"
-          matInput
-          (input)="applyFilter($event)"
-          #input
-        />
+        <mat-form-field appFormField appearance="outline" subscriptSizing="dynamic" class="ui-form-field--filter w-full md:w-80">
+          <mat-label>Search diagnosis</mat-label>
+          <input
+            type="text"
+            placeholder="🔍 Search diagnosis..."
+            matInput
+            (input)="applyFilter($event)"
+            #input
+          />
+        </mat-form-field>
       </div>
 
       <!-- Right: Buttons -->

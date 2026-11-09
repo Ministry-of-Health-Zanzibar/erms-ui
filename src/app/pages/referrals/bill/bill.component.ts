@@ -1,3 +1,5 @@
+import { FormFieldDirective } from '@shared/ui';
+import { SearchableSelectDirective } from '@shared/ui';
 import { FormHeaderComponent } from '@shared/ui';
 import { BillService } from '../../../services/system-configuration/bill.service';
 import { CommonModule } from '@angular/common';
@@ -20,6 +22,8 @@ import { Router } from '@angular/router';
   selector: 'app-bill',
   standalone: true,
   imports: [
+    FormFieldDirective,
+    SearchableSelectDirective,
     FormHeaderComponent,
     CommonModule,
     MatButtonModule,

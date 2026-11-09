@@ -11,7 +11,7 @@
 
         <!-- Row 1: Full Name, Gender -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Full Name</mat-label>
             <input matInput placeholder="Ex. Ali Juma Ali" formControlName="name" type="text">
             <mat-error *ngIf="patientForm.get('name')?.invalid && patientForm.get('name')?.touched">
@@ -20,9 +20,9 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender">
+            <mat-select appSearchableSelect formControlName="gender">
               <mat-option value="Male">Male</mat-option>
               <mat-option value="Female">Female</mat-option>
             </mat-select>
@@ -34,7 +34,7 @@
 
         <!-- Row 2: Address, Phone Number -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Location</mat-label>
             <input type="text" matInput placeholder="public" formControlName="location_id" [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
@@ -52,7 +52,7 @@
             </mat-error>
           </mat-form-field> -->
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Phone Number</mat-label>
             <input matInput placeholder="Ex. 0777000000" formControlName="phone" type="text">
             <mat-error *ngIf="patientForm.get('phone')?.invalid && patientForm.get('phone')?.touched">
@@ -63,7 +63,7 @@
 
         <!-- Row 3: Job, Position -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Job</mat-label>
             <input matInput placeholder="Ex. Teacher" formControlName="job" type="text">
             <mat-error *ngIf="patientForm.get('job')?.invalid && patientForm.get('job')?.touched">
@@ -71,7 +71,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Position</mat-label>
             <input matInput placeholder="Ex. HeadMaster" formControlName="position" type="text">
             <mat-error *ngIf="patientForm.get('position')?.invalid && patientForm.get('position')?.touched">
@@ -82,7 +82,7 @@
 
         <!-- Row 4: Date of Birth, File Upload -->
         <div class="form-row">
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Date of Birth</mat-label>
             <input matInput type="date" formControlName="date_of_birth">
             <mat-error *ngIf="patientForm.get('date_of_birth')?.invalid && patientForm.get('date_of_birth')?.touched">
@@ -90,7 +90,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field class="form-field">
+          <mat-form-field appFormField class="form-field">
             <mat-label>Upload File</mat-label>
             <input
               matInput
