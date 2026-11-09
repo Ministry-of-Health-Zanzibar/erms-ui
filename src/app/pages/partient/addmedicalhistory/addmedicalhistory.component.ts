@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject,
   Component,
@@ -43,6 +44,7 @@ import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUnt
   selector: 'app-addmedicalhistory',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,

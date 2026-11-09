@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -14,6 +15,7 @@ import { RolePermissionService } from '../../../../services/users/role-permissio
   selector: 'app-role-permission-display',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

@@ -1,6 +1,6 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Report'])">
   <app-page-header title="Accounting Parameter Report" description="Search accounting documents by source, category, amount, or payee." icon="manage_search" />
-  <app-section-card title="Report criteria" description="Use one or more fields to narrow the accounting report." icon="filter_alt">
+<app-section-card [formHeader]="true" eyebrow="Report criteria" title="Report criteria" description="Use one or more fields to narrow the accounting report." icon="filter_alt">
     <div class="flex gap-4">
       <button mat-raised-button color="accent" (click)="exportExcel()">
         <mat-icon>table_chart</mat-icon>

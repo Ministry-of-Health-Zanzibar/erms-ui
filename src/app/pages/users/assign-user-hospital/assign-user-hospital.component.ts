@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,6 +18,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-assign-user-hospital',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,

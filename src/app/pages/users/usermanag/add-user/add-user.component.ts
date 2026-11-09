@@ -18,7 +18,7 @@ import { GlobalConstants } from '@shared/global-constants';
 import { CouncilService } from '../../../../services/system-configuration/council.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { getApiErrorMessage } from '@shared/utils/api-error';
-import { TextInputComponent } from '@shared/ui';
+import { FormHeaderComponent, SectionCardComponent, TextInputComponent } from '@shared/ui';
 
 @Component({
   selector: 'app-add-user',
@@ -39,6 +39,8 @@ import { TextInputComponent } from '@shared/ui';
     MatSelect,
     AsyncPipe,
     MatDatepickerModule,
+    FormHeaderComponent,
+    SectionCardComponent,
     TextInputComponent,
   ],
   templateUrl: './add-user.component.html',
@@ -61,6 +63,11 @@ export class AddUserComponent {
   myControl = new FormControl('');
   filteredOptions: Observable<any[]>;
   submitting = false;
+  roleHistory: any[] = [];
+  roleHistoryPage = 1;
+  roleHistoryLastPage = 1;
+  loadingRoleHistory = false;
+  roleHistoryError = '';
 
   constructor(
     private userService: UserService,
@@ -78,6 +85,9 @@ export class AddUserComponent {
     }
     this.configForm();
     this.getRoles();
+    if (this.userData?.id) {
+      this.loadRoleHistory();
+    }
   }
   //   this.getLocation();
 
@@ -107,6 +117,7 @@ export class AddUserComponent {
     });
     if(this.userData){
       this.userForm.patchValue(this.userData);
+      this.userForm.patchValue({ role_id: Number(this.userData.role_id) || null });
     }
   }
 
@@ -138,9 +149,28 @@ export class AddUserComponent {
 
   getRoles() {
     this.roleService.getAllRoles().pipe(takeUntil(this.onDestroy)).subscribe(response => {
-      this.roles = response.data;
+      this.roles = (response.data || []).map((role: any) => ({ ...role, id: Number(role.id) }));
       // console.log("role",this.roles)
     });
+  }
+
+  loadRoleHistory(page = 1): void {
+    this.loadingRoleHistory = true;
+    this.roleHistoryError = '';
+    this.userService.getRoleHistory(Number(this.userData.id), page)
+      .pipe(takeUntil(this.onDestroy), finalize(() => this.loadingRoleHistory = false))
+      .subscribe({
+        next: (response) => {
+          this.roleHistory = response.data || [];
+          this.roleHistoryPage = response.meta?.current_page || page;
+          this.roleHistoryLastPage = response.meta?.last_page || 1;
+        },
+        error: (error: unknown) => this.roleHistoryError = getApiErrorMessage(error, 'Unable to load role history.'),
+      });
+  }
+
+  roleNames(roles: any[]): string {
+    return roles?.map((role) => role.name).join(', ') || 'No assigned role';
   }
 
   // getUser(userData: any) {

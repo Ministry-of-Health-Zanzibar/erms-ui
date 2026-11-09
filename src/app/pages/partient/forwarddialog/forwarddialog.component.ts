@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -14,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-forwarddialog',
   standalone: true,
   imports: [
+    FormHeaderComponent,
      CommonModule,
      MatDialogModule,
   MatButtonModule,

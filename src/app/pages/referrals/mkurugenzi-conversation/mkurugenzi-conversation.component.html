@@ -1,29 +1,9 @@
 <div class="consultation-dialog">
-  <div mat-dialog-title class="consultation-header">
-    <div class="consultation-heading">
-      <div class="consultation-icon" aria-hidden="true">
-        <mat-icon>forum</mat-icon>
-      </div>
-      <div class="consultation-heading-copy">
-        <span class="consultation-kicker">Patient care team</span>
-        <h2>Internal Consultation Stream</h2>
-        <div class="consultation-status">
-          <span class="online-indicator" aria-hidden="true"></span>
-          <span>Secure clinical discussion</span>
-        </div>
-      </div>
-    </div>
-
-    <button
-      mat-icon-button
-      mat-dialog-close
-      type="button"
-      class="close-button"
-      aria-label="Close consultation"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+  <app-form-header eyebrow="Patient care team" title="Internal consultation"
+    description="Secure clinical discussion" icon="forum">
+    <button uiFormHeaderActions mat-icon-button mat-dialog-close type="button"
+      style="color: white" aria-label="Close consultation"><mat-icon>close</mat-icon></button>
+  </app-form-header>
 
   <section class="patient-context" aria-label="Patient context">
     <div class="patient-avatar" aria-hidden="true">

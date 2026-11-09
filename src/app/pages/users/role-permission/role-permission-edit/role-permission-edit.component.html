@@ -1,6 +1,12 @@
-<div class="w-full">
-  <div class="relative h-full rounded-lg  group  p-6">
-    <div class="font-semibold ">EDIT ROLE</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="User administration"
+    title="Update role"
+    description="Update the role name and its permissions."
+    icon="admin_panel_settings"
+  />
+
+  <div class="ui-form-dialog__body">
 
     <form [formGroup]="editRoleForm">
       <mat-form-field class="w-full mt-6">
@@ -23,10 +29,7 @@
         </div>
       </div>
     </form>
-  </div>
-</div>
 
-<mat-dialog-content class="mat-typography">
   <form [formGroup]="editRoleForm">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       <ng-container *ngFor="let item of filteredChecklist; let i = index" class="permission" formArrayName="permissionName">
@@ -36,11 +39,14 @@
       </ng-container>
     </div>
   </form>
-</mat-dialog-content>
 
-<mat-dialog-actions align="end">
+
+  </div>
+
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
   <button mat-button mat-dialog-close>Cancel</button>
   <button mat-flat-button cdkFocusInitial [disabled]="editRoleForm.invalid || submitting" (click)="editRolePermission()">{{ submitting ? 'Updating…' : 'Update Data' }}</button>
 </mat-dialog-actions>
+</div>
 
 

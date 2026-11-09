@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { inject, Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -35,6 +36,7 @@ export interface AddBillDialogData {
   selector: 'app-add-bills',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,

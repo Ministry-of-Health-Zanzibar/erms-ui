@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormArray,
@@ -29,6 +30,7 @@ import { UserService } from '../../../services/users/user.service';
   selector: 'app-addbodylist',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

@@ -1,8 +1,12 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div class="font-semibold" *ngIf="!id">CREATE NEW EMPLOYER</div>
-      <div class="font-semibold" *ngIf="id">UPDATE EMPLOYER</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="System configuration"
+    [title]="id ? 'Update employer' : 'Create employer'"
+    description="Enter the employer name and contact details."
+    icon="business"
+  />
+
+  <div class="ui-form-dialog__body">
       <form [formGroup]="employerForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Employer Name</mat-label>
@@ -38,10 +42,9 @@
           </mat-autocomplete>
         </mat-form-field>
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button *ngIf="!id" cdkFocusInitial [disabled]="employerForm.invalid || submitting" (click)="saveEmployer()">{{ submitting ? 'Saving...' : 'Save Employer' }}</button>
     <button mat-flat-button *ngIf="id" cdkFocusInitial [disabled]="employerForm.invalid || submitting" (click)="updateEmployer()">{{ submitting ? 'Saving...' : 'Update Employer' }}</button>

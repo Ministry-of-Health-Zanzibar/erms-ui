@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import {
@@ -34,6 +35,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   selector: 'app-addmedicalform',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,

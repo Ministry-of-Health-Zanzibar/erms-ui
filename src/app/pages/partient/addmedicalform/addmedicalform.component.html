@@ -1,26 +1,14 @@
 <div class="medical-board-form" [class.is-edit-mode]="mode === 'edit'">
-  <header class="form-header">
-    <div class="header-leading">
-      <div class="header-icon" aria-hidden="true">
-        <mat-icon>fact_check</mat-icon>
-      </div>
-      <div>
-        <p class="eyebrow">Medical Board assessment</p>
-        <h2>{{ mode === 'edit' ? 'Edit Medical Board Information' : 'Add Medical Board Information' }}</h2>
-      </div>
-    </div>
-
-    <button
-      mat-icon-button
-      type="button"
-      class="close-button"
-      aria-label="Close medical board form"
-      [disabled]="loading"
-      (click)="onCancel()"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-  </header>
+  <app-form-header
+    eyebrow="Medical Board assessment"
+    [title]="mode === 'edit' ? 'Edit Medical Board information' : 'Add Medical Board information'"
+    description="Review clinical findings and record the board decision."
+    icon="fact_check"
+    [closable]="true"
+    closeLabel="Close form"
+    (closed)="onCancel()"
+    [closeDisabled]="loading"
+  />
 
   <div class="patient-summary" aria-label="Patient summary">
     <div class="patient-avatar" aria-hidden="true">

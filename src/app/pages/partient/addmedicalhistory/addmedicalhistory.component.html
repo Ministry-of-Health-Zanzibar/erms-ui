@@ -1,28 +1,14 @@
 <div class="medical-history-dialog">
-  <header class="medical-history-dialog__header">
-    <div class="medical-history-dialog__identity">
-      <div class="medical-history-dialog__icon" aria-hidden="true">
-        <mat-icon>medical_information</mat-icon>
-      </div>
-      <div>
-        <p class="medical-history-dialog__eyebrow">Patient medical history</p>
-        <h2>Add medical history</h2>
-        <p class="medical-history-dialog__subtitle">
-          Complete the record in three short steps.
-        </p>
-      </div>
-    </div>
-
-    <button
-      mat-icon-button
-      type="button"
-      aria-label="Close medical history form"
-      [disabled]="loading"
-      (click)="onCancel()"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-  </header>
+  <app-form-header
+    eyebrow="Patient medical history"
+    title="Add medical history"
+    description="Complete the record in three short steps."
+    icon="medical_information"
+    [closable]="true"
+    closeLabel="Close form"
+    (closed)="onCancel()"
+    [closeDisabled]="loading"
+  />
 
   <form [formGroup]="medicalForm" (ngSubmit)="onSubmit()" class="medical-history-dialog__form" novalidate>
     <mat-horizontal-stepper #stepper class="medical-history-stepper" linear>

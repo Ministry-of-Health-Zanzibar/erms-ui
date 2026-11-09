@@ -1,6 +1,6 @@
 <div class="app-page-content journey-page" *ngIf="allowed; else forbidden">
   <app-page-header title="Case Journey and Outcomes" description="Follow each case through hospital referrals, transfers and recorded outcomes. Approval tracking stays separate." icon="timeline" />
-  <app-section-card title="Report filters" description="Dates use recorded activity. A case submitted earlier can appear when a follow-up occurs in this period." icon="filter_alt">
+<app-section-card [formHeader]="true" eyebrow="Report criteria" title="Report filters" description="Dates use recorded activity. A case submitted earlier can appear when a follow-up occurs in this period." icon="filter_alt">
     <form class="filters" (ngSubmit)="search()">
       <app-date-picker name="start" label="Activity from" [(ngModel)]="filters.start_date" outputFormat="iso" [max]="today" />
       <app-date-picker name="end" label="Activity to" [(ngModel)]="filters.end_date" outputFormat="iso" [min]="filters.start_date" [max]="today" />

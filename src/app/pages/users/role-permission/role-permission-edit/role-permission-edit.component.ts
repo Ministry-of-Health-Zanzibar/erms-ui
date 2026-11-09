@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { inject, Component, EventEmitter, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -17,6 +18,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-role-permission-edit',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

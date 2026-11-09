@@ -1,0 +1,28 @@
+<header class="ui-form-header">
+  <div class="ui-form-header__main">
+    <div class="ui-form-header__icon" aria-hidden="true">
+      <mat-icon>{{ icon }}</mat-icon>
+    </div>
+
+    <div class="ui-form-header__copy">
+      <p class="ui-form-header__eyebrow" *ngIf="eyebrow">{{ eyebrow }}</p>
+      <h2 mat-dialog-title [id]="titleId">{{ title }}</h2>
+      <p class="ui-form-header__description" *ngIf="description">{{ description }}</p>
+    </div>
+  </div>
+
+  <div class="ui-form-header__actions">
+    <ng-content select="[uiFormHeaderActions]" />
+    <button
+      *ngIf="closable"
+      mat-icon-button
+      type="button"
+      class="ui-form-header__close"
+      [attr.aria-label]="closeLabel"
+      [disabled]="closeDisabled"
+      (click)="closed.emit()"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</header>

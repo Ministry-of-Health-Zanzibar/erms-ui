@@ -1,23 +1,11 @@
 <section class="forward-dialog" aria-labelledby="forward-dialog-title">
-  <header class="forward-dialog__header">
-    <div class="forward-dialog__icon" aria-hidden="true">
-      <mat-icon>forward_to_inbox</mat-icon>
-    </div>
-
-    <div class="forward-dialog__heading">
-      <span class="forward-dialog__eyebrow">
-        {{ isEditMode ? 'Workflow note' : 'Case handover' }}
-      </span>
-      <h2 id="forward-dialog-title" mat-dialog-title>
-        {{ isEditMode ? 'Review forwarding note' : 'Forward case for review' }}
-      </h2>
-      <p>
-        {{ isEditMode
-          ? 'Review or update the note attached to this case.'
-          : 'Add a concise handover note for the next responsible reviewer.' }}
-      </p>
-    </div>
-  </header>
+  <app-form-header
+    eyebrow="{{ isEditMode ? 'Workflow note' : 'Case handover' }}"
+    [title]="isEditMode ? 'Review forwarding note' : 'Forward case for review'"
+    description="{{ isEditMode ? 'Review or update the note attached to this case.' : 'Add a concise handover note for the next responsible reviewer.' }}"
+    icon="forward_to_inbox"
+    titleId="forward-dialog-title"
+  />
 
   <div class="forward-dialog__body">
     <div class="forward-dialog__notice" role="note">

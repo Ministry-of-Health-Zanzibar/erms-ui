@@ -1,15 +1,12 @@
-<div class="form-container">
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <!-- Title -->
-      <div class="font-semibold" *ngIf="!patientData">
-        CREATE NEW MEDICAL BOARD DOCUMENT
-      </div>
-      <div class="font-semibold" *ngIf="patientData">
-        UPDATE BOARD LIST DOCUMENT
-      </div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Medical board session"
+    [title]="patientData ? 'Update board document' : 'Create board document'"
+    description="Record the board session details and supporting document."
+    icon="folder_shared"
+  />
 
-      <!-- Form -->
+  <div class="ui-form-dialog__body">
       <form
         [formGroup]="patientForm"
         class="horizontal-form"
@@ -221,8 +218,9 @@
           </mat-form-field>
         </div>
       </form>
+  </div>
 
-      <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
         <button mat-button (click)="onClose()" [disabled]="loading">
           Cancel
         </button>
@@ -236,6 +234,4 @@
           {{ loading ? 'Saving…' : (patientData ? 'Update' : 'Save') }}
         </button>
       </mat-dialog-actions>
-    </div>
-  </div>
 </div>

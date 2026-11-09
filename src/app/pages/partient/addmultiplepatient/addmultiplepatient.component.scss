@@ -19,75 +19,6 @@
   box-shadow: 0 24px 64px rgb(15 23 42 / 0.24);
 }
 
-.add-patients-dialog__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.35rem 1.5rem;
-  color: #ffffff;
-  background: linear-gradient(135deg, #0f766e 0%, #0d9488 52%, #2563eb 100%);
-}
-
-.add-patients-dialog__header-main {
-  display: flex;
-  min-width: 0;
-  align-items: flex-start;
-  gap: 0.85rem;
-}
-
-.add-patients-dialog__header-icon {
-  display: grid;
-  width: 2.7rem;
-  height: 2.7rem;
-  flex: 0 0 2.7rem;
-  place-items: center;
-  border: 1px solid rgb(255 255 255 / 0.32);
-  border-radius: 0.75rem;
-  background: rgb(255 255 255 / 0.15);
-}
-
-.add-patients-dialog__header-icon .mat-icon {
-  width: 1.45rem;
-  height: 1.45rem;
-  font-size: 1.45rem;
-}
-
-.add-patients-dialog__eyebrow {
-  margin: 0 0 0.2rem;
-  color: rgb(204 251 241 / 0.9);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.add-patients-dialog__header h2 {
-  margin: 0;
-  color: #ffffff;
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.add-patients-dialog__subtitle {
-  max-width: 38rem;
-  margin: 0.4rem 0 0;
-  color: rgb(240 253 250 / 0.86);
-  font-size: 0.8rem;
-  line-height: 1.45;
-}
-
-.add-patients-dialog__close {
-  flex: 0 0 auto;
-  color: #ffffff !important;
-}
-
-.add-patients-dialog__close:hover {
-  background: rgb(255 255 255 / 0.16);
-}
-
 .add-patients-dialog__body {
   max-height: calc(100vh - 2rem);
   overflow: auto;
@@ -177,6 +108,24 @@
 .add-patients-dialog__field {
   display: block;
   width: 100%;
+  min-height: var(--rms-field-height);
+}
+
+.add-patients-dialog__field-error {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: -0.65rem 0 0.1rem;
+  color: var(--rms-button-danger-outline);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.add-patients-dialog__field-error .mat-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  font-size: 1rem;
 }
 
 .add-patients-dialog__field + .add-patients-dialog__field {
@@ -343,6 +292,16 @@
 
 ::ng-deep .add-patients-dialog__field .mat-mdc-form-field-subscript-wrapper {
   min-height: 1.1rem;
+}
+
+::ng-deep .add-patients-dialog__field .mat-mdc-text-field-wrapper,
+::ng-deep .add-patients-dialog__field .mat-mdc-form-field-infix {
+  min-height: var(--rms-field-height);
+}
+
+::ng-deep .add-patients-dialog__field .mat-mdc-select-placeholder,
+::ng-deep .add-patients-dialog__field .mat-mdc-select-value-text {
+  font-size: 0.82rem;
 }
 
 ::ng-deep .mat-mdc-select-panel .add-patients-dialog__patient-option {

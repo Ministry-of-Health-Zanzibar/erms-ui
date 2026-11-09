@@ -1,8 +1,12 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div class="font-semibold ">CREATE NEW LOCATION</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="System configuration"
+    title="Add location"
+    description="Add a location and its display label."
+    icon="location_on"
+  />
 
+  <div class="ui-form-dialog__body">
       <form [formGroup]="locationForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Location Name</mat-label>
@@ -17,10 +21,9 @@
           <input matInput placeholder="Ex. Administration" formControlName="label" type="text">
         </mat-form-field>
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button cdkFocusInitial [disabled]="locationForm.invalid || submitting" (click)="saveLocation()">{{ submitting ? 'Saving...' : 'Save Location' }}</button>
   </mat-dialog-actions>

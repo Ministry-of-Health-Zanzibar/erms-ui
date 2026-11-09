@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,6 +17,7 @@ import { ReferalTypeService } from '../../../../services/system-configuration/re
   selector: 'app-add-referral-type',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

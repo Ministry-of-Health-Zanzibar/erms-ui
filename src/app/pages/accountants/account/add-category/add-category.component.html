@@ -1,9 +1,12 @@
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Accounting configuration"
+    [title]="categoryData ? 'Update category' : 'Create category'"
+    description="Manage accounting document categories."
+    icon="category"
+  />
 
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div *ngIf="!categoryData" class="font-semibold ">ADD NEW CATEGORY</div>
-      <div *ngIf="categoryData" class="font-semibold ">UPDATE CATEGORY</div>
+  <div class="ui-form-dialog__body">
       <form [formGroup]="categoryForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>category Name: </mat-label>
@@ -15,10 +18,9 @@
 
 
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button *ngIf="!categoryData" mat-flat-button cdkFocusInitial [disabled]="categoryForm.invalid || submitting" (click)="savecategory()">{{ submitting ? 'Saving...' : 'Save Category' }}</button>
     <button *ngIf="categoryData" mat-flat-button cdkFocusInitial [disabled]="categoryForm.invalid || submitting" (click)="updatecategory()">{{ submitting ? 'Saving...' : 'Update Category' }}</button>

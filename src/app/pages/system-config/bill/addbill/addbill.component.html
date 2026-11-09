@@ -1,10 +1,13 @@
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Billing configuration"
+    [title]="id ? 'Update bill' : 'Create bill'"
+    description="Enter the referral, amount, and billing details."
+    icon="receipt_long"
+  />
 
-<div>
-    <div class="w-full">
-      <div class="relative h-full rounded-lg  group  p-6">
-        <div *ngIf="!id" class="font-semibold ">CREATE NEW BILL</div>
-        <div *ngIf="id" class="font-semibold ">UPDATE BILL</div>
-        <form [formGroup]="billForm">
+  <div class="ui-form-dialog__body">
+      <form [formGroup]="billForm">
           <mat-form-field class="w-full mt-6">
             <mat-label>referral_id : </mat-label>
             <input matInput placeholder="Ex. LUMUMBA HOSPITAL" formControlName="referral_id" type="text">
@@ -49,14 +52,13 @@
             </mat-error>
           </mat-form-field>
         </form>
-      </div>
-    </div>
-  
-    <mat-dialog-actions align="end">
+  </div>
+
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button mat-dialog-close>Cancel</button>
       <button *ngIf="!id" mat-flat-button cdkFocusInitial [disabled]="billForm.invalid || submitting" (click)="saveBill()">{{ submitting ? 'Saving...' : 'Save Bill' }}</button>
       <button *ngIf="id" mat-flat-button cdkFocusInitial [disabled]="billForm.invalid || submitting" (click)="updateBill()">{{ submitting ? 'Saving...' : 'Update Bill' }}</button>
     </mat-dialog-actions>
-  </div>
+</div>
   
   

@@ -1,10 +1,13 @@
-<div class="w-full">
-  <div class="relative h-full rounded-lg group p-6">
-    <div *ngIf="id" class="font-semibold text-center text-black text-2xl mb-4">
-      ADD PAYMENT
-    </div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Referral billing"
+    title="Add payment"
+    description="Record the payment amount, date, and supporting information."
+    icon="payments"
+  />
 
-    <form [formGroup]="clientForm">
+  <div class="ui-form-dialog__body">
+      <form [formGroup]="clientForm">
       <div class="row">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Balance Amaount</mat-label>
@@ -115,8 +118,9 @@
         </mat-form-field>
       </div>
     </form>
+  </div>
 
-    <mat-dialog-actions align="end" class="mt-4 space-x-3">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button mat-dialog-close>Cancel</button>
       <button
         mat-flat-button
@@ -127,5 +131,4 @@
         {{ id ? "Add" : "Add" }} Payment
       </button>
     </mat-dialog-actions>
-  </div>
 </div>

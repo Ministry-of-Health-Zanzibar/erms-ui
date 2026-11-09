@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '../form-header/form-header.component';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +14,7 @@ type BrandingAsset = 'signature' | 'stamp';
 @Component({
   selector: 'app-letter-branding-dialog',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule],
+  imports: [FormHeaderComponent, CommonModule, MatButtonModule, MatDialogModule, MatIconModule],
   templateUrl: './letter-branding-dialog.component.html',
   styleUrl: './letter-branding-dialog.component.scss',
 })

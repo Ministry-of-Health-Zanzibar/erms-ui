@@ -1,7 +1,10 @@
-<div class="p-6 max-w-2xl">
-  <h2 class="text-2xl font-bold text-gray-800 mb-2">
-    {{ data.billData ? "Update Bill" : "Add New Bill" }}
-  </h2>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Referral billing"
+    title="{{ data.billData ? 'Update bill' : 'Add new bill' }}"
+    description="Record the referral, billing period, and total amount."
+    icon="receipt_long"
+  />
   <!-- <p class="text-gray-600 mb-6">
     {{
       data.billData ? "Modify existing bill details" : "Create a new bill for"
@@ -9,7 +12,7 @@
     <strong>{{ data.billTitle }}</strong>
   </p> -->
 
-  <form [formGroup]="billForm" (ngSubmit)="onSubmit()" class="space-y-4">
+  <form [formGroup]="billForm" (ngSubmit)="onSubmit()" class="ui-form-dialog__body space-y-4">
     <!-- Referral -->
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>Select Referral</mat-label>

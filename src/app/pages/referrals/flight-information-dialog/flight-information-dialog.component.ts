@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -12,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-flight-information-dialog',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     MatIconModule

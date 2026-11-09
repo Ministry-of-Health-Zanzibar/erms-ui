@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { inject, Component, Inject, OnInit } from '@angular/core';
 import {
@@ -35,6 +36,7 @@ import { ViewChild } from '@angular/core';
   selector: 'app-partient-form',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     MatStepperModule,

@@ -1,9 +1,12 @@
-<div class="form-container">
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <div class="font-semibold text-lg mb-4" *ngIf="!id">CREATE NEW REFERRALS</div>
-      <div class="font-semibold text-lg mb-4" *ngIf="id">UPDATE REFERRALS</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Patient referrals"
+    [title]="id ? 'Update referral' : 'Create referral'"
+    description="Select a patient and the reason for referral."
+    icon="assignment"
+  />
 
+  <div class="ui-form-dialog__body">
       <form [formGroup]="referralsForm" class="horizontal-form">
         <!-- Patient Name -->
         <div class="form-row">
@@ -38,9 +41,9 @@
           </mat-form-field>
         </div>
       </form>
-    </div>
+  </div>
 
-    <mat-dialog-actions align="end" class="mt-4">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button
         mat-button
         mat-dialog-close
@@ -67,5 +70,4 @@
         Update
       </button>
     </mat-dialog-actions>
-  </div>
 </div>

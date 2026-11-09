@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { PartientService } from '../../../services/partient/partient.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
@@ -20,6 +21,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-insurance',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

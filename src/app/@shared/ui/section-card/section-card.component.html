@@ -1,5 +1,7 @@
 <section class="ui-section-card">
-  @if (title || description) {
+  @if (formHeader) {
+    <app-form-header [title]="title" [description]="description" [icon]="icon" [eyebrow]="eyebrow" />
+  } @else if (title || description) {
     <header class="ui-section-card__header">
       <div class="ui-section-card__heading">
         @if (icon) {

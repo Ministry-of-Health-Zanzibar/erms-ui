@@ -1,3 +1,19 @@
+.user-form-dialog {
+  display: grid;
+  gap: 1rem;
+  min-width: min(100%, 46rem);
+  padding: 0.25rem;
+}
+
+.user-form-dialog .horizontal-form {
+  gap: 1rem;
+}
+
+.user-form-dialog mat-dialog-actions {
+  margin: 0;
+  padding: 0.25rem 0 0;
+}
+
 .horizontal-form {
   display: flex;
   flex-wrap: wrap;
@@ -6,7 +22,7 @@
 .form-row {
   display: flex;
   width: 100%;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .form-field {
@@ -15,6 +31,10 @@
 }
 
 @media (max-width: 768px) {
+  .user-form-dialog {
+    min-width: 0;
+  }
+
   .form-row {
     flex-direction: column;
   }

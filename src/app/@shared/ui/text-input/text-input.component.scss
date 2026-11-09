@@ -39,6 +39,25 @@
   font-size: 1rem;
 }
 
+:host ::ng-deep .ui-text-input.mat-mdc-form-field.mat-form-field-appearance-outline
+  .ui-text-input__password-toggle .mat-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1.5rem;
+}
+
+:host ::ng-deep .ui-text-input.mat-mdc-form-field.mat-form-field-appearance-outline
+  .ui-text-input__password-toggle {
+  width: 1.5rem;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  vertical-align: middle;
+  transform: translateX(-0.75rem);
+}
+
 :host ::ng-deep .ui-text-input__clear {
   width: 2rem;
   height: 2rem;

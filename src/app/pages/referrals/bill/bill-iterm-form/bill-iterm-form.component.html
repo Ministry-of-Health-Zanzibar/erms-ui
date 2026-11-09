@@ -1,9 +1,14 @@
 
-<div mat-dialog-content>
-  <h2 mat-dialog-title>Add Bill Item</h2>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Referral billing"
+    title="Add bill item"
+    description="Enter the item description and amount."
+    icon="receipt_long"
+  />
 
-  <form [formGroup]="billForm">
-    <div mat-dialog-content>
+  <form [formGroup]="billForm" class="min-h-0 overflow-auto">
+    <div class="ui-form-dialog__body">
       <!-- Description -->
       <mat-form-field class="w-full" appearance="outline">
         <mat-label>Description</mat-label>
@@ -41,7 +46,7 @@
       </mat-form-field>
     </div>
 
-    <div mat-dialog-actions align="end">
+    <div mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button (click)="onCancel()">Cancel</button>
       <button
         mat-flat-button

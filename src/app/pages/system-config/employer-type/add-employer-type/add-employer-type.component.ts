@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,6 +17,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-add-employer-type',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

@@ -1,8 +1,12 @@
-<mat-card class="shadow-lg rounded-2xl p-6 bg-white mt-5">
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-xl font-bold text-gray-800">Assign Hospital</h2>
-  </div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Hospital access"
+    title="Assign hospital"
+    description="Select the hospital and professional role for this user."
+    icon="local_hospital"
+  />
 
+  <div class="ui-form-dialog__body">
   <form [formGroup]="assignForm">
     <!-- Hospital Dropdown -->
     <div class="overflow-x-auto mb-4">
@@ -42,7 +46,8 @@
       </button>
     </div>
   </form>
+  </div>
 
   <!-- Loading Spinner -->
   <app-loading-state *ngIf="loading" label="Saving hospital assignment…" [overlay]="true" />
-</mat-card>
+</div>

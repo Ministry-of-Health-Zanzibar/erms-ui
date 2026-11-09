@@ -1,10 +1,13 @@
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="System configuration"
+    [title]="referralData ? 'Update referral type' : 'Create referral type'"
+    description="Manage the referral categories used by hospitals."
+    icon="category"
+  />
 
-<div>
-    <div class="w-full">
-      <div class="relative h-full rounded-lg  group  p-6">
-        <div *ngIf="!referralData" class="font-semibold ">ADD NEW REFERRAL TYPE</div>
-        <div *ngIf="referralData" class="font-semibold ">UPDATE REFERRAL </div>
-        <form [formGroup]="referralTypeForm">
+  <div class="ui-form-dialog__body">
+      <form [formGroup]="referralTypeForm">
           <mat-form-field class="w-full mt-6">
             <mat-label>Referral Type name: </mat-label>
             <input matInput placeholder="Ex. MAINLAND" formControlName="referral_type_name" type="text">
@@ -23,12 +26,11 @@
           </mat-form-field> -->
   
         </form>
-      </div>
-    </div>
-  
-    <mat-dialog-actions align="end">
+  </div>
+
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button mat-dialog-close>Cancel</button>
       <button *ngIf="!referralData" mat-flat-button cdkFocusInitial [disabled]="referralTypeForm.invalid || submitting" (click)="saveReferralType()">{{ submitting ? 'Saving...' : 'Save Referral Type' }}</button>
       <button *ngIf="referralData" mat-flat-button cdkFocusInitial [disabled]="referralTypeForm.invalid || submitting" (click)="updateReferralType()">{{ submitting ? 'Saving...' : 'Save Referral Type' }}</button>
     </mat-dialog-actions>
-  </div>
+</div>

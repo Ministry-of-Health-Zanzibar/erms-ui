@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -11,6 +12,7 @@ import { LocationService } from '../../../../services/system-configuration/locat
   selector: 'app-upload-location',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

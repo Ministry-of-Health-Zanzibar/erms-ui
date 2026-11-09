@@ -1,9 +1,12 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div class="font-semibold" *ngIf="!id">CREATE NEW EMPLOYER TYPE</div>
-      <div class="font-semibold" *ngIf="id">UPDATE EMPLOYER TYPE</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="System configuration"
+    [title]="id ? 'Update employer type' : 'Create employer type'"
+    description="Manage classifications for patient employers."
+    icon="category"
+  />
 
+  <div class="ui-form-dialog__body">
       <form [formGroup]="employerTypeForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Employer Type Name</mat-label>
@@ -14,10 +17,9 @@
           </mat-error>
         </mat-form-field>
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button *ngIf="!id" cdkFocusInitial [disabled]="employerTypeForm.invalid || submitting" (click)="saveEmployerType()">{{ submitting ? 'Saving...' : 'Save Employer Type' }}</button>
     <button mat-flat-button *ngIf="id" cdkFocusInitial [disabled]="employerTypeForm.invalid || submitting" (click)="updateEmployerType()">{{ submitting ? 'Saving...' : 'Update Employer Type' }}</button>

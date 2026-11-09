@@ -1,14 +1,11 @@
 <section class="telemedicine-routing-dialog" aria-labelledby="telemedicine-routing-title">
-  <header class="telemedicine-routing-dialog__header">
-    <div class="telemedicine-routing-dialog__icon" aria-hidden="true">
-      <mat-icon>video_call</mat-icon>
-    </div>
-    <div>
-      <span class="telemedicine-routing-dialog__eyebrow">Separate workflow</span>
-      <h2 id="telemedicine-routing-title">Request Telemedicine</h2>
-      <p *ngIf="data?.patientName">{{ data?.patientName }}</p>
-    </div>
-  </header>
+  <app-form-header
+    eyebrow="Separate workflow"
+    title="Request telemedicine"
+    description="{{ data?.patientName || 'Record the telemedicine request details.' }}"
+    icon="video_call"
+    titleId="telemedicine-routing-title"
+  />
 
   <div class="telemedicine-routing-dialog__body">
     <div class="telemedicine-routing-dialog__notice" role="note">

@@ -1,33 +1,18 @@
 <div class="patient-dialog">
-  <header class="patient-dialog__header">
-    <div class="patient-dialog__identity">
-      <div class="patient-dialog__header-icon" aria-hidden="true">
-        <mat-icon>person_add</mat-icon>
-      </div>
-      <div>
-        <p class="patient-dialog__eyebrow">Patient registration</p>
-        <h1>{{ isEditMode ? 'Update patient record' : 'Register a new patient' }}</h1>
-        <p class="patient-dialog__subtitle">
-          Capture the patient profile, clinical history, and coverage information in three guided steps.
-        </p>
-      </div>
-    </div>
-
-    <div class="patient-dialog__header-actions">
-      <span class="patient-dialog__workflow-badge">
+  <app-form-header
+    eyebrow="Patient registration"
+    [title]="isEditMode ? 'Update patient record' : 'Register a new patient'"
+    description="Capture the patient profile, clinical history, and coverage information in three guided steps."
+    icon="person_add"
+    [closable]="true"
+    closeLabel="Close form"
+    (closed)="onCancel()"
+  >
+    <span uiFormHeaderActions class="ui-form-header__badge">
         <mat-icon>steps</mat-icon>
         3-step workflow
       </span>
-      <button
-        mat-icon-button
-        type="button"
-        class="patient-dialog__close"
-        aria-label="Close patient form"
-        (click)="onCancel()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </header>
+  </app-form-header>
 
   <div class="patient-dialog__body">
     <div class="patient-dialog__intro">

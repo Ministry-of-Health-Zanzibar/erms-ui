@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { inject, Component, OnDestroy, OnInit } from '@angular/core';
@@ -17,6 +18,7 @@ import { FeedbackService } from '@shared/services/feedback.service';
   selector: 'app-add-location',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

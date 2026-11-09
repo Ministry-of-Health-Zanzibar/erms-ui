@@ -39,6 +39,13 @@ export class UserService {
     return this.http.get<any>(`${this.href}/${id}`);
   }
 
+  public getRoleHistory(userId: number, page = 1): Observable<any> {
+    return this.http.get(`${this.href}/${userId}/role-history`, {
+      params: { page, per_page: 10 },
+      headers: { 'X-Skip-Cache': 'true' },
+    });
+  }
+
   public getMyProfile(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}profile`);
   }

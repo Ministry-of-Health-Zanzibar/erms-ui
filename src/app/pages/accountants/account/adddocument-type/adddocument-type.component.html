@@ -1,9 +1,12 @@
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Accounting configuration"
+    [title]="sourceData ? 'Update document type' : 'Create document type'"
+    description="Define the document types available to accounting teams."
+    icon="description"
+  />
 
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div *ngIf="!sourceData" class="font-semibold ">ADD NEW DOCUMENT TYPE</div>
-      <div *ngIf="sourceData" class="font-semibold ">UPDATE DOCUMENT TYPE</div>
+  <div class="ui-form-dialog__body">
       <form [formGroup]="document_typeForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Source Name: </mat-label>
@@ -15,10 +18,9 @@
 
 
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button *ngIf="!sourceData" mat-flat-button cdkFocusInitial [disabled]="document_typeForm.invalid || submitting" (click)="savesource()">{{ submitting ? 'Saving...' : 'Save Document Type' }}</button>
     <button *ngIf="sourceData" mat-flat-button cdkFocusInitial [disabled]="document_typeForm.invalid || submitting" (click)="updatesource()">{{ submitting ? 'Saving...' : 'Update Document Type' }}</button>

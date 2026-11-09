@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -20,6 +21,7 @@ import { HospitalService } from '../../../services/system-configuration/hospital
   selector: 'app-add-monthbill',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
        MatButtonModule,
        MatDialogModule,

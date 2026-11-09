@@ -11,35 +11,21 @@
     aria-labelledby="flight-dialog-title"
     (click)="$event.stopPropagation()"
   >
-    <header class="flight-dialog__header">
-      <div class="flight-dialog__heading">
-        <span class="flight-dialog__icon" aria-hidden="true">
-          <mat-icon>flight_takeoff</mat-icon>
-        </span>
-        <div>
-          <p class="flight-dialog__eyebrow">Referral travel record</p>
-          <h2 id="flight-dialog-title">{{ isEditing ? 'Edit flight information' : 'Flight information' }}</h2>
-          <p class="flight-dialog__subtitle">
-            {{ isEditing ? 'Update the arrival details for the official referral letter.' : 'Record the arrival details required for the official referral letter.' }}
-          </p>
-        </div>
-      </div>
-
-      <div class="flight-dialog__header-actions">
-        <span class="flight-dialog__badge">
+    <app-form-header
+    eyebrow="Referral travel record"
+    [title]="isEditing ? 'Edit flight information' : 'Flight information'"
+    description="{{ isEditing ? 'Update the arrival details for the official referral letter.' : 'Record the arrival details required for the official referral letter.' }}"
+    icon="flight_takeoff"
+    titleId="flight-dialog-title"
+    [closable]="true"
+    closeLabel="Close form"
+    (closed)="close()"
+  >
+    <span uiFormHeaderActions class="ui-form-header__badge">
           <mat-icon aria-hidden="true">verified_user</mat-icon>
           {{ isEditing ? 'Edit required details' : 'Required details' }}
         </span>
-        <button
-          type="button"
-          class="flight-dialog__close"
-          aria-label="Close flight information"
-          (click)="close()"
-        >
-          <mat-icon aria-hidden="true">close</mat-icon>
-        </button>
-      </div>
-    </header>
+  </app-form-header>
 
     <form class="flight-dialog__form" [formGroup]="flightForm" (ngSubmit)="submit()" novalidate>
       <div class="flight-dialog__notice" role="note">

@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { inject, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +18,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-role-permission-form',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

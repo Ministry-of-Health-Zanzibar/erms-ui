@@ -13,13 +13,13 @@ import {
 } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject, takeUntil } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { FeedbackService } from '@shared/services/feedback.service';
+import { FormHeaderComponent } from '@shared/ui';
 import { PartientService } from '../../../services/partient/partient.service';
+import { FilterSelectComponent } from '@shared/ui';
 
 export interface AddMultiplePatientDialogData {
   patientFileId: number;
@@ -35,9 +35,9 @@ export interface AddMultiplePatientDialogData {
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     MatIconModule,
+    FormHeaderComponent,
+    FilterSelectComponent,
   ],
   templateUrl: './addmultiplepatient.component.html',
   styleUrls: ['./addmultiplepatient.component.scss'],
@@ -92,7 +92,10 @@ export class AddmultiplepatientComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         const selectedIds = new Set<number>(this.patientForm.get('patient_ids')?.value || []);
-        const incoming = res.data || [];
+        const incoming = (res.data || []).map((patient: any) => ({
+          ...patient,
+          selection_label: this.patientSelectionLabel(patient),
+        }));
         const selectedPatients = this.patients.filter((patient) => selectedIds.has(patient.patient_id));
         this.patients = [
           ...selectedPatients,
@@ -108,15 +111,14 @@ export class AddmultiplepatientComponent implements OnInit, OnDestroy {
     });
   }
 
-  onPatientSearch(event: Event): void {
-    this.patientSearch = (event.target as HTMLInputElement).value.trim();
+  onPatientSearch(searchTerm: string): void {
+    this.patientSearch = searchTerm.trim();
     this.searchChanged$.next(this.patientSearch);
   }
 
-  clearPatientSearch(input: HTMLInputElement): void {
-    input.value = '';
-    this.patientSearch = '';
-    this.searchChanged$.next('');
+  private patientSelectionLabel(patient: any): string {
+    const details = [patient?.phone, patient?.matibabu_card].filter(Boolean).join(' · ');
+    return [patient?.name || 'Unnamed patient', details].filter(Boolean).join(' — ');
   }
 
 

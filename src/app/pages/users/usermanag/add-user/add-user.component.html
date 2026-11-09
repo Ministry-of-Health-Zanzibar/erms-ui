@@ -1,8 +1,17 @@
-<div class="form-container">
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <div class="font-semibold" *ngIf="!userData"> CREATE NEW USER </div>
-      <div class="font-semibold" *ngIf="userData">UPDATE USER </div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="User administration"
+    [title]="userData ? 'Update user' : 'Create new user'"
+    [description]="userData ? 'Update the user profile and access details.' : 'Create a staff account and assign its system role.'"
+    icon="manage_accounts"
+  />
+
+  <div class="ui-form-dialog__body">
+  <app-section-card
+    [title]="userData ? 'User details' : 'New user details'"
+    description="Complete the required information below."
+    icon="badge"
+  >
       <form [formGroup]="userForm" class="horizontal-form">
 
         <!-- Row 1: First Name, Middle Name -->
@@ -148,12 +157,45 @@
         </div>
 
       </form>
-    </div>
+  </app-section-card>
 
-    <mat-dialog-actions align="end">
+  <app-section-card *ngIf="userData" class="mt-4" title="Role history"
+    description="Previous roles and who changed them remain recorded." icon="history">
+    <p *ngIf="loadingRoleHistory" role="status">Loading role history…</p>
+    <div *ngIf="roleHistoryError" role="alert">
+      <span>{{ roleHistoryError }}</span>
+      <button mat-button type="button" (click)="loadRoleHistory(roleHistoryPage)">Retry</button>
+    </div>
+    <div class="overflow-x-auto" *ngIf="!loadingRoleHistory && !roleHistoryError">
+      <table class="w-full text-sm" *ngIf="roleHistory.length; else noRoleHistory">
+        <thead><tr class="text-left">
+          <th scope="col" class="p-2">When</th><th scope="col" class="p-2">Previous role</th>
+          <th scope="col" class="p-2">New role</th><th scope="col" class="p-2">Changed by</th>
+        </tr></thead>
+        <tbody><tr *ngFor="let change of roleHistory" class="border-t">
+          <td class="p-2 whitespace-nowrap">{{ change.created_at | date:'medium' }}</td>
+          <td class="p-2">{{ roleNames(change.previous_roles) }}</td>
+          <td class="p-2">{{ roleNames(change.new_roles) }}</td>
+          <td class="p-2">{{ change.changed_by_name || 'System' }}
+            <small class="block">{{ roleNames(change.changed_by_roles) }}</small>
+          </td>
+        </tr></tbody>
+      </table>
+      <ng-template #noRoleHistory><p>No role changes have been recorded yet.</p></ng-template>
+    </div>
+    <div class="flex items-center justify-end gap-2 mt-3" *ngIf="roleHistoryLastPage > 1">
+      <button mat-button type="button" [disabled]="loadingRoleHistory || roleHistoryPage <= 1"
+        (click)="loadRoleHistory(roleHistoryPage - 1)">Previous</button>
+      <span>{{ roleHistoryPage }} / {{ roleHistoryLastPage }}</span>
+      <button mat-button type="button" [disabled]="loadingRoleHistory || roleHistoryPage >= roleHistoryLastPage"
+        (click)="loadRoleHistory(roleHistoryPage + 1)">Next</button>
+    </div>
+  </app-section-card>
+  </div>
+
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button mat-dialog-close>Cancel</button>
       <button mat-flat-button *ngIf="!userData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="saveUser()">{{ submitting ? 'Saving…' : 'Save Data' }}</button>
       <button mat-flat-button *ngIf="userData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="updateUser()">{{ submitting ? 'Updating…' : 'Update Data' }}</button>
-    </mat-dialog-actions>
-  </div>
+  </mat-dialog-actions>
   </div>

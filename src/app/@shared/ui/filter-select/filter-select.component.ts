@@ -59,6 +59,7 @@ export class FilterSelectComponent implements ControlValueAccessor {
   @Input() allowDeselect = true;
 
   @Output() selectionChange = new EventEmitter<FilterSelectValue>();
+  @Output() searchChange = new EventEmitter<string>();
   @Output() openedChange = new EventEmitter<boolean>();
 
   @ViewChild('searchInput') private searchInput?: ElementRef<HTMLInputElement>;
@@ -104,6 +105,7 @@ export class FilterSelectComponent implements ControlValueAccessor {
 
   updateSearch(event: Event): void {
     this.searchTerm = (event.target as HTMLInputElement).value;
+    this.searchChange.emit(this.searchTerm);
   }
 
   get filteredOptions(): readonly FilterSelectOption[] {

@@ -1,29 +1,14 @@
 <div class="add-patients-dialog">
-  <header class="add-patients-dialog__header">
-    <div class="add-patients-dialog__header-main">
-      <div class="add-patients-dialog__header-icon" aria-hidden="true">
-        <mat-icon>group_add</mat-icon>
-      </div>
-      <div>
-        <p class="add-patients-dialog__eyebrow">Medical board session</p>
-        <h2 id="add-patients-title">Add patients</h2>
-        <p class="add-patients-dialog__subtitle">
-          Select one or more patients to assign to this medical board record.
-        </p>
-      </div>
-    </div>
-
-    <button
-      mat-icon-button
-      type="button"
-      class="add-patients-dialog__close"
-      aria-label="Close add patients form"
-      [disabled]="loading"
-      (click)="onCancel()"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-  </header>
+  <app-form-header
+    eyebrow="Medical board session"
+    title="Add patients"
+    description="Select one or more patients to assign to this medical board record."
+    icon="group_add"
+    [closable]="true"
+    closeLabel="Close add patients form"
+    [closeDisabled]="loading"
+    (closed)="onCancel()"
+  />
 
   <div class="add-patients-dialog__body">
     <div class="add-patients-dialog__notice" role="note">
@@ -48,60 +33,40 @@
           </div>
         </div>
 
-        <mat-form-field appearance="outline" class="add-patients-dialog__field">
-          <mat-label>Search available patients</mat-label>
-          <mat-icon matPrefix aria-hidden="true">search</mat-icon>
-          <input
-            #patientSearchInput
-            matInput
-            type="search"
-            autocomplete="off"
-            placeholder="Search by name, phone, or card number"
-            [value]="patientSearch"
-            (input)="onPatientSearch($event)"
-          />
-          <button
-            *ngIf="patientSearch"
-            mat-icon-button
-            matSuffix
-            type="button"
-            aria-label="Clear patient search"
-            (click)="clearPatientSearch(patientSearchInput)"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
+        <app-filter-select
+          class="add-patients-dialog__field"
+          formControlName="patient_ids"
+          label="Search and select patients"
+          placeholder="Select patients"
+          icon="person_search"
+          [options]="patients"
+          optionLabelKey="selection_label"
+          optionValueKey="patient_id"
+          [multiple]="true"
+          [searchable]="true"
+          [allowDeselect]="true"
+          (searchChange)="onPatientSearch($event)"
+        >
           <mat-hint *ngIf="!loadingPatients">
-            Search results are loaded as you type.
+            Search by name, phone, or card number. Select multiple patients using the checkboxes.
           </mat-hint>
           <mat-hint *ngIf="loadingPatients" class="add-patients-dialog__loading-hint">
             <span class="add-patients-dialog__spinner" aria-hidden="true"></span>
             Searching available patients…
           </mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="add-patients-dialog__field">
-          <mat-label>Patients to add</mat-label>
-          <mat-select formControlName="patient_ids" multiple>
-            <mat-select-trigger>
-              {{ selectedPatientCount ? selectedPatientCount + (selectedPatientCount === 1 ? ' patient' : ' patients') + ' selected' : 'Select patients' }}
-            </mat-select-trigger>
-            <mat-option *ngFor="let patient of patients" [value]="patient.patient_id">
-              <span class="add-patients-dialog__patient-option">
-                <strong>{{ patient.name || 'Unnamed patient' }}</strong>
-                <small>
-                  {{ patient.phone || 'No phone number' }}
-                  <ng-container *ngIf="patient.matibabu_card"> · {{ patient.matibabu_card }}</ng-container>
-                </small>
-              </span>
-            </mat-option>
-          </mat-select>
           <mat-hint *ngIf="!selectedPatientCount">
             Select at least one patient for this board session.
           </mat-hint>
-          <mat-error *ngIf="patientForm.controls['patient_ids'].touched && patientForm.controls['patient_ids'].invalid">
-            Select at least one patient.
-          </mat-error>
-        </mat-form-field>
+        </app-filter-select>
+
+        <div
+          *ngIf="patientForm.controls['patient_ids'].touched && patientForm.controls['patient_ids'].invalid"
+          class="add-patients-dialog__field-error"
+          role="alert"
+        >
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>Select at least one patient.</span>
+        </div>
 
         <div *ngIf="loadError" class="add-patients-dialog__error" role="alert">
           <mat-icon aria-hidden="true">error_outline</mat-icon>

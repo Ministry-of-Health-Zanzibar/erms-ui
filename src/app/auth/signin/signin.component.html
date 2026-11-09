@@ -1,4 +1,4 @@
-<main class="signin-page">
+<main class="signin-page" aria-label="ERMS sign in">
   <section class="signin-auth-panel" aria-labelledby="signin-title">
     <div class="signin-auth-content">
       <header class="signin-brand">
@@ -7,14 +7,17 @@
         </div>
         <div class="signin-brand__copy">
           <span class="signin-brand__eyebrow">Ministry of Health, Zanzibar</span>
-          <span class="signin-brand__name">ERMS</span>
+          <span class="signin-brand__name">ERMS <span>·</span> Staff portal</span>
         </div>
       </header>
 
       <div class="signin-heading">
-        <p class="signin-heading__eyebrow">Secure staff access</p>
-        <h1 id="signin-title">External Referrals Management System</h1>
-        <p>Welcome back. Sign in to continue managing your referrals.</p>
+        <div class="signin-heading__eyebrow">
+          <span class="signin-status-dot" aria-hidden="true"></span>
+          Secure staff access
+        </div>
+        <h1 id="signin-title">Welcome back</h1>
+        <p>Sign in to continue managing referrals and coordinating patient care.</p>
       </div>
 
       <div class="signin-divider" aria-hidden="true"></div>
@@ -71,17 +74,23 @@
             >
           </div>
         </div>
+
+        <p class="signin-form__hint">
+          Use your Ministry of Health account credentials to access ERMS.
+        </p>
+
         <button
           mat-flat-button
           color="primary"
           [disabled]="loading || !(loginForm.valid && loginForm.dirty)"
+          [attr.aria-busy]="loading"
           type="submit"
           class="signin-submit"
         >
           <span class="signin-submit__content">
             <span *ngIf="loading" class="signin-submit__spinner" aria-hidden="true"></span>
             <mat-icon *ngIf="!loading">login</mat-icon>
-            <span class="signin-submit__label">{{ loading ? 'Signing in…' : 'Log in' }}</span>
+            <span class="signin-submit__label">{{ loading ? 'Signing in…' : 'Sign in' }}</span>
           </span>
         </button>
       </form>
@@ -133,14 +142,18 @@
   <div class="signin-hero" aria-hidden="true">
     <img
       class="signin-hero__image"
-      src="../../../assets/img/domore.jpg"
+      src="../../../assets/img/erms-referral-coordination.png"
       alt=""
     />
     <div class="signin-hero__overlay"></div>
     <div class="signin-hero__content">
-      <span class="signin-hero__eyebrow">Digital health coordination</span>
-      <h2>Connected care, coordinated.</h2>
-      <p>Secure access for the teams coordinating referrals across Zanzibar.</p>
+      <span class="signin-hero__eyebrow">Connected healthcare operations</span>
+      <h2>From referral to care, one connected workflow.</h2>
+      <p>ERMS brings hospitals, clinical review, approvals, follow-up, travel, and official letters together in one secure system.</p>
+      <div class="signin-hero__features" aria-label="ERMS capabilities">
+        <span><mat-icon aria-hidden="true">verified_user</mat-icon> Protected access</span>
+        <span><mat-icon aria-hidden="true">hub</mat-icon> Connected teams</span>
+      </div>
       <div class="signin-hero__credit">
         <span>External Referrals Management System</span>
         <span>ICT Department</span>

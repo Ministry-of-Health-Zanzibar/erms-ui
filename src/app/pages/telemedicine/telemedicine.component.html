@@ -13,6 +13,8 @@
 
   <app-section-card
     *ngIf="canCreateRequest"
+    [formHeader]="true"
+    eyebrow="Telemedicine registration"
     title="Register telemedicine request"
     description="Search before registering so the request stays linked to the correct patient record."
     icon="add_circle">
@@ -166,7 +168,7 @@
         </div>
 
         <form class="inline-workflow-form" *ngIf="activeScheduleId === request.telemedicine_request_id" [formGroup]="scheduleForm" (ngSubmit)="submitSchedule(request)">
-          <h3>Appointment coordination</h3>
+          <app-form-header title="Appointment coordination" eyebrow="Telemedicine" icon="event" />
           <div class="inline-grid">
             <label class="field"><span>Eligible Zanzibar/internal hospital</span><select formControlName="hospital_id" (change)="onHospitalSelected()"><option value="">Select hospital</option><option *ngFor="let hospital of hospitals" [value]="hospital.hospital_id">{{ hospital.hospital_name }} · {{ hospital.hospital_address || 'Zanzibar/internal' }}</option></select></label>
             <label class="field"><span>Telemedicine Coordinator</span><select formControlName="telemedicine_coordinator_id"><option value="">Select coordinator</option><option *ngFor="let coordinator of coordinators" [value]="coordinator.id">{{ personName(coordinator) }}</option></select></label>
@@ -177,7 +179,7 @@
         </form>
 
         <form class="inline-workflow-form" *ngIf="activeReviewId === request.telemedicine_request_id" [formGroup]="reviewForm" (ngSubmit)="submitReview(request)">
-          <h3>Doctor appointment review</h3>
+          <app-form-header title="Doctor appointment review" eyebrow="Telemedicine" icon="fact_check" />
           <div class="inline-grid">
             <label class="field"><span>Decision</span><select formControlName="decision"><option value="confirm">Confirm appointment</option><option value="reschedule">Request rescheduling</option><option value="additional_information">Request additional information</option></select></label>
             <label class="field" *ngIf="reviewForm.get('decision')?.value === 'reschedule'"><span>New date and time</span><input type="datetime-local" formControlName="scheduled_at" /></label>
@@ -187,14 +189,14 @@
         </form>
 
         <form class="inline-workflow-form" *ngIf="activeReportId === request.telemedicine_request_id" [formGroup]="reportForm" (ngSubmit)="submitReport(request)">
-          <h3>Consultation report</h3>
+          <app-form-header title="Consultation report" eyebrow="Telemedicine" icon="description" />
           <label class="field field--wide"><span>Report notes</span><textarea rows="5" formControlName="report_text" placeholder="Record the telemedicine consultation report"></textarea></label>
           <label class="field field--wide file-field"><span>Upload report</span><input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" (change)="onReportFile($event)" /><small *ngIf="selectedFile">{{ selectedFile.name }}</small></label>
           <div class="form-actions"><button mat-button type="button" (click)="closeActions()">Cancel</button><button mat-flat-button color="primary" type="submit" [disabled]="loading">Save report</button></div>
         </form>
 
         <form class="inline-workflow-form" *ngIf="activeDecisionId === request.telemedicine_request_id" [formGroup]="decisionForm" (ngSubmit)="submitDecision(request)">
-          <h3>Doctor’s clinical decision</h3>
+          <app-form-header title="Doctor’s clinical decision" eyebrow="Telemedicine" icon="medical_information" />
           <div class="inline-grid">
             <label class="field"><span>Next action</span><select formControlName="decision"><option value="completed_in_zbr">Complete consultation in ZBR</option><option value="referral_required">Referral required</option><option value="additional_information">Request additional information</option></select></label>
             <label class="field" *ngIf="decisionForm.get('decision')?.value === 'referral_required'"><span>Referral reason ID (optional)</span><input type="number" formControlName="reason_id" placeholder="Uses the existing reason when empty" /></label>

@@ -1,6 +1,6 @@
 <div class="p-10 space-y-8" *ngIf="permission.parmissionMatched(['View Report'])">
   <app-page-header title="Referral Billing Report" description="Review hospital billing totals for a selected date range." icon="analytics" />
-  <app-section-card title="Report criteria" description="Select a valid date range to generate the report." icon="date_range">
+<app-section-card [formHeader]="true" eyebrow="Report criteria" title="Report criteria" description="Select a valid date range to generate the report." icon="date_range">
     <div class="flex gap-4">
       <!-- <button mat-raised-button color="accent" (click)="exportExcel()">
         <mat-icon>table_chart</mat-icon> Export Excel

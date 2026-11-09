@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
-import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent } from '@shared/ui';
+import { EmptyStateComponent, FormHeaderComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent } from '@shared/ui';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { getApiErrorMessage } from '@shared/utils/api-error';
 import { PermissionService } from '../../services/authentication/permission.service';
@@ -23,6 +23,7 @@ import { TelemedicineService } from '../../services/telemedicine/telemedicine.se
     EmptyStateComponent,
     LoadingStateComponent,
     PageHeaderComponent,
+    FormHeaderComponent,
     SectionCardComponent,
     StatusBadgeComponent,
   ],

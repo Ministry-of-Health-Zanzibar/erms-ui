@@ -1,8 +1,12 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div class="font-semibold" *ngIf="!id">CREATE NEW WORK STATION</div>
-      <div class="font-semibold" *ngIf="id">UPDATE WORK STATION</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="System configuration"
+    [title]="id ? 'Update workstation' : 'Create workstation'"
+    description="Enter the workstation name, employer, and location."
+    icon="desktop_windows"
+  />
+
+  <div class="ui-form-dialog__body">
       <form [formGroup]="workStationForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Work Station Name</mat-label>
@@ -31,10 +35,9 @@
           </mat-autocomplete>
         </mat-form-field>
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button *ngIf="!id" cdkFocusInitial [disabled]="workStationForm.invalid || submitting" (click)="saveWorkStation()">{{ submitting ? 'Saving...' : 'Save Workstation' }}</button>
     <button mat-flat-button *ngIf="id" cdkFocusInitial [disabled]="workStationForm.invalid || submitting" (click)="updateWorkStation()">{{ submitting ? 'Saving...' : 'Update Workstation' }}</button>

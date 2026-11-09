@@ -1,10 +1,13 @@
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Clinical configuration"
+    [title]="reasonData ? 'Update referral reason' : 'Create referral reason'"
+    description="Enter the reason and its clinical description."
+    icon="list_alt"
+  />
 
-<div>
-    <div class="w-full">
-      <div class="relative h-full rounded-lg  group  p-6">
-        <div *ngIf="!reasonData" class="font-semibold ">ADD NEW REASON</div>
-        <div *ngIf="reasonData" class="font-semibold ">UPDATE REASON</div>
-        <form [formGroup]="reasonForm">
+  <div class="ui-form-dialog__body">
+      <form [formGroup]="reasonForm">
           <mat-form-field class="w-full mt-6">
             <mat-label>Referral Reason : </mat-label>
             <input matInput placeholder="Ex. MARADHI SUGU" formControlName="referral_reason_name" type="text">
@@ -23,12 +26,11 @@
           </mat-form-field>
   
         </form>
-      </div>
-    </div>
-  
-    <mat-dialog-actions align="end">
+  </div>
+
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button mat-dialog-close>Cancel</button>
       <button *ngIf="!reasonData" mat-flat-button cdkFocusInitial [disabled]="reasonForm.invalid || submitting" (click)="saveReasons()">{{ submitting ? 'Saving...' : 'Save Reason' }}</button>
       <button *ngIf="reasonData" mat-flat-button cdkFocusInitial [disabled]="reasonForm.invalid || submitting" (click)="updateReason()">{{ submitting ? 'Saving...' : 'Save Reason' }}</button>
     </mat-dialog-actions>
-  </div>
+</div>

@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { DocumentTypeService } from '../../../../services/accountants/document-type.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
@@ -22,6 +23,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-adddocument-type',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

@@ -1,8 +1,12 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-      <div class="font-semibold ">CREATE NEW DIAGNOSES</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Clinical configuration"
+    title="Add diagnosis"
+    description="Add the diagnosis name and code used in clinical records."
+    icon="medical_information"
+  />
 
+  <div class="ui-form-dialog__body">
       <form [formGroup]="diagnosisForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Diagnoses Name</mat-label>
@@ -21,10 +25,9 @@
           </mat-error>
         </mat-form-field>
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button cdkFocusInitial [disabled]="diagnosisForm.invalid || submitting" (click)="saveDiagnosis()">{{ submitting ? 'Saving...' : 'Save Diagnosis' }}</button>
   </mat-dialog-actions>

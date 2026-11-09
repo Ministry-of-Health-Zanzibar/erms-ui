@@ -1,15 +1,17 @@
-<div class="w-full">
-  <div class="relative h-full rounded-lg  group  p-6">
-    <div class="font-semibold ">DISPLAY ROLE WITH PERMISSION</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="User administration"
+    title="Role permissions"
+    description="Review the permissions assigned to this role."
+    icon="verified_user"
+  />
+
+  <div class="ui-form-dialog__body">
 
       <div class="font-bold mb-2 mt-4 pb-2.5 border-b-2 border-sky-500">
         Role Name: <span style="color: green;">{{roleName}} </span>
       </div>
 
-  </div>
-</div>
-
-<mat-dialog-content class="mat-typography">
   <form [formGroup]="diplayRoleForm">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       <ng-container *ngFor="let item of filteredChecklist; let i = index" class="permission">
@@ -19,11 +21,14 @@
       </ng-container>
     </div>
   </form>
-</mat-dialog-content>
 
-<mat-dialog-actions  align="start">
+
+  </div>
+
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
   <input type="text" placeholder="Search permisssion..." class="border-b h-10 w-full text-sm bg-transparent dark:border-b-inverse outline-0 focus-within:border-neutral-950" matInput (input)="applyFilter($event)">
 </mat-dialog-actions>
+</div>
 
 
 

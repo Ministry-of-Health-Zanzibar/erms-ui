@@ -1,25 +1,12 @@
-<div class="form-container">
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <!-- Title -->
-   
-  <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl shadow-md p-5 mb-5">
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Hospital billing"
+    [title]="billData ? 'Update bill file' : 'Create bill file'"
+    description="Record the hospital bill and attach its supporting file."
+    icon="folder"
+  />
 
-  <h2 class="text-2xl font-bold tracking-wide">
-    {{ billData ? 'Update Bill File' : 'Create Bill File' }}
-  </h2>
-
-  <p class="text-sm text-white/90 mt-1">
-    Fill the form below to
-    {{ billData ? 'update' : 'create' }} a bill record in the system
-  </p>
-
-</div>
-
-   
-  
-
-      <!-- Form -->
+  <div class="ui-form-dialog__body">
       <form
         [formGroup]="billForm"
         class="horizontal-form"
@@ -192,9 +179,9 @@
 </div>
 
       </form>
+  </div>
 
-      <!-- Actions -->
-      <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
         <button mat-button (click)="onClose()">Cancel</button>
        <button
         mat-flat-button
@@ -209,6 +196,4 @@
         <ng-container *ngIf="isLoading">Saving…</ng-container>
       </button>
       </mat-dialog-actions>
-    </div>
-  </div>
 </div>

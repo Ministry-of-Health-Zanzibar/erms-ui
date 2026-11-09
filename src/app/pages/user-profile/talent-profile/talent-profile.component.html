@@ -27,6 +27,8 @@
   <div *ngIf="!loading && !loadError" class="profile-layout">
     <app-section-card
       class="profile-form-card"
+      [formHeader]="true"
+      eyebrow="My account"
       title="Personal information"
       description="Keep your contact and identity details up to date."
       icon="person"

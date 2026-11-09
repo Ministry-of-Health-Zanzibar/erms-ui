@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import {
@@ -27,6 +28,7 @@ import { HospitalService } from '../../../../services/system-configuration/hospi
   selector: 'app-bill-file-form',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,

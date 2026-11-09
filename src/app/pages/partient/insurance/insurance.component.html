@@ -1,9 +1,12 @@
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Patient information"
+    title="Add patient profile"
+    description="Complete the patient profile and coverage details."
+    icon="health_and_safety"
+  />
 
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg  group  p-6">
-
-      <div *ngIf="id" class="font-semibold ">ADD PATIENT FORM</div>
+  <div class="ui-form-dialog__body">
       <form [formGroup]="patientForm" class="horizontal-form" enctype="multipart/form-data">
 
         <!-- Row 1: Full Name, Gender -->
@@ -114,10 +117,9 @@
         </div>
 
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align ="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button *ngIf="id" mat-flat-button cdkFocusInitial [disabled]="patientForm.invalid || submitting" (click)="saveClient()">{{ submitting ? 'Adding...' : 'Add Patient' }}</button>
   </mat-dialog-actions>

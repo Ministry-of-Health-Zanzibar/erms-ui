@@ -1,13 +1,13 @@
-<div class="w-full">
-    <h5 class="fw-bold mt-4" *ngIf="dialogData.action === 'CREATE NEW'">
-      Create New Bill
-    </h5>
-    <h5 class="fw-bold mt-4" *ngIf="dialogData.action === 'EDIT'">Update Bill</h5>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Referral billing"
+    [title]="dialogData.action === 'EDIT' ? 'Update bill' : 'Create bill'"
+    description="Record the amount, recipient, notes, and supporting file."
+    icon="receipt_long"
+  />
 
-    <div class="relative h-full rounded-lg  group  p-6">
-    <div *ngIf="id" class="font-semibold " style="margin-top: 10px;text-align: center;color: black;font-size: 24px;margin-bottom: 10px;">ADD BILLS FORM</div>
-
-    <form [formGroup]="billsForm">
+  <div class="ui-form-dialog__body">
+      <form [formGroup]="billsForm">
       <div class="row">
 
 
@@ -80,9 +80,10 @@
         </div>
       </div>
     </form>
+  </div>
 
-    <mat-dialog-actions align="end">
-     <!-- Example with "warn" (red) -->
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
+
   <button mat-button mat-dialog-close>Cancel</button>
 
 
@@ -95,5 +96,4 @@
         {{ action }} Bill
       </button>
     </mat-dialog-actions>
-    </div>
-  </div>
+</div>

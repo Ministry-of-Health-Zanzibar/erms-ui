@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,6 +23,7 @@ import { getApiErrorMessage } from '@shared/utils/api-error';
   selector: 'app-add-source-type',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

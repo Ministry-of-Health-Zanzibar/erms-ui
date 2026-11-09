@@ -1,19 +1,8 @@
 <section class="letter-branding-dialog" aria-labelledby="letter-branding-title">
-  <header class="letter-branding-dialog__header">
-    <div class="letter-branding-dialog__identity">
-      <span class="letter-branding-dialog__icon" aria-hidden="true">
-        <mat-icon>draw</mat-icon>
-      </span>
-      <div>
-        <span class="letter-branding-dialog__eyebrow">Official document settings</span>
-        <h2 id="letter-branding-title">Letter signature &amp; stamp</h2>
-        <p>Manage the DG signature and Ministry stamp used on all generated referral letters.</p>
-      </div>
-    </div>
-    <button mat-icon-button type="button" aria-label="Close" (click)="close()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </header>
+  <app-form-header eyebrow="Official document settings" title="Letter signature &amp; stamp"
+    titleId="letter-branding-title" icon="draw"
+    description="Manage the DG signature and Ministry stamp used on generated referral letters."
+    [closable]="true" [closeDisabled]="saving" (closed)="close()" />
 
   <div class="letter-branding-dialog__body" *ngIf="!loading; else loadingState">
     <div class="letter-branding-dialog__notice">

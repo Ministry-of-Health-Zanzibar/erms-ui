@@ -1,8 +1,12 @@
-<div class="form-container">
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <div class="font-semibold" *ngIf="!sourceData">CREATE NEW DOCUMENT FORM</div>
-      <div class="font-semibold" *ngIf="sourceData">UPDATE DOCUMENT FORM</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Accounting documents"
+    [title]="sourceData ? 'Update document' : 'Create document'"
+    description="Record the vendor, amount, and supporting document details."
+    icon="description"
+  />
+
+  <div class="ui-form-dialog__body">
       <form [formGroup]="userForm" class="horizontal-form">
 
         <!-- Row 1: First Name, Middle Name -->
@@ -132,14 +136,13 @@
         </div>
 
       </form>
-    </div>
+  </div>
 
-    <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
       <button mat-button mat-dialog-close>Cancel</button>
       <button mat-flat-button *ngIf="!sourceData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="saveUser()">{{ submitting ? 'Saving...' : 'Save Document' }}</button>
       <button mat-flat-button *ngIf="sourceData" cdkFocusInitial [disabled]="userForm.invalid || submitting" (click)="updateUser()">{{ submitting ? 'Saving...' : 'Update Document' }}</button>
     </mat-dialog-actions>
-  </div>
-  </div>
+</div>
 
 

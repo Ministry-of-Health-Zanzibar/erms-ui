@@ -1,8 +1,12 @@
-<div>
-  <div class="w-full">
-    <div class="relative h-full rounded-lg group p-6">
-      <div *ngIf="!hospitalData" class="font-semibold">ADD NEW HOSPITAL</div>
-      <div *ngIf="hospitalData" class="font-semibold">UPDATE HOSPITAL</div>
+<div class="ui-form-dialog">
+  <app-form-header
+    eyebrow="Hospital configuration"
+    [title]="hospitalData ? 'Update hospital' : 'Create hospital'"
+    description="Maintain the hospital profile and referral classification."
+    icon="local_hospital"
+  />
+
+  <div class="ui-form-dialog__body">
       <form [formGroup]="hospitalForm">
         <mat-form-field class="w-full mt-6">
           <mat-label>Hospital Name: </mat-label>
@@ -139,10 +143,9 @@
           </mat-select>
         </mat-form-field>
       </form>
-    </div>
   </div>
 
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end" class="ui-form-dialog__actions">
     <button mat-button mat-dialog-close>Cancel</button>
     <button
       *ngIf="!hospitalData"

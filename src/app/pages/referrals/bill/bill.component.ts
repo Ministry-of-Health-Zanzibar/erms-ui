@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { BillService } from '../../../services/system-configuration/bill.service';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Inject, OnDestroy, OnInit, inject } from '@angular/core';
@@ -19,6 +20,7 @@ import { Router } from '@angular/router';
   selector: 'app-bill',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

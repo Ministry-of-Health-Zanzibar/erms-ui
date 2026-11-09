@@ -1,14 +1,11 @@
 <section class="undo-dialog" aria-labelledby="workflow-undo-title">
-  <header class="undo-dialog__header">
-    <div class="undo-dialog__icon" aria-hidden="true">
-      <mat-icon>history</mat-icon>
-    </div>
-    <div>
-      <span class="undo-dialog__eyebrow">Super Admin control</span>
-      <h2 id="workflow-undo-title">Undo workflow transition</h2>
-      <p>Restore this case to the state before “{{ data?.action || 'the selected transition' }}”.</p>
-    </div>
-  </header>
+  <app-form-header
+    eyebrow="Super Admin control"
+    title="Undo workflow transition"
+    description="Restore this case to the state before {{ data?.action || 'the selected transition' }}."
+    icon="history"
+    titleId="workflow-undo-title"
+  />
 
   <div class="undo-dialog__notice" role="note">
     <mat-icon aria-hidden="true">warning</mat-icon>

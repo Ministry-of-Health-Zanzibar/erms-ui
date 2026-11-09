@@ -1,3 +1,4 @@
+import { FormHeaderComponent } from '@shared/ui';
 import { CommonModule } from '@angular/common';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -11,6 +12,7 @@ import { DiagnosisService } from '../../../../services/system-configuration/diag
   selector: 'app-upload-diagnosis',
   standalone: true,
   imports: [
+    FormHeaderComponent,
     CommonModule,
     MatButtonModule,
     MatDialogModule,

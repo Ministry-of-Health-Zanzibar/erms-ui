@@ -1,33 +1,18 @@
 <div class="status-dialog">
-  <header class="status-dialog__header">
-    <div class="status-dialog__header-main">
-      <div class="status-dialog__header-icon" aria-hidden="true">
-        <mat-icon>fact_check</mat-icon>
-      </div>
-      <div>
-        <p class="status-dialog__eyebrow">Director General workflow</p>
-        <h2 class="status-dialog__title">Confirm referral outcome</h2>
-        <p class="status-dialog__subtitle">
-          Record the final disposition and any supporting referral or boarded-out details.
-        </p>
-      </div>
-    </div>
-
-    <div class="status-dialog__header-actions">
-      <span class="status-dialog__header-badge">
+  <app-form-header
+    eyebrow="Director General workflow"
+    title="Confirm referral outcome"
+    description="Record the final disposition and any supporting referral or boarded-out details."
+    icon="fact_check"
+    [closable]="true"
+    closeLabel="Close form"
+    (closed)="onClose()"
+  >
+    <span uiFormHeaderActions class="ui-form-header__badge">
         <mat-icon>verified_user</mat-icon>
         DG review
       </span>
-      <button
-        mat-icon-button
-        type="button"
-        class="status-dialog__close"
-        aria-label="Close confirmation form"
-        (click)="onClose()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </header>
+  </app-form-header>
 
   <div class="status-dialog__body">
     <section class="status-dialog__record" aria-label="Referral record summary">
