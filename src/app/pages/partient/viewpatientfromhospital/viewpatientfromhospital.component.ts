@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormFieldDirective } from '@shared/ui';
 import { inject, Component, ViewChild } from '@angular/core';
 import { environment } from '../../../../environments/environment.prod';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PartientService } from '../../../services/partient/partient.service';
 import { PermissionService } from '../../../services/authentication/permission.service';
@@ -29,7 +29,8 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { EmrSegmentedModule } from '@elementar/components';
 import { FeedbackService } from '@shared/services/feedback.service';
 import { PatienthistoryService } from '../../../services/partient/patienthistory.service';
-import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
+import { EmptyStateComponent, FilterSelectComponent, LoadingStateComponent, PageHeaderComponent, SectionCardComponent, StatusBadgeComponent, TableToolbarComponent } from '@shared/ui';
+import { PATIENT_HISTORY_STATUS_LABELS } from '@shared/utils/patient-history-status';
 
 @Component({
   selector: 'app-viewpatientfromhospital',
@@ -54,6 +55,7 @@ import { EmptyStateComponent, LoadingStateComponent, PageHeaderComponent, Sectio
     SectionCardComponent,
     StatusBadgeComponent,
     TableToolbarComponent,
+    FilterSelectComponent,
   ],
   templateUrl: './viewpatientfromhospital.component.html',
   styleUrl: './viewpatientfromhospital.component.scss',
@@ -68,7 +70,11 @@ export class ViewpatientfromhospitalComponent {
   pageSize = 10;
   currentPage = 1;
   searchTerm = '';
+  statusFilter = '';
+  readonly statusOptions = Object.entries(PATIENT_HISTORY_STATUS_LABELS)
+    .map(([value, label]) => ({ value, label }));
   private readonly searchChanged = new Subject<string>();
+  private patientRequest?: Subscription;
 
   displayedColumns: string[] = [
     'id',
@@ -118,12 +124,14 @@ export class ViewpatientfromhospitalComponent {
   }
 
   loadPatients() {
+    this.patientRequest?.unsubscribe();
     this.loading = true;
     this.errorMessage = '';
-    this.patientHistory.getAllBodyList({
+    this.patientRequest = this.patientHistory.getAllBodyList({
       page: this.currentPage,
       per_page: this.pageSize,
       search: this.searchTerm,
+      status: this.statusFilter,
     })
       .pipe(takeUntil(this.onDestroy))
       .subscribe(
@@ -147,6 +155,12 @@ export class ViewpatientfromhospitalComponent {
   applyFilter(event: Event) {
     this.searchTerm = (event.target as HTMLInputElement).value.trim();
     this.searchChanged.next(this.searchTerm);
+  }
+
+  onStatusChange(status: string | null): void {
+    this.statusFilter = status ?? '';
+    this.currentPage = 1;
+    this.loadPatients();
   }
 
   pageChanged(event: PageEvent): void {

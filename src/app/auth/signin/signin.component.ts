@@ -129,9 +129,13 @@ showChat=false;
       },
       (error) => {
         this.loading = false;
+        const invalidCredentials = error.status === 401;
+
         this.uiFeedback.fire({
-          title: 'Warning!',
-          text: GlobalConstants.genericErrorConnectFail,
+          title: invalidCredentials ? 'Sign-in failed' : 'Warning!',
+          text: invalidCredentials
+            ? 'The email or password is incorrect.'
+            : GlobalConstants.genericErrorConnectFail,
           icon: 'warning',
           confirmButtonText: 'OK',
         });

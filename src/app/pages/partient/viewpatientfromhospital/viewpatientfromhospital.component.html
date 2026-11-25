@@ -5,7 +5,7 @@
   <app-page-header title="Hospital Patients" description="Review patients and their latest hospital referral history." icon="local_hospital" />
   <app-section-card title="Patient records" description="Search patients received from hospitals and open their latest history." icon="clinical_notes">
       <app-table-toolbar>
-        <div uiToolbarPrimary class="flex items-center gap-1.5 w-full">
+        <div uiToolbarPrimary class="flex flex-wrap items-center gap-3 w-full">
           <div
             class="size-9 rounded-full border bg-surface flex items-center justify-center cursor-pointer"
             (click)="renew()"
@@ -22,6 +22,16 @@
               #input
             />
           </mat-form-field>
+          <app-filter-select
+            class="w-full md:w-64"
+            label="Status"
+            placeholder="All statuses"
+            icon="filter_list"
+            emptyValue=""
+            [options]="statusOptions"
+            [ngModel]="statusFilter"
+            (ngModelChange)="onStatusChange($event)"
+          />
         </div>
       </app-table-toolbar>
 
@@ -141,7 +151,7 @@
 
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="8">
-              <app-empty-state title="No hospital patients found" [message]="input.value ? 'No patients match your search.' : 'Hospital patient records will appear here.'" icon="local_hospital" />
+              <app-empty-state title="No hospital patients found" [message]="searchTerm || statusFilter ? 'No patients match your filters.' : 'Hospital patient records will appear here.'" icon="local_hospital" />
             </td>
           </tr>
         </table>
